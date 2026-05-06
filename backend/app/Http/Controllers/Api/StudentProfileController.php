@@ -1,0 +1,165 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Lead;
+use App\Models\StudentProfile;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class StudentProfileController extends Controller
+{
+    // Student: view own profile
+    public function show(Request $request): JsonResponse
+    {
+        $profile = $request->user()->studentProfile;
+        if (!$profile) {
+            return response()->json(['message' => 'Profile not found.'], 404);
+        }
+        return response()->json([
+            'profile' => $profile,
+            'eligibility_score' => $profile->eligibilityScore(),
+            'ocr_jobs' => $profile->ocrJobs()->latest()->get(),
+        ]);
+    }
+
+    // Student: update own profile (only unlocked fields)
+    public function update(Request $request): JsonResponse
+    {
+        $profile = $request->user()->studentProfile;
+        if (!$profile) {
+            return response()->json(['message' => 'Profile not found.'], 404);
+        }
+        if ($profile->is_data_locked) {
+            return response()->json(['message' => 'Profile is locked. Contact admin to make changes.'], 403);
+        }
+
+        $validated = $request->validate([
+            'full_name' => 'nullable|string|max:255',
+            'full_name_japanese' => 'nullable|string|max:255',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'nationality' => 'nullable|string',
+            'religion' => 'nullable|string',
+            'address_bangladesh' => 'nullable|string',
+            'highest_qualification' => 'nullable|string',
+            'gpa' => 'nullable|numeric|min:0|max:5',
+            'institution_name' => 'nullable|string',
+            'passing_year' => 'nullable|integer|min:1990|max:2030',
+            'jlpt_level' => 'nullable|in:N1,N2,N3,N4,N5',
+            'nat_level' => 'nullable|in:1,2,3,4,5',
+            'ielts_score' => 'nullable|numeric|min:0|max:9',
+        ]);
+
+        $profile->update($validated);
+
+        return response()->json(['profile' => $profile, 'eligibility_score' => $profile->eligibilityScore()]);
+    }
+
+    // Agency: view student profile (contact info masked)
+    public function agencyView(Request $request, User $student): JsonResponse
+    {
+        if (!$student->isStudent()) {
+            return response()->json(['message' => 'User is not a student.'], 422);
+        }
+
+        $profile = $student->studentProfile;
+        if (!$profile || !$profile->is_admin_verified) {
+            return response()->json(['message' => 'Student profile not verified yet.'], 403);
+        }
+
+        // Return profile but strip contact info unless student allowed it
+        $data = $profile->toArray();
+        unset($data['nid_number']); // never expose NID to agency
+
+        return response()->json([
+            'student' => ['id' => $student->id, 'name' => $student->name],
+            'profile' => $data,
+            'eligibility_score' => $profile->eligibilityScore(),
+        ]);
+    }
+
+    // Institution: browse verified students with filters (contact masked)
+    public function institutionBrowse(Request $request): JsonResponse
+    {
+        $query = StudentProfile::where('is_admin_verified', true)
+            ->with('user:id,name,gateway_type');
+
+        if ($request->jlpt_level) {
+            $query->where('jlpt_level', $request->jlpt_level);
+        }
+        if ($request->nat_level) {
+            $query->where('nat_level', $request->nat_level);
+        }
+        if ($request->min_gpa) {
+            $query->where('gpa', '>=', $request->min_gpa);
+        }
+        if ($request->qualification) {
+            $query->where('highest_qualification', 'like', "%{$request->qualification}%");
+        }
+        if ($request->gender) {
+            $query->where('gender', $request->gender);
+        }
+
+        $students = $query->orderByDesc('id')->paginate(20);
+
+        // Mask all contact info for institution view
+        $students->getCollection()->transform(function (StudentProfile $profile) {
+            return [
+                'id' => $profile->id,
+                'student_id' => $profile->user_id,
+                'student_name' => $profile->user->name,
+                'full_name_japanese' => $profile->full_name_japanese,
+                'gender' => $profile->gender,
+                'nationality' => $profile->nationality,
+                'highest_qualification' => $profile->highest_qualification,
+                'gpa' => $profile->gpa,
+                'passing_year' => $profile->passing_year,
+                'jlpt_level' => $profile->jlpt_level,
+                'nat_level' => $profile->nat_level,
+                'ielts_score' => $profile->ielts_score,
+                'eligibility_score' => $profile->eligibilityScore(),
+                // phone/email/passport/nid intentionally omitted
+            ];
+        });
+
+        return response()->json($students);
+    }
+
+    // Institution: shortlist a student (creates a lead)
+    public function shortlist(Request $request, User $student): JsonResponse
+    {
+        $request->validate([
+            'target_course' => 'nullable|string',
+            'target_intake' => 'nullable|date',
+        ]);
+
+        if (!$student->isStudent()) {
+            return response()->json(['message' => 'User is not a student.'], 422);
+        }
+
+        // Check if lead already exists for this student+institution pair
+        $existing = Lead::where('student_id', $student->id)
+            ->where('assigned_institution_id', $request->user()->id)
+            ->whereNotIn('status', ['closed', 'visa_rejected'])
+            ->first();
+
+        if ($existing) {
+            return response()->json(['message' => 'Student already shortlisted.', 'lead' => $existing], 409);
+        }
+
+        $lead = Lead::create([
+            'student_id' => $student->id,
+            'assigned_institution_id' => $request->user()->id,
+            'pool_type' => 'open',
+            'status' => 'shortlisted',
+            'target_country' => $request->user()->institutionProfile?->country ?? 'Japan',
+            'target_course' => $request->target_course,
+            'target_intake' => $request->target_intake,
+        ]);
+
+        return response()->json(['message' => 'Student shortlisted.', 'lead' => $lead], 201);
+    }
+}

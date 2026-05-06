@@ -1,0 +1,77 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // Roles
+        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+        $admin      = Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'student']);
+        Role::firstOrCreate(['name' => 'agency']);
+        Role::firstOrCreate(['name' => 'institution']);
+        Role::firstOrCreate(['name' => 'affiliate']);
+
+        // Permissions
+        $permissions = [
+            'manage_users', 'manage_leads', 'manage_agencies',
+            'manage_institutions', 'manage_commissions',
+            'approve_ocr', 'publish_leads', 'unlock_vault',
+            'arrange_interviews', 'view_all_reports',
+        ];
+
+        foreach ($permissions as $perm) {
+            $p = Permission::firstOrCreate(['name' => $perm]);
+            $superAdmin->givePermissionTo($p);
+            $admin->givePermissionTo($p);
+        }
+
+        // Super Admin user
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@tensai.com'],
+            [
+                'name' => 'Tensai Admin',
+                'password' => Hash::make('Tensai@2026!'),
+                'gateway_type' => 'student',
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+        $adminUser->assignRole('super_admin');
+
+        // Demo student
+        $student = User::firstOrCreate(
+            ['email' => 'student@tensai.com'],
+            [
+                'name' => 'Demo Student',
+                'password' => Hash::make('Student@2026!'),
+                'gateway_type' => 'student',
+                'status' => 'active',
+                'affiliate_code' => 'STUDENT001',
+                'email_verified_at' => now(),
+            ]
+        );
+        $student->assignRole('student');
+
+        // Demo agency
+        $agency = User::firstOrCreate(
+            ['email' => 'agency@tensai.com'],
+            [
+                'name' => 'Demo Agency',
+                'password' => Hash::make('Agency@2026!'),
+                'gateway_type' => 'agency',
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+        $agency->assignRole('agency');
+    }
+}
