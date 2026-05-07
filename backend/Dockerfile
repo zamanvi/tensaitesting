@@ -18,6 +18,6 @@ RUN mkdir -p /app/bootstrap/cache /app/storage/logs /app/storage/framework/cache
 
 EXPOSE 8080
 
-CMD mysql -h ${DB_HOST} -P ${DB_PORT:-3306} -u ${DB_USERNAME} -p${DB_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_DATABASE}\`;" 2>/dev/null || true \
-    && php artisan migrate --force \
-    && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+CMD ["/app/start.sh"]
