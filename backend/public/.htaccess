@@ -1,5 +1,5 @@
-# Tell PHP the connection is HTTPS when behind Railway's reverse proxy
-SetEnvIf X-Forwarded-Proto "https" HTTPS=on
+# Force PHP to treat all connections as HTTPS (Railway terminates SSL at proxy)
+SetEnv HTTPS on
 
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
