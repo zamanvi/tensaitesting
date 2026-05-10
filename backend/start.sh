@@ -1,5 +1,6 @@
 #!/bin/sh
 echo "=== Tensai starting ==="
+php artisan config:clear 2>&1 || true
 php artisan package:discover --ansi || true
 php artisan filament:upgrade 2>&1 || true
 php artisan migrate --force
