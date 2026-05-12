@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\InterviewResource\Pages;
 use App\Models\Interview;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -34,20 +35,29 @@ class InterviewResource extends Resource
                     ->label('Institution')
                     ->relationship('institution', 'name')
                     ->searchable()->required(),
+                Forms\Components\Select::make('arranged_by')
+                    ->label('Arranged By (Admin)')
+                    ->options(fn () => User::role('super_admin')->orRole('admin')->pluck('name', 'id'))
+                    ->default(fn () => auth()->id())
+                    ->searchable(),
             ])->columns(2),
 
             Forms\Components\Section::make('Schedule')->schema([
                 Forms\Components\Select::make('medium')
-                    ->options(['online' => 'Online', 'in_person' => 'In Person'])
-                    ->required(),
+                    ->options([
+                        'zoom' => 'Zoom',
+                        'google_meet' => 'Google Meet',
+                        'teams' => 'Microsoft Teams',
+                        'phone' => 'Phone',
+                        'in_person' => 'In Person',
+                    ])->required(),
                 Forms\Components\Select::make('status')
                     ->options([
-                        'requested' => 'Requested',
-                        'arranged' => 'Arranged',
+                        'pending' => 'Pending',
                         'confirmed' => 'Confirmed',
                         'completed' => 'Completed',
                         'cancelled' => 'Cancelled',
-                        'no_show' => 'No Show',
+                        'rescheduled' => 'Rescheduled',
                     ])->required(),
                 Forms\Components\DateTimePicker::make('scheduled_at'),
                 Forms\Components\DateTimePicker::make('confirmed_at'),
@@ -74,17 +84,19 @@ class InterviewResource extends Resource
                 Tables\Columns\TextColumn::make('medium')
                     ->badge()
                     ->color(fn (string $state) => match($state) {
-                        'online' => 'info',
-                        'in_person' => 'warning',
+                        'zoom', 'google_meet', 'teams' => 'info',
+                        'phone' => 'warning',
+                        'in_person' => 'success',
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state) => match($state) {
-                        'arranged', 'confirmed' => 'success',
-                        'requested' => 'warning',
+                        'confirmed' => 'success',
+                        'pending' => 'warning',
                         'completed' => 'primary',
-                        'cancelled', 'no_show' => 'danger',
+                        'cancelled' => 'danger',
+                        'rescheduled' => 'info',
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('scheduled_at')->dateTime()->sortable(),
@@ -92,14 +104,20 @@ class InterviewResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        'requested' => 'Requested',
-                        'arranged' => 'Arranged',
+                        'pending' => 'Pending',
                         'confirmed' => 'Confirmed',
                         'completed' => 'Completed',
                         'cancelled' => 'Cancelled',
+                        'rescheduled' => 'Rescheduled',
                     ]),
                 SelectFilter::make('medium')
-                    ->options(['online' => 'Online', 'in_person' => 'In Person']),
+                    ->options([
+                        'zoom' => 'Zoom',
+                        'google_meet' => 'Google Meet',
+                        'teams' => 'Microsoft Teams',
+                        'phone' => 'Phone',
+                        'in_person' => 'In Person',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

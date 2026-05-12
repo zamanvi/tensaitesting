@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ContactPaper;
 use App\Models\Interview;
 use App\Models\Lead;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -40,13 +41,15 @@ class InterviewController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $adminId = User::role('super_admin')->value('id') ?? 1;
+
         // Create contact paper (formal record — institution → Tensai)
         ContactPaper::create([
             'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
             'lead_id' => $lead->id,
             'type' => 'interview_request',
             'from_user_id' => $request->user()->id,
-            'to_user_id' => 1, // Tensai admin
+            'to_user_id' => $adminId,
             'subject' => "Interview Request for Lead #{$lead->lead_code}",
             'body' => "Institution requests interview.\nPreferred date: {$request->preferred_date}\nMedium: {$request->medium}\nNotes: {$request->notes}",
         ]);
@@ -67,12 +70,14 @@ class InterviewController extends Controller
             'medium' => 'required|in:zoom,google_meet,teams,phone,in_person',
         ]);
 
+        $adminId = User::role('super_admin')->value('id') ?? 1;
+
         ContactPaper::create([
             'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
             'lead_id' => $lead->id,
             'type' => 'interview_request',
             'from_user_id' => $request->user()->id,
-            'to_user_id' => 1,
+            'to_user_id' => $adminId,
             'subject' => "Interview Request: Lead #{$lead->lead_code}",
             'body' => "Agency requests interview with institution #{$request->institution_id}.\nPreferred: {$request->preferred_date}\nMedium: {$request->medium}",
         ]);

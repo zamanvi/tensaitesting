@@ -95,6 +95,12 @@ class LeadController extends Controller
             return response()->json(['message' => 'Lead is not in open pool.'], 422);
         }
 
+        if ($lead->assigned_agency_id === $request->user()->id) {
+            return response()->json(['message' => 'You have already unlocked this lead.'], 422);
+        }
+
+        $adminId = User::role('super_admin')->value('id') ?? 1;
+
         $lead->update([
             'pool_type' => 'private',
             'assigned_agency_id' => $request->user()->id,
@@ -106,7 +112,7 @@ class LeadController extends Controller
             'lead_id' => $lead->id,
             'type' => 'lead_unlock_fee',
             'payer_id' => $request->user()->id,
-            'payee_id' => 1,
+            'payee_id' => $adminId,
             'amount' => $lead->unlock_fee ?? 10000,
             'currency' => 'BDT',
             'status' => 'due',

@@ -19,9 +19,9 @@ Route::get('/health', function () {
 });
 
 // Public
-Route::post('/auth/register', [AuthController::class, 'register']);
-Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::middleware('throttle:5,1')->post('/auth/register', [AuthController::class, 'register']);
+Route::middleware('throttle:10,1')->post('/auth/login', [AuthController::class, 'login']);
+Route::middleware('throttle:5,1')->post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 
 // Authenticated
 Route::middleware('auth:sanctum')->group(function () {
