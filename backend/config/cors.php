@@ -22,6 +22,7 @@ return [
     'allowed_origins' => array_filter(array_unique([
         'http://localhost:3000',
         'https://tensai.vercel.app',
+        'https://tensai-kappa.vercel.app',
         env('FRONTEND_URL'),
     ])),
 
