@@ -3,6 +3,6 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://tensai-backend.up.railway.app/api"
+    "NEXT_PUBLIC_API_URL": "https://tensai-production-3af6.up.railway.app/api"
   }
 }
