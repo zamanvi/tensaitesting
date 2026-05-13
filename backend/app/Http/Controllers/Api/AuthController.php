@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AffiliateProfile;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -118,7 +120,41 @@ class AuthController extends Controller
     public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email|exists:users,email']);
-        // TODO: implement password reset email
-        return response()->json(['message' => 'Password reset instructions sent to your email.']);
+
+        $status = Password::sendResetLink(
+            $request->only('email'),
+            function (User $user, string $token) {
+                $frontend = rtrim(env('FRONTEND_URL', 'https://tensai-kappa.vercel.app'), '/');
+                $url = $frontend . '/auth/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+                $user->notify(new ResetPasswordNotification($url));
+            }
+        );
+
+        return response()->json(['message' => 'If that email exists, a reset link has been sent.']);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'token'                 => 'required',
+            'email'                 => 'required|email',
+            'password'              => 'required|min:8|confirmed',
+            'password_confirmation' => 'required',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill(['password' => Hash::make($password)]);
+                $user->save();
+                $user->tokens()->delete();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json(['message' => 'Password reset successfully. Please sign in.']);
+        }
+
+        return response()->json(['message' => 'Invalid or expired reset token.'], 422);
     }
 }
