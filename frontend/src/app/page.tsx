@@ -118,7 +118,8 @@ export default function HomePage() {
       {/* Trust Features */}
       <section className="bg-slate-900 text-white py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 sm:mb-12">{l.whyTitle}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">{l.whyTitle}</h2>
+          <p className="text-slate-400 text-sm sm:text-base text-center max-w-2xl mx-auto mb-10 sm:mb-12">{l.whySub}</p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {FEATURES.map((f) => (
               <div key={f.title} className="text-center">
