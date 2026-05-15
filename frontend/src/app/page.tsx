@@ -70,17 +70,17 @@ export default function HomePage() {
 
       {/* Gateway Cards */}
       <section className="max-w-7xl mx-auto px-4 pb-16 sm:pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {GATEWAYS.map((g) => (
             <Link key={g.type} href={`/auth/register?type=${g.type}`}
-              className="group bg-white border border-slate-100 rounded-2xl p-5 sm:p-6 hover:border-indigo-200 hover:shadow-md transition-all flex sm:block gap-4 items-start"
+              className="group bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-indigo-200 hover:shadow-md transition-all flex flex-col"
             >
-              <div className="text-3xl shrink-0">{g.icon}</div>
-              <div>
-                <h3 className="font-bold text-slate-900 mb-1 sm:mb-2 sm:mt-4">{g.title}</h3>
-                <p className="text-sm text-slate-500">{g.desc}</p>
-                <div className="mt-3 sm:mt-4 text-xs text-indigo-600 font-semibold group-hover:underline">{l.getAccess}</div>
+              <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">{g.icon}</div>
+              <div className="flex-1">
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base mb-1">{g.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-500 hidden sm:block">{g.desc}</p>
               </div>
+              <div className="mt-3 text-xs text-indigo-600 font-semibold group-hover:underline">{l.getAccess}</div>
             </Link>
           ))}
         </div>

@@ -61,9 +61,9 @@ export default function DocumentsPage() {
       form.append('file', file);
       form.append('document_type', docType);
       await api.post('/student/ocr/upload', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': undefined },
       });
-      fileRef.current!.value = '';
+      if (fileRef.current) fileRef.current.value = '';
       refetch();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string } } };
@@ -87,22 +87,29 @@ export default function DocumentsPage() {
           <select
             value={docType}
             onChange={(e) => setDocType(e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white"
+            className="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm text-slate-700 bg-white min-h-[48px]"
           >
             {DOC_TYPES.map((d) => (
               <option key={d.value} value={d.value}>{d.label}</option>
             ))}
           </select>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*,application/pdf"
-            className="w-full text-sm text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 file:text-sm"
-          />
+          <label className="w-full flex items-center gap-3 border-2 border-dashed border-slate-200 rounded-xl px-4 py-4 cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/30 transition-colors">
+            <span className="text-2xl">📎</span>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-slate-700">Choose file</div>
+              <div className="text-xs text-slate-400 mt-0.5">Image or PDF</div>
+            </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*,application/pdf"
+              className="hidden"
+            />
+          </label>
           <button
             onClick={handleUpload}
             disabled={uploading}
-            className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+            className="w-full py-3 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors min-h-[48px]"
           >
             {uploading ? sd.uploading : sd.uploadBtn}
           </button>

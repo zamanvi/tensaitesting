@@ -66,7 +66,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
         <StatCard label={s.profileScore} value={`${progressPct}%`} icon="📊" color="indigo" />
         <StatCard label={s.applications} value="0" icon="📋" color="emerald" />
         <StatCard label={s.interviews} value="0" icon="🎙️" color="amber" />
