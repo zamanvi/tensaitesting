@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\StudentProfileController;
 use App\Http\Controllers\Api\AgencyController;
@@ -14,20 +13,18 @@ use Illuminate\Support\Facades\Route;
 
 // Health check
 Route::get('/health', function () {
-    $db = 'disconnected';
-    try { DB::connection()->getPdo(); $db = 'connected'; } catch (\Exception $e) {}
-    return response()->json(['status' => 'ok', 'db' => $db, 'app' => 'Tensai API']);
+    try {
+        DB::connection()->getPdo();
+        return response()->json(['status' => 'ok', 'db' => 'connected', 'app' => 'Tensai API']);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'db' => 'disconnected'], 500);
+    }
 });
 
-// Public — gallery (no auth required)
-Route::get('/gallery', [GalleryController::class, 'index']);
-Route::get('/gallery/featured', [GalleryController::class, 'featured']);
-
 // Public
-Route::middleware('throttle:5,1')->post('/auth/register', [AuthController::class, 'register']);
-Route::middleware('throttle:10,1')->post('/auth/login', [AuthController::class, 'login']);
-Route::middleware('throttle:5,1')->post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::middleware('throttle:5,1')->post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 
 // Authenticated
 Route::middleware('auth:sanctum')->group(function () {
@@ -51,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/leads/{lead}/publish', [LeadController::class, 'publishToOpenPool']);
         Route::post('/leads/{lead}/forward', [LeadController::class, 'forwardLead']);
         Route::post('/leads/{lead}/unlock', [LeadController::class, 'unlockLead']);
+        Route::get('/partners', [LeadController::class, 'agencyPartners']);
         Route::get('/students/{student}/profile', [StudentProfileController::class, 'agencyView']);
         Route::post('/interview-request/{lead}', [InterviewController::class, 'request']);
     });

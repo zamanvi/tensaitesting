@@ -8,6 +8,7 @@ use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class LeadController extends Controller
 {
@@ -23,13 +24,36 @@ class LeadController extends Controller
 
     public function privateVault(Request $request): JsonResponse
     {
-        $leads = Lead::where('source_agency_id', $request->user()->id)
-            ->where('pool_type', 'private')
-            ->with(['student:id,name', 'student.studentProfile:id,user_id,jlpt_level,gpa,highest_qualification'])
+        $userId = $request->user()->id;
+
+        $leads = Lead::where(function ($q) use ($userId) {
+                // Leads this agency sourced
+                $q->where('source_agency_id', $userId)->where('pool_type', 'private');
+            })->orWhere(function ($q) use ($userId) {
+                // Leads forwarded TO this agency by another agency
+                $q->where('assigned_agency_id', $userId)->whereNotNull('forwarded_from_agency_id');
+            })
+            ->with([
+                'student:id,name',
+                'student.studentProfile:id,user_id,jlpt_level,gpa,highest_qualification',
+                'forwardedFromAgency:id,name',
+            ])
             ->latest()
             ->paginate(20);
 
         return response()->json($leads);
+    }
+
+    public function agencyPartners(Request $request): JsonResponse
+    {
+        $agencies = User::where('gateway_type', 'agency')
+            ->where('id', '!=', $request->user()->id)
+            ->where('status', 'active')
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($agencies);
     }
 
     public function openPool(Request $request): JsonResponse
@@ -95,12 +119,6 @@ class LeadController extends Controller
             return response()->json(['message' => 'Lead is not in open pool.'], 422);
         }
 
-        if ($lead->assigned_agency_id === $request->user()->id) {
-            return response()->json(['message' => 'You have already unlocked this lead.'], 422);
-        }
-
-        $adminId = User::role('super_admin')->value('id') ?? 1;
-
         $lead->update([
             'pool_type' => 'private',
             'assigned_agency_id' => $request->user()->id,
@@ -112,7 +130,7 @@ class LeadController extends Controller
             'lead_id' => $lead->id,
             'type' => 'lead_unlock_fee',
             'payer_id' => $request->user()->id,
-            'payee_id' => $adminId,
+            'payee_id' => 1,
             'amount' => $lead->unlock_fee ?? 10000,
             'currency' => 'BDT',
             'status' => 'due',

@@ -39,6 +39,7 @@ class Lead extends Model
     public function assignedAgency() { return $this->belongsTo(User::class, 'assigned_agency_id'); }
     public function assignedInstitution() { return $this->belongsTo(User::class, 'assigned_institution_id'); }
     public function affiliate() { return $this->belongsTo(User::class, 'affiliate_id'); }
+    public function forwardedFromAgency() { return $this->belongsTo(User::class, 'forwarded_from_agency_id'); }
     public function interviews() { return $this->hasMany(Interview::class); }
     public function commissions() { return $this->hasMany(Commission::class); }
     public function contactPapers() { return $this->hasMany(ContactPaper::class); }
