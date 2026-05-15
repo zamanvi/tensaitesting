@@ -18,8 +18,10 @@ COPY . .
 
 RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --no-plugins
 
-RUN mkdir -p /app/bootstrap/cache /app/storage/logs /app/storage/framework/cache/data /app/storage/framework/sessions /app/storage/framework/views \
+RUN mkdir -p /app/bootstrap/cache /app/storage/app /app/storage/logs /app/storage/framework/cache/data /app/storage/framework/sessions /app/storage/framework/views \
     && chmod -R 777 /app/bootstrap/cache /app/storage
+
+RUN printf 'upload_max_filesize = 20M\npost_max_size = 25M\nmemory_limit = 256M\n' > /usr/local/etc/php/conf.d/uploads.ini
 
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 RUN printf 'Listen 8080\n' > /etc/apache2/ports.conf

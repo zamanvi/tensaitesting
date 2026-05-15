@@ -60,14 +60,26 @@ export default function DocumentsPage() {
       const form = new FormData();
       form.append('file', file);
       form.append('document_type', docType);
-      await api.post('/student/ocr/upload', form, {
-        headers: { 'Content-Type': undefined },
+      const token = localStorage.getItem('tensai_token');
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+      const res = await fetch(`${baseUrl}/student/ocr/upload`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: form,
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        const msg = data?.message || `Upload failed (HTTP ${res.status})`;
+        throw new Error(msg);
+      }
       if (fileRef.current) fileRef.current.value = '';
       refetch();
     } catch (e: unknown) {
-      const err = e as { response?: { data?: { message?: string } } };
-      setUploadError(err.response?.data?.message ?? 'Upload failed.');
+      const err = e as Error;
+      setUploadError(err.message || 'Upload failed.');
     } finally {
       setUploading(false);
     }
