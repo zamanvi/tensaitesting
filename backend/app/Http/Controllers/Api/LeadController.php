@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Commission;
 use App\Models\Lead;
+use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class LeadController extends Controller
 {
@@ -42,6 +45,61 @@ class LeadController extends Controller
             ->paginate(20);
 
         return response()->json($leads);
+    }
+
+    public function addLead(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'student_name'   => 'required|string|max:255',
+            'student_email'  => 'required|email|max:255',
+            'student_phone'  => 'nullable|string|max:20',
+            'target_country' => 'required|string|max:100',
+            'target_course'  => 'nullable|string|max:255',
+            'target_intake'  => 'nullable|date',
+        ]);
+
+        $student = User::where('email', $validated['student_email'])->first();
+
+        if ($student && $student->gateway_type !== 'student') {
+            return response()->json(['message' => 'This email belongs to a non-student account.'], 422);
+        }
+
+        if (!$student) {
+            $student = User::create([
+                'name'           => $validated['student_name'],
+                'email'          => $validated['student_email'],
+                'phone'          => $validated['student_phone'] ?? null,
+                'password'       => Hash::make(Str::random(16)),
+                'gateway_type'   => 'student',
+                'status'         => 'pending',
+                'affiliate_code' => 'TEN-' . strtoupper(Str::random(8)),
+            ]);
+            $student->assignRole('student');
+            StudentProfile::create(['user_id' => $student->id]);
+        }
+
+        $exists = Lead::where('student_id', $student->id)
+            ->where('source_agency_id', $request->user()->id)
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'You already have a lead for this student.'], 422);
+        }
+
+        $lead = Lead::create([
+            'student_id'       => $student->id,
+            'source_agency_id' => $request->user()->id,
+            'pool_type'        => 'private',
+            'status'           => 'new',
+            'target_country'   => $validated['target_country'],
+            'target_course'    => $validated['target_course'] ?? null,
+            'target_intake'    => $validated['target_intake'] ?? null,
+        ]);
+
+        return response()->json([
+            'message' => 'Lead created successfully.',
+            'lead'    => $lead->load('student:id,name,email'),
+        ], 201);
     }
 
     public function agencyPartners(Request $request): JsonResponse

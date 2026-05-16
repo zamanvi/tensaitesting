@@ -43,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Agency gateway
     Route::prefix('agency')->middleware('role:agency')->group(function () {
+        Route::post('/leads', [LeadController::class, 'addLead']);
         Route::get('/leads/private-vault', [LeadController::class, 'privateVault']);
         Route::get('/leads/open-pool', [LeadController::class, 'openPool']);
         Route::post('/leads/{lead}/publish', [LeadController::class, 'publishToOpenPool']);
