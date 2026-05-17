@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\AgencyProfile;
+use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -60,6 +62,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
         $student->assignRole('student');
+        StudentProfile::firstOrCreate(['user_id' => $student->id]);
 
         // Demo agency
         $agency = User::updateOrCreate(
@@ -73,5 +76,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
         $agency->assignRole('agency');
+        AgencyProfile::firstOrCreate(['user_id' => $agency->id]);
     }
 }
