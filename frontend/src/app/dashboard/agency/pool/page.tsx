@@ -1,8 +1,10 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
 interface PoolLead {
   id: number;
@@ -25,6 +27,9 @@ export default function OpenPool() {
   const { t } = useLang();
   const ap = t.agencyPool;
   const statuses = t.statuses;
+  const { user } = useAuthStore();
+  const router = useRouter();
+  if (user && user.gateway_type !== 'agency') { router.replace(`/dashboard/${user.gateway_type}`); return null; }
 
   const { data, isLoading } = useQuery({
     queryKey: ['open-pool'],

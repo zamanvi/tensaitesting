@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { STATUS_COLORS } from '@/lib/constants';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
 interface Lead {
   id: number;
@@ -29,11 +31,16 @@ export default function PrivateVault() {
   const { t } = useLang();
   const av = t.agencyVault;
   const statuses = t.statuses;
+  const { user } = useAuthStore();
+  const router = useRouter();
+  const isAgency = user?.gateway_type === 'agency';
 
   const [forwardingLead, setForwardingLead] = useState<Lead | null>(null);
   const [targetAgencyId, setTargetAgencyId] = useState('');
   const [referralFee, setReferralFee] = useState('');
   const [forwardSuccess, setForwardSuccess] = useState(false);
+
+  if (!isAgency) { router.replace(`/dashboard/${user?.gateway_type ?? ''}`); return null; }
 
   const { data, isLoading } = useQuery({
     queryKey: ['agency-vault'],

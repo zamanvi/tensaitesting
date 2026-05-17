@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Lead { id: number; status: string; is_published: boolean }
 
@@ -17,6 +19,9 @@ export default function AgencyDashboard() {
   const { t } = useLang();
   const a = t.agencyDash;
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
+  const router = useRouter();
+  const isAgency = user?.gateway_type === 'agency';
 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -25,10 +30,12 @@ export default function AgencyDashboard() {
 
   const [vaultQ, poolQ] = useQueries({
     queries: [
-      { queryKey: ['agency-vault'], queryFn: () => api.get('/agency/leads/private-vault').then(r => r.data), staleTime: 30_000 },
-      { queryKey: ['open-pool'], queryFn: () => api.get('/agency/leads/open-pool').then(r => r.data), staleTime: 30_000 },
+      { queryKey: ['agency-vault'], queryFn: () => api.get('/agency/leads/private-vault').then(r => r.data), staleTime: 30_000, enabled: isAgency },
+      { queryKey: ['open-pool'], queryFn: () => api.get('/agency/leads/open-pool').then(r => r.data), staleTime: 30_000, enabled: isAgency },
     ],
   });
+
+  if (!isAgency) { router.replace(`/dashboard/${user?.gateway_type ?? ''}`); return null; }
 
   const vaultLeads: Lead[] = Array.isArray(vaultQ.data?.data) ? vaultQ.data.data : Array.isArray(vaultQ.data) ? vaultQ.data : [];
   const poolLeads: Lead[] = Array.isArray(poolQ.data?.data) ? poolQ.data.data : Array.isArray(poolQ.data) ? poolQ.data : [];
