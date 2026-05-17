@@ -7,6 +7,7 @@ use App\Models\AffiliateProfile;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
+use App\Notifications\EmailVerificationNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -32,6 +33,8 @@ class AuthController extends Controller
             $referredBy = User::where('affiliate_code', $validated['affiliate_code'])->value('id');
         }
 
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -41,7 +44,15 @@ class AuthController extends Controller
             'status' => 'pending',
             'affiliate_code' => 'TEN-' . strtoupper(Str::random(8)),
             'referred_by' => $referredBy,
+            'email_verification_code' => $code,
+            'email_verification_expires_at' => now()->addMinutes(30),
         ]);
+
+        try {
+            $user->notify(new EmailVerificationNotification($code));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Verification email failed: ' . $e->getMessage());
+        }
 
         $user->assignRole($validated['gateway_type']);
 
@@ -115,6 +126,66 @@ class AuthController extends Controller
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ]);
+    }
+
+    public function verifyEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code'  => 'required|string|size:6',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        if ($user->email_verified_at) {
+            return response()->json(['message' => 'Email already verified.']);
+        }
+
+        if ($user->email_verification_code !== $request->code) {
+            return response()->json(['message' => 'Invalid verification code.'], 422);
+        }
+
+        if ($user->email_verification_expires_at && now()->isAfter($user->email_verification_expires_at)) {
+            return response()->json(['message' => 'Verification code expired. Request a new one.'], 422);
+        }
+
+        $user->update([
+            'email_verified_at' => now(),
+            'status' => 'active',
+            'email_verification_code' => null,
+            'email_verification_expires_at' => null,
+        ]);
+
+        return response()->json(['message' => 'Email verified successfully. Account is now active.']);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || $user->email_verified_at) {
+            return response()->json(['message' => 'If that account exists and is unverified, a new code has been sent.']);
+        }
+
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->update([
+            'email_verification_code' => $code,
+            'email_verification_expires_at' => now()->addMinutes(30),
+        ]);
+
+        try {
+            $user->notify(new EmailVerificationNotification($code));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Resend verification failed: ' . $e->getMessage());
+        }
+
+        return response()->json(['message' => 'If that account exists and is unverified, a new code has been sent.']);
     }
 
     public function forgotPassword(Request $request): JsonResponse
