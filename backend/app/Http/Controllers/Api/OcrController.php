@@ -23,7 +23,8 @@ class OcrController extends Controller
             return response()->json(['message' => 'Student profile not found.'], 404);
         }
 
-        $path = $request->file('file')->store("ocr/{$user->id}/{$request->document_type}", 'local');
+        $disk = env('R2_ACCESS_KEY_ID') ? 'r2' : 'local';
+        $path = $request->file('file')->store("ocr/{$user->id}/{$request->document_type}", $disk);
 
         $job = OcrJob::create([
             'user_id' => $user->id,
