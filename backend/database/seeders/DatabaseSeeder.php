@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\AgencyProfile;
+use App\Models\AffiliateProfile;
+use App\Models\InstitutionProfile;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -77,5 +79,37 @@ class DatabaseSeeder extends Seeder
         );
         $agency->assignRole('agency');
         AgencyProfile::firstOrCreate(['user_id' => $agency->id]);
+
+        // Demo institution
+        $institution = User::updateOrCreate(
+            ['email' => 'institution@tensai.com'],
+            [
+                'name' => 'Demo Institution',
+                'password' => Hash::make('Institution@2026!'),
+                'gateway_type' => 'institution',
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+        $institution->assignRole('institution');
+        InstitutionProfile::firstOrCreate(
+            ['user_id' => $institution->id],
+            ['institution_name' => 'Demo University', 'country' => 'Japan', 'status' => 'active']
+        );
+
+        // Demo affiliate
+        $affiliate = User::updateOrCreate(
+            ['email' => 'affiliate@tensai.com'],
+            [
+                'name' => 'Demo Affiliate',
+                'password' => Hash::make('Affiliate@2026!'),
+                'gateway_type' => 'affiliate',
+                'status' => 'active',
+                'affiliate_code' => 'AFFILIATE001',
+                'email_verified_at' => now(),
+            ]
+        );
+        $affiliate->assignRole('affiliate');
+        AffiliateProfile::firstOrCreate(['user_id' => $affiliate->id]);
     }
 }

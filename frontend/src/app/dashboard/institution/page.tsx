@@ -1,17 +1,40 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useQueries } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function InstitutionDashboard() {
   const { t } = useLang();
   const id = t.institutionDash;
+  const { user } = useAuthStore();
+  const router = useRouter();
+
+  const isInstitution = user?.gateway_type === 'institution';
+  if (user && !isInstitution) { router.replace(`/dashboard/${user.gateway_type}`); return null; }
+
+  const [leadsQ, interviewsQ] = useQueries({
+    queries: [
+      { queryKey: ['institution-leads'], queryFn: () => api.get('/institution/leads').then(r => r.data), enabled: isInstitution },
+      { queryKey: ['institution-interviews'], queryFn: () => api.get('/institution/interviews').then(r => r.data), enabled: isInstitution },
+    ],
+  });
+
+  const leads = Array.isArray(leadsQ.data?.data) ? leadsQ.data.data : Array.isArray(leadsQ.data) ? leadsQ.data : [];
+  const interviews = Array.isArray(interviewsQ.data) ? interviewsQ.data : [];
+  const loading = leadsQ.isLoading || interviewsQ.isLoading;
+
+  const shortlisted = leads.filter((l: { status: string }) => l.status === 'shortlisted').length;
+  const enrolled = leads.filter((l: { status: string }) => l.status === 'enrolled').length;
 
   const STATS = [
-    { label: id.verifiedCandidates, value: '0', icon: '👨‍🎓' },
-    { label: id.shortlisted, value: '0', icon: '⭐' },
-    { label: id.interviews, value: '0', icon: '📅' },
-    { label: id.enrolled, value: '0', icon: '🎓' },
+    { label: id.verifiedCandidates, value: loading ? '…' : String(leads.length), icon: '👨‍🎓' },
+    { label: id.shortlisted, value: loading ? '…' : String(shortlisted), icon: '⭐' },
+    { label: id.interviews, value: loading ? '…' : String(interviews.length), icon: '📅' },
+    { label: id.enrolled, value: loading ? '…' : String(enrolled), icon: '🎓' },
   ];
 
   const STEPS = [

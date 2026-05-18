@@ -55,6 +55,7 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: t.nav.overview, href: '/dashboard/institution' },
       { label: t.nav.browseStudents, href: '/dashboard/institution/browse' },
       { label: t.nav.interviews, href: '/dashboard/institution/interviews' },
+      { label: t.nav.institutionProfile, href: '/dashboard/institution/profile' },
     ],
     affiliate: [
       { label: t.nav.overview, href: '/dashboard/affiliate' },

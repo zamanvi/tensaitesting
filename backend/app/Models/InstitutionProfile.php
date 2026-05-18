@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Lead;
+use App\Models\Interview;
 
 class InstitutionProfile extends Model
 {
@@ -28,5 +30,7 @@ class InstitutionProfile extends Model
     ];
 
     public function user() { return $this->belongsTo(User::class); }
+    public function leads() { return $this->hasMany(Lead::class, 'assigned_institution_id', 'user_id'); }
+    public function interviews() { return $this->hasMany(Interview::class, 'institution_id', 'user_id'); }
     public function isActive(): bool { return $this->status === 'active'; }
 }

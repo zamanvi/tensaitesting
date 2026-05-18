@@ -61,7 +61,7 @@ export default function InstitutionInterviews() {
                 )}
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                <span>{iv.medium === 'online' ? ii.online : ii.inPerson}</span>
+                <span>{['zoom', 'google_meet', 'teams'].includes(iv.medium) ? ii.online : ii.inPerson}</span>
                 {iv.scheduled_at && (
                   <span>📅 {new Date(iv.scheduled_at).toLocaleString(undefined, {
                     dateStyle: 'medium', timeStyle: 'short',

@@ -24,6 +24,7 @@ const translations = {
       openPool: 'Open Pool',
       browseStudents: 'Browse Students',
       referrals: 'Referrals',
+      institutionProfile: 'Our Profile',
     },
     landing: {
       login: 'Login',
@@ -387,6 +388,7 @@ const translations = {
       openPool: 'オープンプール',
       browseStudents: '学生を探す',
       referrals: '紹介管理',
+      institutionProfile: '機関プロフィール',
     },
     landing: {
       login: 'ログイン',
