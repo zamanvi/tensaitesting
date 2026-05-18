@@ -9,10 +9,15 @@ class AffiliateProfile extends Model
 {
     use HasFactory;
 
+    // User-editable fields only
     protected $fillable = [
         'user_id', 'tier', 'country', 'bio',
         'bank_name', 'bank_account_number', 'bank_account_name',
         'bkash_number', 'nagad_number',
+    ];
+
+    // System-computed — never mass-assignable
+    protected $guarded = [
         'total_referrals', 'converted_referrals', 'total_earned',
         'pending_payout', 'commission_percent', 'status',
     ];
