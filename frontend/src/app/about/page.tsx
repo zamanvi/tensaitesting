@@ -137,6 +137,9 @@ export default function AboutPage() {
             <Link href="/about" className="text-sm font-semibold text-green-700 border-b-2 border-green-600 px-2 py-1 hidden sm:inline">
               {ja ? '私たちについて' : 'About'}
             </Link>
+            <Link href="/team" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1 hidden sm:inline">
+              {ja ? 'チーム' : 'Team'}
+            </Link>
             <Link href="/gallery" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1 hidden sm:inline">
               {l.gallery}
             </Link>

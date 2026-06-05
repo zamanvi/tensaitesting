@@ -83,6 +83,9 @@ export default function HomePage() {
             <Link href="/about" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
               {lang === 'ja' ? '私たちについて' : 'About'}
             </Link>
+            <Link href="/team" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
+              {lang === 'ja' ? 'チーム' : 'Team'}
+            </Link>
             <Link href="/gallery" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
               {l.gallery}
             </Link>
