@@ -59,6 +59,9 @@ export default function HomePage() {
             >
               {lang === 'en' ? '日本語' : 'English'}
             </button>
+            <Link href="/about" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1 hidden sm:inline">
+              {l.about}
+            </Link>
             <Link href="/gallery" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1 hidden sm:inline">
               {l.gallery}
             </Link>
@@ -198,6 +201,11 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-slate-100 py-6 sm:py-8 text-center text-sm text-slate-400">
+        <div className="mb-3 flex items-center justify-center gap-4">
+          <Link href="/about" className="hover:text-green-700 transition-colors">{l.about}</Link>
+          <Link href="/terms" className="hover:text-green-700 transition-colors">Terms</Link>
+          <Link href="/privacy" className="hover:text-green-700 transition-colors">Privacy</Link>
+        </div>
         {l.footer}
       </footer>
     </div>

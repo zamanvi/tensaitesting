@@ -23,6 +23,7 @@ function RegisterForm() {
     name: "", email: "", phone: "", password: "", password_confirmation: "",
     gateway_type: defaultType, affiliate_code: "",
   });
+  const [agreedTerms, setAgreedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
@@ -32,8 +33,16 @@ function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (form.password.length < 8) {
+      setError(a.passwordTooShort);
+      return;
+    }
     if (form.password !== form.password_confirmation) {
       setError(a.passwordMismatch);
+      return;
+    }
+    if (!agreedTerms) {
+      setError(a.agreeTermsRequired);
       return;
     }
     try {
@@ -115,48 +124,85 @@ function RegisterForm() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text" placeholder={a.fullName} required
-                value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <input
-                type="email" placeholder={a.emailAddress} required
-                value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <input
-                type="tel" placeholder={a.phone}
-                value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-              <div className="relative">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.fullName}</label>
                 <input
-                  type={showPassword ? 'text' : 'password'} placeholder={a.password} required
-                  value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                  className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  type="text" placeholder={a.fullName} required
+                  value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                </button>
               </div>
-              <div className="relative">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.emailAddress}</label>
                 <input
-                  type={showConfirm ? 'text' : 'password'} placeholder={a.confirmPassword} required
-                  value={form.password_confirmation} onChange={(e) => setForm(f => ({ ...f, password_confirmation: e.target.value }))}
-                  className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  type="email" placeholder="you@example.com" required
+                  value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                <button type="button" tabIndex={-1} onClick={() => setShowConfirm(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                  {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
-                </button>
               </div>
-              <input
-                type="text" placeholder={a.affiliateCode}
-                value={form.affiliate_code} onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.phone}</label>
+                <input
+                  type="tel" placeholder="+880..."
+                  value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.password} <span className="text-slate-400 font-normal">(min 8 chars)</span></label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'} placeholder="••••••••" required
+                    value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
+                    className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                    {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.confirmPassword}</label>
+                <div className="relative">
+                  <input
+                    type={showConfirm ? 'text' : 'password'} placeholder="••••••••" required
+                    value={form.password_confirmation} onChange={(e) => setForm(f => ({ ...f, password_confirmation: e.target.value }))}
+                    className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  <button type="button" tabIndex={-1} onClick={() => setShowConfirm(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    aria-label={showConfirm ? 'Hide password' : 'Show password'}>
+                    {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.affiliateCode}</label>
+                <input
+                  type="text" placeholder="e.g. TNS-XXXX"
+                  value={form.affiliate_code} onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              {/* Terms checkbox */}
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={agreedTerms}
+                  onChange={(e) => setAgreedTerms(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-green-700 shrink-0"
+                />
+                <span className="text-xs text-slate-500 leading-relaxed">
+                  {a.agreeTerms}{' '}
+                  <Link href="/terms" target="_blank" className="text-green-700 hover:underline">Terms</Link>
+                  {' & '}
+                  <Link href="/privacy" target="_blank" className="text-green-700 hover:underline">Privacy</Link>
+                </span>
+              </label>
+
               <button
                 type="submit" disabled={isLoading}
                 className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition-colors"
@@ -164,6 +210,11 @@ function RegisterForm() {
                 {isLoading ? a.creatingAccount : a.createAccount}
               </button>
             </form>
+
+            <p className="mt-5 text-center text-sm text-slate-500">
+              {a.alreadyRegistered}{' '}
+              <Link href="/auth/login" className="text-green-700 font-medium hover:underline">{a.signInLink}</Link>
+            </p>
           </div>
         </div>
       </div>

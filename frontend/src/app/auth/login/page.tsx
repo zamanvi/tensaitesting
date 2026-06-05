@@ -112,6 +112,10 @@ export default function LoginPage() {
                 {isLoading ? a.signingIn : a.signIn}
               </button>
             </form>
+            <p className="mt-5 text-center text-sm text-slate-500">
+              {a.noAccount}{' '}
+              <Link href="/auth/register" className="text-green-700 font-medium hover:underline">{a.register}</Link>
+            </p>
           </div>
         </div>
       </div>
