@@ -26,6 +26,9 @@ export default function TeamPage() {
       linkedin: 'https://linkedin.com/in/md-norozzaman-207418169/',
       also: ja ? 'ZonelyのファウンダーでもあるCEO' : 'Also founder of Zonely (USA)',
       alsoLink: 'https://www.zonelyleads.com',
+      quote: ja
+        ? '「学生がビザを取れるかどうかは、運や人脈ではなく、実力と誠実さで決まるべきだ。」'
+        : '"Whether a student gets their visa shouldn\'t depend on luck or connections. It should depend on merit and honesty. That\'s what Tensai is built to guarantee."',
     },
     {
       name: 'Nasir Sarker',
@@ -44,6 +47,9 @@ export default function TeamPage() {
       linkedin: null,
       also: null,
       alsoLink: null,
+      quote: ja
+        ? '「エージェンシーが競争ではなく協力できる仕組みを作れば、誰も損をしない。」'
+        : '"If you build a system where agencies collaborate instead of compete, nobody loses — especially not the students."',
     },
     {
       name: 'Sabbir',
@@ -62,6 +68,9 @@ export default function TeamPage() {
       linkedin: null,
       also: null,
       alsoLink: null,
+      quote: ja
+        ? '「日本の大学は信頼できるパートナーを求めている。私たちはその信頼を一つひとつ積み上げる。」'
+        : '"Japanese institutions are looking for partners they can genuinely trust. We earn that trust one relationship at a time — no shortcuts."',
     },
   ];
 
@@ -156,6 +165,12 @@ export default function TeamPage() {
 
                 <p className="text-fluid-base text-slate-600 leading-relaxed mb-6">{member.bio}</p>
 
+                {member.quote && (
+                  <blockquote className="border-l-4 border-green-500 pl-4 mb-5 italic text-slate-500 text-fluid-sm leading-relaxed">
+                    {member.quote}
+                  </blockquote>
+                )}
+
                 <div>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
                     {ja ? '専門分野' : 'Focus Areas'}
@@ -190,6 +205,129 @@ export default function TeamPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Founding Timeline */}
+      <section className="max-w-3xl mx-auto px-4 pb-16 sm:pb-20">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+            🕰️ {ja ? '創業の歩み' : 'How It Started'}
+          </div>
+          <h2 className="text-fluid-4xl font-bold text-slate-900">
+            {ja ? 'Tensaiの誕生' : 'The founding story'}
+          </h2>
+        </div>
+        <div className="relative">
+          <div className="absolute left-4 sm:left-1/2 top-0 bottom-0 w-px bg-slate-200 sm:-translate-x-px" />
+          {[
+            {
+              date: ja ? '2024年 早期' : 'Early 2024',
+              title: ja ? '問題を発見' : 'The Problem Identified',
+              desc: ja ? 'ノロザマンは留学業界で繰り返される詐欺と不透明さを目撃。「テクノロジーで解決できる」と確信。' : 'Norozzaman witnesses repeated fraud and opacity in the study-abroad industry. Convinced technology can fix it.',
+              side: 'left',
+            },
+            {
+              date: ja ? '2024年 中期' : 'Mid 2024',
+              title: ja ? 'チームの結成' : 'The Team Forms',
+              desc: ja ? 'ナシル（成長担当）とサッビル（日本連携担当）が参加。3人の創業チームが揃う。' : 'Nasir (growth) and Sabbir (Japan relations) join. The founding trio is complete.',
+              side: 'right',
+            },
+            {
+              date: ja ? '2024年 後期' : 'Late 2024',
+              title: ja ? 'プラットフォーム構築開始' : 'Platform Built',
+              desc: ja ? 'OCR認証システム、4ゲートウェイ構造、コンタクトペーパーシステムを設計・開発。' : 'OCR verification, 4-gateway structure, and contact paper system designed and developed.',
+              side: 'left',
+            },
+            {
+              date: ja ? '2026年' : '2026',
+              title: ja ? 'ローンチ & 拡大' : 'Launch & Expand',
+              desc: ja ? 'バングラデシュ→日本ルートでローンチ。フランチャイズ展開を開始し、全国へ拡大中。' : 'Launched on the Bangladesh→Japan corridor. Franchise rollout begins. Nationwide expansion in progress.',
+              side: 'right',
+            },
+          ].map((item, i) => (
+            <div key={i} className={`relative flex flex-col sm:flex-row gap-4 mb-8 ${item.side === 'right' ? 'sm:flex-row-reverse' : ''}`}>
+              <div className="sm:w-1/2 sm:px-6">
+                <div className={`bg-white border border-slate-100 rounded-2xl p-5 hover:border-green-200 hover:shadow-sm transition-all ${item.side === 'right' ? 'sm:text-right' : ''}`}>
+                  <span className="text-xs font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">{item.date}</span>
+                  <h3 className="font-bold text-slate-900 mt-2 mb-1">{item.title}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+              <div className="hidden sm:flex sm:w-1/2" />
+              <div className="absolute left-4 sm:left-1/2 top-5 w-3 h-3 rounded-full bg-green-600 border-2 border-white shadow sm:-translate-x-1.5" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Culture */}
+      <section className="bg-slate-900 py-14 sm:py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-fluid-4xl font-bold text-white mb-3">
+              {ja ? 'チームの文化' : 'How we work'}
+            </h2>
+            <p className="text-white/40 text-fluid-base max-w-xl mx-auto">
+              {ja ? '私たちが大切にしている働き方。' : 'The principles that guide how we operate day to day.'}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { icon: '🚀', title: ja ? '実行が最優先' : 'Execution Over Talk', desc: ja ? '会議より実装。計画より出荷。アイデアは動いてから評価する。' : 'We ship over debate. Ideas earn credibility by working, not by sounding good.' },
+              { icon: '🔒', title: ja ? 'セキュリティは妥協しない' : 'No Compromise on Security', desc: ja ? '学生のデータとドキュメントは神聖。セキュリティはコスト削減の対象ではない。' : "Student data and documents are sacred. Security is never a cost-cutting candidate." },
+              { icon: '🌏', title: ja ? 'グローバルな視点' : 'Think Global, Act Local', desc: ja ? 'バングラデシュの現場を理解しながら、世界基準で設計する。' : 'Deep local understanding. Global-standard execution.' },
+              { icon: '🤝', title: ja ? '透明なコミュニケーション' : 'Radical Transparency', desc: ja ? '良いニュースも悪いニュースも同じ速さで共有する。隠し事はない。' : 'Good news and bad news travel at the same speed. No hidden agendas.' },
+              { icon: '📈', title: ja ? 'データで意思決定' : 'Data-Driven Decisions', desc: ja ? '直感より数字。ただし数字が語れないことは、現場で確認する。' : 'Numbers over gut feelings. But what numbers can\'t explain, we verify on the ground.' },
+              { icon: '🎯', title: ja ? 'ミッション中心' : 'Mission-Centered', desc: ja ? '私利ではなく学生のために。すべての決定をミッションに照らす。' : 'Every decision is checked against the mission — not personal gain.' },
+            ].map((c) => (
+              <div key={c.title} className="glass-card rounded-2xl p-6 flex flex-col gap-3 card-hover-glow transition-all">
+                <div className="text-2xl">{c.icon}</div>
+                <h3 className="font-bold text-white text-sm">{c.title}</h3>
+                <p className="text-xs text-white/45 leading-relaxed">{c.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Open Roles */}
+      <section className="max-w-4xl mx-auto px-4 py-16 sm:py-20">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+            💼 {ja ? '採用情報' : "We're Hiring"}
+          </div>
+          <h2 className="text-fluid-4xl font-bold text-slate-900 mb-3">
+            {ja ? 'Tensaiに参加する' : 'Join the mission'}
+          </h2>
+          <p className="text-fluid-base text-slate-500 max-w-md mx-auto">
+            {ja ? '私たちはチームを拡大しています。情熱あるメンバーを探しています。' : "We're growing. If you believe in building clean, trustworthy systems that change lives — there may be a place for you here."}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            { role: ja ? 'フルスタック開発者' : 'Full-Stack Developer', type: ja ? 'フルタイム' : 'Full-time', tag: ja ? '採用中' : 'Open', tagColor: 'bg-green-100 text-green-800' },
+            { role: ja ? 'エージェンシー担当営業' : 'Agency Sales Executive', type: ja ? 'フルタイム / バングラデシュ' : 'Full-time · Bangladesh', tag: ja ? '採用中' : 'Open', tagColor: 'bg-green-100 text-green-800' },
+            { role: ja ? '日本語通訳・コーディネーター' : 'Japanese Interpreter / Coordinator', type: ja ? 'パートタイム可' : 'Part-time OK', tag: ja ? '採用中' : 'Open', tagColor: 'bg-green-100 text-green-800' },
+            { role: ja ? 'フランチャイズパートナー' : 'Franchise Partner', type: ja ? '全国各地' : 'Nationwide Bangladesh', tag: ja ? '募集中' : 'Inquire', tagColor: 'bg-blue-100 text-blue-800' },
+          ].map((r) => (
+            <div key={r.role} className="flex items-center justify-between border border-slate-100 rounded-2xl p-5 hover:border-green-200 hover:shadow-sm transition-all group">
+              <div>
+                <div className="font-bold text-slate-900 text-sm">{r.role}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{r.type}</div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${r.tagColor}`}>{r.tag}</span>
+                <a href="mailto:support@tensai.com"
+                  className="text-xs font-semibold text-green-700 opacity-0 group-hover:opacity-100 transition-opacity hover:underline">
+                  Apply →
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-xs text-slate-400 mt-6">
+          {ja ? '掲載されていない役割に興味がある場合は、' : "Don't see your role? "}<a href="mailto:support@tensai.com" className="text-green-700 hover:underline">{ja ? 'メールでご連絡ください。' : 'Email us anyway.'}</a>
+        </p>
       </section>
 
       {/* CTA */}
