@@ -161,7 +161,7 @@ export default function PrivacyPage() {
           <div className="inline-flex items-center gap-2 bg-white/15 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
             🛡️ {ja ? 'プライバシーポリシー' : 'Privacy Policy'}
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+          <h1 className="text-fluid-4xl font-bold mb-3">
             {ja ? 'プライバシーポリシー' : 'Privacy Policy'}
           </h1>
           <p className="text-green-200 text-sm">

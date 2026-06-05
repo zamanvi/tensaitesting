@@ -115,7 +115,7 @@ export default function HomePage() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[0.95] tracking-tight mb-6">
+          <h1 className="text-fluid-hero font-black text-white tracking-tight mb-6">
             {l.heroTitle}<br />
             <span className="gradient-text">{l.heroHighlight}</span>
           </h1>
@@ -125,7 +125,7 @@ export default function HomePage() {
             {lang === 'ja' ? 'グローバルキャリアへの道' : 'The Way of Global Career · 天才'}
           </p>
 
-          <p className="text-base sm:text-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-fluid-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
             {l.heroSub}
           </p>
 
@@ -166,7 +166,7 @@ export default function HomePage() {
           <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-3">
             {lang === 'ja' ? 'ゲートウェイを選択' : 'Choose Your Gateway'}
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">
+          <h2 className="text-fluid-4xl font-bold text-white">
             {lang === 'ja' ? '誰のために作られたか' : 'Built for everyone in the ecosystem'}
           </h2>
         </div>
@@ -201,8 +201,8 @@ export default function HomePage() {
             <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-3">
               {lang === 'ja' ? 'なぜ天才か' : 'Why Tensai'}
             </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">{l.whyTitle}</h2>
-            <p className="text-white/40 text-sm sm:text-base max-w-2xl mx-auto">{l.whySub}</p>
+            <h2 className="text-fluid-4xl font-bold text-white mb-3">{l.whyTitle}</h2>
+            <p className="text-fluid-base text-white/40 max-w-2xl mx-auto">{l.whySub}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -234,10 +234,10 @@ export default function HomePage() {
                 </div>
                 <span className="text-4xl animate-float" style={{ animationDelay: '2s' }}>🇯🇵</span>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+              <h3 className="text-fluid-3xl font-bold text-white mb-3">
                 {lang === 'ja' ? 'バングラデシュから日本へ' : 'Bangladesh → Japan'}
               </h3>
-              <p className="text-white/50 text-sm sm:text-base max-w-xl mx-auto mb-7">
+              <p className="text-fluid-base text-white/50 max-w-xl mx-auto mb-7">
                 {lang === 'ja'
                   ? '最初のルートはバングラデシュから日本。最も厳格な基準でシステムを構築し、世界に拡張する。'
                   : "Our first corridor. Japan demands the highest verification standards — we built a system that meets them, then expands globally."}
@@ -255,8 +255,8 @@ export default function HomePage() {
         <div className="flex items-end justify-between mb-8">
           <div>
             <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2">📸 {l.gallery}</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">{l.gallery}</h2>
-            <p className="text-sm text-white/40 mt-1 max-w-md">{l.gallerySub}</p>
+            <h2 className="text-fluid-3xl font-bold text-white">{l.gallery}</h2>
+            <p className="text-fluid-sm text-white/40 mt-1 max-w-md">{l.gallerySub}</p>
           </div>
           <Link href="/gallery" className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors shrink-0">
             {l.galleryViewAll}

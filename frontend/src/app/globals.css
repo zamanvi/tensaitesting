@@ -40,6 +40,20 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ── Fluid Typography Scale ─────────────────────────────────
+   Smoothly scales between mobile and desktop without jumps.
+   Usage: replace fixed text-Nxl breakpoint chains with one class.
+─────────────────────────────────────────────────────────── */
+.text-fluid-xs   { font-size: clamp(0.7rem,   1.8vw,  0.8125rem); }
+.text-fluid-sm   { font-size: clamp(0.8125rem,2vw,    0.9375rem); }
+.text-fluid-base { font-size: clamp(0.9375rem,2.5vw,  1.0625rem); }
+.text-fluid-lg   { font-size: clamp(1.0625rem,2.8vw,  1.25rem);   }
+.text-fluid-xl   { font-size: clamp(1.2rem,   3.5vw,  1.5rem);    }
+.text-fluid-2xl  { font-size: clamp(1.4rem,   4vw,    1.875rem);  }
+.text-fluid-3xl  { font-size: clamp(1.75rem,  5vw,    2.5rem);    }
+.text-fluid-4xl  { font-size: clamp(2rem,     6vw,    3.25rem);   }
+.text-fluid-hero { font-size: clamp(2.5rem,   8.5vw,  6rem);      line-height: 0.95; }
+
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }

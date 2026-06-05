@@ -155,11 +155,11 @@ export default function AboutPage() {
         <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
           🌏 {ja ? '私たちについて' : 'About Tensai'}
         </div>
-        <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight mb-6">
+        <h1 className="text-fluid-hero font-bold text-slate-900 leading-tight mb-6">
           {ja ? '留学を、もっと' : 'Study abroad should be'}<br />
           <span className="text-green-700">{ja ? 'クリーンに。' : 'clean, safe, and honest.'}</span>
         </h1>
-        <p className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-8">
+        <p className="text-fluid-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-8">
           {ja
             ? '天才は、バングラデシュの学生が詐欺なく、不安なく、グローバルなキャリアを築けるプラットフォームです。'
             : "We built Tensai because the study-abroad process was broken — full of fake documents, dishonest agencies, and students who had no idea if they could trust anyone. We decided to fix it."}
@@ -194,11 +194,11 @@ export default function AboutPage() {
           <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
             📖 {ja ? '私たちのストーリー' : 'Our Story'}
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+          <h2 className="text-fluid-4xl font-bold text-slate-900">
             {ja ? 'なぜTensaiを作ったか' : 'Why we built Tensai'}
           </h2>
         </div>
-        <div className="space-y-5 text-slate-600 text-base sm:text-lg leading-relaxed">
+        <div className="space-y-5 text-slate-600 text-fluid-lg leading-relaxed">
           <p>
             {ja
               ? '留学は人生を変えるチャンスです。でも現実は違います。偽の書類、消えるエージェンシー、何十万タカもの手数料を払ったのにビザが却下される学生たち。'
@@ -221,7 +221,7 @@ export default function AboutPage() {
       <section className="bg-slate-50 py-14 sm:py-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+            <h2 className="text-fluid-4xl font-bold text-slate-900">
               {ja ? '私たちが大切にすること' : 'What We Stand For'}
             </h2>
             <p className="text-slate-500 text-sm mt-2">
@@ -245,7 +245,7 @@ export default function AboutPage() {
       {/* How It Works */}
       <section id="how" className="max-w-7xl mx-auto px-4 py-14 sm:py-20">
         <div className="text-center mb-10 sm:mb-14">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+          <h2 className="text-fluid-4xl font-bold text-slate-900">
             {ja ? 'どうやって機能するか' : 'How Tensai Works'}
           </h2>
           <p className="text-slate-500 text-sm mt-2">
@@ -278,7 +278,7 @@ export default function AboutPage() {
             <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               👥 {ja ? 'チーム' : 'The Team'}
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+            <h2 className="text-fluid-4xl font-bold text-slate-900">
               {ja ? 'Tensaiを作った人たち' : 'The people behind Tensai'}
             </h2>
             <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
@@ -318,7 +318,7 @@ export default function AboutPage() {
       <section className="bg-slate-900 py-14 sm:py-20">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <div className="text-4xl mb-5">🚀</div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+          <h2 className="text-fluid-4xl font-bold text-white mb-4">
             {ja ? 'グローバルキャリアへの道を、今。' : 'Your global career starts here.'}
           </h2>
           <p className="text-slate-400 text-sm sm:text-base mb-8 leading-relaxed">

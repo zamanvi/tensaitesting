@@ -162,7 +162,7 @@ export default function TermsPage() {
           <div className="inline-flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
             📄 {ja ? '利用規約' : 'Terms & Conditions'}
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+          <h1 className="text-fluid-4xl font-bold mb-3">
             {ja ? '利用規約' : 'Terms & Conditions'}
           </h1>
           <p className="text-slate-400 text-sm">
