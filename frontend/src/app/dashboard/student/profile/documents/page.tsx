@@ -161,7 +161,7 @@ export default function DocumentsPage() {
 
   const NO_FILE  = lang === 'bn' ? 'আগে একটি ফাইল বেছে নিন।' : lang === 'ja' ? 'ファイルを選択してください。' : 'Please select a file first.';
   const DROP_HINT = lang === 'bn' ? 'ফাইল এখানে ড্রপ করুন অথবা ক্লিক করুন' : lang === 'ja' ? 'ここにドロップ、またはクリック' : 'Drop file here or click to browse';
-  const FILE_HINT = lang === 'bn' ? 'JPG, PNG বা PDF — সর্বোচ্চ ১০MB। ছবি স্বয়ংক্রিয়ভাবে ছোট হবে।' : lang === 'ja' ? 'JPG・PNG・PDF — 最大10MB。画像は自動圧縮。' : 'JPG, PNG or PDF — max 10MB. Images auto-resized.';
+  const FILE_HINT = lang === 'bn' ? 'JPG, PNG বা PDF — সর্বোচ্চ ১০MB' : lang === 'ja' ? 'JPG・PNG・PDF — 最大10MB' : 'JPG, PNG or PDF — max 10MB';
 
   function pickFile(file: File) {
     if (!ALLOWED_TYPES.includes(file.type)) {
@@ -183,9 +183,8 @@ export default function DocumentsPage() {
     setUploadError('');
     setUploadSuccess(false);
     try {
-      const fileToUpload = await compressImage(selectedFile);
       const form = new FormData();
-      form.append('file', fileToUpload);
+      form.append('file', selectedFile);
       form.append('document_type', docType);
       const token = localStorage.getItem('tensai_token');
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';

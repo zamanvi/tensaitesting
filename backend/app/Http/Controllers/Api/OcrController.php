@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\OcrJob;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Intervention\Image\Laravel\Facades\Image;
 
 class OcrController extends Controller
 {
@@ -23,8 +25,31 @@ class OcrController extends Controller
             return response()->json(['message' => 'Student profile not found.'], 404);
         }
 
-        $disk = env('R2_ACCESS_KEY_ID') ? 'r2' : 'local';
-        $path = $request->file('file')->store("ocr/{$user->id}/{$request->document_type}", $disk);
+        $disk      = env('R2_ACCESS_KEY_ID') ? 'r2' : 'local';
+        $uploaded  = $request->file('file');
+        $mime      = $uploaded->getMimeType();
+        $folder    = "ocr/{$user->id}/{$request->document_type}";
+
+        if (in_array($mime, ['image/jpeg', 'image/png', 'image/jpg'])) {
+            // Resize image: max 1200px on longest side, convert to JPEG
+            $img = Image::read($uploaded->getRealPath())
+                ->scaleDown(1200, 1200);
+
+            $filename = Str::uuid() . '.jpg';
+            $tmpPath  = sys_get_temp_dir() . '/' . $filename;
+            $img->toJpeg(82)->save($tmpPath);
+
+            \Illuminate\Support\Facades\Storage::disk($disk)->putFileAs(
+                $folder,
+                new \Illuminate\Http\File($tmpPath),
+                $filename
+            );
+            @unlink($tmpPath);
+            $path = $folder . '/' . $filename;
+        } else {
+            // PDF — store as-is
+            $path = $uploaded->store($folder, $disk);
+        }
 
         $job = OcrJob::create([
             'user_id' => $user->id,
