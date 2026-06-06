@@ -13,7 +13,7 @@ class OcrController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
-            'document_type' => 'required|in:passport,nid,ssc_certificate,hsc_certificate,degree_certificate,transcript,jlpt_certificate,ielts_certificate',
+            'document_type' => 'required|in:passport,nid_student,ssc_certificate,ssc_marksheet,hsc_certificate,hsc_marksheet,degree_certificate,transcript,birth_certificate_student,father_birth_certificate,father_nid,mother_birth_certificate,mother_nid,student_photo,sponsor_photo,jlpt_certificate,jlpt_marksheet,nat_certificate,nat_marksheet,ielts_certificate',
         ]);
 
         $user = $request->user();
