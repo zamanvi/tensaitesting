@@ -56,8 +56,9 @@ export default function HomePage() {
   const STATS = [
     { value: '100%', label: lang === 'ja' ? 'OCR認証' : 'OCR Verified' },
     { value: '0', label: lang === 'ja' ? '偽データ' : 'Fake Profiles' },
+    { value: 'AI', label: lang === 'ja' ? '適格性スコアリング' : 'Eligibility Scoring' },
     { value: 'BD→JP', label: lang === 'ja' ? '最初のルート' : 'First Corridor' },
-    { value: '4', label: lang === 'ja' ? 'ゲートウェイ' : 'Gateways' },
+    { value: '🔒', label: lang === 'ja' ? 'エスクロー決済' : 'Escrow Payments' },
   ];
 
   return (
@@ -240,11 +241,20 @@ export default function HomePage() {
               <h3 className="text-fluid-3xl font-bold text-white mb-3">
                 {lang === 'ja' ? 'バングラデシュから日本へ' : 'Bangladesh → Japan'}
               </h3>
-              <p className="text-fluid-base text-white/50 max-w-xl mx-auto mb-7">
+              <p className="text-fluid-base text-white/50 max-w-xl mx-auto mb-4">
                 {lang === 'ja'
-                  ? '最初のルートはバングラデシュから日本。最も厳格な基準でシステムを構築し、世界に拡張する。'
-                  : "Our first corridor. Japan demands the highest verification standards — we built a system that meets them, then expands globally."}
+                  ? '最初のルートはバングラデシュから日本。日本は最も厳格な認証基準を求める — だからこそ最初に選んだ。その基準を満たせるなら、世界中に通用する。'
+                  : "Our first corridor. Japan demands the strictest verification standards in the world — that's exactly why we started here. A system built for Japan works everywhere."}
               </p>
+              <div className="flex flex-wrap items-center justify-center gap-3 mb-7 text-xs text-white/40">
+                <span>✓ {lang === 'ja' ? 'AI適格性スコアリング' : 'AI Eligibility Scoring'}</span>
+                <span>·</span>
+                <span>✓ {lang === 'ja' ? 'OCR書類ロック' : 'OCR Document Lock'}</span>
+                <span>·</span>
+                <span>✓ {lang === 'ja' ? 'エスクロー決済保護' : 'Escrow Payment Protection'}</span>
+                <span>·</span>
+                <span>✓ {lang === 'ja' ? 'QRセキュア追跡' : 'QR Secure Tracking'}</span>
+              </div>
               <Link href="/about" className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/12 border border-white/10 hover:border-green-500/30 text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all">
                 {lang === 'ja' ? '私たちのストーリーを読む →' : 'Read Our Story →'}
               </Link>
