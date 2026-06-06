@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,67 +9,67 @@ export default function AboutPage() {
   const ja = lang === 'ja';
 
   const STATS = [
-    { value: '4', label: ja ? 'ユーザーゲートウェイ' : 'User Gateways' },
-    { value: '100%', label: ja ? '書類OCR認証' : 'OCR-Verified Docs' },
-    { value: '0', label: ja ? '偽プロフィール' : 'Fake Profiles' },
-    { value: 'BD→JP', label: ja ? '最初の留学ルート' : 'First Corridor' },
+    { value: '4', label: ja ? 'ãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚²ãƒ¼ãƒˆã‚¦ã‚§ã‚¤' : 'User Gateways' },
+    { value: '100%', label: ja ? 'æ›¸é¡žOCRèªè¨¼' : 'OCR-Verified Docs' },
+    { value: '0', label: ja ? 'å½ãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«' : 'Fake Profiles' },
+    { value: 'BDâ†’JP', label: ja ? 'æœ€åˆã®ç•™å­¦ãƒ«ãƒ¼ãƒˆ' : 'First Corridor' },
   ];
 
   const PILLARS = [
     {
-      icon: '🔒',
-      title: ja ? '完全な透明性' : 'Full Transparency',
-      desc: ja ? 'すべての書類・ステップ・決定が記録・監査可能。' : 'Every document, step, and decision is recorded and auditable. Nothing hidden.',
+      icon: 'ðŸ”’',
+      title: ja ? 'å®Œå…¨ãªé€æ˜Žæ€§' : 'Full Transparency',
+      desc: ja ? 'ã™ã¹ã¦ã®æ›¸é¡žãƒ»ã‚¹ãƒ†ãƒƒãƒ—ãƒ»æ±ºå®šãŒè¨˜éŒ²ãƒ»ç›£æŸ»å¯èƒ½ã€‚' : 'Every document, step, and decision is recorded and auditable. Nothing hidden.',
     },
     {
-      icon: '🤖',
-      title: ja ? 'AI認証' : 'AI Verification',
-      desc: ja ? 'OCRが書類を自動スキャン。AIが各国への適格性をスコアリング。' : 'OCR auto-scans documents. AI scores student eligibility for each destination.',
+      icon: 'ðŸ¤–',
+      title: ja ? 'AIèªè¨¼' : 'AI Verification',
+      desc: ja ? 'OCRãŒæ›¸é¡žã‚’è‡ªå‹•ã‚¹ã‚­ãƒ£ãƒ³ã€‚AIãŒå„å›½ã¸ã®é©æ ¼æ€§ã‚’ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°ã€‚' : 'OCR auto-scans documents. AI scores student eligibility for each destination.',
     },
     {
-      icon: '🤝',
-      title: ja ? 'B2B協業' : 'B2B Collaboration',
-      desc: ja ? 'エージェンシーが競合せず協力。リードを共有して全員が収益を得る。' : 'Agencies collaborate instead of compete. Share leads — everyone earns more.',
+      icon: 'ðŸ¤',
+      title: ja ? 'B2Bå”æ¥­' : 'B2B Collaboration',
+      desc: ja ? 'ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ãŒç«¶åˆã›ãšå”åŠ›ã€‚ãƒªãƒ¼ãƒ‰ã‚’å…±æœ‰ã—ã¦å…¨å“¡ãŒåŽç›Šã‚’å¾—ã‚‹ã€‚' : 'Agencies collaborate instead of compete. Share leads â€” everyone earns more.',
     },
     {
-      icon: '🛡️',
-      title: ja ? 'プライバシー最優先' : 'Privacy First',
-      desc: ja ? '学生の連絡先は常にマスク。教育機関には資格情報のみ表示。' : 'Student contact info always masked. Institutions see qualifications only.',
+      icon: 'ðŸ›¡ï¸',
+      title: ja ? 'ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼æœ€å„ªå…ˆ' : 'Privacy First',
+      desc: ja ? 'å­¦ç”Ÿã®é€£çµ¡å…ˆã¯å¸¸ã«ãƒžã‚¹ã‚¯ã€‚æ•™è‚²æ©Ÿé–¢ã«ã¯è³‡æ ¼æƒ…å ±ã®ã¿è¡¨ç¤ºã€‚' : 'Student contact info always masked. Institutions see qualifications only.',
     },
   ];
 
   const HOW = [
     {
       step: '01',
-      icon: '🎓',
-      title: ja ? '学生が登録' : 'Student Signs Up',
+      icon: 'ðŸŽ“',
+      title: ja ? 'å­¦ç”ŸãŒç™»éŒ²' : 'Student Signs Up',
       desc: ja
-        ? 'AIがパスポートと書類をスキャン・認証。一度認証されたプロフィールはロックされ改ざん不可。'
-        : 'AI scans and verifies documents instantly. Profile locks after verification — tamper-proof forever.',
+        ? 'AIãŒãƒ‘ã‚¹ãƒãƒ¼ãƒˆã¨æ›¸é¡žã‚’ã‚¹ã‚­ãƒ£ãƒ³ãƒ»èªè¨¼ã€‚ä¸€åº¦èªè¨¼ã•ã‚ŒãŸãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«ã¯ãƒ­ãƒƒã‚¯ã•ã‚Œæ”¹ã–ã‚“ä¸å¯ã€‚'
+        : 'AI scans and verifies documents instantly. Profile locks after verification â€” tamper-proof forever.',
     },
     {
       step: '02',
-      icon: '🏢',
-      title: ja ? 'エージェンシーが管理' : 'Agency Manages Leads',
+      icon: 'ðŸ¢',
+      title: ja ? 'ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ãŒç®¡ç†' : 'Agency Manages Leads',
       desc: ja
-        ? 'エージェンシーはプライベート保管庫でリードを管理。処理できないリードはパートナーと共有して収益化。'
-        : 'Agencies manage leads in a private vault. Unprocessable leads shared with partners — zero waste.',
+        ? 'ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ã¯ãƒ—ãƒ©ã‚¤ãƒ™ãƒ¼ãƒˆä¿ç®¡åº«ã§ãƒªãƒ¼ãƒ‰ã‚’ç®¡ç†ã€‚å‡¦ç†ã§ããªã„ãƒªãƒ¼ãƒ‰ã¯ãƒ‘ãƒ¼ãƒˆãƒŠãƒ¼ã¨å…±æœ‰ã—ã¦åŽç›ŠåŒ–ã€‚'
+        : 'Agencies manage leads in a private vault. Unprocessable leads shared with partners â€” zero waste.',
     },
     {
       step: '03',
-      icon: '🏫',
-      title: ja ? '教育機関が選択' : 'Institution Selects',
+      icon: 'ðŸ«',
+      title: ja ? 'æ•™è‚²æ©Ÿé–¢ãŒé¸æŠž' : 'Institution Selects',
       desc: ja
-        ? '大学は認証済み学生プロフィールを閲覧。連絡先は常に非表示。すべての連絡はTensai経由。'
+        ? 'å¤§å­¦ã¯èªè¨¼æ¸ˆã¿å­¦ç”Ÿãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«ã‚’é–²è¦§ã€‚é€£çµ¡å…ˆã¯å¸¸ã«éžè¡¨ç¤ºã€‚ã™ã¹ã¦ã®é€£çµ¡ã¯TensaiçµŒç”±ã€‚'
         : 'Universities browse verified student profiles. Contact info always hidden. All communication via Tensai.',
     },
     {
       step: '04',
-      icon: '✈️',
-      title: ja ? '学生が世界へ' : 'Student Goes Global',
+      icon: 'âœˆï¸',
+      title: ja ? 'å­¦ç”ŸãŒä¸–ç•Œã¸' : 'Student Goes Global',
       desc: ja
-        ? 'ビザ承認から入学まで、すべてのステップが正式に記録。透明で安全なプロセス。'
-        : 'Visa to enrollment — every step formally recorded. A clean, transparent journey end to end.',
+        ? 'ãƒ“ã‚¶æ‰¿èªã‹ã‚‰å…¥å­¦ã¾ã§ã€ã™ã¹ã¦ã®ã‚¹ãƒ†ãƒƒãƒ—ãŒæ­£å¼ã«è¨˜éŒ²ã€‚é€æ˜Žã§å®‰å…¨ãªãƒ—ãƒ­ã‚»ã‚¹ã€‚'
+        : 'Visa to enrollment â€” every step formally recorded. A clean, transparent journey end to end.',
     },
   ];
 
@@ -77,11 +77,11 @@ export default function AboutPage() {
     {
       name: 'Md. Norozzaman',
       initials: 'MN',
-      role: ja ? 'ファウンダー & CEO' : 'Founder & CEO',
+      role: ja ? 'ãƒ•ã‚¡ã‚¦ãƒ³ãƒ€ãƒ¼ & CEO' : 'Founder & CEO',
       bio: ja
-        ? 'バングラデシュ生まれの連続起業家。米国登録企業Zonelyも創設。「プロフェッショナルが正当に評価される世界」という信念をTensaiで教育分野に応用。'
-        : 'Serial entrepreneur from Bangladesh, also founder of Zonely (USA). Brings the same belief — that talent everywhere deserves to be found — to fix the broken study-abroad industry.',
-      badge: ja ? 'ビジョナリー' : 'Visionary',
+        ? 'ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ç”Ÿã¾ã‚Œã®é€£ç¶šèµ·æ¥­å®¶ã€‚ç±³å›½ç™»éŒ²ä¼æ¥­Zonelyã‚‚å‰µè¨­ã€‚ã€Œãƒ—ãƒ­ãƒ•ã‚§ãƒƒã‚·ãƒ§ãƒŠãƒ«ãŒæ­£å½“ã«è©•ä¾¡ã•ã‚Œã‚‹ä¸–ç•Œã€ã¨ã„ã†ä¿¡å¿µã‚’Tensaiã§æ•™è‚²åˆ†é‡Žã«å¿œç”¨ã€‚'
+        : 'Serial entrepreneur from Bangladesh, also founder of Zonely (USA). Brings the same belief â€” that talent everywhere deserves to be found â€” to fix the broken study-abroad industry.',
+      badge: ja ? 'ãƒ“ã‚¸ãƒ§ãƒŠãƒªãƒ¼' : 'Visionary',
       avatarBg: 'bg-green-700',
       badgeColor: 'bg-green-100 text-green-800',
       cardBorder: 'border-green-200 hover:border-green-300',
@@ -90,11 +90,11 @@ export default function AboutPage() {
     {
       name: 'Nasir Sarker',
       initials: 'NS',
-      role: ja ? '共同創業者 — 事業成長' : 'Co-founder — Business Growth',
+      role: ja ? 'å…±åŒå‰µæ¥­è€… â€” äº‹æ¥­æˆé•·' : 'Co-founder â€” Business Growth',
       bio: ja
-        ? 'Tensaiの成長エンジン。パートナーシップの拡大、エージェンシーネットワーク構築、全国フランチャイズ展開を牽引。'
+        ? 'Tensaiã®æˆé•·ã‚¨ãƒ³ã‚¸ãƒ³ã€‚ãƒ‘ãƒ¼ãƒˆãƒŠãƒ¼ã‚·ãƒƒãƒ—ã®æ‹¡å¤§ã€ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯æ§‹ç¯‰ã€å…¨å›½ãƒ•ãƒ©ãƒ³ãƒãƒ£ã‚¤ã‚ºå±•é–‹ã‚’ç‰½å¼•ã€‚'
         : 'The growth engine behind Tensai. Drives partnerships, agency network expansion, and the franchise rollout across Bangladesh.',
-      badge: ja ? '成長戦略家' : 'Growth Strategist',
+      badge: ja ? 'æˆé•·æˆ¦ç•¥å®¶' : 'Growth Strategist',
       avatarBg: 'bg-slate-700',
       badgeColor: 'bg-slate-100 text-slate-700',
       cardBorder: 'border-slate-200 hover:border-slate-300',
@@ -103,11 +103,11 @@ export default function AboutPage() {
     {
       name: 'Sabbir',
       initials: 'SB',
-      role: ja ? '共同創業者 — 海外大学連携' : 'Co-founder — Foreign Institute Relations',
+      role: ja ? 'å…±åŒå‰µæ¥­è€… â€” æµ·å¤–å¤§å­¦é€£æº' : 'Co-founder â€” Foreign Institute Relations',
       bio: ja
-        ? '日本を中心とした海外大学・専門学校との直接パートナーシップを担う。学生に本物のチャンスを届ける架け橋。'
-        : 'Builds direct partnerships with universities and schools worldwide — especially Japan. The bridge between Tensai and real global opportunities.',
-      badge: ja ? '日本スペシャリスト' : 'Japan Specialist',
+        ? 'æ—¥æœ¬ã‚’ä¸­å¿ƒã¨ã—ãŸæµ·å¤–å¤§å­¦ãƒ»å°‚é–€å­¦æ ¡ã¨ã®ç›´æŽ¥ãƒ‘ãƒ¼ãƒˆãƒŠãƒ¼ã‚·ãƒƒãƒ—ã‚’æ‹…ã†ã€‚å­¦ç”Ÿã«æœ¬ç‰©ã®ãƒãƒ£ãƒ³ã‚¹ã‚’å±Šã‘ã‚‹æž¶ã‘æ©‹ã€‚'
+        : 'Builds direct partnerships with universities and schools worldwide â€” especially Japan. The bridge between Tensai and real global opportunities.',
+      badge: ja ? 'æ—¥æœ¬ã‚¹ãƒšã‚·ãƒ£ãƒªã‚¹ãƒˆ' : 'Japan Specialist',
       avatarBg: 'bg-blue-700',
       badgeColor: 'bg-blue-100 text-blue-800',
       cardBorder: 'border-blue-200 hover:border-blue-300',
@@ -132,13 +132,13 @@ export default function AboutPage() {
               onClick={toggle}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors"
             >
-              {lang === 'en' ? '日本語' : 'English'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
             <Link href="/about" className="text-sm font-semibold text-green-700 border-b-2 border-green-600 px-2 py-1 hidden sm:inline">
-              {ja ? '私たちについて' : 'About'}
+              {ja ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About'}
             </Link>
             <Link href="/team" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1 hidden sm:inline">
-              {ja ? 'チーム' : 'Team'}
+              {ja ? 'ãƒãƒ¼ãƒ ' : 'Team'}
             </Link>
             <Link href="/gallery" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1 hidden sm:inline">
               {l.gallery}
@@ -156,23 +156,23 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-4 pt-16 sm:pt-24 pb-14 sm:pb-20 text-center">
         <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-          🌏 {ja ? '私たちについて' : 'About Tensai'}
+          ðŸŒ {ja ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About Tensai'}
         </div>
         <h1 className="text-fluid-hero font-bold text-slate-900 leading-tight mb-6">
-          {ja ? '留学を、もっと' : 'Study abroad should be'}<br />
-          <span className="text-green-700">{ja ? 'クリーンに。' : 'clean, safe, and honest.'}</span>
+          {ja ? 'ç•™å­¦ã‚’ã€ã‚‚ã£ã¨' : 'Study abroad should be'}<br />
+          <span className="text-green-700">{ja ? 'ã‚¯ãƒªãƒ¼ãƒ³ã«ã€‚' : 'clean, safe, and honest.'}</span>
         </h1>
         <p className="text-fluid-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-8">
           {ja
-            ? '天才は、バングラデシュの学生が詐欺なく、不安なく、グローバルなキャリアを築けるプラットフォームです。'
-            : "We built Tensai because the study-abroad process was broken — full of fake documents, dishonest agencies, and students who had no idea if they could trust anyone. We decided to fix it."}
+            ? 'å¤©æ‰ã¯ã€ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã®å­¦ç”ŸãŒè©æ¬ºãªãã€ä¸å®‰ãªãã€ã‚°ãƒ­ãƒ¼ãƒãƒ«ãªã‚­ãƒ£ãƒªã‚¢ã‚’ç¯‰ã‘ã‚‹ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã§ã™ã€‚'
+            : "We built Tensai because the study-abroad process was broken â€” full of fake documents, dishonest agencies, and students who had no idea if they could trust anyone. We decided to fix it."}
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/auth/register" className="bg-green-700 hover:bg-green-800 text-white px-7 py-3 rounded-full font-semibold text-sm transition-colors">
-            {ja ? '無料で始める →' : 'Get Started Free →'}
+            {ja ? 'ç„¡æ–™ã§å§‹ã‚ã‚‹ â†’' : 'Get Started Free â†’'}
           </Link>
           <Link href="#how" className="border border-slate-200 hover:border-green-300 text-slate-700 hover:text-green-800 px-7 py-3 rounded-full font-semibold text-sm transition-colors">
-            {ja ? 'どう機能するか ↓' : 'See How It Works ↓'}
+            {ja ? 'ã©ã†æ©Ÿèƒ½ã™ã‚‹ã‹ â†“' : 'See How It Works â†“'}
           </Link>
         </div>
       </section>
@@ -195,26 +195,26 @@ export default function AboutPage() {
       <section className="max-w-3xl mx-auto px-4 py-14 sm:py-20">
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            📖 {ja ? '私たちのストーリー' : 'Our Story'}
+            ðŸ“– {ja ? 'ç§ãŸã¡ã®ã‚¹ãƒˆãƒ¼ãƒªãƒ¼' : 'Our Story'}
           </div>
           <h2 className="text-fluid-4xl font-bold text-slate-900">
-            {ja ? 'なぜTensaiを作ったか' : 'Why we built Tensai'}
+            {ja ? 'ãªãœTensaiã‚’ä½œã£ãŸã‹' : 'Why we built Tensai'}
           </h2>
         </div>
         <div className="space-y-5 text-slate-600 text-fluid-lg leading-relaxed">
           <p>
             {ja
-              ? '留学は人生を変えるチャンスです。でも現実は違います。偽の書類、消えるエージェンシー、何十万タカもの手数料を払ったのにビザが却下される学生たち。'
-              : 'Studying abroad should be a life-changing opportunity. But for too many Bangladeshi students, it becomes a nightmare — fake documents, disappearing agencies, and hundreds of thousands of taka lost to fraud.'}
+              ? 'ç•™å­¦ã¯äººç”Ÿã‚’å¤‰ãˆã‚‹ãƒãƒ£ãƒ³ã‚¹ã§ã™ã€‚ã§ã‚‚ç¾å®Ÿã¯é•ã„ã¾ã™ã€‚å½ã®æ›¸é¡žã€æ¶ˆãˆã‚‹ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ã€ä½•åä¸‡ã‚¿ã‚«ã‚‚ã®æ‰‹æ•°æ–™ã‚’æ‰•ã£ãŸã®ã«ãƒ“ã‚¶ãŒå´ä¸‹ã•ã‚Œã‚‹å­¦ç”ŸãŸã¡ã€‚'
+              : 'Studying abroad should be a life-changing opportunity. But for too many Bangladeshi students, it becomes a nightmare â€” fake documents, disappearing agencies, and hundreds of thousands of taka lost to fraud.'}
           </p>
           <p>
             {ja
-              ? '天才はこの問題を根本から解決するために作られました。AI認証でプロフィールをロック。エスクロー決済で資金を保護。すべてのステップを正式に記録。'
-              : "Tensai was built to fix this from the root. We lock student profiles with AI-powered document verification. We protect payments through an escrow model. We record every step formally — so there's nowhere to hide and no one to cheat."}
+              ? 'å¤©æ‰ã¯ã“ã®å•é¡Œã‚’æ ¹æœ¬ã‹ã‚‰è§£æ±ºã™ã‚‹ãŸã‚ã«ä½œã‚‰ã‚Œã¾ã—ãŸã€‚AIèªè¨¼ã§ãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«ã‚’ãƒ­ãƒƒã‚¯ã€‚ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆã§è³‡é‡‘ã‚’ä¿è­·ã€‚ã™ã¹ã¦ã®ã‚¹ãƒ†ãƒƒãƒ—ã‚’æ­£å¼ã«è¨˜éŒ²ã€‚'
+              : "Tensai was built to fix this from the root. We lock student profiles with AI-powered document verification. We protect payments through an escrow model. We record every step formally â€” so there's nowhere to hide and no one to cheat."}
           </p>
           <p>
             {ja
-              ? '日本を最初のルートとして選んだのは、日本が最も厳格な基準を求めるからです。その基準を満たせるなら、どこでも通用します。'
+              ? 'æ—¥æœ¬ã‚’æœ€åˆã®ãƒ«ãƒ¼ãƒˆã¨ã—ã¦é¸ã‚“ã ã®ã¯ã€æ—¥æœ¬ãŒæœ€ã‚‚åŽ³æ ¼ãªåŸºæº–ã‚’æ±‚ã‚ã‚‹ã‹ã‚‰ã§ã™ã€‚ãã®åŸºæº–ã‚’æº€ãŸã›ã‚‹ãªã‚‰ã€ã©ã“ã§ã‚‚é€šç”¨ã—ã¾ã™ã€‚'
               : "We chose Japan as our first corridor because Japan demands the highest standards. If we can build a system that works there, it works everywhere."}
           </p>
         </div>
@@ -225,10 +225,10 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-10 sm:mb-12">
             <h2 className="text-fluid-4xl font-bold text-slate-900">
-              {ja ? '私たちが大切にすること' : 'What We Stand For'}
+              {ja ? 'ç§ãŸã¡ãŒå¤§åˆ‡ã«ã™ã‚‹ã“ã¨' : 'What We Stand For'}
             </h2>
             <p className="text-slate-500 text-sm mt-2">
-              {ja ? '4つの原則がTensaiのすべてを支えている。' : 'Four principles that drive everything we build.'}
+              {ja ? '4ã¤ã®åŽŸå‰‡ãŒTensaiã®ã™ã¹ã¦ã‚’æ”¯ãˆã¦ã„ã‚‹ã€‚' : 'Four principles that drive everything we build.'}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -249,10 +249,10 @@ export default function AboutPage() {
       <section id="how" className="max-w-7xl mx-auto px-4 py-14 sm:py-20">
         <div className="text-center mb-10 sm:mb-14">
           <h2 className="text-fluid-4xl font-bold text-slate-900">
-            {ja ? 'どうやって機能するか' : 'How Tensai Works'}
+            {ja ? 'ã©ã†ã‚„ã£ã¦æ©Ÿèƒ½ã™ã‚‹ã‹' : 'How Tensai Works'}
           </h2>
           <p className="text-slate-500 text-sm mt-2">
-            {ja ? '4つのステップ。完全なエコシステム。' : 'Four steps. One clean ecosystem.'}
+            {ja ? '4ã¤ã®ã‚¹ãƒ†ãƒƒãƒ—ã€‚å®Œå…¨ãªã‚¨ã‚³ã‚·ã‚¹ãƒ†ãƒ ã€‚' : 'Four steps. One clean ecosystem.'}
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
@@ -279,15 +279,15 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-10 sm:mb-14">
             <div className="inline-flex items-center gap-2 bg-green-50 text-green-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-              👥 {ja ? 'チーム' : 'The Team'}
+              ðŸ‘¥ {ja ? 'ãƒãƒ¼ãƒ ' : 'The Team'}
             </div>
             <h2 className="text-fluid-4xl font-bold text-slate-900">
-              {ja ? 'Tensaiを作った人たち' : 'The people behind Tensai'}
+              {ja ? 'Tensaiã‚’ä½œã£ãŸäººãŸã¡' : 'The people behind Tensai'}
             </h2>
             <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
               {ja
-                ? 'バングラデシュの留学業界を変えることに情熱を持つ3人。'
-                : 'Three people who got tired of watching students get cheated — and built something better.'}
+                ? 'ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã®ç•™å­¦æ¥­ç•Œã‚’å¤‰ãˆã‚‹ã“ã¨ã«æƒ…ç†±ã‚’æŒã¤3äººã€‚'
+                : 'Three people who got tired of watching students get cheated â€” and built something better.'}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -308,7 +308,7 @@ export default function AboutPage() {
                 <p className="text-sm text-slate-600 leading-relaxed flex-1">{member.bio}</p>
                 {member.linkedin && (
                   <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="self-start text-xs text-green-700 font-semibold hover:underline">
-                    LinkedIn →
+                    LinkedIn â†’
                   </a>
                 )}
               </div>
@@ -320,21 +320,21 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="bg-slate-900 py-14 sm:py-20">
         <div className="max-w-2xl mx-auto px-4 text-center">
-          <div className="text-4xl mb-5">🚀</div>
+          <div className="text-4xl mb-5">ðŸš€</div>
           <h2 className="text-fluid-4xl font-bold text-white mb-4">
-            {ja ? 'グローバルキャリアへの道を、今。' : 'Your global career starts here.'}
+            {ja ? 'ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚­ãƒ£ãƒªã‚¢ã¸ã®é“ã‚’ã€ä»Šã€‚' : 'Your global career starts here.'}
           </h2>
           <p className="text-slate-400 text-sm sm:text-base mb-8 leading-relaxed">
             {ja
-              ? '学生・エージェンシー・教育機関・アフィリエイト — Tensaiはあなたのために作られています。'
-              : "Student, agency, university, or affiliate — Tensai was built for you. Join the ecosystem that puts trust first."}
+              ? 'å­¦ç”Ÿãƒ»ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ãƒ»æ•™è‚²æ©Ÿé–¢ãƒ»ã‚¢ãƒ•ã‚£ãƒªã‚¨ã‚¤ãƒˆ â€” Tensaiã¯ã‚ãªãŸã®ãŸã‚ã«ä½œã‚‰ã‚Œã¦ã„ã¾ã™ã€‚'
+              : "Student, agency, university, or affiliate â€” Tensai was built for you. Join the ecosystem that puts trust first."}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/auth/register" className="bg-green-700 hover:bg-green-800 text-white px-8 py-3.5 rounded-full font-semibold text-sm transition-colors">
-              {ja ? '無料で始める →' : 'Get Started Free →'}
+              {ja ? 'ç„¡æ–™ã§å§‹ã‚ã‚‹ â†’' : 'Get Started Free â†’'}
             </Link>
             <Link href="/" className="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white px-8 py-3.5 rounded-full font-semibold text-sm transition-colors">
-              {ja ? '← ホームに戻る' : '← Back to Home'}
+              {ja ? 'â† ãƒ›ãƒ¼ãƒ ã«æˆ»ã‚‹' : 'â† Back to Home'}
             </Link>
           </div>
         </div>
@@ -343,12 +343,13 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="border-t border-slate-100 py-6 sm:py-8 text-center text-sm text-slate-400">
         <div className="mb-3 flex items-center justify-center gap-4">
-          <Link href="/about" className="text-green-700 font-medium">{ja ? '私たちについて' : 'About'}</Link>
-          <Link href="/terms" className="hover:text-green-700 transition-colors">{ja ? '利用規約' : 'Terms'}</Link>
-          <Link href="/privacy" className="hover:text-green-700 transition-colors">{ja ? 'プライバシー' : 'Privacy'}</Link>
+          <Link href="/about" className="text-green-700 font-medium">{ja ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About'}</Link>
+          <Link href="/terms" className="hover:text-green-700 transition-colors">{ja ? 'åˆ©ç”¨è¦ç´„' : 'Terms'}</Link>
+          <Link href="/privacy" className="hover:text-green-700 transition-colors">{ja ? 'ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼' : 'Privacy'}</Link>
         </div>
         {l.footer}
       </footer>
     </div>
   );
 }
+

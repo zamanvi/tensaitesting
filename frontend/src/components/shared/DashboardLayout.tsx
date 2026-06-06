@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import Image from 'next/image';

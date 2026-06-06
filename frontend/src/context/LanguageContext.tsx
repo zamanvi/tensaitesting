@@ -14,17 +14,20 @@ const LanguageContext = createContext<LanguageContextValue>({
   t: translations.en,
 });
 
+const CYCLE: Locale[] = ['en', 'bn', 'ja'];
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Locale>('en');
 
   useEffect(() => {
     const saved = localStorage.getItem('tensai_lang') as Locale | null;
-    if (saved === 'en' || saved === 'ja') setLang(saved);
+    if (saved && CYCLE.includes(saved)) setLang(saved);
   }, []);
 
   const toggle = useCallback(() => {
     setLang((prev) => {
-      const next: Locale = prev === 'en' ? 'ja' : 'en';
+      const idx = CYCLE.indexOf(prev);
+      const next = CYCLE[(idx + 1) % CYCLE.length];
       localStorage.setItem('tensai_lang', next);
       return next;
     });

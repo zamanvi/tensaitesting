@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
               onClick={toggle}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors"
             >
-              {lang === 'en' ? '日本語' : 'English'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
           </div>
           <p className="text-slate-500 mt-2 text-sm">{a.forgotTitle}</p>
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
           {sent ? (
             <div className="text-center">
-              <div className="text-4xl mb-4">📧</div>
+              <div className="text-4xl mb-4">ðŸ“§</div>
               <h2 className="font-bold text-slate-900 mb-2">{a.checkEmail}</h2>
               <p className="text-sm text-slate-500 mb-6">{a.checkEmailDesc}</p>
               <Link href="/auth/login" className="text-green-700 font-medium hover:underline text-sm">
@@ -82,3 +82,4 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+

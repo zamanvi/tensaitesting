@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from "@/store/authStore";
 import Image from "next/image";
@@ -43,7 +43,7 @@ export default function LoginPage() {
               onClick={toggle}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors"
             >
-              {lang === 'en' ? '日本語' : 'English'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function LoginPage() {
                   <input
                     type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="••••••••" required
+                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required
                   />
                   <button
                     type="button"
@@ -122,3 +122,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from "@/store/authStore";
 import Image from "next/image";
@@ -13,10 +13,10 @@ function RegisterForm() {
   const a = t.auth;
 
   const gateways = [
-    { value: "student", label: a.studentLabel, desc: a.studentDesc, icon: "🎓" },
-    { value: "agency", label: a.agencyLabel, desc: a.agencyDesc, icon: "🏢" },
-    { value: "institution", label: a.institutionLabel, desc: a.institutionDesc, icon: "🌐" },
-    { value: "affiliate", label: a.affiliateLabel, desc: a.affiliateDesc, icon: "💼" },
+    { value: "student", label: a.studentLabel, desc: a.studentDesc, icon: "ðŸŽ“" },
+    { value: "agency", label: a.agencyLabel, desc: a.agencyDesc, icon: "ðŸ¢" },
+    { value: "institution", label: a.institutionLabel, desc: a.institutionDesc, icon: "ðŸŒ" },
+    { value: "affiliate", label: a.affiliateLabel, desc: a.affiliateDesc, icon: "ðŸ’¼" },
   ];
 
   const [form, setForm] = useState({
@@ -85,7 +85,7 @@ function RegisterForm() {
               onClick={toggle}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors"
             >
-              {lang === 'en' ? '日本語' : 'English'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
           </div>
         </div>
@@ -152,7 +152,7 @@ function RegisterForm() {
                 <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.password} <span className="text-slate-400 font-normal">(min 8 chars)</span></label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'} placeholder="••••••••" required
+                    type={showPassword ? 'text' : 'password'} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required
                     value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
                     className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -167,7 +167,7 @@ function RegisterForm() {
                 <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.confirmPassword}</label>
                 <div className="relative">
                   <input
-                    type={showConfirm ? 'text' : 'password'} placeholder="••••••••" required
+                    type={showConfirm ? 'text' : 'password'} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required
                     value={form.password_confirmation} onChange={(e) => setForm(f => ({ ...f, password_confirmation: e.target.value }))}
                     className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
@@ -229,3 +229,4 @@ export default function RegisterPage() {
     </Suspense>
   );
 }
+

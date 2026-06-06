@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -6,7 +6,7 @@ import Link from 'next/link';
 const SECTIONS_EN = [
   {
     title: '1. Acceptance of Terms',
-    body: 'By creating an account or using the Tensai platform in any way, you agree to these Terms and Conditions. If you do not agree, do not use the platform. These terms apply to all users — students, agencies, institutions, and affiliates.',
+    body: 'By creating an account or using the Tensai platform in any way, you agree to these Terms and Conditions. If you do not agree, do not use the platform. These terms apply to all users â€” students, agencies, institutions, and affiliates.',
   },
   {
     title: '2. Who Can Use Tensai',
@@ -18,7 +18,7 @@ const SECTIONS_EN = [
   },
   {
     title: '4. Document Verification & Locked Profiles',
-    body: 'Student profiles are locked after admin verification. Once locked, profile data cannot be edited without a formal review request. This is by design — to prevent document fraud. Any attempt to submit false documents is grounds for permanent account termination and may be reported to relevant authorities.',
+    body: 'Student profiles are locked after admin verification. Once locked, profile data cannot be edited without a formal review request. This is by design â€” to prevent document fraud. Any attempt to submit false documents is grounds for permanent account termination and may be reported to relevant authorities.',
   },
   {
     title: '5. Lead Ownership & Sharing',
@@ -26,7 +26,7 @@ const SECTIONS_EN = [
   },
   {
     title: '6. Payments & Fees',
-    body: 'All fees (service charges, unlock fees, commissions) are clearly stated before any transaction. Payments made through the Tensai platform are processed securely. Refund eligibility depends on the service stage — refer to our Refund Policy. Tensai uses an escrow model to protect student payments until milestone conditions are met.',
+    body: 'All fees (service charges, unlock fees, commissions) are clearly stated before any transaction. Payments made through the Tensai platform are processed securely. Refund eligibility depends on the service stage â€” refer to our Refund Policy. Tensai uses an escrow model to protect student payments until milestone conditions are met.',
   },
   {
     title: '7. Prohibited Conduct',
@@ -64,60 +64,60 @@ const SECTIONS_EN = [
 
 const SECTIONS_JA = [
   {
-    title: '1. 利用規約の同意',
-    body: 'Tensaiプラットフォームのアカウント作成または利用により、本利用規約に同意したものとみなします。同意しない場合はご利用いただけません。本規約は学生・エージェンシー・教育機関・アフィリエイトすべてのユーザーに適用されます。',
+    title: '1. åˆ©ç”¨è¦ç´„ã®åŒæ„',
+    body: 'Tensaiãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã®ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆã¾ãŸã¯åˆ©ç”¨ã«ã‚ˆã‚Šã€æœ¬åˆ©ç”¨è¦ç´„ã«åŒæ„ã—ãŸã‚‚ã®ã¨ã¿ãªã—ã¾ã™ã€‚åŒæ„ã—ãªã„å ´åˆã¯ã”åˆ©ç”¨ã„ãŸã ã‘ã¾ã›ã‚“ã€‚æœ¬è¦ç´„ã¯å­¦ç”Ÿãƒ»ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ãƒ»æ•™è‚²æ©Ÿé–¢ãƒ»ã‚¢ãƒ•ã‚£ãƒªã‚¨ã‚¤ãƒˆã™ã¹ã¦ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«é©ç”¨ã•ã‚Œã¾ã™ã€‚',
   },
   {
-    title: '2. 利用資格',
-    body: '18歳以上、または保護者の同意を得た方のみご利用いただけます。エージェンシー・教育機関アカウントには認証済みのビジネス資格が必要です。当社は基準を満たさないアカウントを拒否・削除する権利を有します。',
+    title: '2. åˆ©ç”¨è³‡æ ¼',
+    body: '18æ­³ä»¥ä¸Šã€ã¾ãŸã¯ä¿è­·è€…ã®åŒæ„ã‚’å¾—ãŸæ–¹ã®ã¿ã”åˆ©ç”¨ã„ãŸã ã‘ã¾ã™ã€‚ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ãƒ»æ•™è‚²æ©Ÿé–¢ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã«ã¯èªè¨¼æ¸ˆã¿ã®ãƒ“ã‚¸ãƒã‚¹è³‡æ ¼ãŒå¿…è¦ã§ã™ã€‚å½“ç¤¾ã¯åŸºæº–ã‚’æº€ãŸã•ãªã„ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã‚’æ‹’å¦ãƒ»å‰Šé™¤ã™ã‚‹æ¨©åˆ©ã‚’æœ‰ã—ã¾ã™ã€‚',
   },
   {
-    title: '3. アカウントの責任',
-    body: 'ログイン情報の管理はご自身の責任です。アカウント上のすべての活動はアカウント所有者の責任となります。不正アクセスが疑われる場合は直ちにご連絡ください。',
+    title: '3. ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®è²¬ä»»',
+    body: 'ãƒ­ã‚°ã‚¤ãƒ³æƒ…å ±ã®ç®¡ç†ã¯ã”è‡ªèº«ã®è²¬ä»»ã§ã™ã€‚ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä¸Šã®ã™ã¹ã¦ã®æ´»å‹•ã¯ã‚¢ã‚«ã‚¦ãƒ³ãƒˆæ‰€æœ‰è€…ã®è²¬ä»»ã¨ãªã‚Šã¾ã™ã€‚ä¸æ­£ã‚¢ã‚¯ã‚»ã‚¹ãŒç–‘ã‚ã‚Œã‚‹å ´åˆã¯ç›´ã¡ã«ã”é€£çµ¡ãã ã•ã„ã€‚',
   },
   {
-    title: '4. 書類認証とプロフィールロック',
-    body: '学生プロフィールは管理者認証後にロックされます。ロック後のデータ編集には正式なレビューリクエストが必要です。虚偽の書類提出はアカウントの永久停止および当局への報告対象となります。',
+    title: '4. æ›¸é¡žèªè¨¼ã¨ãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«ãƒ­ãƒƒã‚¯',
+    body: 'å­¦ç”Ÿãƒ—ãƒ­ãƒ•ã‚£ãƒ¼ãƒ«ã¯ç®¡ç†è€…èªè¨¼å¾Œã«ãƒ­ãƒƒã‚¯ã•ã‚Œã¾ã™ã€‚ãƒ­ãƒƒã‚¯å¾Œã®ãƒ‡ãƒ¼ã‚¿ç·¨é›†ã«ã¯æ­£å¼ãªãƒ¬ãƒ“ãƒ¥ãƒ¼ãƒªã‚¯ã‚¨ã‚¹ãƒˆãŒå¿…è¦ã§ã™ã€‚è™šå½ã®æ›¸é¡žæå‡ºã¯ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®æ°¸ä¹…åœæ­¢ãŠã‚ˆã³å½“å±€ã¸ã®å ±å‘Šå¯¾è±¡ã¨ãªã‚Šã¾ã™ã€‚',
   },
   {
-    title: '5. リードの所有権と共有',
-    body: 'エージェンシーがプライベート保管庫に追加したリードはそのエージェンシーの専有財産です。オープンプールに共有されたリードはTensaiのリード共有ポリシーに従います。',
+    title: '5. ãƒªãƒ¼ãƒ‰ã®æ‰€æœ‰æ¨©ã¨å…±æœ‰',
+    body: 'ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ãŒãƒ—ãƒ©ã‚¤ãƒ™ãƒ¼ãƒˆä¿ç®¡åº«ã«è¿½åŠ ã—ãŸãƒªãƒ¼ãƒ‰ã¯ãã®ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ã‚·ãƒ¼ã®å°‚æœ‰è²¡ç”£ã§ã™ã€‚ã‚ªãƒ¼ãƒ—ãƒ³ãƒ—ãƒ¼ãƒ«ã«å…±æœ‰ã•ã‚ŒãŸãƒªãƒ¼ãƒ‰ã¯Tensaiã®ãƒªãƒ¼ãƒ‰å…±æœ‰ãƒãƒªã‚·ãƒ¼ã«å¾“ã„ã¾ã™ã€‚',
   },
   {
-    title: '6. 支払いと手数料',
-    body: 'すべての手数料はトランザクション前に明示されます。Tensaiはエスクローモデルを使用し、マイルストーン条件が満たされるまで学生の支払いを保護します。',
+    title: '6. æ”¯æ‰•ã„ã¨æ‰‹æ•°æ–™',
+    body: 'ã™ã¹ã¦ã®æ‰‹æ•°æ–™ã¯ãƒˆãƒ©ãƒ³ã‚¶ã‚¯ã‚·ãƒ§ãƒ³å‰ã«æ˜Žç¤ºã•ã‚Œã¾ã™ã€‚Tensaiã¯ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ¢ãƒ‡ãƒ«ã‚’ä½¿ç”¨ã—ã€ãƒžã‚¤ãƒ«ã‚¹ãƒˆãƒ¼ãƒ³æ¡ä»¶ãŒæº€ãŸã•ã‚Œã‚‹ã¾ã§å­¦ç”Ÿã®æ”¯æ‰•ã„ã‚’ä¿è­·ã—ã¾ã™ã€‚',
   },
   {
-    title: '7. 禁止事項',
-    body: '偽造書類の提出、制限回避のための複数アカウント作成、他のユーザーへの詐欺・嫌がらせ、プラットフォームのスクレイピング、コンタクトペーパーシステム外での学生への直接連絡は禁止されています。',
+    title: '7. ç¦æ­¢äº‹é …',
+    body: 'å½é€ æ›¸é¡žã®æå‡ºã€åˆ¶é™å›žé¿ã®ãŸã‚ã®è¤‡æ•°ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆã€ä»–ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã¸ã®è©æ¬ºãƒ»å«ŒãŒã‚‰ã›ã€ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã®ã‚¹ã‚¯ãƒ¬ã‚¤ãƒ”ãƒ³ã‚°ã€ã‚³ãƒ³ã‚¿ã‚¯ãƒˆãƒšãƒ¼ãƒ‘ãƒ¼ã‚·ã‚¹ãƒ†ãƒ å¤–ã§ã®å­¦ç”Ÿã¸ã®ç›´æŽ¥é€£çµ¡ã¯ç¦æ­¢ã•ã‚Œã¦ã„ã¾ã™ã€‚',
   },
   {
-    title: '8. サービスの可用性',
-    body: 'Tensaiは高可用性を目指しますが、継続的なサービスを保証するものではありません。メンテナンスや更新のためサービスを一時停止する場合があります。',
+    title: '8. ã‚µãƒ¼ãƒ“ã‚¹ã®å¯ç”¨æ€§',
+    body: 'Tensaiã¯é«˜å¯ç”¨æ€§ã‚’ç›®æŒ‡ã—ã¾ã™ãŒã€ç¶™ç¶šçš„ãªã‚µãƒ¼ãƒ“ã‚¹ã‚’ä¿è¨¼ã™ã‚‹ã‚‚ã®ã§ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚ãƒ¡ãƒ³ãƒ†ãƒŠãƒ³ã‚¹ã‚„æ›´æ–°ã®ãŸã‚ã‚µãƒ¼ãƒ“ã‚¹ã‚’ä¸€æ™‚åœæ­¢ã™ã‚‹å ´åˆãŒã‚ã‚Šã¾ã™ã€‚',
   },
   {
-    title: '9. 知的財産',
-    body: 'プラットフォームのコンテンツ、ブランド、コード、デザインはすべてTensaiに帰属します。書面による許可なく複製・配布することはできません。',
+    title: '9. çŸ¥çš„è²¡ç”£',
+    body: 'ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã®ã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã€ãƒ–ãƒ©ãƒ³ãƒ‰ã€ã‚³ãƒ¼ãƒ‰ã€ãƒ‡ã‚¶ã‚¤ãƒ³ã¯ã™ã¹ã¦Tensaiã«å¸°å±žã—ã¾ã™ã€‚æ›¸é¢ã«ã‚ˆã‚‹è¨±å¯ãªãè¤‡è£½ãƒ»é…å¸ƒã™ã‚‹ã“ã¨ã¯ã§ãã¾ã›ã‚“ã€‚',
   },
   {
-    title: '10. アカウント停止',
-    body: '規約違反、不正行為、またはプラットフォームや他のユーザーに害を与える行為があった場合、Tensaiはアカウントを停止・削除する権利を有します。',
+    title: '10. ã‚¢ã‚«ã‚¦ãƒ³ãƒˆåœæ­¢',
+    body: 'è¦ç´„é•åã€ä¸æ­£è¡Œç‚ºã€ã¾ãŸã¯ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã‚„ä»–ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ã«å®³ã‚’ä¸Žãˆã‚‹è¡Œç‚ºãŒã‚ã£ãŸå ´åˆã€Tensaiã¯ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã‚’åœæ­¢ãƒ»å‰Šé™¤ã™ã‚‹æ¨©åˆ©ã‚’æœ‰ã—ã¾ã™ã€‚',
   },
   {
-    title: '11. 責任の制限',
-    body: 'Tensaiはビザ申請結果、入学決定、または第三者の行為について責任を負いません。当社の責任は当該サービスに対して支払われた手数料に限定されます。',
+    title: '11. è²¬ä»»ã®åˆ¶é™',
+    body: 'Tensaiã¯ãƒ“ã‚¶ç”³è«‹çµæžœã€å…¥å­¦æ±ºå®šã€ã¾ãŸã¯ç¬¬ä¸‰è€…ã®è¡Œç‚ºã«ã¤ã„ã¦è²¬ä»»ã‚’è² ã„ã¾ã›ã‚“ã€‚å½“ç¤¾ã®è²¬ä»»ã¯å½“è©²ã‚µãƒ¼ãƒ“ã‚¹ã«å¯¾ã—ã¦æ”¯æ‰•ã‚ã‚ŒãŸæ‰‹æ•°æ–™ã«é™å®šã•ã‚Œã¾ã™ã€‚',
   },
   {
-    title: '12. 規約の変更',
-    body: '本規約はいつでも更新される場合があります。変更後のプラットフォーム利用は新しい規約への同意とみなします。',
+    title: '12. è¦ç´„ã®å¤‰æ›´',
+    body: 'æœ¬è¦ç´„ã¯ã„ã¤ã§ã‚‚æ›´æ–°ã•ã‚Œã‚‹å ´åˆãŒã‚ã‚Šã¾ã™ã€‚å¤‰æ›´å¾Œã®ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ åˆ©ç”¨ã¯æ–°ã—ã„è¦ç´„ã¸ã®åŒæ„ã¨ã¿ãªã—ã¾ã™ã€‚',
   },
   {
-    title: '13. 準拠法',
-    body: '本規約はバングラデシュの法律に準拠します。紛争はダッカの裁判所または仲裁により解決されます。',
+    title: '13. æº–æ‹ æ³•',
+    body: 'æœ¬è¦ç´„ã¯ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã®æ³•å¾‹ã«æº–æ‹ ã—ã¾ã™ã€‚ç´›äº‰ã¯ãƒ€ãƒƒã‚«ã®è£åˆ¤æ‰€ã¾ãŸã¯ä»²è£ã«ã‚ˆã‚Šè§£æ±ºã•ã‚Œã¾ã™ã€‚',
   },
   {
-    title: '14. お問い合わせ',
-    body: '本規約に関するご質問は support@tensai.com までお問い合わせください。',
+    title: '14. ãŠå•ã„åˆã‚ã›',
+    body: 'æœ¬è¦ç´„ã«é–¢ã™ã‚‹ã”è³ªå•ã¯ support@tensai.com ã¾ã§ãŠå•ã„åˆã‚ã›ãã ã•ã„ã€‚',
   },
 ];
 
@@ -144,7 +144,7 @@ export default function TermsPage() {
               onClick={toggle}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors"
             >
-              {lang === 'en' ? '日本語' : 'English'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
             <Link href="/auth/login" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1">
               {l.login}
@@ -160,13 +160,13 @@ export default function TermsPage() {
       <div className="bg-slate-900 text-white py-12 sm:py-16 text-center">
         <div className="max-w-3xl mx-auto px-4">
           <div className="inline-flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            📄 {ja ? '利用規約' : 'Terms & Conditions'}
+            ðŸ“„ {ja ? 'åˆ©ç”¨è¦ç´„' : 'Terms & Conditions'}
           </div>
           <h1 className="text-fluid-4xl font-bold mb-3">
-            {ja ? '利用規約' : 'Terms & Conditions'}
+            {ja ? 'åˆ©ç”¨è¦ç´„' : 'Terms & Conditions'}
           </h1>
           <p className="text-slate-400 text-sm">
-            {ja ? '最終更新：2026年1月' : 'Last updated: January 2026'}
+            {ja ? 'æœ€çµ‚æ›´æ–°ï¼š2026å¹´1æœˆ' : 'Last updated: January 2026'}
           </p>
         </div>
       </div>
@@ -175,7 +175,7 @@ export default function TermsPage() {
       <div className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
         <p className="text-slate-500 text-sm mb-10 leading-relaxed border-l-4 border-green-600 pl-4">
           {ja
-            ? 'Tensai Language & Study Consultancy（以下「Tensai」）が提供するプラットフォームをご利用いただく前に、以下の利用規約をよくお読みください。'
+            ? 'Tensai Language & Study Consultancyï¼ˆä»¥ä¸‹ã€ŒTensaiã€ï¼‰ãŒæä¾›ã™ã‚‹ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ ã‚’ã”åˆ©ç”¨ã„ãŸã ãå‰ã«ã€ä»¥ä¸‹ã®åˆ©ç”¨è¦ç´„ã‚’ã‚ˆããŠèª­ã¿ãã ã•ã„ã€‚'
             : 'Please read these Terms and Conditions carefully before using the Tensai platform operated by Tensai Language & Study Consultancy.'}
         </p>
 
@@ -190,10 +190,10 @@ export default function TermsPage() {
 
         <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
           <Link href="/" className="inline-flex items-center justify-center gap-2 border border-slate-200 hover:border-green-300 text-slate-700 hover:text-green-800 px-6 py-2.5 rounded-full text-sm font-medium transition-colors">
-            ← {ja ? 'ホームに戻る' : 'Back to Home'}
+            â† {ja ? 'ãƒ›ãƒ¼ãƒ ã«æˆ»ã‚‹' : 'Back to Home'}
           </Link>
           <Link href="/privacy" className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-2.5 rounded-full text-sm font-medium transition-colors">
-            {ja ? 'プライバシーポリシーを読む →' : 'Read Privacy Policy →'}
+            {ja ? 'ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼ãƒãƒªã‚·ãƒ¼ã‚’èª­ã‚€ â†’' : 'Read Privacy Policy â†’'}
           </Link>
         </div>
       </div>
@@ -205,3 +205,4 @@ export default function TermsPage() {
     </div>
   );
 }
+

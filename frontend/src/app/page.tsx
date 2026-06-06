@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -35,36 +35,36 @@ export default function HomePage() {
 
   const GATEWAYS = [
     {
-      type: 'student', icon: '🎓',
+      type: 'student', icon: 'ðŸŽ“',
       title: l.gateways.studentTitle,
       desc: l.gateways.studentDesc,
       tag: lang === 'ja' ? 'Most Popular' : 'Most Popular',
       size: 'lg',
     },
-    { type: 'agency', icon: '🏢', title: l.gateways.agencyTitle, desc: l.gateways.agencyDesc, tag: null, size: 'sm' },
-    { type: 'institution', icon: '🏫', title: l.gateways.institutionTitle, desc: l.gateways.institutionDesc, tag: null, size: 'sm' },
-    { type: 'affiliate', icon: '💼', title: l.gateways.affiliateTitle, desc: l.gateways.affiliateDesc, tag: null, size: 'sm' },
+    { type: 'agency', icon: 'ðŸ¢', title: l.gateways.agencyTitle, desc: l.gateways.agencyDesc, tag: null, size: 'sm' },
+    { type: 'institution', icon: 'ðŸ«', title: l.gateways.institutionTitle, desc: l.gateways.institutionDesc, tag: null, size: 'sm' },
+    { type: 'affiliate', icon: 'ðŸ’¼', title: l.gateways.affiliateTitle, desc: l.gateways.affiliateDesc, tag: null, size: 'sm' },
   ];
 
   const FEATURES = [
-    { icon: '🔒', title: l.features.f1Title, desc: l.features.f1Desc, color: 'from-green-500/20 to-green-600/5' },
-    { icon: '🤝', title: l.features.f2Title, desc: l.features.f2Desc, color: 'from-cyan-500/20 to-cyan-600/5' },
-    { icon: '🛡️', title: l.features.f3Title, desc: l.features.f3Desc, color: 'from-violet-500/20 to-violet-600/5' },
-    { icon: '📋', title: l.features.f4Title, desc: l.features.f4Desc, color: 'from-amber-500/20 to-amber-600/5' },
+    { icon: 'ðŸ”’', title: l.features.f1Title, desc: l.features.f1Desc, color: 'from-green-500/20 to-green-600/5' },
+    { icon: 'ðŸ¤', title: l.features.f2Title, desc: l.features.f2Desc, color: 'from-cyan-500/20 to-cyan-600/5' },
+    { icon: 'ðŸ›¡ï¸', title: l.features.f3Title, desc: l.features.f3Desc, color: 'from-violet-500/20 to-violet-600/5' },
+    { icon: 'ðŸ“‹', title: l.features.f4Title, desc: l.features.f4Desc, color: 'from-amber-500/20 to-amber-600/5' },
   ];
 
   const STATS = [
-    { value: '100%', label: lang === 'ja' ? 'OCR認証' : 'OCR Verified' },
-    { value: '0', label: lang === 'ja' ? '偽データ' : 'Fake Profiles' },
-    { value: 'AI', label: lang === 'ja' ? '適格性スコアリング' : 'Eligibility Scoring' },
-    { value: 'BD→JP', label: lang === 'ja' ? '最初のルート' : 'First Corridor' },
-    { value: '🔒', label: lang === 'ja' ? 'エスクロー決済' : 'Escrow Payments' },
+    { value: '100%', label: lang === 'ja' ? 'OCRèªè¨¼' : 'OCR Verified' },
+    { value: '0', label: lang === 'ja' ? 'å½ãƒ‡ãƒ¼ã‚¿' : 'Fake Profiles' },
+    { value: 'AI', label: lang === 'ja' ? 'é©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'Eligibility Scoring' },
+    { value: 'BDâ†’JP', label: lang === 'ja' ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆ' : 'First Corridor' },
+    { value: 'ðŸ”’', label: lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆ' : 'Escrow Payments' },
   ];
 
   return (
     <div className="min-h-screen bg-[#0d1117]">
 
-      {/* ── Navbar ── */}
+      {/* â”€â”€ Navbar â”€â”€ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-nav' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5">
@@ -79,13 +79,13 @@ export default function HomePage() {
               onClick={toggle}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border border-white/10 text-white/60 hover:border-green-500/40 hover:text-green-400 transition-all"
             >
-              {lang === 'en' ? '日本語' : 'English'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
             <Link href="/about" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
-              {lang === 'ja' ? '私たちについて' : 'About'}
+              {lang === 'ja' ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About'}
             </Link>
             <Link href="/team" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
-              {lang === 'ja' ? 'チーム' : 'Team'}
+              {lang === 'ja' ? 'ãƒãƒ¼ãƒ ' : 'Team'}
             </Link>
             <Link href="/gallery" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
               {l.gallery}
@@ -100,7 +100,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ── Hero ── */}
+      {/* â”€â”€ Hero â”€â”€ */}
       <section className="hero-mesh min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-20 text-center relative overflow-hidden">
         {/* Subtle grid overlay */}
         <div
@@ -126,7 +126,7 @@ export default function HomePage() {
 
           {/* JP sub-label */}
           <p className="text-white/30 text-sm font-medium tracking-[0.3em] mb-5 uppercase">
-            {lang === 'ja' ? 'グローバルキャリアへの道' : 'The Way of Global Career · 天才'}
+            {lang === 'ja' ? 'ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚­ãƒ£ãƒªã‚¢ã¸ã®é“' : 'The Way of Global Career Â· å¤©æ‰'}
           </p>
 
           <p className="text-fluid-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -164,14 +164,14 @@ export default function HomePage() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0d1117] to-transparent" />
       </section>
 
-      {/* ── Gateway Bento Grid ── */}
+      {/* â”€â”€ Gateway Bento Grid â”€â”€ */}
       <section className="max-w-7xl mx-auto px-4 pb-20">
         <div className="text-center mb-10">
           <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-3">
-            {lang === 'ja' ? 'ゲートウェイを選択' : 'Choose Your Gateway'}
+            {lang === 'ja' ? 'ã‚²ãƒ¼ãƒˆã‚¦ã‚§ã‚¤ã‚’é¸æŠž' : 'Choose Your Gateway'}
           </p>
           <h2 className="text-fluid-4xl font-bold text-white">
-            {lang === 'ja' ? '誰のために作られたか' : 'Built for everyone in the ecosystem'}
+            {lang === 'ja' ? 'èª°ã®ãŸã‚ã«ä½œã‚‰ã‚ŒãŸã‹' : 'Built for everyone in the ecosystem'}
           </h2>
         </div>
 
@@ -191,19 +191,19 @@ export default function HomePage() {
                 <p className="text-sm text-white/50 leading-relaxed">{g.desc}</p>
               </div>
               <div className="mt-auto text-xs text-green-400 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                {l.getAccess} <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
+                {l.getAccess} <span className="group-hover:translate-x-1 transition-transform inline-block">â†’</span>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ── Why Tensai ── */}
+      {/* â”€â”€ Why Tensai â”€â”€ */}
       <section className="py-20 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-3">
-              {lang === 'ja' ? 'なぜ天才か' : 'Why Tensai'}
+              {lang === 'ja' ? 'ãªãœå¤©æ‰ã‹' : 'Why Tensai'}
             </p>
             <h2 className="text-fluid-4xl font-bold text-white mb-3">{l.whyTitle}</h2>
             <p className="text-fluid-base text-white/40 max-w-2xl mx-auto">{l.whySub}</p>
@@ -223,51 +223,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── BD → JP Corridor Banner ── */}
+      {/* â”€â”€ BD â†’ JP Corridor Banner â”€â”€ */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="glass-card rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-transparent to-cyan-600/5 rounded-3xl" />
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-4 mb-6">
-                <span className="text-4xl animate-float">🇧🇩</span>
+                <span className="text-4xl animate-float">ðŸ‡§ðŸ‡©</span>
                 <div className="flex items-center gap-2">
                   <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-white/20 to-green-400/60" />
-                  <span className="text-green-400 font-bold text-sm">✈️</span>
+                  <span className="text-green-400 font-bold text-sm">âœˆï¸</span>
                   <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-green-400/60 to-white/20" />
                 </div>
-                <span className="text-4xl animate-float" style={{ animationDelay: '2s' }}>🇯🇵</span>
+                <span className="text-4xl animate-float" style={{ animationDelay: '2s' }}>ðŸ‡¯ðŸ‡µ</span>
               </div>
               <h3 className="text-fluid-3xl font-bold text-white mb-3">
-                {lang === 'ja' ? 'バングラデシュから日本へ' : 'Bangladesh → Japan'}
+                {lang === 'ja' ? 'ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã‹ã‚‰æ—¥æœ¬ã¸' : 'Bangladesh â†’ Japan'}
               </h3>
               <p className="text-fluid-base text-white/50 max-w-xl mx-auto mb-4">
                 {lang === 'ja'
-                  ? '最初のルートはバングラデシュから日本。日本は最も厳格な認証基準を求める — だからこそ最初に選んだ。その基準を満たせるなら、世界中に通用する。'
-                  : "Our first corridor. Japan demands the strictest verification standards in the world — that's exactly why we started here. A system built for Japan works everywhere."}
+                  ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆã¯ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã‹ã‚‰æ—¥æœ¬ã€‚æ—¥æœ¬ã¯æœ€ã‚‚åŽ³æ ¼ãªèªè¨¼åŸºæº–ã‚’æ±‚ã‚ã‚‹ â€” ã ã‹ã‚‰ã“ãæœ€åˆã«é¸ã‚“ã ã€‚ãã®åŸºæº–ã‚’æº€ãŸã›ã‚‹ãªã‚‰ã€ä¸–ç•Œä¸­ã«é€šç”¨ã™ã‚‹ã€‚'
+                  : "Our first corridor. Japan demands the strictest verification standards in the world â€” that's exactly why we started here. A system built for Japan works everywhere."}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 mb-7 text-xs text-white/40">
-                <span>✓ {lang === 'ja' ? 'AI適格性スコアリング' : 'AI Eligibility Scoring'}</span>
-                <span>·</span>
-                <span>✓ {lang === 'ja' ? 'OCR書類ロック' : 'OCR Document Lock'}</span>
-                <span>·</span>
-                <span>✓ {lang === 'ja' ? 'エスクロー決済保護' : 'Escrow Payment Protection'}</span>
-                <span>·</span>
-                <span>✓ {lang === 'ja' ? 'QRセキュア追跡' : 'QR Secure Tracking'}</span>
+                <span>âœ“ {lang === 'ja' ? 'AIé©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'AI Eligibility Scoring'}</span>
+                <span>Â·</span>
+                <span>âœ“ {lang === 'ja' ? 'OCRæ›¸é¡žãƒ­ãƒƒã‚¯' : 'OCR Document Lock'}</span>
+                <span>Â·</span>
+                <span>âœ“ {lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆä¿è­·' : 'Escrow Payment Protection'}</span>
+                <span>Â·</span>
+                <span>âœ“ {lang === 'ja' ? 'QRã‚»ã‚­ãƒ¥ã‚¢è¿½è·¡' : 'QR Secure Tracking'}</span>
               </div>
               <Link href="/about" className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/12 border border-white/10 hover:border-green-500/30 text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all">
-                {lang === 'ja' ? '私たちのストーリーを読む →' : 'Read Our Story →'}
+                {lang === 'ja' ? 'ç§ãŸã¡ã®ã‚¹ãƒˆãƒ¼ãƒªãƒ¼ã‚’èª­ã‚€ â†’' : 'Read Our Story â†’'}
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Gallery ── */}
+      {/* â”€â”€ Gallery â”€â”€ */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2">📸 {l.gallery}</p>
+            <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2">ðŸ“¸ {l.gallery}</p>
             <h2 className="text-fluid-3xl font-bold text-white">{l.gallery}</h2>
             <p className="text-fluid-sm text-white/40 mt-1 max-w-md">{l.gallerySub}</p>
           </div>
@@ -279,10 +279,10 @@ export default function HomePage() {
         {featured.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { emoji: '🎓', label: 'Student Journeys' },
-              { emoji: '🏆', label: 'Milestones' },
-              { emoji: '🌏', label: 'Japan Placements' },
-              { emoji: '🤝', label: 'Agency Partners' },
+              { emoji: 'ðŸŽ“', label: 'Student Journeys' },
+              { emoji: 'ðŸ†', label: 'Milestones' },
+              { emoji: 'ðŸŒ', label: 'Japan Placements' },
+              { emoji: 'ðŸ¤', label: 'Agency Partners' },
             ].map((p) => (
               <div key={p.label} className="aspect-square rounded-2xl glass-card flex flex-col items-center justify-center gap-2 text-center p-4">
                 <div className="text-4xl">{p.emoji}</div>
@@ -311,12 +311,12 @@ export default function HomePage() {
         <div className="text-center mt-8">
           <Link href="/gallery"
             className="inline-flex items-center gap-2 glass-card hover:border-green-500/30 text-white/70 hover:text-white px-6 py-2.5 rounded-full text-sm font-medium transition-all">
-            📸 Browse Full Gallery
+            ðŸ“¸ Browse Full Gallery
           </Link>
         </div>
       </section>
 
-      {/* ── Footer ── */}
+      {/* â”€â”€ Footer â”€â”€ */}
       <footer className="border-t border-white/5 py-10 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -325,9 +325,9 @@ export default function HomePage() {
               <span className="font-bold text-white/80">Tensai</span>
             </Link>
             <div className="flex items-center gap-5 text-sm text-white/40">
-              <Link href="/about" className="hover:text-white/70 transition-colors">{lang === 'ja' ? '私たちについて' : 'About'}</Link>
-              <Link href="/terms" className="hover:text-white/70 transition-colors">{lang === 'ja' ? '利用規約' : 'Terms'}</Link>
-              <Link href="/privacy" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'プライバシー' : 'Privacy'}</Link>
+              <Link href="/about" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About'}</Link>
+              <Link href="/terms" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'åˆ©ç”¨è¦ç´„' : 'Terms'}</Link>
+              <Link href="/privacy" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼' : 'Privacy'}</Link>
               <Link href="/gallery" className="hover:text-white/70 transition-colors">{l.gallery}</Link>
             </div>
             <p className="text-xs text-white/25">{l.footer}</p>
@@ -337,3 +337,4 @@ export default function HomePage() {
     </div>
   );
 }
+
