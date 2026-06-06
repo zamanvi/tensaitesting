@@ -7,7 +7,7 @@ import { useQueries } from '@tanstack/react-query';
 import Link from 'next/link';
 
 export default function StudentDashboard() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { user } = useAuthStore();
   const s = t.studentDash;
 
@@ -25,10 +25,10 @@ export default function StudentDashboard() {
   const interviewsCount = interviewsArr.length;
 
   const STEPS = [
-    { label: s.uploadPassport, desc: s.uploadPassportDesc, href: '/dashboard/student/profile/documents', icon: '🪪' },
+    { label: s.uploadPassport, desc: s.uploadPassportDesc, href: '/dashboard/student/profile/documents', icon: '📄' },
     { label: s.academicDocs, desc: s.academicDocsDesc, href: '/dashboard/student/profile/documents', icon: '📚' },
-    { label: s.languageScores, desc: s.languageScoresDesc, href: '/dashboard/student/profile/documents', icon: '🗣️' },
-    { label: s.profileVerified, desc: s.profileVerifiedDesc, href: '/dashboard/student/profile/documents', icon: '✅' },
+    { label: s.languageScores, desc: s.languageScoresDesc, href: '/dashboard/student/profile/documents', icon: '🌐' },
+    { label: s.profileVerified, desc: s.profileVerifiedDesc, href: '/dashboard/student/profile/documents', icon: '✔️' },
   ];
 
   const firstName = user?.name?.split(' ')[0] ?? '';
@@ -36,7 +36,10 @@ export default function StudentDashboard() {
   return (
     <DashboardLayout>
       {firstName && (
-        <p className="text-slate-500 text-sm mb-5">Welcome back, <span className="font-semibold text-slate-800">{firstName}</span></p>
+        <p className="text-slate-500 text-sm mb-5">
+          {lang === 'bn' ? 'স্বাগতম, ' : lang === 'ja' ? 'おかえりなさい、' : 'Welcome back, '}
+          <span className="font-semibold text-slate-800">{firstName}</span>
+        </p>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 sm:mb-8">
         <StatCard label={s.profileScore} value={`${profileScore}%`} sub={s.profileScoreSub} color="green" loading={profileQ.isLoading} />
@@ -77,7 +80,7 @@ export default function StudentDashboard() {
         <Link href="/dashboard/student/profile" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
           <div className="text-2xl mb-2">👤</div>
           <div className="font-semibold text-sm">{t.nav.profile}</div>
-          <div className="text-xs text-slate-500 mt-1">Contact, address & info</div>
+          <div className="text-xs text-slate-500 mt-1">{lang === 'bn' ? 'যোগাযোগ, ঠিকানা ও তথ্য' : lang === 'ja' ? '連絡先・住所・情報' : 'Contact, address & info'}</div>
         </Link>
         <Link href="/dashboard/student/leads" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
           <div className="text-2xl mb-2">📋</div>

@@ -105,7 +105,7 @@ export default function DashboardLayout({ children, title }: Props) {
               onClick={toggle}
               className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors shrink-0"
             >
-              {lang === 'en' ? '日本語' : 'EN'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'EN'}
             </button>
 
             {/* User dropdown — desktop */}
@@ -209,9 +209,9 @@ export default function DashboardLayout({ children, title }: Props) {
             <span className="text-xs text-slate-400">{t.landing.footer}</span>
           </div>
           <div className="flex items-center gap-5 text-xs text-slate-400">
-            <a href="#" className="hover:text-slate-600 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-slate-600 transition-colors">Terms</a>
-            <a href="#" className="hover:text-slate-600 transition-colors">Support</a>
+            <Link href="/privacy" className="hover:text-slate-600 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-600 transition-colors">Terms</Link>
+            <a href="mailto:support@tensaiconsultancy.com" className="hover:text-slate-600 transition-colors">Support</a>
           </div>
         </div>
       </footer>
