@@ -57,7 +57,7 @@ function ResetPasswordForm() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
           {done ? (
             <div className="text-center">
-              <div className="text-4xl mb-4">âœ…</div>
+              <div className="text-4xl mb-4">✅</div>
               <h2 className="font-bold text-slate-900 mb-2">{a.resetSuccess}</h2>
               <p className="text-sm text-slate-500">{a.resetSuccessDesc}</p>
             </div>
