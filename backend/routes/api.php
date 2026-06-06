@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\CommissionController;
 use App\Http\Controllers\Api\GalleryController;
+use App\Http\Controllers\Api\HelpRequestController;
 use Illuminate\Support\Facades\Route;
 
 // Health check
@@ -45,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/profile', [StudentProfileController::class, 'update']);
         Route::post('/ocr/upload', [OcrController::class, 'upload']);
         Route::post('/ocr/review-request', [OcrController::class, 'requestReview']);
+        Route::post('/help-request', [HelpRequestController::class, 'store']);
+        Route::get('/help-requests', [HelpRequestController::class, 'myRequests']);
         Route::get('/leads', [LeadController::class, 'myLeads']);
         Route::get('/interviews', [InterviewController::class, 'myInterviews']);
     });
