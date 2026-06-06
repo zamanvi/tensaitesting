@@ -820,7 +820,6 @@ const translations = {
       ielts_certificate: 'IELTS証明書',
     },
   },
-};
 
   bn: {
     common: {
