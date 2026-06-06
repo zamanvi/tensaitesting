@@ -24,7 +24,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function DocumentsPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const sd = t.studentDocs;
   const docTypes = t.docTypes;
 
@@ -131,9 +131,9 @@ export default function DocumentsPage() {
     type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
   const SECTIONS = [
-    { key: 'identity' as const, label: t.lang === 'ja' ? '本人確認書類' : t.lang === 'bn' ? 'পরিচয় ও পারিবারিক কাগজপত্র' : 'Identity & Family Documents', icon: '🪪' },
-    { key: 'academic' as const, label: t.lang === 'ja' ? '学術書類' : t.lang === 'bn' ? 'একাডেমিক কাগজপত্র' : 'Academic Documents', icon: '📚' },
-    { key: 'language' as const, label: t.lang === 'ja' ? '語学証明書' : t.lang === 'bn' ? 'ভাষা সার্টিফিকেট' : 'Language Certificates', icon: '🗣️' },
+    { key: 'identity' as const, label: lang === 'ja' ? '本人確認書類' : lang === 'bn' ? 'পরিচয় ও পারিবারিক কাগজপত্র' : 'Identity & Family Documents', icon: '🪪' },
+    { key: 'academic' as const, label: lang === 'ja' ? '学術書類' : lang === 'bn' ? 'একাডেমিক কাগজপত্র' : 'Academic Documents', icon: '📚' },
+    { key: 'language' as const, label: lang === 'ja' ? '語学証明書' : lang === 'bn' ? 'ভাষা সার্টিফিকেট' : 'Language Certificates', icon: '🗣️' },
   ];
 
   return (
@@ -162,10 +162,10 @@ export default function DocumentsPage() {
         <h2 className="font-bold text-slate-900 mb-1">{sd.uploadCard}</h2>
         <p className="text-xs text-slate-400 mb-4">
           {activeSection === 'identity'
-            ? (t.lang === 'bn' ? 'পাসপোর্ট, NID, জন্ম সনদ ও পারিবারিক কাগজপত্র' : t.lang === 'ja' ? 'パスポート、NID、出生証明書など' : 'Passport, NID, birth certificates and family documents')
+            ? (lang === 'bn' ? 'পাসপোর্ট, NID, জন্ম সনদ ও পারিবারিক কাগজপত্র' : lang === 'ja' ? 'パスポート、NID、出生証明書など' : 'Passport, NID, birth certificates and family documents')
             : activeSection === 'academic'
-            ? (t.lang === 'bn' ? 'SSC, HSC, ডিগ্রি সার্টিফিকেট ও মার্কশিট' : t.lang === 'ja' ? 'SSC、HSC、学位証明書など' : 'SSC, HSC, degree certificates and marksheets')
-            : (t.lang === 'bn' ? 'JLPT, NAT ও IELTS সার্টিফিকেট ও মার্কশিট' : t.lang === 'ja' ? 'JLPT、NAT、IELTSの証明書とマークシート' : 'JLPT, NAT and IELTS certificates and marksheets')}
+            ? (lang === 'bn' ? 'SSC, HSC, ডিগ্রি সার্টিফিকেট ও মার্কশিট' : lang === 'ja' ? 'SSC、HSC、学位証明書など' : 'SSC, HSC, degree certificates and marksheets')
+            : (lang === 'bn' ? 'JLPT, NAT ও IELTS সার্টিফিকেট ও মার্কশিট' : lang === 'ja' ? 'JLPT、NAT、IELTSの証明書とマークシート' : 'JLPT, NAT and IELTS certificates and marksheets')}
         </p>
         <div className="flex flex-col gap-3">
           <select
@@ -200,7 +200,7 @@ export default function DocumentsPage() {
 
       {/* Jobs list */}
       <h3 className="font-bold text-slate-700 text-sm mb-3">
-        {t.lang === 'bn' ? 'আপলোড করা কাগজপত্র' : t.lang === 'ja' ? 'アップロード済み書類' : 'Uploaded Documents'}
+        {lang === 'bn' ? 'আপলোড করা কাগজপত্র' : lang === 'ja' ? 'アップロード済み書類' : 'Uploaded Documents'}
       </h3>
       <div className="space-y-3">
         {jobs.length === 0 ? (
