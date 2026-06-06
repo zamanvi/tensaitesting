@@ -50,6 +50,56 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+const MAX_IMAGE_DIM  = 1200; // px — max width or height
+const IMAGE_QUALITY  = 0.82; // JPEG quality after resize
+
+async function compressImage(file: File): Promise<File> {
+  // PDFs pass through unchanged
+  if (file.type === 'application/pdf') return file;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+
+      // Only resize if larger than MAX_IMAGE_DIM
+      if (width <= MAX_IMAGE_DIM && height <= MAX_IMAGE_DIM) {
+        resolve(file); // no resize needed
+        return;
+      }
+
+      if (width > height) {
+        height = Math.round((height / width) * MAX_IMAGE_DIM);
+        width  = MAX_IMAGE_DIM;
+      } else {
+        width  = Math.round((width / height) * MAX_IMAGE_DIM);
+        height = MAX_IMAGE_DIM;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width  = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return; }
+          const compressed = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+          resolve(compressed);
+        },
+        'image/jpeg',
+        IMAGE_QUALITY,
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 export default function DocumentsPage() {
   const { t, lang } = useLang();
   const sd = t.studentDocs;
@@ -111,9 +161,13 @@ export default function DocumentsPage() {
 
   const NO_FILE  = lang === 'bn' ? 'আগে একটি ফাইল বেছে নিন।' : lang === 'ja' ? 'ファイルを選択してください。' : 'Please select a file first.';
   const DROP_HINT = lang === 'bn' ? 'ফাইল এখানে ড্রপ করুন অথবা ক্লিক করুন' : lang === 'ja' ? 'ここにドロップ、またはクリック' : 'Drop file here or click to browse';
-  const FILE_HINT = lang === 'bn' ? 'JPG, PNG বা PDF — সর্বোচ্চ ১০MB' : lang === 'ja' ? 'JPG・PNG・PDF — 最大10MB' : 'JPG, PNG or PDF — max 10MB';
+  const FILE_HINT = lang === 'bn' ? 'JPG, PNG বা PDF — সর্বোচ্চ ১০MB। ছবি স্বয়ংক্রিয়ভাবে ছোট হবে।' : lang === 'ja' ? 'JPG・PNG・PDF — 最大10MB。画像は自動圧縮。' : 'JPG, PNG or PDF — max 10MB. Images auto-resized.';
 
   function pickFile(file: File) {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError(lang === 'bn' ? 'শুধুমাত্র JPG, PNG বা PDF ফাইল গ্রহণযোগ্য।' : lang === 'ja' ? 'JPG・PNG・PDFのみ受け付けます。' : 'Only JPG, PNG or PDF files are accepted.');
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
       setUploadError(lang === 'bn' ? 'ফাইল ১০MB-এর বেশি হতে পারবে না।' : lang === 'ja' ? 'ファイルは10MB以下にしてください。' : 'File must be under 10MB.');
       return;
@@ -129,8 +183,9 @@ export default function DocumentsPage() {
     setUploadError('');
     setUploadSuccess(false);
     try {
+      const fileToUpload = await compressImage(selectedFile);
       const form = new FormData();
-      form.append('file', selectedFile);
+      form.append('file', fileToUpload);
       form.append('document_type', docType);
       const token = localStorage.getItem('tensai_token');
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -289,7 +344,7 @@ export default function DocumentsPage() {
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*,application/pdf"
+                accept="image/jpeg,image/png,application/pdf"
                 className="hidden"
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) pickFile(f); }}
               />
