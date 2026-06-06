@@ -25,10 +25,7 @@ export default function StudentDashboard() {
   const interviewsCount = interviewsArr.length;
 
   const STEPS = [
-    { label: s.uploadPassport, desc: s.uploadPassportDesc, href: '/dashboard/student/profile/documents', icon: '📄' },
-    { label: s.academicDocs, desc: s.academicDocsDesc, href: '/dashboard/student/profile/documents', icon: '📚' },
-    { label: s.languageScores, desc: s.languageScoresDesc, href: '/dashboard/student/profile/documents', icon: '🌐' },
-    { label: s.profileVerified, desc: s.profileVerifiedDesc, href: '/dashboard/student/profile/documents', icon: '✔️' },
+    { label: lang === 'bn' ? 'কাগজপত্র আপলোড' : lang === 'ja' ? '書類をアップロード' : 'Upload Documents', desc: lang === 'bn' ? 'পাসপোর্ট, NID, সার্টিফিকেট ও ভাষা সার্টিফিকেট আপলোড করুন' : lang === 'ja' ? 'パスポート、NID、証明書、語学証明書をアップロード' : 'Upload your passport, NID, certificates and language documents', href: '/dashboard/student/profile/documents', icon: '📄' },
   ];
 
   const firstName = user?.name?.split(' ')[0] ?? '';
