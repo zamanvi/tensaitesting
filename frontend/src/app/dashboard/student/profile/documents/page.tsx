@@ -1,10 +1,11 @@
 'use client';
+'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface OcrJob {
   id: number;
@@ -147,7 +148,20 @@ export default function DocumentsPage() {
 
   const ALL_DOCS = GROUPS.flatMap(g => g.docs);
 
-  const ADMIN_WHATSAPP = '8801826192179'; // Tensai support number
+  const REQUIRED_DOCS = ['passport','nid_student','birth_certificate_student','ssc_certificate','ssc_marksheet','hsc_certificate','hsc_marksheet'];
+
+  const [adminWhatsapp, setAdminWhatsapp] = useState('8801826192179');
+  const [adminPhone, setAdminPhone]       = useState('+8801826192179');
+
+  useEffect(() => {
+    const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+    fetch(`${base}/settings/public`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.support_whatsapp) setAdminWhatsapp(d.support_whatsapp);
+        if (d.support_phone)    setAdminPhone(d.support_phone);
+      }).catch(() => {});
+  }, []);
 
   const [docType, setDocType]           = useState('passport');
   const [uploading, setUploading]       = useState(false);
@@ -227,7 +241,7 @@ export default function DocumentsPage() {
     const msg = encodeURIComponent(
       `Hi Tensai Support,\n\nI need help uploading my document.\n\nName: ${user?.name ?? ''}\nEmail: ${user?.email ?? ''}\nDocument: ${docLabel}\n\nPlease assist me.`
     );
-    window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, '_blank');
+    window.open(`https://wa.me/${adminWhatsapp}?text=${msg}`, '_blank');
   }
 
   async function requestReview(jobId: number) {
@@ -241,33 +255,56 @@ export default function DocumentsPage() {
 
   const getDocIcon = (type: string) => SAFE_DOC_ICONS[type] ?? '📄';
 
-  const completedCount = jobs.filter(j => j.status === 'completed' || j.status === 'manually_approved').length;
 
   return (
     <DashboardLayout title={sd.title}>
 
-      {/* Progress bar — overall completion */}
-      {jobs.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 mb-5 flex items-center gap-4">
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-slate-600">
-                {lang === 'bn' ? 'যাচাইকৃত কাগজপত্র' : lang === 'ja' ? '認証済み書類' : 'Verified Documents'}
-              </span>
-              <span className="text-xs text-slate-400">{completedCount} / {jobs.length}</span>
+      {/* Required docs progress */}
+      {(() => {
+        const uploadedTypes = new Set(jobs.map(j => j.document_type));
+        const doneCount = REQUIRED_DOCS.filter(d => uploadedTypes.has(d)).length;
+        const total = REQUIRED_DOCS.length;
+        const pct = Math.round((doneCount / total) * 100);
+        const done = doneCount >= total;
+        return (
+          <div className={`rounded-2xl border p-4 mb-5 ${done ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <p className="text-sm font-bold text-slate-900">
+                  {done
+                    ? (lang === 'bn' ? '✓ প্রয়োজনীয় সব কাগজপত্র আপলোড হয়েছে!' : lang === 'ja' ? '✓ 必要書類をすべてアップロード済み！' : '✓ All required documents uploaded!')
+                    : (lang === 'bn' ? 'প্রোফাইল অগ্রগতি' : lang === 'ja' ? 'プロフィール進捗' : 'Profile Progress')}
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {lang === 'bn'
+                    ? `${doneCount}টি আপলোড হয়েছে — ${total - doneCount}টি বাকি আছে`
+                    : lang === 'ja'
+                    ? `${doneCount}件アップロード済み — 残り${total - doneCount}件`
+                    : `${doneCount} of ${total} required documents uploaded${done ? '' : ` — ${total - doneCount} remaining`}`}
+                </p>
+              </div>
+              <span className={`text-xl font-black shrink-0 ${done ? 'text-emerald-600' : 'text-slate-700'}`}>{pct}%</span>
             </div>
             <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: `${jobs.length > 0 ? (completedCount / jobs.length) * 100 : 0}%` }}
-              />
+              <div className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-green-600'}`} style={{ width: `${pct}%` }} />
             </div>
+            {!done && (
+              <p className="text-xs text-slate-400 mt-2">
+                {lang === 'bn'
+                  ? '📋 প্রয়োজনীয়: পাসপোর্ট, NID, জন্ম সনদ, SSC ও HSC সার্টিফিকেট ও মার্কশিট'
+                  : lang === 'ja'
+                  ? '📋 必要書類: パスポート、NID、出生証明書、SSC・HSC証明書・マークシート'
+                  : '📋 Required: Passport, NID, Birth Certificate, SSC & HSC certificates and marksheets'}
+              </p>
+            )}
+            {done && (
+              <p className="text-xs text-emerald-600 mt-1">
+                {lang === 'bn' ? 'আপনি চাইলে আরও অতিরিক্ত কাগজপত্রও আপলোড করতে পারেন।' : lang === 'ja' ? '追加書類もアップロードできます。' : 'You can still upload additional documents if needed.'}
+              </p>
+            )}
           </div>
-          <div className="text-2xl font-black text-emerald-600 shrink-0">
-            {jobs.length > 0 ? Math.round((completedCount / jobs.length) * 100) : 0}%
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Upload Card */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-6">
@@ -403,7 +440,7 @@ export default function DocumentsPage() {
                       </svg>
                       {lang === 'bn' ? 'WhatsApp-এ সাহায্য নিন' : lang === 'ja' ? 'WhatsAppで連絡' : 'Contact via WhatsApp'}
                     </button>
-                    <a href={`tel:+${ADMIN_WHATSAPP}`}
+                    <a href={`tel:${adminPhone}`}
                       className="inline-flex items-center gap-2 bg-white border border-slate-200 hover:border-green-300 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
                       📞 {lang === 'bn' ? 'কল করুন' : lang === 'ja' ? '電話する' : 'Call Support'}
                     </a>

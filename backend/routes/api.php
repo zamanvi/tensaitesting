@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\CommissionController;
 use App\Http\Controllers\Api\GalleryController;
+use App\Models\Setting;
 use App\Http\Controllers\Api\HelpRequestController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,11 @@ Route::get('/health', function () {
 });
 
 // Gallery (public)
+Route::get('/settings/public', fn() => response()->json([
+    'support_whatsapp' => Setting::get('support_whatsapp', '8801826192179'),
+    'support_phone'    => Setting::get('support_phone', '+8801826192179'),
+]));
+
 Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/gallery/featured', [GalleryController::class, 'featured']);
 
