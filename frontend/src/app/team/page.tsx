@@ -55,7 +55,7 @@ export default function TeamPage() {
     },
     {
       name: 'Sabbir',
-      photo: null,
+      photo: '/team-sabbir.jpg',
       nameJa: 'ã‚µãƒƒãƒ“ãƒ«',
       initials: 'SB',
       role: ja ? 'å…±åŒå‰µæ¥­è€… â€” æµ·å¤–å¤§å­¦é€£æºãƒžãƒãƒ¼ã‚¸ãƒ£ãƒ¼' : 'Co-founder â€” Foreign Institute Relations',
