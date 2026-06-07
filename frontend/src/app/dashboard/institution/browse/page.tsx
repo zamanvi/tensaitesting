@@ -39,6 +39,7 @@ export default function BrowseStudents() {
       const params = Object.fromEntries(Object.entries(applied).filter(([, v]) => v));
       return api.get('/institution/students', { params }).then((r) => r.data);
     },
+    staleTime: 60_000,
   });
 
   const shortlist = useMutation({

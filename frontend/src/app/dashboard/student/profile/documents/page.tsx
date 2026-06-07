@@ -176,6 +176,7 @@ export default function DocumentsPage() {
   const { data, refetch } = useQuery({
     queryKey: ['student-profile-docs'],
     queryFn: () => api.get('/student/profile').then(r => r.data),
+    staleTime: 30_000,
   });
   const jobs: OcrJob[] = data?.ocr_jobs ?? [];
 

@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import { STATUS_COLORS } from '@/lib/constants';
 
 interface Lead {
   id: number;
@@ -14,16 +15,6 @@ interface Lead {
   created_at: string;
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  new: 'bg-slate-100 text-slate-700',
-  shortlisted: 'bg-amber-100 text-amber-700',
-  interview_scheduled: 'bg-blue-100 text-blue-700',
-  interviewed: 'bg-indigo-100 text-indigo-700',
-  offer_received: 'bg-purple-100 text-purple-700',
-  enrolled: 'bg-emerald-100 text-emerald-700',
-  visa_rejected: 'bg-red-100 text-red-700',
-  closed: 'bg-red-100 text-red-700',
-};
 
 export default function StudentLeads() {
   const { t } = useLang();
@@ -33,6 +24,7 @@ export default function StudentLeads() {
   const { data, isLoading } = useQuery({
     queryKey: ['student-leads'],
     queryFn: () => api.get('/student/leads').then((r) => r.data),
+    staleTime: 30_000,
   });
 
   const leads: Lead[] = data?.data ?? [];

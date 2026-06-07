@@ -6,8 +6,8 @@ import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
-const DIVISIONS = ['Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi', 'Khulna', 'Barishal', 'Rangpur', 'Mymensingh'];
-const QUALIFICATIONS = ['SSC', 'HSC', 'Diploma', 'Bachelor', 'Master', 'PhD', 'Other'];
+const DIVISIONS = ['Dhaka', 'Chittagong', 'Sylhet', 'Rajshahi', 'Khulna', 'Barishal', 'Rangpur', 'Mymensingh'] as const;
+const QUALIFICATIONS = ['SSC', 'HSC', 'Diploma', 'Bachelor', 'Master', 'PhD', 'Other'] as const;
 
 interface ProfileData {
   full_name?: string;

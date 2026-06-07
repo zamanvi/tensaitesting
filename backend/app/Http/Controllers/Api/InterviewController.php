@@ -15,7 +15,7 @@ class InterviewController extends Controller
     public function myInterviews(Request $request): JsonResponse
     {
         $interviews = Interview::where('student_id', $request->user()->id)
-            ->with(['lead', 'institution'])
+            ->with(['lead:id,lead_code,status', 'institution:id,name'])
             ->orderBy('scheduled_at', 'desc')
             ->get();
 
@@ -25,7 +25,7 @@ class InterviewController extends Controller
     public function institutionInterviews(Request $request): JsonResponse
     {
         $interviews = Interview::where('institution_id', $request->user()->id)
-            ->with(['lead', 'student'])
+            ->with(['lead:id,lead_code,status', 'student:id,name,email'])
             ->orderBy('scheduled_at', 'desc')
             ->get();
 
