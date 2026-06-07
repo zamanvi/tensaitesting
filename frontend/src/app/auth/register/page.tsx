@@ -144,7 +144,7 @@ function RegisterForm() {
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1.5">{a.phone}</label>
                 <input
-                  type="tel" placeholder="+880..."
+                  type="tel" placeholder="+8801XXXXXXXXX"
                   value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />

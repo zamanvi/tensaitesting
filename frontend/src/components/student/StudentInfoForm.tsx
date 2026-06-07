@@ -80,20 +80,20 @@ function AddressFields({ value, onChange, prefix }: {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
       <Field label="Village / Vill">
-        <input className={inputCls} placeholder="Village name" value={value.vill} onChange={set('vill')} id={`${prefix}-vill`} />
+        <input className={inputCls} placeholder="e.g. Mirzapur" value={value.vill} onChange={set('vill')} id={`${prefix}-vill`} />
       </Field>
       <Field label="P.O. (Post Office)">
-        <input className={inputCls} placeholder="Post office" value={value.po} onChange={set('po')} id={`${prefix}-po`} />
+        <input className={inputCls} placeholder="e.g. Tongi" value={value.po} onChange={set('po')} id={`${prefix}-po`} />
       </Field>
       <Field label="Post Code">
-        <input className={inputCls} placeholder="1000" value={value.post_code} onChange={set('post_code')} id={`${prefix}-pc`} />
+        <input className={inputCls} placeholder="e.g. 1710" value={value.post_code} onChange={set('post_code')} id={`${prefix}-pc`} />
       </Field>
       <Field label="P.S. (Police Station)">
-        <input className={inputCls} placeholder="Police station" value={value.ps} onChange={set('ps')} id={`${prefix}-ps`} />
+        <input className={inputCls} placeholder="e.g. Gazipur Sadar" value={value.ps} onChange={set('ps')} id={`${prefix}-ps`} />
       </Field>
       <div className="col-span-2">
         <Field label="Zilla (District)">
-          <input className={inputCls} placeholder="District" value={value.zilla} onChange={set('zilla')} id={`${prefix}-zilla`} />
+          <input className={inputCls} placeholder="e.g. Gazipur" value={value.zilla} onChange={set('zilla')} id={`${prefix}-zilla`} />
         </Field>
       </div>
     </div>
@@ -268,10 +268,10 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <Field label="Father's Name">
-            <input className={inputCls} placeholder="Full name" value={family.father.name} onChange={e => setFather('name', e.target.value)} />
+            <input className={inputCls} placeholder="Father's full name" value={family.father.name} onChange={e => setFather('name', e.target.value)} />
           </Field>
           <Field label="Profession">
-            <input className={inputCls} placeholder="e.g. Farmer, Business" value={family.father.profession} onChange={e => setFather('profession', e.target.value)} />
+            <input className={inputCls} placeholder="e.g. Farmer, Businessman, Service" value={family.father.profession} onChange={e => setFather('profession', e.target.value)} />
           </Field>
           <Field label="Date of Birth">
             <input type="date" className={inputCls} value={family.father.dob} onChange={e => setFather('dob', e.target.value)} />
@@ -281,7 +281,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
           </Field>
           <div className="sm:col-span-2">
             <Field label="TIN Number">
-              <input className={inputCls} placeholder="Tax Identification Number" value={family.father.tin} onChange={e => setFather('tin', e.target.value)} />
+              <input className={inputCls} placeholder="TIN (if available)" value={family.father.tin} onChange={e => setFather('tin', e.target.value)} />
             </Field>
           </div>
         </div>
@@ -292,10 +292,10 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <Field label="Mother's Name">
-            <input className={inputCls} placeholder="Full name" value={family.mother.name} onChange={e => setMother('name', e.target.value)} />
+            <input className={inputCls} placeholder="Mother's full name" value={family.mother.name} onChange={e => setMother('name', e.target.value)} />
           </Field>
           <Field label="Profession">
-            <input className={inputCls} placeholder="e.g. Housewife, Teacher" value={family.mother.profession} onChange={e => setMother('profession', e.target.value)} />
+            <input className={inputCls} placeholder="e.g. Housewife, Teacher, Business" value={family.mother.profession} onChange={e => setMother('profession', e.target.value)} />
           </Field>
           <Field label="Date of Birth">
             <input type="date" className={inputCls} value={family.mother.dob} onChange={e => setMother('dob', e.target.value)} />
@@ -305,7 +305,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
           </Field>
           <div className="sm:col-span-2">
             <Field label="TIN Number">
-              <input className={inputCls} placeholder="Tax Identification Number" value={family.mother.tin} onChange={e => setMother('tin', e.target.value)} />
+              <input className={inputCls} placeholder="TIN (if available)" value={family.mother.tin} onChange={e => setMother('tin', e.target.value)} />
             </Field>
           </div>
         </div>
@@ -322,10 +322,10 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Name">
-                  <input className={inputCls} placeholder="Full name" value={s.name} onChange={e => setSibling(i, 'name', e.target.value)} />
+                  <input className={inputCls} placeholder="Sibling's full name" value={s.name} onChange={e => setSibling(i, 'name', e.target.value)} />
                 </Field>
                 <Field label="Profession">
-                  <input className={inputCls} placeholder="Profession" value={s.profession} onChange={e => setSibling(i, 'profession', e.target.value)} />
+                  <input className={inputCls} placeholder="e.g. Student, Service, Business" value={s.profession} onChange={e => setSibling(i, 'profession', e.target.value)} />
                 </Field>
                 <Field label="Date of Birth">
                   <input type="date" className={inputCls} value={s.dob} onChange={e => setSibling(i, 'dob', e.target.value)} />
@@ -418,10 +418,10 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Sponsor Name">
-            <input className={inputCls} placeholder="Full name" value={sponsor.name} onChange={e => setSponsor(s => ({ ...s, name: e.target.value }))} />
+            <input className={inputCls} placeholder="Sponsor's full name" value={sponsor.name} onChange={e => setSponsor(s => ({ ...s, name: e.target.value }))} />
           </Field>
           <Field label="Relation with Applicant">
-            <input className={inputCls} placeholder="e.g. Father, Uncle" value={sponsor.relation} onChange={e => setSponsor(s => ({ ...s, relation: e.target.value }))} />
+            <input className={inputCls} placeholder="e.g. Father, Elder Brother, Uncle" value={sponsor.relation} onChange={e => setSponsor(s => ({ ...s, relation: e.target.value }))} />
           </Field>
           <div className="sm:col-span-2">
             <Field label="Mobile Number">
