@@ -78,7 +78,7 @@ function AddressFields({ value, onChange, prefix }: {
   const set = (k: keyof Address) => (e: React.ChangeEvent<HTMLInputElement>) =>
     onChange({ ...value, [k]: e.target.value });
   return (
-    <div className="grid grid-cols-2 gap-3 mt-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
       <Field label="Village / Vill">
         <input className={inputCls} placeholder="Village name" value={value.vill} onChange={set('vill')} id={`${prefix}-vill`} />
       </Field>

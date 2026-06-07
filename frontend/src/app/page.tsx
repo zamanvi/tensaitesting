@@ -150,13 +150,15 @@ export default function HomePage() {
           </div>
 
           {/* Stats strip */}
-          <div className="inline-flex items-center gap-0 rounded-2xl overflow-hidden border border-white/8 divide-x divide-white/8">
-            {STATS.map((s) => (
-              <div key={s.label} className="px-5 py-3 bg-white/[0.03] text-center">
-                <div className="text-white font-bold text-base">{s.value}</div>
-                <div className="text-white/40 text-[10px] mt-0.5 whitespace-nowrap">{s.label}</div>
-              </div>
-            ))}
+          <div className="w-full overflow-x-auto pb-1 -mb-1">
+            <div className="inline-flex items-center gap-0 rounded-2xl overflow-hidden border border-white/8 divide-x divide-white/8 min-w-max mx-auto">
+              {STATS.map((s) => (
+                <div key={s.label} className="px-4 sm:px-5 py-3 bg-white/[0.03] text-center">
+                  <div className="text-white font-bold text-sm sm:text-base">{s.value}</div>
+                  <div className="text-white/40 text-[10px] mt-0.5 whitespace-nowrap">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -265,13 +267,13 @@ export default function HomePage() {
 
       {/* â”€â”€ Gallery â”€â”€ */}
       <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className="flex items-end justify-between mb-8">
+        <div className=”flex flex-wrap items-end justify-between gap-3 mb-8”>
           <div>
-            <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2">ðŸ“¸ {l.gallery}</p>
-            <h2 className="text-fluid-3xl font-bold text-white">{l.gallery}</h2>
-            <p className="text-fluid-sm text-white/40 mt-1 max-w-md">{l.gallerySub}</p>
+            <p className=”text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2”>📸 {l.gallery}</p>
+            <h2 className=”text-fluid-3xl font-bold text-white”>{l.gallery}</h2>
+            <p className=”text-fluid-sm text-white/40 mt-1 max-w-md”>{l.gallerySub}</p>
           </div>
-          <Link href="/gallery" className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors shrink-0">
+          <Link href=”/gallery” className=”text-sm font-semibold text-green-400 hover:text-green-300 transition-colors shrink-0”>
             {l.galleryViewAll}
           </Link>
         </div>
