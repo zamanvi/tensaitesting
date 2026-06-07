@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,6 +17,9 @@ interface GalleryItem {
 export default function HomePage() {
   const { t, lang, toggle } = useLang();
   const l = t.landing;
+  const ja = lang === 'ja';
+  const bn = lang === 'bn';
+
   const [featured, setFeatured] = useState<GalleryItem[]>([]);
   const [scrolled, setScrolled] = useState(false);
 
@@ -35,31 +38,36 @@ export default function HomePage() {
 
   const GATEWAYS = [
     {
-      type: 'student', icon: 'ðŸŽ"',
+      type: 'student', icon: '🎓',
       title: l.gateways.studentTitle,
       desc: l.gateways.studentDesc,
-      tag: lang === 'ja' ? 'Most Popular' : 'Most Popular',
+      tag: 'Most Popular',
       size: 'lg',
     },
-    { type: 'agency', icon: 'ðŸ¢', title: l.gateways.agencyTitle, desc: l.gateways.agencyDesc, tag: null, size: 'sm' },
-    { type: 'institution', icon: 'ðŸ«', title: l.gateways.institutionTitle, desc: l.gateways.institutionDesc, tag: null, size: 'sm' },
-    { type: 'affiliate', icon: 'ðŸ’¼', title: l.gateways.affiliateTitle, desc: l.gateways.affiliateDesc, tag: null, size: 'sm' },
+    { type: 'agency', icon: '🏢', title: l.gateways.agencyTitle, desc: l.gateways.agencyDesc, tag: null, size: 'sm' },
+    { type: 'institution', icon: '🏫', title: l.gateways.institutionTitle, desc: l.gateways.institutionDesc, tag: null, size: 'sm' },
+    { type: 'affiliate', icon: '💼', title: l.gateways.affiliateTitle, desc: l.gateways.affiliateDesc, tag: null, size: 'sm' },
   ];
 
   const FEATURES = [
-    { icon: 'ðŸ"’', title: l.features.f1Title, desc: l.features.f1Desc, color: 'from-green-500/20 to-green-600/5' },
-    { icon: 'ðŸ¤', title: l.features.f2Title, desc: l.features.f2Desc, color: 'from-cyan-500/20 to-cyan-600/5' },
-    { icon: 'ðŸ›¡ï¸', title: l.features.f3Title, desc: l.features.f3Desc, color: 'from-violet-500/20 to-violet-600/5' },
-    { icon: 'ðŸ"‹', title: l.features.f4Title, desc: l.features.f4Desc, color: 'from-amber-500/20 to-amber-600/5' },
+    { icon: '🔒', title: l.features.f1Title, desc: l.features.f1Desc, color: 'from-green-500/20 to-green-600/5' },
+    { icon: '🤝', title: l.features.f2Title, desc: l.features.f2Desc, color: 'from-cyan-500/20 to-cyan-600/5' },
+    { icon: '🛡️', title: l.features.f3Title, desc: l.features.f3Desc, color: 'from-violet-500/20 to-violet-600/5' },
+    { icon: '📋', title: l.features.f4Title, desc: l.features.f4Desc, color: 'from-amber-500/20 to-amber-600/5' },
   ];
 
   const STATS = [
-    { value: '100%', label: lang === 'ja' ? 'OCRèªè¨¼' : 'OCR Verified' },
-    { value: '0', label: lang === 'ja' ? 'å½ãƒ‡ãƒ¼ã‚¿' : 'Fake Profiles' },
-    { value: 'AI', label: lang === 'ja' ? 'é©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'Eligibility Scoring' },
-    { value: 'BDâ†’JP', label: lang === 'ja' ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆ' : 'First Corridor' },
-    { value: 'ðŸ"’', label: lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆ' : 'Escrow Payments' },
+    { value: '100%', label: ja ? 'OCR認証' : bn ? 'OCR যাচাই' : 'OCR Verified' },
+    { value: '0',    label: ja ? '偽データ' : bn ? 'ভুয়া প্রোফাইল' : 'Fake Profiles' },
+    { value: 'AI',   label: ja ? '適格性スコアリング' : bn ? 'যোগ্যতা স্কোরিং' : 'Eligibility Scoring' },
+    { value: 'BD→JP', label: ja ? '最初のルート' : bn ? 'প্রথম করিডোর' : 'First Corridor' },
+    { value: '🔒',   label: ja ? 'エスクロー決済' : bn ? 'এসক্রো পেমেন্ট' : 'Escrow Payments' },
   ];
+
+  const navAbout  = ja ? '私たちについて' : bn ? 'আমাদের সম্পর্কে' : 'About';
+  const navTeam   = ja ? 'チーム' : bn ? 'দল' : 'Team';
+  const termsText = ja ? '利用規約' : bn ? 'শর্তাবলী' : 'Terms';
+  const privText  = ja ? 'プライバシー' : bn ? 'প্রাইভেসি' : 'Privacy';
 
   return (
     <div className="min-h-screen bg-[#0d1117]">
@@ -82,10 +90,10 @@ export default function HomePage() {
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
             <Link href="/about" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
-              {lang === 'ja' ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About'}
+              {navAbout}
             </Link>
             <Link href="/team" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
-              {lang === 'ja' ? 'ãƒãƒ¼ãƒ ' : 'Team'}
+              {navTeam}
             </Link>
             <Link href="/gallery" className="text-sm text-white/60 hover:text-white transition-colors px-2 py-1 hidden sm:inline">
               {l.gallery}
@@ -124,9 +132,9 @@ export default function HomePage() {
             <span className="gradient-text">{l.heroHighlight}</span>
           </h1>
 
-          {/* JP sub-label */}
+          {/* Sub-label */}
           <p className="text-white/30 text-sm font-medium tracking-[0.3em] mb-5 uppercase">
-            {lang === 'ja' ? 'ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚­ãƒ£ãƒªã‚¢ã¸ã®é"' : 'The Way of Global Career Â· å¤©æ‰'}
+            {ja ? 'グローバルキャリアへの道 · 天才' : bn ? 'বৈশ্বিক ক্যারিয়ারের পথ · টেনসাই' : 'The Way of Global Career · Tensai'}
           </p>
 
           <p className="text-fluid-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -170,10 +178,10 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 pb-20">
         <div className="text-center mb-10">
           <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-3">
-            {lang === 'ja' ? 'ã‚²ãƒ¼ãƒˆã‚¦ã‚§ã‚¤ã‚’é¸æŠž' : 'Choose Your Gateway'}
+            {ja ? 'ゲートウェイを選択' : bn ? 'আপনার গেটওয়ে বেছে নিন' : 'Choose Your Gateway'}
           </p>
           <h2 className="text-fluid-4xl font-bold text-white">
-            {lang === 'ja' ? 'èª°ã®ãŸã‚ã«ä½œã‚‰ã‚ŒãŸã‹' : 'Built for everyone in the ecosystem'}
+            {ja ? '誰のために作られたか' : bn ? 'সবার জন্য তৈরি' : 'Built for everyone in the ecosystem'}
           </h2>
         </div>
 
@@ -193,7 +201,7 @@ export default function HomePage() {
                 <p className="text-sm text-white/50 leading-relaxed">{g.desc}</p>
               </div>
               <div className="mt-auto text-xs text-green-400 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                {l.getAccess} <span className="group-hover:translate-x-1 transition-transform inline-block">â†’</span>
+                {l.getAccess} <span className="group-hover:translate-x-1 transition-transform inline-block">→</span>
               </div>
             </Link>
           ))}
@@ -205,7 +213,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-3">
-              {lang === 'ja' ? 'ãªãœå¤©æ‰ã‹' : 'Why Tensai'}
+              {ja ? 'なぜ天才か' : bn ? 'কেন টেনসাই' : 'Why Tensai'}
             </p>
             <h2 className="text-fluid-4xl font-bold text-white mb-3">{l.whyTitle}</h2>
             <p className="text-fluid-base text-white/40 max-w-2xl mx-auto">{l.whySub}</p>
@@ -232,33 +240,35 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-transparent to-cyan-600/5 rounded-3xl" />
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-4 mb-6">
-                <span className="text-4xl animate-float">ðŸ‡§ðŸ‡©</span>
+                <span className="text-4xl animate-float">🇧🇩</span>
                 <div className="flex items-center gap-2">
                   <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-white/20 to-green-400/60" />
-                  <span className="text-green-400 font-bold text-sm">âœˆï¸</span>
+                  <span className="text-green-400 font-bold text-sm">✈️</span>
                   <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-green-400/60 to-white/20" />
                 </div>
-                <span className="text-4xl animate-float" style={{ animationDelay: '2s' }}>ðŸ‡¯ðŸ‡µ</span>
+                <span className="text-4xl animate-float" style={{ animationDelay: '2s' }}>🇯🇵</span>
               </div>
               <h3 className="text-fluid-3xl font-bold text-white mb-3">
-                {lang === 'ja' ? 'ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã‹ã‚‰æ—¥æœ¬ã¸' : 'Bangladesh â†’ Japan'}
+                {ja ? 'バングラデシュから日本へ' : bn ? 'বাংলাদেশ থেকে জাপান' : 'Bangladesh → Japan'}
               </h3>
               <p className="text-fluid-base text-white/50 max-w-xl mx-auto mb-4">
-                {lang === 'ja'
-                  ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆã¯ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã‹ã‚‰æ—¥æœ¬ã€‚æ—¥æœ¬ã¯æœ€ã‚‚åŽ³æ ¼ãªèªè¨¼åŸºæº–ã‚’æ±‚ã‚ã‚‹ â€" ã ã‹ã‚‰ã"ãæœ€åˆã«é¸ã‚"ã ã€‚ãã®åŸºæº–ã‚’æº€ãŸã›ã‚‹ãªã‚‰ã€ä¸–ç•Œä¸­ã«é€šç"¨ã™ã‚‹ã€‚'
+                {ja
+                  ? '最初のルートはバングラデシュから日本。日本は最も厳格な認証基準を求める — だからこそ最初に選んだ。その基準を満たせるなら、世界中に通用する。'
+                  : bn
+                  ? 'আমাদের প্রথম করিডোর। জাপান বিশ্বের কঠোরতম যাচাই মান দাবি করে — তাই আমরা এখান থেকেই শুরু করেছি। জাপানের জন্য তৈরি সিস্টেম সর্বত্র কাজ করে।'
                   : "Our first corridor. Japan demands the strictest verification standards in the world - that is exactly why we started here. A system built for Japan works everywhere."}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 mb-7 text-xs text-white/40">
-                <span>âœ" {lang === 'ja' ? 'AIé©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'AI Eligibility Scoring'}</span>
-                <span>Â·</span>
-                <span>âœ" {lang === 'ja' ? 'OCRæ›¸é¡žãƒ­ãƒƒã‚¯' : 'OCR Document Lock'}</span>
-                <span>Â·</span>
-                <span>âœ" {lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆä¿è­·' : 'Escrow Payment Protection'}</span>
-                <span>Â·</span>
-                <span>âœ" {lang === 'ja' ? 'QRã‚»ã‚­ãƒ¥ã‚¢è¿½è·¡' : 'QR Secure Tracking'}</span>
+                <span>✓ {ja ? 'AI適格性スコアリング' : bn ? 'AI যোগ্যতা স্কোরিং' : 'AI Eligibility Scoring'}</span>
+                <span>·</span>
+                <span>✓ {ja ? 'OCR書類ロック' : bn ? 'OCR ডকুমেন্ট লক' : 'OCR Document Lock'}</span>
+                <span>·</span>
+                <span>✓ {ja ? 'エスクロー決済保護' : bn ? 'এসক্রো পেমেন্ট সুরক্ষা' : 'Escrow Payment Protection'}</span>
+                <span>·</span>
+                <span>✓ {ja ? 'QRセキュア追跡' : bn ? 'QR নিরাপদ ট্র্যাকিং' : 'QR Secure Tracking'}</span>
               </div>
               <Link href="/about" className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/12 border border-white/10 hover:border-green-500/30 text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all">
-                {lang === 'ja' ? 'ç§ãŸã¡ã®ã‚¹ãƒˆãƒ¼ãƒªãƒ¼ã‚’èª­ã‚€ â†’' : 'Read Our Story â†’'}
+                {ja ? '私たちのストーリーを読む →' : bn ? 'আমাদের গল্প পড়ুন →' : 'Read Our Story →'}
               </Link>
             </div>
           </div>
@@ -281,15 +291,15 @@ export default function HomePage() {
         {featured.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { emoji: 'ðŸŽ"', label: 'Student Journeys' },
-              { emoji: 'ðŸ†', label: 'Milestones' },
-              { emoji: 'ðŸŒ', label: 'Japan Placements' },
-              { emoji: 'ðŸ¤', label: 'Agency Partners' },
+              { emoji: '🎓', label: ja ? '学生の旅' : bn ? 'শিক্ষার্থীর যাত্রা' : 'Student Journeys' },
+              { emoji: '🏆', label: ja ? 'マイルストーン' : bn ? 'মাইলস্টোন' : 'Milestones' },
+              { emoji: '🌏', label: ja ? '日本進学' : bn ? 'জাপান প্লেসমেন্ট' : 'Japan Placements' },
+              { emoji: '🤝', label: ja ? 'エージェンシーパートナー' : bn ? 'এজেন্সি পার্টনার' : 'Agency Partners' },
             ].map((p) => (
               <div key={p.label} className="aspect-square rounded-2xl glass-card flex flex-col items-center justify-center gap-2 text-center p-4">
                 <div className="text-4xl">{p.emoji}</div>
                 <div className="text-sm font-medium text-white/60">{p.label}</div>
-                <div className="text-xs text-white/30">Coming soon</div>
+                <div className="text-xs text-white/30">{ja ? '近日公開' : bn ? 'শীঘ্রই আসছে' : 'Coming soon'}</div>
               </div>
             ))}
           </div>
@@ -313,7 +323,7 @@ export default function HomePage() {
         <div className="text-center mt-8">
           <Link href="/gallery"
             className="inline-flex items-center gap-2 glass-card hover:border-green-500/30 text-white/70 hover:text-white px-6 py-2.5 rounded-full text-sm font-medium transition-all">
-            Browse Full Gallery
+            {ja ? 'ギャラリーを見る' : bn ? 'সম্পূর্ণ গ্যালারি দেখুন' : 'Browse Full Gallery'}
           </Link>
         </div>
       </section>
@@ -327,9 +337,9 @@ export default function HomePage() {
               <span className="font-bold text-white/80">Tensai</span>
             </Link>
             <div className="flex items-center gap-5 text-sm text-white/40">
-              <Link href="/about" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About'}</Link>
-              <Link href="/terms" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'åˆ©ç"¨è¦ç´„' : 'Terms'}</Link>
-              <Link href="/privacy" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼' : 'Privacy'}</Link>
+              <Link href="/about" className="hover:text-white/70 transition-colors">{navAbout}</Link>
+              <Link href="/terms" className="hover:text-white/70 transition-colors">{termsText}</Link>
+              <Link href="/privacy" className="hover:text-white/70 transition-colors">{privText}</Link>
               <Link href="/gallery" className="hover:text-white/70 transition-colors">{l.gallery}</Link>
             </div>
             <p className="text-xs text-white/25">{l.footer}</p>
@@ -339,4 +349,3 @@ export default function HomePage() {
     </div>
   );
 }
-

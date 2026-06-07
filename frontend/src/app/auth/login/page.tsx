@@ -78,7 +78,7 @@ export default function LoginPage() {
                   <input
                     type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-3 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required
+                    placeholder="••••••••" required
                   />
                   <button
                     type="button"

@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
           {sent ? (
             <div className="text-center">
-              <div className="text-4xl mb-4">ðŸ“§</div>
+              <div className=”text-4xl mb-4”>📧</div>
               <h2 className="font-bold text-slate-900 mb-2">{a.checkEmail}</h2>
               <p className="text-sm text-slate-500 mb-6">{a.checkEmailDesc}</p>
               <Link href="/auth/login" className="text-green-700 font-medium hover:underline text-sm">
