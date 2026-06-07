@@ -64,7 +64,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0d1117]">
 
-      {/* â”€â”€ Navbar â”€â”€ */}
+      {/* Navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-nav' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5">
@@ -100,7 +100,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* â”€â”€ Hero â”€â”€ */}
+      {/* Hero */}
       <section className="hero-mesh min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-20 text-center relative overflow-hidden">
         {/* Subtle grid overlay */}
         <div
@@ -166,7 +166,7 @@ export default function HomePage() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0d1117] to-transparent" />
       </section>
 
-      {/* â”€â”€ Gateway Bento Grid â”€â”€ */}
+      {/* Gateway Bento Grid */}
       <section className="max-w-7xl mx-auto px-4 pb-20">
         <div className="text-center mb-10">
           <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-3">
@@ -200,7 +200,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ Why Tensai â”€â”€ */}
+      {/* Why Tensai */}
       <section className="py-20 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
@@ -225,7 +225,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ BD â†’ JP Corridor Banner â”€â”€ */}
+      {/* BD to JP Corridor Banner */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="glass-card rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden">
@@ -265,7 +265,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* â”€â”€ Gallery â”€â”€ */}
+      {/* Gallery */}
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className=”flex flex-wrap items-end justify-between gap-3 mb-8”>
           <div>
@@ -313,12 +313,12 @@ export default function HomePage() {
         <div className="text-center mt-8">
           <Link href="/gallery"
             className="inline-flex items-center gap-2 glass-card hover:border-green-500/30 text-white/70 hover:text-white px-6 py-2.5 rounded-full text-sm font-medium transition-all">
-            ðŸ“¸ Browse Full Gallery
+            Browse Full Gallery
           </Link>
         </div>
       </section>
 
-      {/* â”€â”€ Footer â”€â”€ */}
+      {/* Footer */}
       <footer className="border-t border-white/5 py-10 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
