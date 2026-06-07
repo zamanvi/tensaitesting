@@ -35,7 +35,7 @@ export default function HomePage() {
 
   const GATEWAYS = [
     {
-      type: 'student', icon: 'ðŸŽ“',
+      type: 'student', icon: 'ðŸŽ"',
       title: l.gateways.studentTitle,
       desc: l.gateways.studentDesc,
       tag: lang === 'ja' ? 'Most Popular' : 'Most Popular',
@@ -47,10 +47,10 @@ export default function HomePage() {
   ];
 
   const FEATURES = [
-    { icon: 'ðŸ”’', title: l.features.f1Title, desc: l.features.f1Desc, color: 'from-green-500/20 to-green-600/5' },
+    { icon: 'ðŸ"’', title: l.features.f1Title, desc: l.features.f1Desc, color: 'from-green-500/20 to-green-600/5' },
     { icon: 'ðŸ¤', title: l.features.f2Title, desc: l.features.f2Desc, color: 'from-cyan-500/20 to-cyan-600/5' },
     { icon: 'ðŸ›¡ï¸', title: l.features.f3Title, desc: l.features.f3Desc, color: 'from-violet-500/20 to-violet-600/5' },
-    { icon: 'ðŸ“‹', title: l.features.f4Title, desc: l.features.f4Desc, color: 'from-amber-500/20 to-amber-600/5' },
+    { icon: 'ðŸ"‹', title: l.features.f4Title, desc: l.features.f4Desc, color: 'from-amber-500/20 to-amber-600/5' },
   ];
 
   const STATS = [
@@ -58,7 +58,7 @@ export default function HomePage() {
     { value: '0', label: lang === 'ja' ? 'å½ãƒ‡ãƒ¼ã‚¿' : 'Fake Profiles' },
     { value: 'AI', label: lang === 'ja' ? 'é©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'Eligibility Scoring' },
     { value: 'BDâ†’JP', label: lang === 'ja' ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆ' : 'First Corridor' },
-    { value: 'ðŸ”’', label: lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆ' : 'Escrow Payments' },
+    { value: 'ðŸ"’', label: lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆ' : 'Escrow Payments' },
   ];
 
   return (
@@ -126,7 +126,7 @@ export default function HomePage() {
 
           {/* JP sub-label */}
           <p className="text-white/30 text-sm font-medium tracking-[0.3em] mb-5 uppercase">
-            {lang === 'ja' ? 'ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚­ãƒ£ãƒªã‚¢ã¸ã®é“' : 'The Way of Global Career Â· å¤©æ‰'}
+            {lang === 'ja' ? 'ã‚°ãƒ­ãƒ¼ãƒãƒ«ã‚­ãƒ£ãƒªã‚¢ã¸ã®é"' : 'The Way of Global Career Â· å¤©æ‰'}
           </p>
 
           <p className="text-fluid-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -245,17 +245,17 @@ export default function HomePage() {
               </h3>
               <p className="text-fluid-base text-white/50 max-w-xl mx-auto mb-4">
                 {lang === 'ja'
-                  ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆã¯ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã‹ã‚‰æ—¥æœ¬ã€‚æ—¥æœ¬ã¯æœ€ã‚‚åŽ³æ ¼ãªèªè¨¼åŸºæº–ã‚’æ±‚ã‚ã‚‹ â€” ã ã‹ã‚‰ã“ãæœ€åˆã«é¸ã‚“ã ã€‚ãã®åŸºæº–ã‚’æº€ãŸã›ã‚‹ãªã‚‰ã€ä¸–ç•Œä¸­ã«é€šç”¨ã™ã‚‹ã€‚'
-                  : "Our first corridor. Japan demands the strictest verification standards in the world â€” that's exactly why we started here. A system built for Japan works everywhere."}
+                  ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆã¯ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã‹ã‚‰æ—¥æœ¬ã€‚æ—¥æœ¬ã¯æœ€ã‚‚åŽ³æ ¼ãªèªè¨¼åŸºæº–ã‚’æ±‚ã‚ã‚‹ â€" ã ã‹ã‚‰ã"ãæœ€åˆã«é¸ã‚"ã ã€‚ãã®åŸºæº–ã‚’æº€ãŸã›ã‚‹ãªã‚‰ã€ä¸–ç•Œä¸­ã«é€šç"¨ã™ã‚‹ã€‚'
+                  : "Our first corridor. Japan demands the strictest verification standards in the world â€" that's exactly why we started here. A system built for Japan works everywhere."}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 mb-7 text-xs text-white/40">
-                <span>âœ“ {lang === 'ja' ? 'AIé©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'AI Eligibility Scoring'}</span>
+                <span>âœ" {lang === 'ja' ? 'AIé©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'AI Eligibility Scoring'}</span>
                 <span>Â·</span>
-                <span>âœ“ {lang === 'ja' ? 'OCRæ›¸é¡žãƒ­ãƒƒã‚¯' : 'OCR Document Lock'}</span>
+                <span>âœ" {lang === 'ja' ? 'OCRæ›¸é¡žãƒ­ãƒƒã‚¯' : 'OCR Document Lock'}</span>
                 <span>Â·</span>
-                <span>âœ“ {lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆä¿è­·' : 'Escrow Payment Protection'}</span>
+                <span>âœ" {lang === 'ja' ? 'ã‚¨ã‚¹ã‚¯ãƒ­ãƒ¼æ±ºæ¸ˆä¿è­·' : 'Escrow Payment Protection'}</span>
                 <span>Â·</span>
-                <span>âœ“ {lang === 'ja' ? 'QRã‚»ã‚­ãƒ¥ã‚¢è¿½è·¡' : 'QR Secure Tracking'}</span>
+                <span>âœ" {lang === 'ja' ? 'QRã‚»ã‚­ãƒ¥ã‚¢è¿½è·¡' : 'QR Secure Tracking'}</span>
               </div>
               <Link href="/about" className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/12 border border-white/10 hover:border-green-500/30 text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all">
                 {lang === 'ja' ? 'ç§ãŸã¡ã®ã‚¹ãƒˆãƒ¼ãƒªãƒ¼ã‚’èª­ã‚€ â†’' : 'Read Our Story â†’'}
@@ -267,13 +267,13 @@ export default function HomePage() {
 
       {/* Gallery */}
       <section className="max-w-7xl mx-auto px-4 py-16">
-        <div className=”flex flex-wrap items-end justify-between gap-3 mb-8”>
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-8">
           <div>
-            <p className=”text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2”>{l.gallery}</p>
-            <h2 className=”text-fluid-3xl font-bold text-white”>{l.gallery}</h2>
-            <p className=”text-fluid-sm text-white/40 mt-1 max-w-md”>{l.gallerySub}</p>
+            <p className="text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2">{l.gallery}</p>
+            <h2 className="text-fluid-3xl font-bold text-white">{l.gallery}</h2>
+            <p className="text-fluid-sm text-white/40 mt-1 max-w-md">{l.gallerySub}</p>
           </div>
-          <Link href=”/gallery” className=”text-sm font-semibold text-green-400 hover:text-green-300 transition-colors shrink-0”>
+          <Link href="/gallery" className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors shrink-0">
             {l.galleryViewAll}
           </Link>
         </div>
@@ -281,7 +281,7 @@ export default function HomePage() {
         {featured.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
-              { emoji: 'ðŸŽ“', label: 'Student Journeys' },
+              { emoji: 'ðŸŽ"', label: 'Student Journeys' },
               { emoji: 'ðŸ†', label: 'Milestones' },
               { emoji: 'ðŸŒ', label: 'Japan Placements' },
               { emoji: 'ðŸ¤', label: 'Agency Partners' },
@@ -328,7 +328,7 @@ export default function HomePage() {
             </Link>
             <div className="flex items-center gap-5 text-sm text-white/40">
               <Link href="/about" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'ç§ãŸã¡ã«ã¤ã„ã¦' : 'About'}</Link>
-              <Link href="/terms" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'åˆ©ç”¨è¦ç´„' : 'Terms'}</Link>
+              <Link href="/terms" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'åˆ©ç"¨è¦ç´„' : 'Terms'}</Link>
               <Link href="/privacy" className="hover:text-white/70 transition-colors">{lang === 'ja' ? 'ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼' : 'Privacy'}</Link>
               <Link href="/gallery" className="hover:text-white/70 transition-colors">{l.gallery}</Link>
             </div>
