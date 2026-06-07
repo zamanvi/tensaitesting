@@ -135,8 +135,8 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
     const fi = initialProfile?.family_info as FamilyInfo | null;
     if (!fi) return blankFamily();
     return {
-      father: { name: '', profession: '', dob: '', mobile: '', tin: '', ...fi.father },
-      mother: { name: '', profession: '', dob: '', mobile: '', tin: '', ...fi.mother },
+      father: { ...{ name: '', profession: '', dob: '', mobile: '', tin: '' }, ...fi.father },
+      mother: { ...{ name: '', profession: '', dob: '', mobile: '', tin: '' }, ...fi.mother },
       siblings: Array.from({ length: 4 }, (_, i) => ({ ...emptySibling(), ...(fi.siblings?.[i] ?? {}) })),
     };
   });
