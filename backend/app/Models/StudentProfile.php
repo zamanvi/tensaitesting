@@ -11,7 +11,8 @@ class StudentProfile extends Model
 
     protected $fillable = [
         'user_id', 'full_name', 'full_name_japanese', 'date_of_birth',
-        'gender', 'nationality', 'religion', 'address_bangladesh',
+        'gender', 'blood_group', 'mobile_number', 'whatsapp_number',
+        'nationality', 'religion', 'address_bangladesh',
         'street_address', 'district', 'division', 'postal_code',
         'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
         'passport_number', 'passport_expiry', 'passport_document',
@@ -21,12 +22,19 @@ class StudentProfile extends Model
         'is_admin_verified', 'is_data_locked', 'ocr_status',
         'admin_notes', 'locked_at', 'locked_by',
         'phone_visible_to_institution', 'email_visible_to_institution',
+        'family_info', 'permanent_address', 'present_address',
+        'education_history', 'sponsor_info',
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
         'passport_expiry' => 'date',
         'language_documents' => 'array',
+        'family_info' => 'array',
+        'permanent_address' => 'array',
+        'present_address' => 'array',
+        'education_history' => 'array',
+        'sponsor_info' => 'array',
         'is_ocr_verified' => 'boolean',
         'is_admin_verified' => 'boolean',
         'is_data_locked' => 'boolean',

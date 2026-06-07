@@ -7,6 +7,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Rename any legacy 'nid' values to 'nid_student' before tightening the ENUM
+        DB::statement("ALTER TABLE ocr_jobs MODIFY COLUMN document_type VARCHAR(100) NOT NULL");
+        DB::table('ocr_jobs')->where('document_type', 'nid')->update(['document_type' => 'nid_student']);
+
         DB::statement("ALTER TABLE ocr_jobs MODIFY COLUMN document_type ENUM(
             'passport',
             'nid_student',

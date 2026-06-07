@@ -58,6 +58,14 @@ class StudentProfileController extends Controller
             'jlpt_level' => 'nullable|in:N1,N2,N3,N4,N5',
             'nat_level' => 'nullable|in:1,2,3,4,5',
             'ielts_score' => 'nullable|numeric|min:0|max:9',
+            'blood_group' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'mobile_number' => 'nullable|string|max:20',
+            'whatsapp_number' => 'nullable|string|max:20',
+            'family_info' => 'nullable|array',
+            'permanent_address' => 'nullable|array',
+            'present_address' => 'nullable|array',
+            'education_history' => 'nullable|array',
+            'sponsor_info' => 'nullable|array',
         ]);
 
         $profile->update($validated);

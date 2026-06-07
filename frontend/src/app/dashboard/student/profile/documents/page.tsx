@@ -1,11 +1,11 @@
 'use client';
-'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
+import StudentInfoForm from '@/components/student/StudentInfoForm';
 
 interface OcrJob {
   id: number;
@@ -174,10 +174,10 @@ export default function DocumentsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data, refetch } = useQuery({
-    queryKey: ['ocr-jobs'],
-    queryFn: () => api.get('/student/profile').then(r => r.data.ocr_jobs ?? []),
+    queryKey: ['student-profile-docs'],
+    queryFn: () => api.get('/student/profile').then(r => r.data),
   });
-  const jobs: OcrJob[] = data ?? [];
+  const jobs: OcrJob[] = data?.ocr_jobs ?? [];
 
   const NO_FILE  = lang === 'bn' ? 'আগে একটি ফাইল বেছে নিন।' : lang === 'ja' ? 'ファイルを選択してください。' : 'Please select a file first.';
   const DROP_HINT = lang === 'bn' ? 'ফাইল এখানে ড্রপ করুন অথবা ক্লিক করুন' : lang === 'ja' ? 'ここにドロップ、またはクリック' : 'Drop file here or click to browse';
@@ -205,8 +205,9 @@ export default function DocumentsPage() {
     setUploadFailed(false);
     setHelpSent(false);
     try {
+      const compressed = await compressImage(selectedFile);
       const form = new FormData();
-      form.append('file', selectedFile);
+      form.append('file', compressed);
       form.append('document_type', docType);
       const token = localStorage.getItem('tensai_token');
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -567,6 +568,29 @@ export default function DocumentsPage() {
             );
           })
         )}
+      </div>
+
+      {/* ── Submit Your All Info ── */}
+      <div className="mt-8">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center text-lg shrink-0">📋</div>
+          <div>
+            <h2 className="font-bold text-slate-900 text-base">
+              {lang === 'bn' ? 'আপনার সকল তথ্য জমা দিন' : lang === 'ja' ? '全情報を提出する' : 'Submit Your All Info'}
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {lang === 'bn'
+                ? 'ব্যক্তিগত, পারিবারিক, ঠিকানা, শিক্ষা ও স্পনসরের তথ্য পূরণ করুন।'
+                : lang === 'ja'
+                ? '個人・家族・住所・学歴・保証人の情報を入力してください。'
+                : 'Fill in your personal, family, address, educational background and sponsor details.'}
+            </p>
+          </div>
+        </div>
+        <StudentInfoForm
+          initialProfile={data?.profile ?? undefined}
+          onSaved={() => refetch()}
+        />
       </div>
 
     </DashboardLayout>

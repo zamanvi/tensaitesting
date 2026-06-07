@@ -108,7 +108,7 @@ class OcrController extends Controller
                 'is_ocr_verified' => true,
                 'ocr_status' => 'verified',
             ]),
-            'nid' => $profile->update([
+            'nid_student' => $profile->update([
                 'nid_number' => $data['nid_number'] ?? $profile->nid_number,
                 'is_ocr_verified' => true,
             ]),
