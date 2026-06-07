@@ -41,18 +41,28 @@ body {
 }
 
 /* ── Fluid Typography Scale ─────────────────────────────────
-   Smoothly scales between mobile and desktop without jumps.
-   Usage: replace fixed text-Nxl breakpoint chains with one class.
+   Balanced scale: readable on mobile (375px) and clean on desktop (1440px).
+   No jumps — uses clamp() so one class covers all viewport widths.
+
+   xs   → 11–12px  — captions, badges, tiny labels
+   sm   → 13–14px  — hints, supporting text, table cells
+   base → 14–16px  — main body copy
+   lg   → 16–18px  — lead paragraphs, card descriptions
+   xl   → 18–22px  — sub-headings, feature titles
+   2xl  → 20–26px  — card headings, minor section titles
+   3xl  → 24–32px  — team names, sub-section titles
+   4xl  → 28–40px  — main section headings (h2)
+   hero → 32–52px  — page hero h1 (professional SaaS size)
 ─────────────────────────────────────────────────────────── */
-.text-fluid-xs   { font-size: clamp(0.7rem,   1.8vw,  0.8125rem); }
-.text-fluid-sm   { font-size: clamp(0.8125rem,2vw,    0.9375rem); }
-.text-fluid-base { font-size: clamp(0.9375rem,2.5vw,  1.0625rem); }
-.text-fluid-lg   { font-size: clamp(1.0625rem,2.8vw,  1.25rem);   }
-.text-fluid-xl   { font-size: clamp(1.2rem,   3.5vw,  1.5rem);    }
-.text-fluid-2xl  { font-size: clamp(1.4rem,   4vw,    1.875rem);  }
-.text-fluid-3xl  { font-size: clamp(1.75rem,  5vw,    2.5rem);    }
-.text-fluid-4xl  { font-size: clamp(2rem,     6vw,    3.25rem);   }
-.text-fluid-hero { font-size: clamp(2.5rem,   8.5vw,  6rem);      line-height: 0.95; }
+.text-fluid-xs   { font-size: clamp(0.6875rem, 1.5vw,  0.75rem);  }
+.text-fluid-sm   { font-size: clamp(0.8125rem, 1.8vw,  0.875rem); }
+.text-fluid-base { font-size: clamp(0.875rem,  2vw,    1rem);      }
+.text-fluid-lg   { font-size: clamp(1rem,      2.2vw,  1.125rem); }
+.text-fluid-xl   { font-size: clamp(1.125rem,  2.5vw,  1.375rem); }
+.text-fluid-2xl  { font-size: clamp(1.25rem,   3vw,    1.625rem); }
+.text-fluid-3xl  { font-size: clamp(1.5rem,    3.5vw,  2rem);     }
+.text-fluid-4xl  { font-size: clamp(1.75rem,   4vw,    2.5rem);   }
+.text-fluid-hero { font-size: clamp(2rem,       5vw,    3.25rem);  line-height: 1.08; }
 
 @keyframes gradient-shift {
   0%, 100% { background-position: 0% 50%; }

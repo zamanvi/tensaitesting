@@ -14,8 +14,8 @@ export default function GalleryPage() {
       </nav>
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-20 text-center">
-        <div className="text-6xl mb-6">📸</div>
-        <h1 className="text-3xl font-bold text-slate-900 mb-3">Student Gallery</h1>
+        <div className="text-5xl mb-5">📸</div>
+        <h1 className="text-fluid-3xl font-bold text-slate-900 mb-3">Student Gallery</h1>
         <p className="text-slate-500 max-w-md mb-8">
           Success stories, milestones, and journeys of Tensai students around the world. Coming soon.
         </p>
