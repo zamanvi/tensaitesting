@@ -269,7 +269,7 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 py-16">
         <div className=”flex flex-wrap items-end justify-between gap-3 mb-8”>
           <div>
-            <p className=”text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2”>📸 {l.gallery}</p>
+            <p className=”text-white/30 text-xs font-semibold tracking-[0.3em] uppercase mb-2”>{l.gallery}</p>
             <h2 className=”text-fluid-3xl font-bold text-white”>{l.gallery}</h2>
             <p className=”text-fluid-sm text-white/40 mt-1 max-w-md”>{l.gallerySub}</p>
           </div>
