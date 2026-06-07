@@ -160,7 +160,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
   });
 
   // Sponsor
-  const [sponsor, setSponsor] = useState<SponsorInfo>(() => ({ name: '', relation: '', mobile: '', ...((initialProfile?.sponsor_info as SponsorInfo) ?? {}) }));
+  const [sponsor, setSponsor] = useState<SponsorInfo>(() => ({ ...{ name: '', relation: '', mobile: '' }, ...((initialProfile?.sponsor_info as SponsorInfo) ?? {}) }));
 
   // Form state
   const [saving, setSaving] = useState(false);
