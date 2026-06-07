@@ -12,6 +12,7 @@ export default function TeamPage() {
     {
       name: 'Md. Norozzaman',
       nameJa: 'Md. ãƒŽãƒ­ã‚¶ãƒžãƒ³',
+      photo: '/team-norozzaman.jpg',
       initials: 'MN',
       role: ja ? 'ãƒ•ã‚¡ã‚¦ãƒ³ãƒ€ãƒ¼ & CEO' : 'Founder & CEO',
       badge: ja ? 'ãƒ“ã‚¸ãƒ§ãƒŠãƒªãƒ¼' : 'Visionary',
@@ -32,6 +33,7 @@ export default function TeamPage() {
     },
     {
       name: 'Nasir Sarker',
+      photo: null,
       nameJa: 'ãƒŠã‚·ãƒ«ãƒ»ã‚µãƒ¼ã‚«ãƒ¼',
       initials: 'NS',
       role: ja ? 'å…±åŒå‰µæ¥­è€… â€” äº‹æ¥­æˆé•·' : 'Co-founder â€” Business Growth',
@@ -53,6 +55,7 @@ export default function TeamPage() {
     },
     {
       name: 'Sabbir',
+      photo: null,
       nameJa: 'ã‚µãƒƒãƒ“ãƒ«',
       initials: 'SB',
       role: ja ? 'å…±åŒå‰µæ¥­è€… â€” æµ·å¤–å¤§å­¦é€£æºãƒžãƒãƒ¼ã‚¸ãƒ£ãƒ¼' : 'Co-founder â€” Foreign Institute Relations',
@@ -136,8 +139,14 @@ export default function TeamPage() {
             >
               {/* Avatar */}
               <div className="flex flex-col items-center gap-4 shrink-0">
-                <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-2xl ${member.avatarBg} flex items-center justify-center text-white text-3xl font-black shadow-lg`}>
-                  {member.initials}
+                <div className={`w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-lg`}>
+                  {member.photo ? (
+                    <Image src={member.photo} alt={member.name} width={112} height={112} className="w-full h-full object-cover object-top" />
+                  ) : (
+                    <div className={`w-full h-full ${member.avatarBg} flex items-center justify-center text-white text-3xl font-black`}>
+                      {member.initials}
+                    </div>
+                  )}
                 </div>
                 <span className={`text-xs font-bold px-3 py-1 rounded-full ${member.badgeColor}`}>
                   {member.badge}
