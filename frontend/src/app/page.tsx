@@ -246,7 +246,7 @@ export default function HomePage() {
               <p className="text-fluid-base text-white/50 max-w-xl mx-auto mb-4">
                 {lang === 'ja'
                   ? 'æœ€åˆã®ãƒ«ãƒ¼ãƒˆã¯ãƒãƒ³ã‚°ãƒ©ãƒ‡ã‚·ãƒ¥ã‹ã‚‰æ—¥æœ¬ã€‚æ—¥æœ¬ã¯æœ€ã‚‚åŽ³æ ¼ãªèªè¨¼åŸºæº–ã‚’æ±‚ã‚ã‚‹ â€" ã ã‹ã‚‰ã"ãæœ€åˆã«é¸ã‚"ã ã€‚ãã®åŸºæº–ã‚’æº€ãŸã›ã‚‹ãªã‚‰ã€ä¸–ç•Œä¸­ã«é€šç"¨ã™ã‚‹ã€‚'
-                  : "Our first corridor. Japan demands the strictest verification standards in the world â€" that's exactly why we started here. A system built for Japan works everywhere."}
+                  : "Our first corridor. Japan demands the strictest verification standards in the world - that is exactly why we started here. A system built for Japan works everywhere."}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 mb-7 text-xs text-white/40">
                 <span>âœ" {lang === 'ja' ? 'AIé©æ ¼æ€§ã‚¹ã‚³ã‚¢ãƒªãƒ³ã‚°' : 'AI Eligibility Scoring'}</span>
