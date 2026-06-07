@@ -12,7 +12,7 @@ export default function TeamPage() {
     {
       name: 'Md. Norozzaman',
       nameJa: 'Md. ãƒŽãƒ­ã‚¶ãƒžãƒ³',
-      photo: '/team-norozzaman.jpg',
+      photo: 'https://pub-f01f8a3511524b808cb8116aa5d495aa.r2.dev/ceo.webp',
       initials: 'MN',
       role: ja ? 'ãƒ•ã‚¡ã‚¦ãƒ³ãƒ€ãƒ¼ & CEO' : 'Founder & CEO',
       badge: ja ? 'ãƒ“ã‚¸ãƒ§ãƒŠãƒªãƒ¼' : 'Visionary',
