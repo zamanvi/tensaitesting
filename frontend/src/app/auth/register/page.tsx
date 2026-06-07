@@ -9,6 +9,7 @@ import { Suspense, useState } from "react";
 function RegisterForm() {
   const searchParams = useSearchParams();
   const defaultType = searchParams.get("type") || "student";
+  const refCode = searchParams.get("ref") || "";
   const { t, lang, toggle } = useLang();
   const a = t.auth;
 
@@ -21,7 +22,7 @@ function RegisterForm() {
 
   const [form, setForm] = useState({
     name: "", email: "", phone: "", password: "", password_confirmation: "",
-    gateway_type: defaultType, affiliate_code: "",
+    gateway_type: defaultType, affiliate_code: refCode,
   });
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

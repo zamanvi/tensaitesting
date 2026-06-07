@@ -96,4 +96,21 @@ class CommissionController extends Controller
 
         return response()->json(['commissions' => $commissions, 'summary' => $summary]);
     }
+
+    public function upgradeRequest(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        \Illuminate\Support\Facades\Log::info('Affiliate upgrade request', [
+            'user_id'        => $user->id,
+            'name'           => $user->name,
+            'email'          => $user->email,
+            'affiliate_code' => $user->affiliate_code,
+            'requested_at'   => now()->toIso8601String(),
+        ]);
+
+        return response()->json([
+            'message' => 'Upgrade request received. Our team will review and contact you within 2–3 business days.',
+        ]);
+    }
 }

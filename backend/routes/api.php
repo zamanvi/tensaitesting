@@ -87,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard', [CommissionController::class, 'affiliateDashboard']);
         Route::get('/referrals', [CommissionController::class, 'referrals']);
         Route::get('/earnings', [CommissionController::class, 'earnings']);
+        Route::post('/upgrade-request', [CommissionController::class, 'upgradeRequest']);
     });
 
     // Admin only
