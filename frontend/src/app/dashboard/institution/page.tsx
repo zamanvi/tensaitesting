@@ -72,7 +72,7 @@ export default function InstitutionDashboard() {
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">
         <h2 className="font-bold text-slate-900 mb-4">{id.howTitle}</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {STEPS.map((s) => (
             <div key={s.step} className="text-center">
               <div className="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-sm mx-auto mb-2">

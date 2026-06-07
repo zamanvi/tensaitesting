@@ -95,7 +95,7 @@ export default function AffiliateDashboard() {
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
         <div className="relative">
           <div className="text-xs font-semibold opacity-70 uppercase tracking-widest mb-1">{a.yourCode}</div>
-          <div className="text-3xl font-bold tracking-widest mb-4">{affiliateCode}</div>
+          <div className="text-2xl sm:text-3xl font-bold tracking-widest mb-4 break-all">{affiliateCode}</div>
           <div className="flex items-center gap-2 bg-white/10 backdrop-blur rounded-xl p-3 text-xs border border-white/10">
             <span className="opacity-75 flex-1 truncate min-w-0 font-mono">{affiliateLink}</span>
             <button

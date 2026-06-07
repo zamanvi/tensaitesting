@@ -50,7 +50,7 @@ export default function LoginPage() {
 
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           {/* Tab switcher */}
-          <div className="grid grid-cols-2 border-b border-slate-100">
+          <div className="flex border-b border-slate-100">
             <div className="py-3.5 text-center text-sm font-semibold text-green-700 border-b-2 border-green-600">
               {a.signIn}
             </div>
