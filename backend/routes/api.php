@@ -78,7 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Institution gateway
     Route::prefix('institution')->middleware('role:institution')->group(function () {
         Route::get('/profile', [InstitutionController::class, 'profile']);
-        Route::put('/profile', [InstitutionController::class, 'updateProfile']);
+        Route::post('/profile', [InstitutionController::class, 'updateProfile']); // POST for multipart/form-data (logo upload)
         Route::get('/leads', [InstitutionController::class, 'myLeads']);
         Route::get('/students', [StudentProfileController::class, 'institutionBrowse']);
         Route::post('/shortlist/{student}', [StudentProfileController::class, 'shortlist']);

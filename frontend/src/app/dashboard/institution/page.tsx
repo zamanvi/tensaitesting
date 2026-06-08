@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -13,8 +13,15 @@ export default function InstitutionDashboard() {
   const { user } = useAuthStore();
   const router = useRouter();
 
+  const { lang } = useLang();
   const isInstitution = user?.gateway_type === 'institution';
   if (user && !isInstitution) { router.replace(`/dashboard/${user.gateway_type}`); return null; }
+
+  const { data: instProfile } = useQuery({
+    queryKey: ['institution-profile'],
+    queryFn: () => api.get('/institution/profile').then(r => r.data.profile),
+    enabled: isInstitution,
+  });
 
   const [leadsQ, interviewsQ] = useQueries({
     queries: [
@@ -44,8 +51,34 @@ export default function InstitutionDashboard() {
     { step: '4', title: id.step4Title, desc: id.step4Desc },
   ];
 
+  const profileStatus = !instProfile ? 'none' : instProfile.status;
+  const instBanners: Record<string, { bg: string; icon: string; title: string; desc: string; cta?: string }> = {
+    none:      { bg: 'bg-indigo-50 border-indigo-200',   icon: '🏫', title: lang === 'ja' ? 'プロフィールを完成させてください' : lang === 'bn' ? 'প্রোফাইল পূরণ করুন' : 'Complete Your Institution Profile', desc: lang === 'ja' ? '管理者の審査を受けて、エージェンシーからの学生申請を受け取りましょう。' : lang === 'bn' ? 'প্রোফাইল জমা দিয়ে অনুমোদন পান এবং এজেন্সি থেকে আবেদন গ্রহণ করুন।' : 'Submit your profile for admin review to start receiving student applications.', cta: lang === 'ja' ? 'プロフィールを設定 →' : lang === 'bn' ? 'প্রোফাইল সেটআপ করুন →' : 'Set Up Profile →' },
+    pending:   { bg: 'bg-amber-50 border-amber-200',     icon: '⏳', title: lang === 'ja' ? 'プロフィール審査中' : lang === 'bn' ? 'প্রোফাইল যাচাই হচ্ছে' : 'Profile Under Review', desc: lang === 'ja' ? '管理者がプロフィールを確認しています。通常24〜48時間かかります。' : lang === 'bn' ? 'অ্যাডমিন যাচাই করছেন। সাধারণত ২৪-৪৮ ঘন্টা লাগে।' : 'Admin is reviewing your profile. Usually takes 24–48 hours.' },
+    suspended: { bg: 'bg-red-50 border-red-200',         icon: '❌', title: lang === 'ja' ? 'アカウント停止中' : lang === 'bn' ? 'অ্যাকাউন্ট স্থগিত' : 'Account Suspended', desc: lang === 'ja' ? 'サポートにお問い合わせください。' : lang === 'bn' ? 'সাপোর্টে যোগাযোগ করুন।' : 'Contact support for assistance.', cta: lang === 'ja' ? 'プロフィールを確認 →' : lang === 'bn' ? 'প্রোফাইল দেখুন →' : 'View Profile →' },
+  };
+
+  const instBanner = profileStatus !== 'active' ? instBanners[profileStatus] : null;
+
   return (
     <DashboardLayout>
+      {instBanner && (
+        <div className={`rounded-2xl border p-4 mb-5 flex items-start justify-between gap-3 ${instBanner.bg}`}>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">{instBanner.icon}</span>
+            <div>
+              <p className="font-bold text-sm text-slate-900">{instBanner.title}</p>
+              <p className="text-xs text-slate-600 mt-0.5">{instBanner.desc}</p>
+            </div>
+          </div>
+          {instBanner.cta && (
+            <a href="/dashboard/institution/profile" className="shrink-0 text-xs font-bold text-indigo-600 hover:text-indigo-800 whitespace-nowrap">
+              {instBanner.cta}
+            </a>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         {STATS.map((s) => (
           <div key={s.label} className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5">
