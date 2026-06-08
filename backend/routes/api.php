@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\InstitutionController;
 use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\CommissionController;
+use App\Http\Controllers\Api\AffiliateProfileController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\AdminGalleryController;
 use App\Models\Setting;
@@ -88,6 +89,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Affiliate gateway
     Route::prefix('affiliate')->middleware('role:affiliate')->group(function () {
+        Route::get('/profile',  [AffiliateProfileController::class, 'show']);
+        Route::post('/profile', [AffiliateProfileController::class, 'upsert']);
         Route::get('/dashboard', [CommissionController::class, 'affiliateDashboard']);
         Route::get('/referrals', [CommissionController::class, 'referrals']);
         Route::get('/earnings', [CommissionController::class, 'earnings']);

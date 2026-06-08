@@ -63,6 +63,7 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
     affiliate: [
       { label: t.nav.overview, href: '/dashboard/affiliate' },
+      { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile & Payout', href: '/dashboard/affiliate/profile' },
       { label: t.nav.referrals, href: '/dashboard/affiliate/referrals' },
     ],
   };

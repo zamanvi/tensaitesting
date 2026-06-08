@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AffiliateProfile;
 use App\Models\Commission;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -13,11 +14,9 @@ class CommissionController extends Controller
     public function affiliateDashboard(Request $request): JsonResponse
     {
         $user = $request->user();
-        $profile = $user->affiliateProfile;
-
-        if (!$profile) {
-            return response()->json(['message' => 'Affiliate profile not found.'], 404);
-        }
+        // Auto-create profile on first dashboard visit so the page never 404s
+        $profile = $user->affiliateProfile
+            ?? AffiliateProfile::create(['user_id' => $user->id]);
 
         $earningsByStatus = Commission::where('payee_id', $user->id)
             ->selectRaw('status, SUM(amount) as total, COUNT(*) as count')

@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -31,6 +31,7 @@ export default function AffiliateDashboard() {
   const a = t.affiliateDash;
   const [copied, setCopied] = useState(false);
 
+  const { lang } = useLang();
   const affiliateCode = user?.affiliate_code ?? '';
   const affiliateLink = typeof window !== 'undefined'
     ? `${window.location.origin}/auth/register?ref=${affiliateCode}`
@@ -41,6 +42,11 @@ export default function AffiliateDashboard() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   }
+
+  const { data: affiliateProfile } = useQuery({
+    queryKey: ['affiliate-profile'],
+    queryFn: () => api.get('/affiliate/profile').then(r => r.data.profile),
+  });
 
   const [dashQ, referralsQ] = useQueries({
     queries: [
@@ -64,8 +70,30 @@ export default function AffiliateDashboard() {
   const pendingPayout = dash?.pending_payout ?? 0;
   const totalEarned = dash?.total_earned ?? 0;
 
+  const hasPayoutInfo = !!(affiliateProfile?.bank_account_number || affiliateProfile?.bkash_number || affiliateProfile?.nagad_number);
+
   return (
     <DashboardLayout>
+      {/* Payout info banner */}
+      {!hasPayoutInfo && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-5 flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">💳</span>
+            <div>
+              <p className="font-bold text-sm text-slate-900">
+                {lang === 'ja' ? '支払い情報を追加してください' : lang === 'bn' ? 'পেমেন্ট তথ্য যোগ করুন' : 'Add Payout Details'}
+              </p>
+              <p className="text-xs text-slate-600 mt-0.5">
+                {lang === 'ja' ? 'コミッションを受け取るには銀行口座またはモバイルバンキング情報が必要です。' : lang === 'bn' ? 'কমিশন পেতে ব্যাংক বা মোবাইল ব্যাংকিং তথ্য যোগ করুন।' : 'Add your bank account or bKash/Nagad number to receive commission payouts.'}
+              </p>
+            </div>
+          </div>
+          <Link href="/dashboard/affiliate/profile" className="shrink-0 text-xs font-bold text-indigo-600 hover:text-indigo-800 whitespace-nowrap">
+            {lang === 'ja' ? '設定する →' : lang === 'bn' ? 'সেটআপ করুন →' : 'Set Up →'}
+          </Link>
+        </div>
+      )}
+
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <StatCard
