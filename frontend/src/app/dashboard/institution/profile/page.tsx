@@ -6,12 +6,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 const MONTHS = [
-  { value: 1, label: 'January' }, { value: 2, label: 'February' },
-  { value: 3, label: 'March' },   { value: 4, label: 'April' },
-  { value: 5, label: 'May' },     { value: 6, label: 'June' },
-  { value: 7, label: 'July' },    { value: 8, label: 'August' },
-  { value: 9, label: 'September' },{ value: 10, label: 'October' },
-  { value: 11, label: 'November' },{ value: 12, label: 'December' },
+  { value: 1,  en: 'January',   ja: '1月',  bn: 'জানুয়ারি' },
+  { value: 2,  en: 'February',  ja: '2月',  bn: 'ফেব্রুয়ারি' },
+  { value: 3,  en: 'March',     ja: '3月',  bn: 'মার্চ' },
+  { value: 4,  en: 'April',     ja: '4月',  bn: 'এপ্রিল' },
+  { value: 5,  en: 'May',       ja: '5月',  bn: 'মে' },
+  { value: 6,  en: 'June',      ja: '6月',  bn: 'জুন' },
+  { value: 7,  en: 'July',      ja: '7月',  bn: 'জুলাই' },
+  { value: 8,  en: 'August',    ja: '8月',  bn: 'আগস্ট' },
+  { value: 9,  en: 'September', ja: '9月',  bn: 'সেপ্টেম্বর' },
+  { value: 10, en: 'October',   ja: '10月', bn: 'অক্টোবর' },
+  { value: 11, en: 'November',  ja: '11月', bn: 'নভেম্বর' },
+  { value: 12, en: 'December',  ja: '12月', bn: 'ডিসেম্বর' },
 ];
 
 const QUALIFICATIONS = ['SSC', 'HSC', 'Diploma', 'Bachelor\'s', 'Master\'s', 'N5', 'N4', 'N3', 'N2'];
@@ -39,7 +45,7 @@ const blank: ProfileForm = {
   intake_months: [], accepted_qualifications: [],
 };
 
-const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-300';
+const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400';
 
 export default function InstitutionProfilePage() {
   const { lang } = useLang();
@@ -242,7 +248,7 @@ export default function InstitutionProfilePage() {
                     ? 'bg-indigo-600 text-white border-indigo-600'
                     : 'border-slate-200 text-slate-600 hover:border-indigo-300'
                 }`}
-              >{m.label}</button>
+              >{ja ? m.ja : bn ? m.bn : m.en}</button>
             ))}
           </div>
         </div>

@@ -107,7 +107,7 @@ export default function AffiliateDashboard() {
           color="emerald" loading={dashQ.isLoading}
         />
         <StatCard
-          icon="📈" label="Conversion"
+          icon="📈" label={lang === 'ja' ? '成約率' : lang === 'bn' ? 'রূপান্তর হার' : 'Conversion Rate'}
           value={dash ? `${conversionRate}%` : '—'}
           color="amber" loading={dashQ.isLoading}
         />
@@ -138,9 +138,9 @@ export default function AffiliateDashboard() {
             </button>
           </div>
           {pendingPayout > 0 && (
-            <div className="mt-3 inline-flex items-center gap-1.5 bg-amber-400/20 border border-amber-300/30 text-amber-200 text-xs px-3 py-1.5 rounded-full">
+            <div className="mt-3 inline-flex items-center gap-1.5 bg-amber-400/20 border border-amber-300/30 text-amber-100 text-xs px-3 py-1.5 rounded-full font-medium">
               <span>⏳</span>
-              <span>৳{Number(pendingPayout).toLocaleString()} pending payout</span>
+              <span>৳{Number(pendingPayout).toLocaleString()} {lang === 'ja' ? '支払い待ち' : lang === 'bn' ? 'পেমেন্ট বাকি' : 'pending payout'}</span>
             </div>
           )}
         </div>
@@ -157,7 +157,7 @@ export default function AffiliateDashboard() {
                 <span className="text-2xl">🎓</span>
                 <span className="font-bold text-slate-900">{a.associateTitle}</span>
               </div>
-              <span className="text-xs bg-emerald-100 text-emerald-700 font-semibold px-2.5 py-1 rounded-full">{a.active}</span>
+              <span className="text-xs bg-emerald-600 text-white font-semibold px-2.5 py-1 rounded-full">{a.active}</span>
             </div>
             <p className="text-sm text-slate-500 mb-4 leading-relaxed">{a.associateDesc}</p>
             <div className="flex items-end gap-1">
@@ -176,7 +176,7 @@ export default function AffiliateDashboard() {
                 <span className="text-2xl">🌐</span>
                 <span className="font-bold text-slate-900">{a.partnerTitle}</span>
               </div>
-              <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2.5 py-1 rounded-full">{a.upgrade}</span>
+              <span className="text-xs bg-amber-500 text-white font-semibold px-2.5 py-1 rounded-full">{a.upgrade}</span>
             </div>
             <p className="text-sm text-slate-600 mb-4 leading-relaxed">{a.partnerDesc}</p>
             <div className="flex items-end gap-1 mb-4">
@@ -212,7 +212,7 @@ export default function AffiliateDashboard() {
               onClick={copyLink}
               className="mt-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors"
             >
-              {copied ? '✓ Copied!' : 'Copy Your Link'}
+              {copied ? '✓ ' + (lang === 'ja' ? 'コピー済み' : lang === 'bn' ? 'কপি হয়েছে' : 'Copied!') : (lang === 'ja' ? 'リンクをコピー' : lang === 'bn' ? 'লিংক কপি করুন' : 'Copy Your Link')}
             </button>
           </div>
         ) : (
@@ -228,10 +228,12 @@ export default function AffiliateDashboard() {
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   {r.converted && (
-                    <span className="text-xs bg-indigo-100 text-indigo-700 font-medium px-2 py-0.5 rounded-full">Converted</span>
+                    <span className="text-xs bg-indigo-600 text-white font-medium px-2 py-0.5 rounded-full">
+                      {lang === 'ja' ? '成約' : lang === 'bn' ? 'কনভার্টেড' : 'Converted'}
+                    </span>
                   )}
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    r.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                    r.status === 'active' ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
                   }`}>
                     {r.status}
                   </span>

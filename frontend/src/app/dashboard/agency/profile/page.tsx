@@ -25,8 +25,24 @@ interface AgencyProfile {
   service_types: string[];
 }
 
-const COUNTRIES = ['Japan', 'South Korea', 'Canada', 'Australia', 'Germany', 'UK', 'Malaysia'];
-const SERVICES  = ['Visa Processing', 'University Admission', 'Language Training', 'Accommodation', 'Air Ticketing', 'Pre-Departure Briefing'];
+const COUNTRIES: { value: string; en: string; ja: string; bn: string }[] = [
+  { value: 'Japan',       en: 'Japan',       ja: '日本',      bn: 'জাপান' },
+  { value: 'South Korea', en: 'South Korea', ja: '韓国',      bn: 'দক্ষিণ কোরিয়া' },
+  { value: 'Canada',      en: 'Canada',      ja: 'カナダ',    bn: 'কানাডা' },
+  { value: 'Australia',   en: 'Australia',   ja: 'オーストラリア', bn: 'অস্ট্রেলিয়া' },
+  { value: 'Germany',     en: 'Germany',     ja: 'ドイツ',    bn: 'জার্মানি' },
+  { value: 'UK',          en: 'UK',          ja: 'イギリス',  bn: 'যুক্তরাজ্য' },
+  { value: 'Malaysia',    en: 'Malaysia',    ja: 'マレーシア', bn: 'মালয়েশিয়া' },
+];
+
+const SERVICES: { value: string; en: string; ja: string; bn: string }[] = [
+  { value: 'Visa Processing',       en: 'Visa Processing',       ja: 'ビザ申請',        bn: 'ভিসা প্রসেসিং' },
+  { value: 'University Admission',  en: 'University Admission',  ja: '大学入学',        bn: 'বিশ্ববিদ্যালয় ভর্তি' },
+  { value: 'Language Training',     en: 'Language Training',     ja: '語学トレーニング', bn: 'ভাষা প্রশিক্ষণ' },
+  { value: 'Accommodation',         en: 'Accommodation',         ja: '宿泊手配',        bn: 'আবাসন ব্যবস্থা' },
+  { value: 'Air Ticketing',         en: 'Air Ticketing',         ja: '航空券手配',      bn: 'এয়ার টিকেটিং' },
+  { value: 'Pre-Departure Briefing',en: 'Pre-Departure Briefing',ja: '出国前説明会',    bn: 'প্রি-ডিপার্চার ব্রিফিং' },
+];
 
 const blank: AgencyProfile = {
   agency_name: '', agency_name_bn: '', contact_person_name: '',
@@ -35,7 +51,7 @@ const blank: AgencyProfile = {
   description: '', target_countries: [], service_types: [],
 };
 
-const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300';
+const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-400';
 
 export default function AgencyProfilePage() {
   const { lang } = useLang();
@@ -201,7 +217,7 @@ export default function AgencyProfilePage() {
               </label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-sm text-slate-500 font-medium shrink-0">+88</span>
-                <input type="tel" className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300"
+                <input type="tel" className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-400"
                   placeholder="01XXXXXXXXX"
                   value={form.contact_person_phone.replace(/^\+88/, '')}
                   onChange={e => set('contact_person_phone', e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '')}
@@ -230,14 +246,14 @@ export default function AgencyProfilePage() {
           </h3>
           <div className="flex flex-wrap gap-2">
             {COUNTRIES.map(c => (
-              <button key={c} type="button"
-                onClick={() => toggleArr('target_countries', c)}
+              <button key={c.value} type="button"
+                onClick={() => toggleArr('target_countries', c.value)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  form.target_countries.includes(c)
+                  form.target_countries.includes(c.value)
                     ? 'bg-green-600 text-white border-green-600'
                     : 'border-slate-200 text-slate-600 hover:border-green-300'
                 }`}
-              >{c}</button>
+              >{ja ? c.ja : bn ? c.bn : c.en}</button>
             ))}
           </div>
         </div>
@@ -249,14 +265,14 @@ export default function AgencyProfilePage() {
           </h3>
           <div className="flex flex-wrap gap-2">
             {SERVICES.map(s => (
-              <button key={s} type="button"
-                onClick={() => toggleArr('service_types', s)}
+              <button key={s.value} type="button"
+                onClick={() => toggleArr('service_types', s.value)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  form.service_types.includes(s)
+                  form.service_types.includes(s.value)
                     ? 'bg-green-600 text-white border-green-600'
                     : 'border-slate-200 text-slate-600 hover:border-green-300'
                 }`}
-              >{s}</button>
+              >{ja ? s.ja : bn ? s.bn : s.en}</button>
             ))}
           </div>
         </div>

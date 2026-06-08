@@ -97,7 +97,7 @@ function RegisterForm() {
 
           {/* Gateway selector */}
           <div className="mb-5">
-            <p className="text-xs font-semibold text-slate-600 mb-2.5">{a.iAm}</p>
+            <p className="text-xs font-semibold text-slate-700 mb-2.5">{a.iAm}</p>
             <div className="grid grid-cols-2 gap-2">
               {gateways.map((g) => (
                 <button key={g.value} type="button"
@@ -109,8 +109,8 @@ function RegisterForm() {
                   }`}
                 >
                   <span className="text-lg block mb-1">{g.icon}</span>
-                  <div className="font-semibold text-[11px]">{g.label}</div>
-                  <div className="text-[10px] opacity-60 leading-tight mt-0.5">{g.desc}</div>
+                  <div className="font-semibold text-xs">{g.label}</div>
+                  <div className="text-[11px] opacity-70 leading-tight mt-0.5">{g.desc}</div>
                 </button>
               ))}
             </div>
@@ -147,7 +147,7 @@ function RegisterForm() {
             {/* Password */}
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                {a.password} <span className="text-slate-400 font-normal">(min 8 chars)</span>
+                {a.password} <span className="text-slate-400 font-normal">({ja ? '8文字以上' : bn ? 'কমপক্ষে ৮ অক্ষর' : 'min 8 chars'})</span>
               </label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} placeholder="••••••••" required

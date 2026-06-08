@@ -121,7 +121,7 @@ export default function AdminGalleryPage() {
   return (
     <DashboardLayout title="Gallery Management">
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">{items.length} items total</p>
+        <p className="text-sm text-slate-500">{items.length} {items.length === 1 ? 'item' : 'items'}</p>
         <button onClick={openAdd} className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
           + Add Image
         </button>
@@ -161,8 +161,8 @@ export default function AdminGalleryPage() {
 
               {/* Badges */}
               <div className="absolute top-2 left-2 flex gap-1">
-                {item.is_featured && <span className="text-[9px] font-bold bg-amber-400 text-white px-1.5 py-0.5 rounded-full">★ Featured</span>}
-                {!item.is_active && <span className="text-[9px] font-bold bg-slate-500 text-white px-1.5 py-0.5 rounded-full">Hidden</span>}
+                {item.is_featured && <span className="text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full">★ Featured</span>}
+                {!item.is_active && <span className="text-[10px] font-bold bg-slate-600 text-white px-1.5 py-0.5 rounded-full">Hidden</span>}
               </div>
 
               {/* Info + Actions */}

@@ -21,7 +21,7 @@ const blank: AffiliateProfileForm = {
   bkash_number: '', nagad_number: '',
 };
 
-const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-300';
+const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400';
 
 export default function AffiliateProfilePage() {
   const { lang } = useLang();
@@ -160,7 +160,7 @@ export default function AffiliateProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">bKash</label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-xs text-slate-500 font-medium shrink-0">+88</span>
-                <input type="tel" className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-300"
+                <input type="tel" className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400"
                   placeholder="01XXXXXXXXX"
                   value={form.bkash_number.replace(/^\+88/, '')}
                   onChange={e => set('bkash_number', e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '')}
@@ -171,7 +171,7 @@ export default function AffiliateProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Nagad</label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-xs text-slate-500 font-medium shrink-0">+88</span>
-                <input type="tel" className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-300"
+                <input type="tel" className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400"
                   placeholder="01XXXXXXXXX"
                   value={form.nagad_number.replace(/^\+88/, '')}
                   onChange={e => set('nagad_number', e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '')}

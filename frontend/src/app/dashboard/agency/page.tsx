@@ -157,7 +157,7 @@ export default function AgencyDashboard() {
             <Link href="/dashboard/agency/vault" className="text-xs text-green-700 hover:underline">{t.common.viewAll}</Link>
           </div>
           <p className="text-sm text-slate-500 mb-4">{a.vaultDesc}</p>
-          <div className="text-center py-6 text-slate-300 text-sm">{a.vaultEmpty}</div>
+          <div className="text-center py-6 text-slate-400 text-sm">{a.vaultEmpty}</div>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">

@@ -117,7 +117,7 @@ export default function DashboardLayout({ children, title }: Props) {
               onClick={toggle}
               className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors shrink-0"
             >
-              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'EN'}
+              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
 
             {/* User dropdown — desktop */}
@@ -129,7 +129,7 @@ export default function DashboardLayout({ children, title }: Props) {
                 <div className="w-7 h-7 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold shrink-0 select-none">
                   {userInitial}
                 </div>
-                <span className="text-sm text-slate-600 truncate max-w-28">{user.name}</span>
+                <span className="text-sm text-slate-700 font-medium truncate max-w-36">{user.name}</span>
                 <svg
                   className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
