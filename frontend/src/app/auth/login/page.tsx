@@ -131,7 +131,7 @@ export default function LoginPage() {
             <div className="p-7">
               <div className="mb-6">
                 <h1 className="text-lg font-black text-slate-900">{a.loginTitle}</h1>
-                <p className="text-slate-400 text-xs mt-1">{a.loginSub ?? (ja ? 'アカウントにアクセスする' : bn ? 'আপনার অ্যাকাউন্টে প্রবেশ করুন' : 'Access your Tensai account')}</p>
+                <p className="text-slate-400 text-xs mt-1">{ja ? 'アカウントにアクセスする' : bn ? 'আপনার অ্যাকাউন্টে প্রবেশ করুন' : 'Access your Tensai account'}</p>
               </div>
 
               {error && (
