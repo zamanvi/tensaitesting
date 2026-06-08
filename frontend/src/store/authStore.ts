@@ -7,9 +7,10 @@ interface User {
   name: string;
   email: string;
   phone?: string;
-  gateway_type: 'student' | 'agency' | 'institution' | 'affiliate';
+  gateway_type: 'student' | 'agency' | 'institution' | 'affiliate' | string;
   status: 'pending' | 'active' | 'suspended';
   affiliate_code?: string;
+  roles?: string[];
 }
 
 interface AuthState {
@@ -43,9 +44,9 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const res = await api.post('/auth/login', { email, password });
-          const { user, token } = res.data;
+          const { user, token, roles } = res.data;
           localStorage.setItem('tensai_token', token);
-          set({ user, token, isLoading: false });
+          set({ user: { ...user, roles: roles ?? [] }, token, isLoading: false });
         } catch (e) {
           set({ isLoading: false });
           throw e;

@@ -41,7 +41,14 @@ export default function DashboardLayout({ children, title }: Props) {
 
   const userInitial = user.name?.charAt(0).toUpperCase() ?? '?';
 
+  const isAdmin = user.roles?.some(r => r === 'admin' || r === 'super_admin') ?? false;
+
   const NAV_LINKS: Record<string, { label: string; href: string }[]> = {
+    admin: [
+      { label: lang === 'ja' ? 'ギャラリー管理' : lang === 'bn' ? 'গ্যালারি ম্যানেজ' : 'Gallery', href: '/dashboard/admin/gallery' },
+      { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার ম্যানেজ' : 'Users', href: '/dashboard/admin/users' },
+      { label: lang === 'ja' ? 'エージェンシー審査' : lang === 'bn' ? 'এজেন্সি অ্যাপ্রুভাল' : 'Agency Vetting', href: '/dashboard/admin/agencies' },
+    ],
     student: [
       { label: t.nav.overview, href: '/dashboard/student' },
       { label: t.nav.profile, href: '/dashboard/student/profile' },
@@ -68,7 +75,7 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
   };
 
-  const links = NAV_LINKS[user.gateway_type] ?? [];
+  const links = isAdmin ? NAV_LINKS.admin : (NAV_LINKS[user.gateway_type] ?? []);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">

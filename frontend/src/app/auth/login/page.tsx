@@ -24,7 +24,8 @@ export default function LoginPage() {
     try {
       await login(email, password);
       const user = useAuthStore.getState().user;
-      router.push(`/dashboard/${user?.gateway_type}`);
+      const isAdmin = user?.roles?.some(r => r === 'admin' || r === 'super_admin');
+      router.push(isAdmin ? '/dashboard/admin/gallery' : `/dashboard/${user?.gateway_type}`);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
       setError(axiosErr.response?.data?.message || a.invalidCredentials);
