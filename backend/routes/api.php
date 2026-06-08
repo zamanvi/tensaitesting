@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\CommissionController;
 use App\Http\Controllers\Api\GalleryController;
+use App\Http\Controllers\Api\AdminGalleryController;
 use App\Models\Setting;
 use App\Http\Controllers\Api\HelpRequestController;
 use Illuminate\Support\Facades\Route;
@@ -101,5 +102,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/commissions', [CommissionController::class, 'index']);
         Route::post('/agencies/{agency}/approve', [AgencyController::class, 'approve']);
         Route::post('/agencies/{agency}/reject', [AgencyController::class, 'reject']);
+
+        // Gallery management
+        Route::get('/gallery',                          [AdminGalleryController::class, 'index']);
+        Route::post('/gallery',                         [AdminGalleryController::class, 'store']);
+        Route::post('/gallery/{gallery}',               [AdminGalleryController::class, 'update']); // POST for multipart/form-data
+        Route::post('/gallery/{gallery}/toggle',        [AdminGalleryController::class, 'toggle']);
+        Route::delete('/gallery/{gallery}',             [AdminGalleryController::class, 'destroy']);
     });
 });

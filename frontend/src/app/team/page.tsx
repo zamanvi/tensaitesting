@@ -209,9 +209,9 @@ export default function TeamPage() {
             >
               {/* Avatar side */}
               <div className="flex flex-col items-center gap-4 shrink-0">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-xl border border-white/10">
+                <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden shadow-xl border border-white/10">
                   {member.photo ? (
-                    <Image src={member.photo} alt={member.name} width={112} height={112} className="w-full h-full object-cover object-top" />
+                    <Image src={member.photo} alt={member.name} width={176} height={176} className="w-full h-full object-cover object-top" />
                   ) : (
                     <div className={`w-full h-full ${member.avatarBg} flex items-center justify-center text-white text-3xl font-black`}>
                       {member.initials}
