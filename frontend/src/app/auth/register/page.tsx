@@ -11,16 +11,15 @@ function RegisterForm() {
   const defaultType  = searchParams.get("type") || "student";
   const refCode      = searchParams.get("ref")  || "";
   const { t, lang, toggle } = useLang();
-  const a = t.auth;
+  const a  = t.auth;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
-  /* Fix: use proper emoji literals — not mojibake */
   const gateways = [
-    { value: "student",     label: a.studentLabel,     desc: a.studentDesc,     icon: '\u{1F393}' }, // 🎓
-    { value: "agency",      label: a.agencyLabel,      desc: a.agencyDesc,      icon: '\u{1F3E2}' }, // 🏢
-    { value: "institution", label: a.institutionLabel, desc: a.institutionDesc, icon: '\u{1F3EB}' }, // 🏫
-    { value: "affiliate",   label: a.affiliateLabel,   desc: a.affiliateDesc,   icon: '\u{1F4BC}' }, // 💼
+    { value: "student",     label: a.studentLabel,     desc: a.studentDesc,     icon: '\u{1F393}' },
+    { value: "agency",      label: a.agencyLabel,      desc: a.agencyDesc,      icon: '\u{1F3E2}' },
+    { value: "institution", label: a.institutionLabel, desc: a.institutionDesc, icon: '\u{1F3EB}' },
+    { value: "affiliate",   label: a.affiliateLabel,   desc: a.affiliateDesc,   icon: '\u{1F4BC}' },
   ];
 
   const [form, setForm] = useState({
@@ -37,9 +36,9 @@ function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (form.password.length < 8)                        { setError(a.passwordTooShort); return; }
-    if (form.password !== form.password_confirmation)    { setError(a.passwordMismatch);  return; }
-    if (!agreedTerms)                                    { setError(a.agreeTermsRequired); return; }
+    if (form.password.length < 8)                     { setError(a.passwordTooShort);  return; }
+    if (form.password !== form.password_confirmation) { setError(a.passwordMismatch);   return; }
+    if (!agreedTerms)                                 { setError(a.agreeTermsRequired); return; }
     try {
       await register(form);
       router.push(`/auth/verify-email?email=${encodeURIComponent(form.email)}&gateway=${form.gateway_type}`);
@@ -63,228 +62,160 @@ function RegisterForm() {
   );
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
 
-      {/* ── Left panel — dark branding ───────────────────── */}
-      <div className="hidden lg:flex lg:w-[38%] bg-[#0d1117] flex-col justify-between p-10 relative overflow-hidden shrink-0">
-        <div className="absolute top-[15%] left-[5%]  w-80 h-80 bg-green-600/12 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-[20%] right-[0%] w-60 h-60 bg-cyan-500/7  rounded-full blur-[80px]  pointer-events-none" />
+      {/* Logo */}
+      <Link href="/" className="flex items-center gap-2.5 mb-8">
+        <Image src="/tensai-logo.png" alt="Tensai" width={40} height={40} className="rounded-full object-contain" />
+        <div>
+          <div className="text-xl font-black text-green-800 tracking-tight leading-none">Tensai</div>
+          <div className="text-[9px] text-slate-400 tracking-widest mt-0.5 uppercase">The Way of Global Career</div>
+        </div>
+      </Link>
 
-        <Link href="/" className="flex items-center gap-3 relative z-10">
-          <Image src="/tensai-logo.png" alt="Tensai" width={40} height={40} className="rounded-full object-contain" />
-          <div>
-            <div className="text-lg font-bold text-white tracking-tight leading-none">Tensai</div>
-            <div className="text-[9px] text-white/35 tracking-wider mt-0.5">THE WAY OF GLOBAL CAREER</div>
-          </div>
-        </Link>
+      {/* Card */}
+      <div className="w-full max-w-md bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
-        <div className="relative z-10 space-y-5">
-          <div>
-            <h2 className="text-fluid-3xl font-black text-white leading-tight mb-3">
-              {ja ? '今日から始めよう' : bn ? 'আজই শুরু করুন' : 'Join Tensai today'}
-            </h2>
-            <p className="text-white/45 text-sm leading-relaxed">
-              {ja
-                ? '4つのゲートウェイから選択し、数分でアカウントを作成。日本への扉が開きます。'
-                : bn
-                ? '৪টি গেটওয়ে থেকে বেছে নিন এবং মিনিটের মধ্যে অ্যাকাউন্ট তৈরি করুন।'
-                : 'Choose your gateway, create your account in minutes, and start your verified journey to Japan.'}
+        {/* Tabs */}
+        <div className="flex border-b border-slate-100">
+          <Link href="/auth/login" className="flex-1 py-3.5 text-center text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors">{a.signIn}</Link>
+          <div className="flex-1 py-3.5 text-center text-sm font-semibold text-green-700 border-b-2 border-green-600">{a.createAccount}</div>
+        </div>
+
+        <div className="p-7">
+          {/* Header */}
+          <div className="mb-5">
+            <h1 className="text-lg font-black text-slate-900">{a.createAccount}</h1>
+            <p className="text-slate-400 text-xs mt-1">
+              {ja ? '数分で完了します' : bn ? 'কয়েক মিনিটেই সম্পন্ন হবে' : 'Takes just a few minutes'}
             </p>
           </div>
 
-          {/* Gateway preview */}
-          <div className="space-y-2">
-            {gateways.map((g) => (
-              <div
-                key={g.value}
-                className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all ${
-                  form.gateway_type === g.value
-                    ? 'bg-green-500/12 border border-green-500/25'
-                    : 'opacity-40'
-                }`}
-              >
-                <span className="text-lg">{g.icon}</span>
-                <span className="text-white text-xs font-semibold">{g.label}</span>
-              </div>
-            ))}
-          </div>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl">{error}</div>
+          )}
 
-          {/* Security note */}
-          <div className="flex items-start gap-2.5 text-xs text-white/38">
-            <span className="mt-0.5">🔒</span>
-            <span>
-              {ja
-                ? 'すべてのデータはAES-256で暗号化。書類はOCRでロック。'
-                : bn
-                ? 'সব তথ্য AES-256 এনক্রিপ্টেড। কাগজপত্র OCR লকড।'
-                : 'All data AES-256 encrypted. Documents OCR-locked on verification.'}
-            </span>
-          </div>
-        </div>
-
-        <p className="relative z-10 text-white/18 text-[10px]">{`© 2026 Tensai. All rights reserved.`}</p>
-      </div>
-
-      {/* ── Right panel — form ───────────────────────────── */}
-      <div className="flex-1 bg-slate-50 flex items-start justify-center px-6 py-10 overflow-y-auto">
-        <div className="w-full max-w-md">
-
-          {/* Mobile logo */}
-          <div className="flex items-center justify-center gap-3 mb-7 lg:hidden">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/tensai-logo.png" alt="Tensai" width={38} height={38} className="rounded-full object-contain" />
-              <span className="text-xl font-bold text-green-800">Tensai</span>
-            </Link>
-            <button onClick={toggle} className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors">
-              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
-            </button>
-          </div>
-
-          {/* Desktop lang toggle */}
-          <div className="hidden lg:flex justify-end mb-5">
-            <button onClick={toggle} className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-800 transition-colors">
-              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
-            </button>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            {/* Tab switcher */}
-            <div className="flex border-b border-slate-100">
-              <Link href="/auth/login" className="flex-1 py-3.5 text-center text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors">{a.signIn}</Link>
-              <div className="flex-1 py-3.5 text-center text-sm font-semibold text-green-700 border-b-2 border-green-600">{a.createAccount}</div>
-            </div>
-
-            <div className="p-7">
-              <div className="mb-5">
-                <h1 className="text-lg font-black text-slate-900">{a.createAccount}</h1>
-                <p className="text-slate-400 text-xs mt-1">
-                  {ja ? '数分で完了します' : bn ? 'কয়েক মিনিটেই সম্পন্ন হবে' : 'Takes just a few minutes'}
-                </p>
-              </div>
-
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl">{error}</div>
-              )}
-
-              {/* Gateway selector */}
-              <div className="mb-5">
-                <p className="text-xs font-semibold text-slate-600 mb-2.5">{a.iAm}</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {gateways.map((g) => (
-                    <button key={g.value} type="button"
-                      onClick={() => setForm(f => ({ ...f, gateway_type: g.value }))}
-                      className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                        form.gateway_type === g.value
-                          ? 'border-green-500 bg-green-50 text-green-800 shadow-sm'
-                          : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-                      }`}
-                    >
-                      <span className="text-lg block mb-1">{g.icon}</span>
-                      <div className="font-semibold text-[11px]">{g.label}</div>
-                      <div className="text-[10px] opacity-60 leading-tight mt-0.5">{g.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                {/* Name */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.fullName}</label>
-                  <input type="text" placeholder={a.fullName} required value={form.name}
-                    onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-                </div>
-                {/* Email */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.emailAddress}</label>
-                  <input type="email" placeholder="you@example.com" required value={form.email}
-                    onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-                </div>
-                {/* Phone */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                    {a.phone} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
-                  </label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-sm text-slate-500 font-medium shrink-0">+88</span>
-                    <input type="tel" placeholder="01XXXXXXXXX"
-                      value={form.phone.replace(/^\+88/, '')}
-                      onChange={(e) => setForm(f => ({ ...f, phone: e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '' }))}
-                      className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300" />
-                  </div>
-                </div>
-                {/* Password */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                    {a.password} <span className="text-slate-400 font-normal">(min 8 chars)</span>
-                  </label>
-                  <div className="relative">
-                    <input type={showPassword ? 'text' : 'password'} placeholder="••••••••" required
-                      value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                      className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-                    <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                      {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                </div>
-                {/* Confirm password */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.confirmPassword}</label>
-                  <div className="relative">
-                    <input type={showConfirm ? 'text' : 'password'} placeholder="••••••••" required
-                      value={form.password_confirmation} onChange={(e) => setForm(f => ({ ...f, password_confirmation: e.target.value }))}
-                      className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-                    <button type="button" tabIndex={-1} onClick={() => setShowConfirm(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                      {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                </div>
-                {/* Affiliate code */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                    {a.affiliateCode} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
-                  </label>
-                  <input type="text" placeholder="e.g. TNS-XXXX" value={form.affiliate_code}
-                    onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-                </div>
-
-                {/* Terms checkbox */}
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 accent-green-700 shrink-0" />
-                  <span className="text-xs text-slate-500 leading-relaxed">
-                    {a.agreeTerms}{' '}
-                    <Link href="/terms" target="_blank" className="text-green-700 hover:underline">Terms</Link>
-                    {' & '}
-                    <Link href="/privacy" target="_blank" className="text-green-700 hover:underline">Privacy</Link>
-                  </span>
-                </label>
-
-                <button type="submit" disabled={isLoading}
-                  className="w-full bg-green-700 hover:bg-green-600 disabled:opacity-60 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-green-700/20 mt-1">
-                  {isLoading ? a.creatingAccount : a.createAccount}
+          {/* Gateway selector */}
+          <div className="mb-5">
+            <p className="text-xs font-semibold text-slate-600 mb-2.5">{a.iAm}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {gateways.map((g) => (
+                <button key={g.value} type="button"
+                  onClick={() => setForm(f => ({ ...f, gateway_type: g.value }))}
+                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
+                    form.gateway_type === g.value
+                      ? 'border-green-500 bg-green-50 text-green-800 shadow-sm'
+                      : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="text-lg block mb-1">{g.icon}</span>
+                  <div className="font-semibold text-[11px]">{g.label}</div>
+                  <div className="text-[10px] opacity-60 leading-tight mt-0.5">{g.desc}</div>
                 </button>
-              </form>
-
-              <p className="mt-5 text-center text-xs text-slate-500">
-                {a.alreadyRegistered}{' '}
-                <Link href="/auth/login" className="text-green-700 font-semibold hover:underline">{a.signInLink}</Link>
-              </p>
+              ))}
             </div>
           </div>
 
-          <p className="text-center text-[10px] text-slate-400 mt-4">
-            <Link href="/terms" className="hover:underline">Terms</Link>
-            {' · '}
-            <Link href="/privacy" className="hover:underline">Privacy</Link>
-            {' · © 2026 Tensai'}
+          <form onSubmit={handleSubmit} className="space-y-3.5">
+            {/* Name */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.fullName}</label>
+              <input type="text" placeholder={a.fullName} required value={form.name}
+                onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+            </div>
+            {/* Email */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.emailAddress}</label>
+              <input type="email" placeholder="you@example.com" required value={form.email}
+                onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+            </div>
+            {/* Phone */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                {a.phone} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
+              </label>
+              <div className="flex">
+                <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-sm text-slate-500 font-medium shrink-0">+88</span>
+                <input type="tel" placeholder="01XXXXXXXXX"
+                  value={form.phone.replace(/^\+88/, '')}
+                  onChange={(e) => setForm(f => ({ ...f, phone: e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '' }))}
+                  className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300" />
+              </div>
+            </div>
+            {/* Password */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                {a.password} <span className="text-slate-400 font-normal">(min 8 chars)</span>
+              </label>
+              <div className="relative">
+                <input type={showPassword ? 'text' : 'password'} placeholder="••••••••" required
+                  value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
+                  className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+            </div>
+            {/* Confirm password */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.confirmPassword}</label>
+              <div className="relative">
+                <input type={showConfirm ? 'text' : 'password'} placeholder="••••••••" required
+                  value={form.password_confirmation} onChange={(e) => setForm(f => ({ ...f, password_confirmation: e.target.value }))}
+                  className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                <button type="button" tabIndex={-1} onClick={() => setShowConfirm(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                  {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+            </div>
+            {/* Affiliate code */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                {a.affiliateCode} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
+              </label>
+              <input type="text" placeholder="e.g. TNS-XXXX" value={form.affiliate_code}
+                onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+            </div>
+
+            {/* Terms */}
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-green-700 shrink-0" />
+              <span className="text-xs text-slate-500 leading-relaxed">
+                {a.agreeTerms}{' '}
+                <Link href="/terms" target="_blank" className="text-green-700 hover:underline">Terms</Link>
+                {' & '}
+                <Link href="/privacy" target="_blank" className="text-green-700 hover:underline">Privacy</Link>
+              </span>
+            </label>
+
+            <button type="submit" disabled={isLoading}
+              className="w-full bg-green-700 hover:bg-green-600 disabled:opacity-60 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-green-700/20 mt-1">
+              {isLoading ? a.creatingAccount : a.createAccount}
+            </button>
+          </form>
+
+          <p className="mt-5 text-center text-xs text-slate-500">
+            {a.alreadyRegistered}{' '}
+            <Link href="/auth/login" className="text-green-700 font-semibold hover:underline">{a.signInLink}</Link>
           </p>
         </div>
+      </div>
+
+      {/* Footer row */}
+      <div className="flex items-center gap-4 mt-6">
+        <button onClick={toggle} className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors">
+          {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
+        </button>
+        <span className="text-slate-300 text-xs">·</span>
+        <Link href="/terms" className="text-[11px] text-slate-400 hover:underline">Terms</Link>
+        <Link href="/privacy" className="text-[11px] text-slate-400 hover:underline">Privacy</Link>
+        <span className="text-[11px] text-slate-400">© 2026 Tensai</span>
       </div>
     </div>
   );
