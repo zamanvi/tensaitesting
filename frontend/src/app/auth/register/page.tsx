@@ -204,15 +204,21 @@ function RegisterForm() {
                 </div>
                 {/* Phone */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.phone}</label>
-                  <input type="tel" placeholder="+8801XXXXXXXXX" value={form.phone}
-                    onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                    {a.phone} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
+                  </label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-50 text-sm text-slate-500 font-medium shrink-0">+88</span>
+                    <input type="tel" placeholder="01XXXXXXXXX"
+                      value={form.phone.replace(/^\+88/, '')}
+                      onChange={(e) => setForm(f => ({ ...f, phone: e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '' }))}
+                      className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300" />
+                  </div>
                 </div>
                 {/* Password */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                    {a.password} <span className="text-slate-400 font-normal">(min 8)</span>
+                    {a.password} <span className="text-slate-400 font-normal">(min 8 chars)</span>
                   </label>
                   <div className="relative">
                     <input type={showPassword ? 'text' : 'password'} placeholder="••••••••" required
