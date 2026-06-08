@@ -76,6 +76,6 @@ export const useAuthStore = create<AuthState>()(
         set({ user: res.data.user });
       },
     }),
-    { name: 'tensai-auth', partialize: (state) => ({ user: state.user, token: state.token }) }
+    { name: 'tensai-auth', partialize: (state) => ({ user: state.user, token: state.token }), skipHydration: true }
   )
 );

@@ -21,7 +21,10 @@ export default function DashboardLayout({ children, title }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    useAuthStore.persist.rehydrate();
+    setMounted(true);
+  }, []);
   useEffect(() => { if (mounted && !user) router.push('/auth/login'); }, [mounted, user, router]);
   useEffect(() => { setMenuOpen(false); setUserMenuOpen(false); }, [pathname]);
   useEffect(() => {
