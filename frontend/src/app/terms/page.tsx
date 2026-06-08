@@ -2,6 +2,7 @@
 import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 const SECTIONS_EN = [
   {
@@ -187,83 +188,112 @@ export default function TermsPage() {
   const bn = lang === 'bn';
   const sections = ja ? SECTIONS_JA : bn ? SECTIONS_BN : SECTIONS_EN;
 
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  const termsText = ja ? '利用規約'   : bn ? 'শর্তাবলী'  : 'Terms';
+  const privText  = ja ? 'プライバシー' : bn ? 'প্রাইভেসি' : 'Privacy';
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="border-b border-slate-100 bg-white sticky top-0 z-50">
+    <div className="min-h-screen bg-[#0d1117]">
+
+      {/* ── Navbar ─────────────────────────────────────────── */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-nav' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/tensai-logo.png" alt="Tensai" width={40} height={40} className="rounded-full object-contain" />
+          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+            <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-full object-contain" />
             <div>
-              <div className="text-xl font-bold text-green-800 tracking-tight leading-none">Tensai</div>
-              <div className="text-[10px] text-slate-400 tracking-wide leading-none mt-0.5 hidden sm:block">The Way of Global Career</div>
+              <div className="text-base font-bold text-white tracking-tight leading-none">Tensai</div>
+              <div className="text-[9px] text-white/35 tracking-wider leading-none mt-0.5 hidden sm:block">THE WAY OF GLOBAL CAREER</div>
             </div>
           </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              onClick={toggle}
-              className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors"
-            >
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button onClick={toggle} className="text-xs font-semibold px-2.5 py-1 rounded-full border border-white/10 text-white/60 hover:border-green-500/40 hover:text-green-400 transition-all">
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
-            <Link href="/auth/login" className="text-sm text-slate-600 hover:text-green-800 transition-colors px-2 py-1">
-              {l.login}
-            </Link>
-            <Link href="/auth/register" className="text-sm bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-full font-medium transition-colors">
-              {l.getStarted}
-            </Link>
+            <Link href="/auth/login"    className="text-sm text-white/60 hover:text-white transition-colors px-3 py-1.5">{l.login}</Link>
+            <Link href="/auth/register" className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all glow-green">{l.getStarted}</Link>
           </div>
         </div>
       </nav>
 
-      {/* Header */}
-      <div className="bg-slate-900 text-white py-12 sm:py-16 text-center">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            📄 {ja ? '利用規約' : bn ? 'শর্তাবলী' : 'Terms & Conditions'}
+      {/* ── Hero ───────────────────────────────────────────── */}
+      <section className="relative overflow-hidden px-4 pt-32 pb-14 text-center">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[250px] bg-green-600/8 rounded-full blur-[100px] pointer-events-none" />
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-5">
+            {'📄'} {ja ? '利用規約' : bn ? 'শর্তাবলী' : 'Terms & Conditions'}
           </div>
-          <h1 className="text-fluid-4xl font-bold mb-3">
+          <h1 className="text-fluid-4xl font-black text-white tracking-tight mb-3 leading-tight">
             {ja ? '利用規約' : bn ? 'শর্তাবলী ও শর্তসমূহ' : 'Terms & Conditions'}
           </h1>
-          <p className="text-slate-400 text-sm">
+          <p className="text-white/35 text-xs">
             {ja ? '最終更新：2026年1月' : bn ? 'সর্বশেষ আপডেট: জানুয়ারি ২০২৬' : 'Last updated: January 2026'}
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* Content */}
-      <div className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
-        <p className="text-slate-500 text-sm mb-10 leading-relaxed border-l-4 border-green-600 pl-4">
-          {ja
-            ? 'Tensai Language & Study Consultancy（以下「Tensai」）が提供するプラットフォームをご利用いただく前に、以下の利用規約をよくお読みください。'
-            : bn
-            ? 'টেনসাই প্ল্যাটফর্ম ব্যবহার করার আগে অনুগ্রহ করে এই শর্তাবলী মনোযোগ দিয়ে পড়ুন।'
-            : 'Please read these Terms and Conditions carefully before using the Tensai platform operated by Tensai Language & Study Consultancy.'}
-        </p>
+      {/* ── Content ────────────────────────────────────────── */}
+      <div className="max-w-3xl mx-auto px-4 pb-16">
 
-        <div className="space-y-8">
-          {sections.map((s) => (
-            <div key={s.title}>
-              <h2 className="text-base font-bold text-slate-900 mb-2">{s.title}</h2>
-              <p className="text-sm text-slate-600 leading-relaxed">{s.body}</p>
+        {/* Intro callout */}
+        <div className="glass-card rounded-2xl p-5 mb-10 border-l-4 border-green-500/60">
+          <p className="text-white/55 text-sm leading-relaxed">
+            {ja
+              ? 'Tensai Language & Study Consultancy（以下「Tensai」）が提供するプラットフォームをご利用いただく前に、以下の利用規約をよくお読みください。'
+              : bn
+              ? 'টেনসাই প্ল্যাটফর্ম ব্যবহার করার আগে অনুগ্রহ করে এই শর্তাবলী মনোযোগ দিয়ে পড়ুন।'
+              : 'Please read these Terms and Conditions carefully before using the Tensai platform operated by Tensai Language & Study Consultancy.'}
+          </p>
+        </div>
+
+        {/* Sections */}
+        <div className="space-y-4">
+          {sections.map((s, i) => (
+            <div key={s.title} className="glass-card rounded-2xl p-6 card-hover-glow transition-all">
+              <div className="flex items-start gap-4">
+                <span className="shrink-0 w-7 h-7 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-black flex items-center justify-center mt-0.5">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <div>
+                  <h2 className="text-sm font-bold text-white mb-2 leading-snug">{s.title}</h2>
+                  <p className="text-xs text-white/50 leading-relaxed">{s.body}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-          <Link href="/" className="inline-flex items-center justify-center gap-2 border border-slate-200 hover:border-green-300 text-slate-700 hover:text-green-800 px-6 py-2.5 rounded-full text-sm font-medium transition-colors">
+        {/* Bottom nav */}
+        <div className="mt-10 flex flex-col sm:flex-row gap-3">
+          <Link href="/" className="flex-1 inline-flex items-center justify-center gap-2 glass-card border border-white/10 hover:border-white/25 text-white/65 hover:text-white px-6 py-2.5 rounded-full text-sm font-medium transition-all">
             ← {ja ? 'ホームに戻る' : bn ? 'হোমে ফিরুন' : 'Back to Home'}
           </Link>
-          <Link href="/privacy" className="inline-flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white px-6 py-2.5 rounded-full text-sm font-medium transition-colors">
+          <Link href="/privacy" className="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all glow-green">
             {ja ? 'プライバシーポリシーを読む →' : bn ? 'প্রাইভেসি নীতি পড়ুন →' : 'Read Privacy Policy →'}
           </Link>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-100 py-6 sm:py-8 text-center text-sm text-slate-400">
-        {l.footer}
+      {/* ── Footer ─────────────────────────────────────────── */}
+      <footer className="border-t border-white/[0.06] py-8 px-4 bg-alt-section">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/tensai-logo.png" alt="Tensai" width={26} height={26} className="rounded-full object-contain" />
+            <span className="text-sm font-bold text-white/70">Tensai</span>
+          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/35">
+            <Link href="/terms"   className="text-green-400 font-medium">{termsText}</Link>
+            <Link href="/privacy" className="hover:text-white/60 transition-colors">{privText}</Link>
+          </div>
+          <p className="text-xs text-white/30">{l.footer}</p>
+        </div>
       </footer>
+
     </div>
   );
 }

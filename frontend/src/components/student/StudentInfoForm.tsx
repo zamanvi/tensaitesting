@@ -127,8 +127,9 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
 
   // Personal
   const [bloodGroup, setBloodGroup] = useState<string>((initialProfile?.blood_group as string) ?? '');
-  const [mobile, setMobile] = useState<string>((initialProfile?.mobile_number as string) ?? '');
-  const [whatsapp, setWhatsapp] = useState<string>((initialProfile?.whatsapp_number as string) ?? '');
+  const [dob, setDob]               = useState<string>((initialProfile?.date_of_birth as string) ?? '');
+  const [mobile, setMobile]         = useState<string>((initialProfile?.mobile_number as string) ?? '');
+  const [whatsapp, setWhatsapp]     = useState<string>((initialProfile?.whatsapp_number as string) ?? '');
 
   // Family
   const [family, setFamily] = useState<FamilyInfo>(() => {
@@ -195,6 +196,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
     try {
       await api.put('/student/profile', {
         blood_group: bloodGroup || null,
+        date_of_birth: dob || null,
         mobile_number: mobile || null,
         whatsapp_number: whatsapp || null,
         family_info: family,
@@ -238,7 +240,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
             </select>
           </Field>
           <Field label="Date of Birth">
-            <input type="date" className={inputCls} />
+            <input type="date" className={inputCls} value={dob} onChange={e => setDob(e.target.value)} />
           </Field>
           <Field label="Mobile Number" required>
             <PhoneInput value={mobile} onChange={setMobile} id="student-mobile" />
