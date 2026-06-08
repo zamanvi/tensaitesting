@@ -17,10 +17,10 @@ function RegisterForm() {
 
   /* Fix: use proper emoji literals — not mojibake */
   const gateways = [
-    { value: "student",     label: a.studentLabel,     desc: a.studentDesc,     icon: '🎓' },
-    { value: "agency",      label: a.agencyLabel,      desc: a.agencyDesc,      icon: '🏢' },
-    { value: "institution", label: a.institutionLabel, desc: a.institutionDesc, icon: '🏫' },
-    { value: "affiliate",   label: a.affiliateLabel,   desc: a.affiliateDesc,   icon: '💼' },
+    { value: "student",     label: a.studentLabel,     desc: a.studentDesc,     icon: '\u{1F393}' }, // 🎓
+    { value: "agency",      label: a.agencyLabel,      desc: a.agencyDesc,      icon: '\u{1F3E2}' }, // 🏢
+    { value: "institution", label: a.institutionLabel, desc: a.institutionDesc, icon: '\u{1F3EB}' }, // 🏫
+    { value: "affiliate",   label: a.affiliateLabel,   desc: a.affiliateDesc,   icon: '\u{1F4BC}' }, // 💼
   ];
 
   const [form, setForm] = useState({
