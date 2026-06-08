@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\StudentProfileController;
 use App\Http\Controllers\Api\AgencyController;
+use App\Http\Controllers\Api\AgencyProfileController;
 use App\Http\Controllers\Api\InstitutionController;
 use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\InterviewController;
@@ -61,6 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Agency gateway
     Route::prefix('agency')->middleware('role:agency')->group(function () {
+        Route::get('/profile',  [AgencyProfileController::class, 'show']);
+        Route::post('/profile', [AgencyProfileController::class, 'upsert']);
         Route::post('/leads', [LeadController::class, 'addLead']);
         Route::get('/leads/private-vault', [LeadController::class, 'privateVault']);
         Route::get('/leads/open-pool', [LeadController::class, 'openPool']);

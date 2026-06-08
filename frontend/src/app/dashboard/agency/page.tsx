@@ -4,7 +4,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useMutation, useQueries, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQueryClient, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -27,6 +27,12 @@ export default function AgencyDashboard() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const { data: agencyProfile } = useQuery({
+    queryKey: ['agency-profile'],
+    queryFn: () => api.get('/agency/profile').then(r => r.data.profile),
+    enabled: isAgency,
+  });
 
   const [vaultQ, poolQ] = useQueries({
     queries: [
@@ -87,8 +93,42 @@ export default function AgencyDashboard() {
     { title: a.referralTitle, desc: a.referralDesc },
   ];
 
+  const { lang } = useLang();
+  const ja = lang === 'ja';
+  const bn = lang === 'bn';
+
+  // Profile status banner config
+  const profileBanners: Record<string, { bg: string; icon: string; title: string; desc: string; cta?: string }> = {
+    none:         { bg: 'bg-amber-50 border-amber-300',   icon: '📋', title: ja ? 'プロフィールを完成させてください' : bn ? 'প্রোফাইল পূরণ করুন' : 'Complete Your Agency Profile', desc: ja ? 'プラットフォームへのフルアクセスには審査が必要です。プロフィールを提出してください。' : bn ? 'সম্পূর্ণ অ্যাক্সেসের জন্য প্রোফাইল জমা দিন এবং অনুমোদনের অপেক্ষা করুন।' : 'Submit your profile for admin review to unlock full platform access.', cta: ja ? 'プロフィールを設定する →' : bn ? 'প্রোফাইল সেটআপ করুন →' : 'Set Up Profile →' },
+    pending:      { bg: 'bg-blue-50 border-blue-200',     icon: '⏳', title: ja ? 'プロフィール審査中' : bn ? 'প্রোফাইল যাচাই হচ্ছে' : 'Profile Under Review', desc: ja ? '管理者がプロフィールを確認しています。通常24〜48時間かかります。' : bn ? 'অ্যাডমিন প্রোফাইল যাচাই করছেন। সাধারণত ২৪-৪৮ ঘন্টা লাগে।' : 'Admin is reviewing your profile. Usually takes 24–48 hours.' },
+    under_review: { bg: 'bg-purple-50 border-purple-200', icon: '\u{1F50D}', title: ja ? '詳細審査中' : bn ? 'বিস্তারিত যাচাই চলছে' : 'Detailed Review In Progress', desc: ja ? '追加確認が行われています。間もなく連絡があります。' : bn ? 'আরও যাচাই চলছে, শীঘ্রই যোগাযোগ করা হবে।' : 'Additional verification in progress. You will be contacted soon.' },
+    rejected:     { bg: 'bg-red-50 border-red-200',       icon: '❌', title: ja ? '審査が却下されました' : bn ? 'প্রোফাইল প্রত্যাখ্যাত' : 'Profile Rejected', desc: agencyProfile?.rejection_reason ?? (ja ? '理由についてサポートにお問い合わせください。' : bn ? 'কারণ জানতে সাপোর্টে যোগাযোগ করুন।' : 'Contact support for details.'), cta: ja ? 'プロフィールを修正して再提出 →' : bn ? 'প্রোফাইল সংশোধন করুন →' : 'Revise & Resubmit →' },
+  };
+
+  const profileStatus = !agencyProfile ? 'none' : agencyProfile.vetting_status;
+  const showBanner = profileStatus !== 'approved';
+  const banner = showBanner ? profileBanners[profileStatus] : null;
+
   return (
     <DashboardLayout>
+      {/* Profile status banner */}
+      {banner && (
+        <div className={`rounded-2xl border p-4 mb-5 flex items-start justify-between gap-3 ${banner.bg}`}>
+          <div className="flex items-start gap-3">
+            <span className="text-xl shrink-0">{banner.icon}</span>
+            <div>
+              <p className="font-bold text-sm text-slate-900">{banner.title}</p>
+              <p className="text-xs text-slate-600 mt-0.5">{banner.desc}</p>
+            </div>
+          </div>
+          {banner.cta && (
+            <Link href="/dashboard/agency/profile" className="shrink-0 text-xs font-bold text-green-700 hover:text-green-800 whitespace-nowrap">
+              {banner.cta}
+            </Link>
+          )}
+        </div>
+      )}
+
       {/* Header row with Add Lead CTA */}
       <div className="flex items-center justify-between mb-5 sm:mb-6">
         <div />
