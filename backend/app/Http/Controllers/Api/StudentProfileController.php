@@ -37,6 +37,7 @@ class StudentProfileController extends Controller
         }
 
         $validated = $request->validate([
+            'applicant_name' => 'nullable|string|max:150',
             'full_name' => 'nullable|string|max:255',
             'full_name_japanese' => 'nullable|string|max:255',
             'date_of_birth' => 'nullable|date',

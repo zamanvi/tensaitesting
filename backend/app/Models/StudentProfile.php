@@ -10,7 +10,7 @@ class StudentProfile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'full_name', 'full_name_japanese', 'date_of_birth',
+        'user_id', 'applicant_name', 'full_name', 'full_name_japanese', 'date_of_birth',
         'gender', 'blood_group', 'mobile_number', 'whatsapp_number',
         'nationality', 'religion', 'address_bangladesh',
         'street_address', 'district', 'division', 'postal_code',
