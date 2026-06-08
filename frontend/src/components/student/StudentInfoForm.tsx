@@ -126,10 +126,11 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
   const { lang } = useLang();
 
   // Personal
-  const [bloodGroup, setBloodGroup] = useState<string>((initialProfile?.blood_group as string) ?? '');
-  const [dob, setDob]               = useState<string>((initialProfile?.date_of_birth as string) ?? '');
-  const [mobile, setMobile]         = useState<string>((initialProfile?.mobile_number as string) ?? '');
-  const [whatsapp, setWhatsapp]     = useState<string>((initialProfile?.whatsapp_number as string) ?? '');
+  const [applicantName, setApplicantName] = useState<string>((initialProfile?.applicant_name as string) ?? '');
+  const [bloodGroup, setBloodGroup]       = useState<string>((initialProfile?.blood_group as string) ?? '');
+  const [dob, setDob]                     = useState<string>((initialProfile?.date_of_birth as string) ?? '');
+  const [mobile, setMobile]               = useState<string>((initialProfile?.mobile_number as string) ?? '');
+  const [whatsapp, setWhatsapp]           = useState<string>((initialProfile?.whatsapp_number as string) ?? '');
 
   // Family
   const [family, setFamily] = useState<FamilyInfo>(() => {
@@ -195,6 +196,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
     setError('');
     try {
       await api.put('/student/profile', {
+        applicant_name: applicantName || null,
         blood_group: bloodGroup || null,
         date_of_birth: dob || null,
         mobile_number: mobile || null,
@@ -231,6 +233,16 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
           title={lang === 'bn' ? 'শিক্ষার্থীর ব্যক্তিগত তথ্য' : lang === 'ja' ? '学生の個人情報' : "Student's Personal Information"}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <Field label={lang === 'bn' ? 'আবেদনকারীর নাম' : lang === 'ja' ? '申請者氏名' : 'Applicant Name'} required>
+              <input
+                className={inputCls}
+                placeholder={lang === 'bn' ? 'পাসপোর্ট অনুযায়ী পুরো নাম' : lang === 'ja' ? 'パスポート記載の氏名' : 'Full name as per passport'}
+                value={applicantName}
+                onChange={e => setApplicantName(e.target.value)}
+              />
+            </Field>
+          </div>
           <Field label="Blood Group">
             <select className={selectCls} value={bloodGroup} onChange={e => setBloodGroup(e.target.value)}>
               <option value="">— Select —</option>
