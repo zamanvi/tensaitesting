@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContactPaper;
 use App\Models\InstitutionProfile;
 use App\Models\Lead;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -83,5 +85,60 @@ class InstitutionController extends Controller
             ->paginate(20);
 
         return response()->json($leads);
+    }
+
+    /**
+     * Institution sends a contact request for a published lead.
+     * Creates a ContactPaper (type = institution_contact_request) visible to admin.
+     */
+    public function contactRequest(Request $request, Lead $lead): JsonResponse
+    {
+        // Only published leads can be contacted
+        if (!$lead->is_published) {
+            return response()->json(['message' => 'This lead is not publicly available.'], 403);
+        }
+
+        $validated = $request->validate([
+            'message'         => 'required|string|max:1000',
+            'proposed_course' => 'nullable|string|max:255',
+            'proposed_intake' => 'nullable|string|max:100',
+        ]);
+
+        $institution = $request->user();
+
+        // Prevent duplicate contact requests from the same institution for the same lead
+        $exists = ContactPaper::where('lead_id', $lead->id)
+            ->where('from_user_id', $institution->id)
+            ->where('type', 'institution_contact_request')
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'You have already sent a contact request for this student.'], 409);
+        }
+
+        // Find admin to notify (first super_admin)
+        $admin = User::role('super_admin')->first() ?? User::role('admin')->first();
+
+        $courseInfo = $validated['proposed_course']
+            ? " | Proposed course: {$validated['proposed_course']}"
+            : '';
+        $intakeInfo = $validated['proposed_intake']
+            ? " | Intake: {$validated['proposed_intake']}"
+            : '';
+
+        $paper = ContactPaper::create([
+            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(Str::random(6)),
+            'lead_id'          => $lead->id,
+            'type'             => 'institution_contact_request',
+            'from_user_id'     => $institution->id,
+            'to_user_id'       => $admin?->id ?? $institution->id,
+            'subject'          => "Contact Request from {$institution->name} for Lead {$lead->lead_code}",
+            'body'             => $validated['message'] . $courseInfo . $intakeInfo,
+        ]);
+
+        return response()->json([
+            'message' => 'Contact request sent. Our team will follow up shortly.',
+            'reference' => $paper->reference_number,
+        ], 201);
     }
 }

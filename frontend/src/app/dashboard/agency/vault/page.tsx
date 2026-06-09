@@ -28,9 +28,11 @@ interface Agency {
 
 export default function PrivateVault() {
   const queryClient = useQueryClient();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const av = t.agencyVault;
   const statuses = t.statuses;
+  const ja = lang === 'ja';
+  const bn = lang === 'bn';
   const { user } = useAuthStore();
   const router = useRouter();
   const isAgency = user?.gateway_type === 'agency';
@@ -153,13 +155,17 @@ export default function PrivateVault() {
                       >
                         {av.forwardBtn}
                       </button>
-                      {!lead.is_published && (
+                      {lead.is_published ? (
+                        <span className="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                          🏫 {ja ? '公開済み' : bn ? 'প্রকাশিত' : 'Visible to Institutions'}
+                        </span>
+                      ) : (
                         <button
                           onClick={() => publish.mutate(lead.id)}
                           disabled={publish.isPending}
-                          className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-green-50 hover:text-green-800 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
+                          className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 border border-slate-100 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
                         >
-                          {publish.isPending && publish.variables === lead.id ? '…' : av.publishBtn}
+                          {publish.isPending && publish.variables === lead.id ? '…' : (ja ? '学校に公開する' : bn ? 'প্রতিষ্ঠানে প্রকাশ করুন' : '🏫 Publish to Institutions')}
                         </button>
                       )}
                     </div>

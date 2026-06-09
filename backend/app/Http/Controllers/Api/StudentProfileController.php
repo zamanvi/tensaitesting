@@ -110,51 +110,62 @@ class StudentProfileController extends Controller
         ]);
     }
 
-    // Institution: browse verified students with filters (contact masked)
+    // Institution: browse agency-published leads (contact masked)
     public function institutionBrowse(Request $request): JsonResponse
     {
-        $query = StudentProfile::where('is_admin_verified', true)
-            ->with('user:id,name,gateway_type');
+        // Only show leads that agencies have published (is_published=true)
+        // These are students that agencies explicitly want institutions to see
+        $query = Lead::where('is_published', true)
+            ->whereNotNull('source_agency_id')
+            ->with([
+                'student:id,name',
+                'student.studentProfile',
+                'sourceAgency:id,name',
+            ]);
 
+        // Filters on the student profile
         if ($request->jlpt_level) {
-            $query->where('jlpt_level', $request->jlpt_level);
+            $query->whereHas('student.studentProfile', fn ($q) => $q->where('jlpt_level', $request->jlpt_level));
         }
         if ($request->nat_level) {
-            $query->where('nat_level', $request->nat_level);
+            $query->whereHas('student.studentProfile', fn ($q) => $q->where('nat_level', $request->nat_level));
         }
         if ($request->min_gpa) {
-            $query->where('gpa', '>=', $request->min_gpa);
-        }
-        if ($request->qualification) {
-            $query->where('highest_qualification', 'like', "%{$request->qualification}%");
+            $query->whereHas('student.studentProfile', fn ($q) => $q->where('gpa', '>=', $request->min_gpa));
         }
         if ($request->gender) {
-            $query->where('gender', $request->gender);
+            $query->whereHas('student.studentProfile', fn ($q) => $q->where('gender', $request->gender));
         }
 
-        $students = $query->orderByDesc('id')->paginate(20);
+        $leads = $query->orderByDesc('published_at')->paginate(20);
 
-        // Mask all contact info for institution view
-        $students->getCollection()->transform(function (StudentProfile $profile) {
+        // Return lead + masked student profile (no contact info)
+        $leads->getCollection()->transform(function (Lead $lead) {
+            $profile = $lead->student?->studentProfile;
             return [
-                'id' => $profile->id,
-                'student_id' => $profile->user_id,
-                'student_name' => $profile->user->name,
-                'full_name_japanese' => $profile->full_name_japanese,
-                'gender' => $profile->gender,
-                'nationality' => $profile->nationality,
-                'highest_qualification' => $profile->highest_qualification,
-                'gpa' => $profile->gpa,
-                'passing_year' => $profile->passing_year,
-                'jlpt_level' => $profile->jlpt_level,
-                'nat_level' => $profile->nat_level,
-                'ielts_score' => $profile->ielts_score,
-                'eligibility_score' => $profile->eligibilityScore(),
+                'lead_id'              => $lead->id,
+                'lead_code'            => $lead->lead_code,
+                'target_country'       => $lead->target_country,
+                'target_course'        => $lead->target_course,
+                'target_intake'        => $lead->target_intake?->format('Y-m-d'),
+                'published_at'         => $lead->published_at?->toDateString(),
+                'source_agency'        => $lead->sourceAgency?->name,
+                'student_id'           => $lead->student_id,
+                'student_name'         => $lead->student?->name,
+                'gender'               => $profile?->gender,
+                'nationality'          => $profile?->nationality,
+                'highest_qualification'=> $profile?->highest_qualification,
+                'gpa'                  => $profile?->gpa,
+                'passing_year'         => $profile?->passing_year,
+                'jlpt_level'           => $profile?->jlpt_level,
+                'nat_level'            => $profile?->nat_level,
+                'ielts_score'          => $profile?->ielts_score,
+                'eligibility_score'    => $profile?->eligibilityScore() ?? 0,
                 // phone/email/passport/nid intentionally omitted
             ];
         });
 
-        return response()->json($students);
+        return response()->json($leads);
     }
 
     // Institution: shortlist a student (creates a lead)
