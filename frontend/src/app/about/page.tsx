@@ -78,248 +78,291 @@ export default function AboutPage() {
     },
   ];
 
-  const termsText = ja ? '利用規約' : bn ? 'শর্তাবলী' : 'Terms';
-  const privText  = ja ? 'プライバシー' : bn ? 'প্রাইভেসি' : 'Privacy';
+  /* Use i18n keys (now available in all 3 languages) */
+  const termsText = l.terms;
+  const privText  = l.privacy;
+
+  /* Lang toggle */
+  const toggleLabel    = lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English';
+  const toggleAriaLabel = lang === 'en'
+    ? 'Switch to Bangla'
+    : lang === 'bn'
+    ? '日本語に切り替える'
+    : 'Switch to English';
 
   return (
     <div className="min-h-screen bg-white">
 
       {/* ── Navbar ─────────────────────────────────────────── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm'
-          : 'bg-transparent'
-      }`}>
+      <nav
+        aria-label={ja ? 'メインナビゲーション' : bn ? 'প্রধান নেভিগেশন' : 'Main navigation'}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? 'bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm'
+            : 'bg-transparent'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-full object-contain" />
+            <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-full object-contain" priority />
             <div>
               <div className="text-base font-bold text-slate-900 tracking-tight leading-none">Tensai</div>
-              <div className="text-[9px] text-slate-400 tracking-wider leading-none mt-0.5 hidden sm:block">THE WAY OF GLOBAL CAREER</div>
+              <div className="text-[9px] text-slate-400 tracking-wider leading-none mt-0.5 hidden sm:block">
+                {ja ? 'グローバルキャリアへの道' : bn ? 'বৈশ্বিক ক্যারিয়ারের পথ' : 'THE WAY OF GLOBAL CAREER'}
+              </div>
             </div>
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             <button
+              type="button"
               onClick={toggle}
-              className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-400 hover:text-green-700 transition-all"
+              aria-label={toggleAriaLabel}
+              className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-400 hover:text-green-700 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
             >
-              {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
+              {toggleLabel}
             </button>
+            {/* Active page indicator */}
             <Link href="/about"   className="text-sm font-semibold text-green-700 px-2 py-1 hidden md:inline border-b-2 border-green-600">{a.navAbout}</Link>
             <Link href="/team"    className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navTeam}</Link>
             <Link href="/gallery" className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navGallery}</Link>
             <Link href="/auth/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors px-3 py-1.5">{l.login}</Link>
-            <Link href="/auth/register" className="text-sm bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full font-semibold transition-all shadow-sm">
+            <Link
+              href="/auth/register"
+              className="text-sm bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full font-semibold transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+            >
               {l.getStarted}
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ── Hero ───────────────────────────────────────────── */}
-      <section className="relative overflow-hidden pt-32 pb-20 px-4 text-center">
-        {/* Subtle mesh background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-green-50/80 via-white to-white pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-green-400/8 rounded-full blur-[100px] pointer-events-none" />
-        <div
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage: 'linear-gradient(rgba(0,0,0,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.8) 1px, transparent 1px)',
-            backgroundSize: '50px 50px',
-          }}
-        />
+      <main>
 
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-green-700/8 border border-green-700/15 text-green-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse shrink-0" />
-            {a.badge}
-          </div>
-          <h1 className="text-fluid-hero font-black text-slate-900 leading-[1.06] tracking-tight mb-5">
-            {a.heroTitle}<br />
-            <span className="text-green-700">{a.heroHighlight}</span>
-          </h1>
-          <p className="text-fluid-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-8">
-            {a.heroDesc}
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              href="/auth/register"
-              className="bg-green-700 hover:bg-green-600 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-green-700/20"
-            >
-              {a.ctaStart}
-            </Link>
-            <Link
-              href="#how"
-              className="border border-slate-200 hover:border-green-400 text-slate-700 hover:text-green-800 px-8 py-3.5 rounded-full font-semibold text-sm transition-all"
-            >
-              {a.ctaSeeHow}
-            </Link>
-          </div>
-        </div>
-      </section>
+        {/* ── Hero ───────────────────────────────────────────── */}
+        <section className="relative overflow-hidden pt-32 pb-20 px-4 text-center">
+          {/* Decorative background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-green-50/80 via-white to-white pointer-events-none" aria-hidden="true" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-green-400/8 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
+          <div
+            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            aria-hidden="true"
+            style={{
+              backgroundImage: 'linear-gradient(rgba(0,0,0,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.8) 1px, transparent 1px)',
+              backgroundSize: '50px 50px',
+            }}
+          />
 
-      {/* ── Stats Strip ────────────────────────────────────── */}
-      <section className="py-12 px-4 border-y border-slate-100 bg-slate-50/60">
-        <div className="max-w-3xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-slate-200 rounded-2xl overflow-hidden shadow-sm">
-            {STATS.map((s) => (
-              <div key={s.label} className="bg-white px-6 py-6 text-center">
-                <div className="text-fluid-4xl font-black text-green-700 leading-none mb-1">{s.value}</div>
-                <div className="text-xs text-slate-500 leading-snug mt-1">{s.label}</div>
-              </div>
-            ))}
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-green-700/8 border border-green-700/15 text-green-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse shrink-0" aria-hidden="true" />
+              {a.badge}
+            </div>
+            <h1 className="text-fluid-hero font-black text-slate-900 leading-[1.06] tracking-tight mb-5">
+              {a.heroTitle}<br />
+              <span className="text-green-700">{a.heroHighlight}</span>
+            </h1>
+            <p className="text-fluid-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-8">
+              {a.heroDesc}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/auth/register"
+                className="bg-green-700 hover:bg-green-600 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-green-700/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              >
+                {a.ctaStart}
+              </Link>
+              <Link
+                href="#how"
+                className="border border-slate-200 hover:border-green-400 text-slate-700 hover:text-green-800 px-8 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+              >
+                {a.ctaSeeHow}
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Our Story ──────────────────────────────────────── */}
-      <section className="max-w-3xl mx-auto px-4 py-16 sm:py-20">
-        <div className="mb-8">
-          <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            {a.storyBadge}
+        {/* ── Stats Strip ────────────────────────────────────── */}
+        <section className="py-12 px-4 border-y border-slate-100 bg-slate-50/60" aria-label={ja ? '主な数値' : bn ? 'মূল পরিসংখ্যান' : 'Key statistics'}>
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-slate-200 rounded-2xl overflow-hidden shadow-sm">
+              {/* Use index keys — labels change with lang */}
+              {STATS.map((s, i) => (
+                <div key={i} className="bg-white px-6 py-6 text-center">
+                  <div className="text-fluid-4xl font-black text-green-700 leading-none mb-1">{s.value}</div>
+                  <div className="text-xs text-slate-500 leading-snug mt-1">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <h2 className="text-fluid-4xl font-bold text-slate-900 mb-2">{a.storyTitle}</h2>
-        </div>
-        <div className="space-y-5 text-slate-600 text-fluid-base leading-relaxed">
-          <p>{a.story1}</p>
-          <p>{a.story2}</p>
-          <p>{a.story3}</p>
-        </div>
-      </section>
+        </section>
 
-      {/* ── What We Stand For ──────────────────────────────── */}
-      <section className="bg-slate-50 py-16 sm:py-20 border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4">
+        {/* ── Our Story ──────────────────────────────────────── */}
+        <section className="max-w-3xl mx-auto px-4 py-16 sm:py-20">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+              {a.storyBadge}
+            </div>
+            <h2 className="text-fluid-4xl font-bold text-slate-900 mb-2">{a.storyTitle}</h2>
+          </div>
+          <div className="space-y-5 text-slate-600 text-fluid-base leading-relaxed">
+            <p>{a.story1}</p>
+            <p>{a.story2}</p>
+            <p>{a.story3}</p>
+          </div>
+        </section>
+
+        {/* ── What We Stand For ──────────────────────────────── */}
+        <section className="bg-slate-50 py-16 sm:py-20 border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+                {ja ? '私たちの価値観' : bn ? 'আমাদের মূলনীতি' : 'Core Principles'}
+              </p>
+              <h2 className="text-fluid-4xl font-bold text-slate-900">{a.pillarsTitle}</h2>
+              <p className="text-slate-400 text-sm mt-2">{a.pillarsSub}</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {PILLARS.map((p) => (
+                <div key={p.title} className="bg-white rounded-2xl p-6 border border-slate-100 hover:border-green-200 hover:shadow-md transition-all flex flex-col gap-4">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-2xl border border-slate-100`} aria-hidden="true">
+                    {p.icon}
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-sm leading-snug">{p.title}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed flex-1">{p.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── How It Works ───────────────────────────────────── */}
+        <section id="how" className="max-w-7xl mx-auto px-4 py-16 sm:py-20">
           <div className="text-center mb-12">
             <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
-              {ja ? '私たちの価値観' : bn ? 'আমাদের মূলনীতি' : 'Core Principles'}
+              {ja ? 'プロセス' : bn ? 'প্রক্রিয়া' : 'Process'}
             </p>
-            <h2 className="text-fluid-4xl font-bold text-slate-900">{a.pillarsTitle}</h2>
-            <p className="text-slate-400 text-sm mt-2">{a.pillarsSub}</p>
+            <h2 className="text-fluid-4xl font-bold text-slate-900">{a.howTitle}</h2>
+            <p className="text-slate-400 text-sm mt-2">{a.howSub}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {PILLARS.map((p) => (
-              <div key={p.title} className="bg-white rounded-2xl p-6 border border-slate-100 hover:border-green-200 hover:shadow-md transition-all flex flex-col gap-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-2xl border border-slate-100`}>
-                  {p.icon}
+            {HOW.map((h, i) => (
+              <div key={h.step} className="relative bg-white border border-slate-100 rounded-2xl p-6 hover:border-green-300 hover:shadow-lg transition-all group">
+                {/* Connector line (desktop only, decorative) */}
+                {i < HOW.length - 1 && (
+                  <div className="hidden lg:block absolute top-8 -right-2.5 w-5 h-px bg-gradient-to-r from-green-300 to-slate-200 z-10" aria-hidden="true" />
+                )}
+                <div className="flex items-center gap-3 mb-5">
+                  <span className="w-8 h-8 flex items-center justify-center rounded-full bg-green-700 text-white text-xs font-black shrink-0 shadow-md shadow-green-700/25" aria-hidden="true">
+                    {h.step}
+                  </span>
+                  <span className="text-2xl" aria-hidden="true">{h.icon}</span>
                 </div>
-                <h3 className="font-bold text-slate-900 text-sm leading-snug">{p.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed flex-1">{p.desc}</p>
+                <h3 className="font-bold text-slate-900 text-sm mb-2 leading-snug">{h.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{h.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── How It Works ───────────────────────────────────── */}
-      <section id="how" className="max-w-7xl mx-auto px-4 py-16 sm:py-20">
-        <div className="text-center mb-12">
-          <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
-            {ja ? 'プロセス' : bn ? 'প্রক্রিয়া' : 'Process'}
-          </p>
-          <h2 className="text-fluid-4xl font-bold text-slate-900">{a.howTitle}</h2>
-          <p className="text-slate-400 text-sm mt-2">{a.howSub}</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {HOW.map((h, i) => (
-            <div key={h.step} className="relative bg-white border border-slate-100 rounded-2xl p-6 hover:border-green-300 hover:shadow-lg transition-all group">
-              {/* Connector line (desktop only) */}
-              {i < HOW.length - 1 && (
-                <div className="hidden lg:block absolute top-8 -right-2.5 w-5 h-px bg-gradient-to-r from-green-300 to-slate-200 z-10" />
-              )}
-              <div className="flex items-center gap-3 mb-5">
-                <span className="w-8 h-8 flex items-center justify-center rounded-full bg-green-700 text-white text-xs font-black shrink-0 shadow-md shadow-green-700/25">
-                  {h.step}
-                </span>
-                <span className="text-2xl">{h.icon}</span>
-              </div>
-              <h3 className="font-bold text-slate-900 text-sm mb-2 leading-snug">{h.title}</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">{h.desc}</p>
+        {/* ── Team ───────────────────────────────────────────── */}
+        <section className="bg-slate-50 py-16 sm:py-20 border-t border-slate-100">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+                {ja ? 'チーム' : bn ? 'আমাদের দল' : 'Our Team'}
+              </p>
+              <h2 className="text-fluid-4xl font-bold text-slate-900">{a.teamTitle}</h2>
+              <p className="text-slate-400 text-sm mt-2 max-w-md mx-auto">{a.teamSub}</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Team ───────────────────────────────────────────── */}
-      <section className="bg-slate-50 py-16 sm:py-20 border-t border-slate-100">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
-              {ja ? 'チーム' : bn ? 'আমাদের দল' : 'Our Team'}
-            </p>
-            <h2 className="text-fluid-4xl font-bold text-slate-900">{a.teamTitle}</h2>
-            <p className="text-slate-400 text-sm mt-2 max-w-md mx-auto">{a.teamSub}</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {TEAM.map((member) => (
-              <div key={member.name} className={`bg-white border rounded-2xl p-7 flex flex-col gap-4 hover:shadow-lg transition-all ${member.accent}`}>
-                <div className="flex items-center gap-4">
-                  {member.photo ? (
-                    <Image
-                      src={member.photo}
-                      alt={member.name}
-                      width={52}
-                      height={52}
-                      className="w-13 h-13 rounded-xl object-cover object-top shrink-0 shadow-sm"
-                    />
-                  ) : (
-                    <div className={`w-12 h-12 rounded-xl ${member.avatarBg} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm`}>
-                      {member.initials}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {TEAM.map((member) => (
+                <div key={member.name} className={`bg-white border rounded-2xl p-7 flex flex-col gap-4 hover:shadow-lg transition-all ${member.accent}`}>
+                  <div className="flex items-center gap-4">
+                    {member.photo ? (
+                      <Image
+                        src={member.photo}
+                        alt={member.name}
+                        width={52}
+                        height={52}
+                        className="w-12 h-12 rounded-xl object-cover object-top shrink-0 shadow-sm"
+                      />
+                    ) : (
+                      <div className={`w-12 h-12 rounded-xl ${member.avatarBg} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm`} aria-hidden="true">
+                        {member.initials}
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-bold text-slate-900 text-sm leading-tight">{member.name}</div>
+                      <div className="text-xs text-green-700 font-medium mt-0.5">{member.role}</div>
                     </div>
-                  )}
-                  <div>
-                    <div className="font-bold text-slate-900 text-sm leading-tight">{member.name}</div>
-                    <div className="text-xs text-green-700 font-medium mt-0.5">{member.role}</div>
+                  </div>
+                  <span className={`self-start text-[11px] font-semibold px-2.5 py-1 rounded-full ${member.badgeColor}`}>
+                    {member.badge}
+                  </span>
+                  <p className="text-sm text-slate-600 leading-relaxed flex-1">{member.bio}</p>
+                  <div className="flex items-center justify-between mt-auto">
+                    {member.linkedin ? (
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-green-700 font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                      >
+                        LinkedIn →
+                      </a>
+                    ) : (
+                      <Link
+                        href="/team"
+                        className="text-xs text-slate-400 hover:text-green-700 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                      >
+                        {ja ? '詳細を見る →' : bn ? 'আরও দেখুন →' : 'Full profile →'}
+                      </Link>
+                    )}
                   </div>
                 </div>
-                <span className={`self-start text-[11px] font-semibold px-2.5 py-1 rounded-full ${member.badgeColor}`}>
-                  {member.badge}
-                </span>
-                <p className="text-sm text-slate-600 leading-relaxed flex-1">{member.bio}</p>
-                <div className="flex items-center justify-between mt-auto">
-                  {member.linkedin ? (
-                    <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-xs text-green-700 font-semibold hover:underline">
-                      LinkedIn →
-                    </a>
-                  ) : (
-                    <Link href="/team" className="text-xs text-slate-400 hover:text-green-700 font-medium transition-colors">
-                      {ja ? '詳細を見る →' : bn ? 'আরও দেখুন →' : 'Full profile →'}
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Link
+                href="/team"
+                className="inline-flex items-center gap-2 border border-slate-200 hover:border-green-400 text-slate-700 hover:text-green-800 px-6 py-2.5 rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+              >
+                {ja ? 'チームページを見る →' : bn ? 'পুরো দল দেখুন →' : 'Meet the full team →'}
+              </Link>
+            </div>
           </div>
-          <div className="text-center mt-8">
-            <Link href="/team" className="inline-flex items-center gap-2 border border-slate-200 hover:border-green-400 text-slate-700 hover:text-green-800 px-6 py-2.5 rounded-full text-sm font-semibold transition-all">
-              {ja ? 'チームページを見る →' : bn ? 'পুরো দল দেখুন →' : 'Meet the full team →'}
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── CTA ────────────────────────────────────────────── */}
-      <section className="bg-slate-900 py-16 sm:py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-900/30 via-transparent to-slate-900 pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-green-600/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="relative z-10 max-w-2xl mx-auto text-center">
-          <div className="text-4xl mb-5">{'🚀'}</div>
-          <h2 className="text-fluid-4xl font-bold text-white mb-4">
-            {ja ? 'グローバルキャリアへの道を、今。' : bn ? 'আপনার বৈশ্বিক ক্যারিয়ার শুরু হোক এখানে।' : 'Your global career starts here.'}
-          </h2>
-          <p className="text-slate-400 text-fluid-base mb-8 leading-relaxed max-w-lg mx-auto">
-            {ja ? '学生・エージェンシー・教育機関・アフィリエイト — 天才はあなたのために作られています。' : bn ? 'শিক্ষার্থী, এজেন্সি, বিশ্ববিদ্যালয় বা অ্যাফিলিয়েট — টেনসাই আপনার জন্যই তৈরি।' : 'Student, agency, university, or affiliate — Tensai was built for you. Join the ecosystem that puts trust first.'}
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/auth/register" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-green-600/25">
-              {a.ctaStart}
-            </Link>
-            <Link href="/" className="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white px-8 py-3.5 rounded-full font-semibold text-sm transition-all">
-              {ja ? '← ホームに戻る' : bn ? '← হোমে ফিরুন' : '← Back to Home'}
-            </Link>
+        {/* ── CTA ────────────────────────────────────────────── */}
+        <section className="bg-slate-900 py-16 sm:py-24 px-4 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-900/30 via-transparent to-slate-900 pointer-events-none" aria-hidden="true" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-green-600/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
+          <div className="relative z-10 max-w-2xl mx-auto text-center">
+            <div className="text-4xl mb-5" aria-hidden="true">{'🚀'}</div>
+            <h2 className="text-fluid-4xl font-bold text-white mb-4">
+              {ja ? 'グローバルキャリアへの道を、今。' : bn ? 'আপনার বৈশ্বিক ক্যারিয়ার শুরু হোক এখানে।' : 'Your global career starts here.'}
+            </h2>
+            <p className="text-slate-400 text-fluid-base mb-8 leading-relaxed max-w-lg mx-auto">
+              {ja ? '学生・エージェンシー・教育機関・アフィリエイト — 天才はあなたのために作られています。' : bn ? 'শিক্ষার্থী, এজেন্সি, বিশ্ববিদ্যালয় বা অ্যাফিলিয়েট — টেনসাই আপনার জন্যই তৈরি।' : 'Student, agency, university, or affiliate — Tensai was built for you. Join the ecosystem that puts trust first.'}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/auth/register"
+                className="bg-green-600 hover:bg-green-500 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-green-600/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
+              >
+                {a.ctaStart}
+              </Link>
+              <Link
+                href="/"
+                className="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white px-8 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+              >
+                {ja ? '← ホームに戻る' : bn ? '← হোমে ফিরুন' : '← Back to Home'}
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+      </main>
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-slate-100 py-8 px-4">
@@ -328,13 +371,15 @@ export default function AboutPage() {
             <Image src="/tensai-logo.png" alt="Tensai" width={26} height={26} className="rounded-full object-contain opacity-70" />
             <span className="text-sm font-bold text-slate-500">Tensai</span>
           </Link>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
-            <Link href="/about"   className="text-green-700 font-medium">{a.navAbout}</Link>
-            <Link href="/team"    className="hover:text-slate-700 transition-colors">{a.navTeam}</Link>
-            <Link href="/gallery" className="hover:text-slate-700 transition-colors">{a.navGallery}</Link>
-            <Link href="/terms"   className="hover:text-slate-700 transition-colors">{termsText}</Link>
-            <Link href="/privacy" className="hover:text-slate-700 transition-colors">{privText}</Link>
-          </div>
+          <nav aria-label={ja ? 'フッターナビゲーション' : bn ? 'ফুটার নেভিগেশন' : 'Footer navigation'}>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
+              <Link href="/about"   className="text-green-700 font-medium">{a.navAbout}</Link>
+              <Link href="/team"    className="hover:text-slate-700 transition-colors">{a.navTeam}</Link>
+              <Link href="/gallery" className="hover:text-slate-700 transition-colors">{a.navGallery}</Link>
+              <Link href="/terms"   className="hover:text-slate-700 transition-colors">{termsText}</Link>
+              <Link href="/privacy" className="hover:text-slate-700 transition-colors">{privText}</Link>
+            </div>
+          </nav>
           <p className="text-xs text-slate-400">{l.footer}</p>
         </div>
       </footer>

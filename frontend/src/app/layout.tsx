@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tensai-kappa.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://tensai-kappa.vercel.app"),
   title: "Tensai — The Way of Global Career",
   description: "The Way of Global Career. Tensai connects verified students with global institutions through a transparent, fraud-proof digital ecosystem.",
   keywords: ["global career", "study abroad", "Japan", "student visa", "agency", "Tensai"],

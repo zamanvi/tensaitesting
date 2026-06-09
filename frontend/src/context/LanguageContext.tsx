@@ -24,6 +24,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (saved && CYCLE.includes(saved)) setLang(saved);
   }, []);
 
+  /* Sync <html lang> attribute so screen readers announce the correct language */
+  useEffect(() => {
+    const htmlLang = lang === 'ja' ? 'ja' : lang === 'bn' ? 'bn' : 'en';
+    document.documentElement.lang = htmlLang;
+  }, [lang]);
+
   const toggle = useCallback(() => {
     setLang((prev) => {
       const idx = CYCLE.indexOf(prev);
