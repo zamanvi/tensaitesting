@@ -57,7 +57,7 @@ class GalleryItemResource extends Resource
                     Forms\Components\FileUpload::make('image_path')
                         ->label('Upload Image from Computer')
                         ->image()
-                        ->disk(static::getStorageDisk())
+                        ->disk('public')
                         ->directory('gallery')
                         ->imageEditor()
                         ->imageEditorAspectRatios(['16:9', '4:3', '1:1'])
@@ -183,11 +183,6 @@ class GalleryItemResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getStorageDisk(): string
-    {
-        return config('filesystems.disks.r2.key') ? 'r2' : 'public';
     }
 
     public static function getRelations(): array
