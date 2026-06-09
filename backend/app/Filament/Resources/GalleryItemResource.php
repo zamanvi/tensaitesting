@@ -59,11 +59,10 @@ class GalleryItemResource extends Resource
                         ->image()
                         ->disk(fn () => app()->environment('production') ? 'r2' : 'public')
                         ->directory('gallery')
-                        ->imageEditor()
-                        ->imageEditorAspectRatios(['16:9', '4:3', '1:1'])
+                        ->visibility('public')
                         ->maxSize(8192)
                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-                        ->helperText('JPG, PNG, WebP — max 8 MB. You can crop/edit after selecting.')
+                        ->helperText('JPG, PNG, WebP — max 8 MB.')
                         ->columnSpanFull(),
 
                     Forms\Components\TextInput::make('image_url')
