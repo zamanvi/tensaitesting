@@ -1,107 +1,95 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
-import { useAuthStore } from '@/store/authStore';
-import { useRouter } from 'next/navigation';
+import { useLang } from '@/context/LanguageContext';
+import api from '@/lib/api';
+import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-import api from '@/lib/api';
 
 export default function AffiliateUpgradePage() {
-  const { user } = useAuthStore();
-  const router = useRouter();
+  const { lang } = useLang();
+  const ja = lang === 'ja'; const bn = lang === 'bn';
+
+  const [orgName, setOrgName]     = useState('');
+  const [reason, setReason]       = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  if (user && user.gateway_type !== 'affiliate') {
-    router.replace(`/dashboard/${user.gateway_type}`);
-    return null;
-  }
-
-  const handleApply = async () => {
-    setLoading(true);
-    try {
-      await api.post('/affiliate/upgrade-request');
-      setSubmitted(true);
-    } catch {
-      setSubmitted(true); // show success anyway — admin reviews manually
-    } finally {
-      setLoading(false);
-    }
-  };
+  const mutation = useMutation({
+    mutationFn: () => api.post('/affiliate/upgrade-request', { organization_name: orgName, reason }),
+    onSuccess: () => setSubmitted(true),
+  });
 
   return (
-    <DashboardLayout title="Upgrade to Global Partner">
+    <DashboardLayout title={ja ? 'グローバルに申請' : bn ? 'গ্লোবালে আবেদন' : 'Apply for Global Affiliate'}>
+
       {submitted ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-10 text-center">
-          <div className="text-4xl mb-4">✅</div>
-          <h2 className="font-bold text-slate-900 text-lg mb-2">Application Submitted!</h2>
-          <p className="text-sm text-slate-500 mb-6">Our team will review your application and contact you within 2–3 business days.</p>
-          <Link href="/dashboard/affiliate" className="text-sm text-indigo-600 hover:underline font-medium">
-            ← Back to Dashboard
+        <div className="max-w-md mx-auto py-12 text-center">
+          <div className="text-5xl mb-4">🎉</div>
+          <h2 className="text-xl font-black text-slate-900 mb-2">
+            {ja ? '申請を受け付けました！' : bn ? 'আবেদন পাওয়া গেছে!' : 'Application Received!'}
+          </h2>
+          <p className="text-sm text-slate-500 mb-6">
+            {ja ? '2〜3営業日以内にご連絡します。' : bn ? '২-৩ কার্যদিবসের মধ্যে যোগাযোগ করা হবে।' : 'Our team will review and contact you within 2–3 business days.'}
+          </p>
+          <Link href="/dashboard/affiliate" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-colors">
+            {ja ? 'ダッシュボードへ' : bn ? 'ড্যাশবোর্ডে ফিরুন' : 'Back to Dashboard'}
           </Link>
         </div>
       ) : (
-        <div className="max-w-2xl mx-auto space-y-5">
-          {/* Comparison */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white border border-slate-100 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">🎓</span>
-                <span className="font-bold text-slate-900">Associate</span>
-                <span className="ml-auto text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Current</span>
-              </div>
-              <ul className="text-sm text-slate-500 space-y-1.5">
-                <li>✓ 5% commission per conversion</li>
-                <li>✓ Referral link & tracking</li>
-                <li>✓ Basic dashboard</li>
-                <li className="text-slate-300">✗ Priority support</li>
-                <li className="text-slate-300">✗ Co-marketing materials</li>
-                <li className="text-slate-300">✗ Higher commission tier</li>
-              </ul>
+        <div className="max-w-lg mx-auto">
+          {/* Benefits */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 mb-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">🌐</span>
+              <h2 className="font-bold text-slate-900">{ja ? 'グローバルの特典' : bn ? 'গ্লোবালের সুবিধা' : 'Global Affiliate Benefits'}</h2>
             </div>
-
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">🌐</span>
-                <span className="font-bold text-slate-900">Global Partner</span>
-                <span className="ml-auto text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">Upgrade</span>
+            {[
+              { icon: '🏫', text: ja ? '学校・機関をTensaiのために管理' : bn ? 'স্কুল ও প্রতিষ্ঠান ম্যানেজ করুন' : 'Manage schools & institutions for Tensai' },
+              { icon: '👤', text: ja ? 'フィールドエージェントを管理' : bn ? 'ফিল্ড এজেন্ট ম্যানেজ করুন' : 'Manage field agents & employees' },
+              { icon: '💰', text: ja ? '入学ごとに%コミッション' : bn ? 'প্রতি ভর্তিতে % কমিশন' : 'Earn % commission per enrollment' },
+              { icon: '📈', text: ja ? '高収益・長期パートナーシップ' : bn ? 'বেশি আয় ও দীর্ঘমেয়াদী সম্পর্ক' : 'Higher earnings & long-term partnership' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm text-slate-700 mt-2">
+                <span>{item.icon}</span><span>{item.text}</span>
               </div>
-              <ul className="text-sm text-slate-700 space-y-1.5">
-                <li>✓ 10% commission per conversion</li>
-                <li>✓ Referral link & tracking</li>
-                <li>✓ Advanced analytics dashboard</li>
-                <li>✓ Priority support</li>
-                <li>✓ Co-marketing materials</li>
-                <li>✓ Dedicated account manager</li>
-              </ul>
-            </div>
+            ))}
           </div>
 
-          {/* Requirements */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5">
-            <h3 className="font-bold text-slate-900 mb-3">Requirements</h3>
-            <ul className="text-sm text-slate-600 space-y-2">
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span> Minimum 10 successful referrals</li>
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span> Active for at least 3 months</li>
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span> Valid business registration or professional profile</li>
-              <li className="flex items-start gap-2"><span className="text-amber-500 mt-0.5">•</span> Admin approval required</li>
-            </ul>
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleApply}
-              disabled={loading}
-              className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white rounded-xl font-semibold text-sm transition-colors"
-            >
-              {loading ? 'Submitting…' : 'Apply for Global Partner'}
-            </button>
-            <Link
-              href="/dashboard/affiliate"
-              className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-semibold text-sm transition-colors"
-            >
-              Cancel
-            </Link>
+          {/* Form */}
+          <div className="bg-white rounded-2xl border border-slate-100 p-5">
+            <h3 className="font-bold text-slate-800 mb-4">{ja ? '申請フォーム' : bn ? 'আবেদন ফর্ম' : 'Application Form'}</h3>
+            <form onSubmit={e => { e.preventDefault(); mutation.mutate(); }} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                  {ja ? '組織名（任意）' : bn ? 'প্রতিষ্ঠানের নাম (ঐচ্ছিক)' : 'Organization Name (optional)'}
+                </label>
+                <input className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder:text-slate-400"
+                  placeholder={ja ? '例: Asia Education Group' : bn ? 'যেমন: Asia Education Group' : 'e.g. Asia Education Group'}
+                  value={orgName} onChange={e => setOrgName(e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                  {ja ? '申請理由（任意）' : bn ? 'আবেদনের কারণ (ঐচ্ছিক)' : 'Why upgrade? (optional)'}
+                </label>
+                <textarea rows={4} className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 placeholder:text-slate-400 resize-none"
+                  placeholder={ja ? '管理予定の機関や経験について...' : bn ? 'কোন প্রতিষ্ঠান ম্যানেজ করতে চান বা অভিজ্ঞতা লিখুন...' : 'Describe institutions you plan to manage or your experience...'}
+                  value={reason} onChange={e => setReason(e.target.value)} />
+              </div>
+              {mutation.isError && (
+                <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-xl p-3">
+                  ⚠️ {ja ? '送信失敗。再試行してください。' : bn ? 'পাঠাতে ব্যর্থ। আবার চেষ্টা করুন।' : 'Submission failed. Please try again.'}
+                </p>
+              )}
+              <div className="flex gap-3">
+                <Link href="/dashboard/affiliate" className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl text-center">
+                  {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
+                </Link>
+                <button type="submit" disabled={mutation.isPending}
+                  className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 disabled:text-slate-400 text-white text-sm font-bold rounded-xl transition-colors">
+                  {mutation.isPending ? '...' : (ja ? '申請する' : bn ? 'আবেদন করুন' : 'Submit Application')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

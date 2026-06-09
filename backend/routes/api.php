@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\CommissionController;
 use App\Http\Controllers\Api\AffiliateProfileController;
+use App\Http\Controllers\Api\AffiliateController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\AdminGalleryController;
 use App\Models\Setting;
@@ -92,12 +93,33 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Affiliate gateway
     Route::prefix('affiliate')->middleware('role:affiliate')->group(function () {
-        Route::get('/profile',  [AffiliateProfileController::class, 'show']);
-        Route::post('/profile', [AffiliateProfileController::class, 'upsert']);
-        Route::get('/dashboard', [CommissionController::class, 'affiliateDashboard']);
-        Route::get('/referrals', [CommissionController::class, 'referrals']);
-        Route::get('/earnings', [CommissionController::class, 'earnings']);
-        Route::post('/upgrade-request', [CommissionController::class, 'upgradeRequest']);
+        // Onboarding
+        Route::post('/set-type',       [AffiliateController::class, 'setType']);
+
+        // Profile
+        Route::get('/profile',         [AffiliateController::class, 'showProfile']);
+        Route::post('/profile',        [AffiliateController::class, 'updateProfile']);
+
+        // Dashboard (type-aware: local or global)
+        Route::get('/dashboard',       [AffiliateController::class, 'dashboard']);
+
+        // Local affiliate: referred students
+        Route::get('/referrals',       [AffiliateController::class, 'referredStudents']);
+
+        // Global affiliate: managed entities (institutions + employees)
+        Route::get('/entities',        [AffiliateController::class, 'entities']);
+        Route::post('/entities',       [AffiliateController::class, 'storeEntity']);
+        Route::put('/entities/{id}',   [AffiliateController::class, 'updateEntity']);
+        Route::delete('/entities/{id}',[AffiliateController::class, 'deleteEntity']);
+
+        // Commissions / earnings (both types)
+        Route::get('/commissions',     [AffiliateController::class, 'commissions']);
+
+        // Upgrade local → global
+        Route::post('/upgrade-request',[AffiliateController::class, 'upgradeRequest']);
+
+        // Legacy routes kept for backward-compat
+        Route::get('/earnings',        [AffiliateController::class, 'commissions']);
     });
 
     // Admin only
