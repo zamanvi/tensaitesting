@@ -117,9 +117,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Upgrade local → global
         Route::post('/upgrade-request',[AffiliateController::class, 'upgradeRequest']);
-
-        // Legacy routes kept for backward-compat
-        Route::get('/earnings',        [AffiliateController::class, 'commissions']);
     });
 
     // Admin only

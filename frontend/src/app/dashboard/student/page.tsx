@@ -90,16 +90,11 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+<div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Link href="/dashboard/student/profile" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
           <div className="text-2xl mb-2">👤</div>
           <div className="font-semibold text-sm">{t.nav.profile}</div>
           <div className="text-xs text-slate-500 mt-1">{lang === 'bn' ? 'যোগাযোগ, ঠিকানা ও তথ্য' : lang === 'ja' ? '連絡先・住所・情報' : 'Contact, address & info'}</div>
-        </Link>
-        <Link href="/dashboard/student/profile/info" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
-          <div className="text-2xl mb-2">📝</div>
-          <div className="font-semibold text-sm">{lang === 'bn' ? 'তথ্য পূরণ' : lang === 'ja' ? '情報入力' : 'Fill-up Info'}</div>
-          <div className="text-xs text-slate-500 mt-1">{lang === 'bn' ? 'ব্যক্তিগত ও শিক্ষাগত তথ্য' : lang === 'ja' ? '個人・学歴情報' : 'Personal & education details'}</div>
         </Link>
         <Link href="/dashboard/student/leads" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
           <div className="text-2xl mb-2">📋</div>

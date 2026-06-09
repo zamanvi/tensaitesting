@@ -72,7 +72,8 @@ export default function DashboardLayout({ children, title }: Props) {
     affiliate: [
       { label: t.nav.overview, href: '/dashboard/affiliate' },
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile & Payout', href: '/dashboard/affiliate/profile' },
-      { label: t.nav.referrals, href: '/dashboard/affiliate/referrals' },
+      { label: lang === 'ja' ? '紹介学生' : lang === 'bn' ? 'স্টুডেন্টস' : 'Students', href: '/dashboard/affiliate/students' },
+      { label: lang === 'ja' ? 'コミッション' : lang === 'bn' ? 'কমিশন' : 'Commissions', href: '/dashboard/affiliate/commissions' },
     ],
   };
 
