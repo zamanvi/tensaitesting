@@ -8,9 +8,24 @@ use App\Models\TensaiNotification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AgencyController extends Controller
 {
+    // Admin: list all agency profiles with user info
+    public function index(Request $request): JsonResponse
+    {
+        $status = $request->query('status');
+
+        $profiles = AgencyProfile::with('user:id,name,email,status')
+            ->when($status, fn ($q) => $q->where('vetting_status', $status))
+            ->orderByRaw("FIELD(vetting_status, 'pending', 'under_review', 'approved', 'rejected')")
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($profiles);
+    }
+
     // Admin: approve agency vetting
     public function approve(Request $request, User $agency): JsonResponse
     {
@@ -27,18 +42,27 @@ class AgencyController extends Controller
             return response()->json(['message' => 'Agency already approved.'], 409);
         }
 
-        // Auto-assign slot number
-        $nextSlot = AgencyProfile::where('vetting_status', 'approved')->max('slot_number') + 1;
+        // Use a transaction with locking to prevent slot number race conditions
+        // when two admins approve agencies at the same time.
+        DB::transaction(function () use ($profile, $agency, $request) {
+            $nextSlot = AgencyProfile::lockForUpdate()
+                ->where('vetting_status', 'approved')
+                ->max('slot_number') + 1;
 
-        $profile->update([
-            'vetting_status' => 'approved',
-            'slot_number' => $nextSlot,
-            'approved_at' => now(),
-            'approved_by' => $request->user()->id,
-            'rejection_reason' => null,
-        ]);
+            $profile->update([
+                'vetting_status'   => 'approved',
+                'slot_number'      => $nextSlot,
+                'approved_at'      => now(),
+                'approved_by'      => $request->user()->id,
+                'rejection_reason' => null,
+            ]);
 
-        $agency->update(['status' => 'active']);
+            $agency->update(['status' => 'active']);
+        });
+
+        // Reload after transaction
+        $profile->refresh();
+        $nextSlot = $profile->slot_number;
 
         TensaiNotification::create([
             'user_id' => $agency->id,

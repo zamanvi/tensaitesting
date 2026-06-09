@@ -45,9 +45,10 @@ export default function AdminGalleryPage() {
   });
 
   const save = useMutation({
+    // Let Axios auto-set Content-Type with boundary for FormData — do NOT set it manually
     mutationFn: (fd: FormData) => editing
-      ? api.post(`/admin/gallery/${editing.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      : api.post('/admin/gallery', fd, { headers: { 'Content-Type': 'multipart/form-data' } }),
+      ? api.post(`/admin/gallery/${editing.id}`, fd)
+      : api.post('/admin/gallery', fd),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-gallery'] }); closeModal(); },
     onError: (e: unknown) => {
       const err = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };

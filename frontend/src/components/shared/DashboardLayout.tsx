@@ -154,7 +154,7 @@ export default function DashboardLayout({ children, title }: Props) {
                     <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    {lang === 'bn' ? 'হোম পেইজ' : lang === 'ja' ? 'ホーム' : 'Home Page'}
+                    {lang === 'bn' ? 'হোম' : lang === 'ja' ? 'ホーム' : 'Home'}
                   </Link>
                   <button
                     onClick={async () => { setUserMenuOpen(false); await logout(); router.push('/'); }}
@@ -172,8 +172,9 @@ export default function DashboardLayout({ children, title }: Props) {
             {/* Hamburger — mobile */}
             <button
               onClick={() => setMenuOpen((o) => !o)}
-              className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-slate-100"
-              aria-label="Menu"
+              className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+              aria-label={lang === 'ja' ? 'メニュー' : lang === 'bn' ? 'মেনু' : 'Menu'}
+              aria-expanded={menuOpen}
             >
               <span className={`block w-5 h-0.5 bg-slate-600 transition-transform ${menuOpen ? 'translate-y-2 rotate-45' : ''}`} />
               <span className={`block w-5 h-0.5 bg-slate-600 transition-opacity ${menuOpen ? 'opacity-0' : ''}`} />

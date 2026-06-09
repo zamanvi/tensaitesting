@@ -162,6 +162,16 @@ class LeadController extends Controller
             return response()->json(['message' => 'Target must be an agency.'], 422);
         }
 
+        // Prevent circular forwarding (forwarding back to the original source)
+        if ($lead->forwarded_from_agency_id && $validated['target_agency_id'] == $lead->forwarded_from_agency_id) {
+            return response()->json(['message' => 'Cannot forward lead back to the agency it was forwarded from.'], 422);
+        }
+
+        // Prevent forwarding to self
+        if ($validated['target_agency_id'] == $request->user()->id) {
+            return response()->json(['message' => 'Cannot forward a lead to yourself.'], 422);
+        }
+
         $lead->update([
             'assigned_agency_id' => $validated['target_agency_id'],
             'forwarded_from_agency_id' => $request->user()->id,
@@ -184,14 +194,18 @@ class LeadController extends Controller
             'is_locked' => false,
         ]);
 
+        // Platform admin receives the unlock fee.
+        // Uses the configured platform_admin_id (defaults to 1 = first super_admin).
+        $platformAdminId = (int) config('app.platform_admin_id', 1);
+
         Commission::create([
-            'lead_id' => $lead->id,
-            'type' => 'lead_unlock_fee',
+            'lead_id'  => $lead->id,
+            'type'     => 'lead_unlock_fee',
             'payer_id' => $request->user()->id,
-            'payee_id' => 1,
-            'amount' => $lead->unlock_fee ?? 10000,
+            'payee_id' => $platformAdminId,
+            'amount'   => $lead->unlock_fee ?? 10000,
             'currency' => 'BDT',
-            'status' => 'due',
+            'status'   => 'due',
         ]);
 
         return response()->json(['message' => 'Lead unlocked. Unlock fee is due.', 'lead' => $lead]);

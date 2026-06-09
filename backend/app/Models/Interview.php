@@ -31,6 +31,8 @@ class Interview extends Model
 
     public function isUpcoming(): bool
     {
-        return $this->status === 'confirmed' && $this->scheduled_at->isFuture();
+        return $this->status === 'confirmed'
+            && $this->scheduled_at !== null
+            && $this->scheduled_at->isFuture();
     }
 }

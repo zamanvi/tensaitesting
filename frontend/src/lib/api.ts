@@ -18,7 +18,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('tensai_token');
-      window.location.href = '/auth/login';
+      // Avoid redirect loop if the login page itself causes a 401
+      if (!window.location.pathname.startsWith('/auth/')) {
+        window.location.href = '/auth/login';
+      }
     }
     return Promise.reject(error);
   }

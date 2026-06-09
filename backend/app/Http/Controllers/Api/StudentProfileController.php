@@ -81,6 +81,19 @@ class StudentProfileController extends Controller
             return response()->json(['message' => 'User is not a student.'], 422);
         }
 
+        // Ensure the requesting agency actually has a lead for this student
+        $agencyId = $request->user()->id;
+        $hasLead = Lead::where('student_id', $student->id)
+            ->where(function ($q) use ($agencyId) {
+                $q->where('source_agency_id', $agencyId)
+                  ->orWhere('assigned_agency_id', $agencyId);
+            })
+            ->exists();
+
+        if (!$hasLead) {
+            return response()->json(['message' => 'Unauthorized. No lead relationship with this student.'], 403);
+        }
+
         $profile = $student->studentProfile;
         if (!$profile || !$profile->is_admin_verified) {
             return response()->json(['message' => 'Student profile not verified yet.'], 403);

@@ -9,6 +9,7 @@ use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class InterviewController extends Controller
 {
@@ -45,7 +46,7 @@ class InterviewController extends Controller
 
         // Create contact paper (formal record — institution → Tensai)
         ContactPaper::create([
-            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(Str::random(8)),
             'lead_id' => $lead->id,
             'type' => 'interview_request',
             'from_user_id' => $request->user()->id,
@@ -73,7 +74,7 @@ class InterviewController extends Controller
         $adminId = User::role('super_admin')->value('id') ?? 1;
 
         ContactPaper::create([
-            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(Str::random(8)),
             'lead_id' => $lead->id,
             'type' => 'interview_request',
             'from_user_id' => $request->user()->id,
@@ -109,7 +110,7 @@ class InterviewController extends Controller
 
         // Create confirmation contact paper
         ContactPaper::create([
-            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5)),
+            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(Str::random(8)),
             'lead_id' => $interview->lead_id,
             'interview_id' => $interview->id,
             'type' => 'interview_confirmation',

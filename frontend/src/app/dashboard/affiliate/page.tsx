@@ -125,7 +125,7 @@ export default function AffiliateDashboard() {
           <div className="text-xs font-semibold opacity-70 uppercase tracking-widest mb-1">{a.yourCode}</div>
           <div className="text-2xl sm:text-3xl font-bold tracking-widest mb-4 break-all">{affiliateCode}</div>
           <div className="flex items-center gap-2 bg-white/10 backdrop-blur rounded-xl p-3 text-xs border border-white/10">
-            <span className="opacity-75 flex-1 truncate min-w-0 font-mono">{affiliateLink}</span>
+            <span className="opacity-75 flex-1 break-all min-w-0 font-mono text-[10px] sm:text-xs">{affiliateLink}</span>
             <button
               onClick={copyLink}
               className={`shrink-0 px-4 py-1.5 rounded-lg font-semibold text-xs transition-all ${
@@ -134,7 +134,7 @@ export default function AffiliateDashboard() {
                   : 'bg-white text-indigo-700 hover:bg-indigo-50'
               }`}
             >
-              {copied ? '✓ Copied!' : t.common.copy}
+              {copied ? `✓ ${t.common.copied}` : t.common.copy}
             </button>
           </div>
           {pendingPayout > 0 && (

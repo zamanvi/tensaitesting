@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Lead extends Model
 {
@@ -30,7 +31,7 @@ class Lead extends Model
     protected static function booted(): void
     {
         static::creating(function (Lead $lead) {
-            $lead->lead_code = 'TEN-' . date('Y') . '-' . strtoupper(substr(uniqid(), -5));
+            $lead->lead_code = 'TEN-' . date('Y') . '-' . strtoupper(Str::random(8));
         });
     }
 

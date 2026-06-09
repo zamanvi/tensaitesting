@@ -73,8 +73,17 @@ export const useAuthStore = create<AuthState>()(
       },
 
       fetchMe: async () => {
-        const res = await api.get('/auth/me');
-        set({ user: res.data.user });
+        try {
+          const res = await api.get('/auth/me');
+          set({ user: { ...res.data.user, roles: res.data.roles ?? [] } });
+        } catch (e: unknown) {
+          const err = e as { response?: { status?: number } };
+          if (err.response?.status === 401) {
+            localStorage.removeItem('tensai_token');
+            set({ user: null, token: null });
+          }
+          throw e;
+        }
       },
     }),
     { name: 'tensai-auth', partialize: (state) => ({ user: state.user, token: state.token }), skipHydration: true }

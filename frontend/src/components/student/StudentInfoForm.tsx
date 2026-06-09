@@ -67,32 +67,40 @@ function Field({ label, required, children }: { label: string; required?: boolea
   );
 }
 
-const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300';
+const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-400';
 const selectCls = `${inputCls} appearance-none cursor-pointer`;
 
-function AddressFields({ value, onChange, prefix }: {
+function AddressFields({ value, onChange, prefix, lang }: {
   value: Address;
   onChange: (v: Address) => void;
   prefix: string;
+  lang: string;
 }) {
   const set = (k: keyof Address) => (e: React.ChangeEvent<HTMLInputElement>) =>
     onChange({ ...value, [k]: e.target.value });
+  const L = {
+    vill:      lang === 'ja' ? '村 / 字' : lang === 'bn' ? 'গ্রাম / মহল্লা' : 'Village / Vill',
+    po:        lang === 'ja' ? '郵便局' : lang === 'bn' ? 'ডাকঘর (P.O.)' : 'P.O. (Post Office)',
+    postCode:  lang === 'ja' ? '郵便番号' : lang === 'bn' ? 'পোস্ট কোড' : 'Post Code',
+    ps:        lang === 'ja' ? '警察署管轄' : lang === 'bn' ? 'থানা (P.S.)' : 'P.S. (Police Station)',
+    zilla:     lang === 'ja' ? '県 / 地区' : lang === 'bn' ? 'জেলা (জিলা)' : 'Zilla (District)',
+  };
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-      <Field label="Village / Vill">
+      <Field label={L.vill}>
         <input className={inputCls} placeholder="e.g. Mirzapur" value={value.vill} onChange={set('vill')} id={`${prefix}-vill`} />
       </Field>
-      <Field label="P.O. (Post Office)">
+      <Field label={L.po}>
         <input className={inputCls} placeholder="e.g. Tongi" value={value.po} onChange={set('po')} id={`${prefix}-po`} />
       </Field>
-      <Field label="Post Code">
+      <Field label={L.postCode}>
         <input className={inputCls} placeholder="e.g. 1710" value={value.post_code} onChange={set('post_code')} id={`${prefix}-pc`} />
       </Field>
-      <Field label="P.S. (Police Station)">
+      <Field label={L.ps}>
         <input className={inputCls} placeholder="e.g. Gazipur Sadar" value={value.ps} onChange={set('ps')} id={`${prefix}-ps`} />
       </Field>
       <div className="col-span-2">
-        <Field label="Zilla (District)">
+        <Field label={L.zilla}>
           <input className={inputCls} placeholder="e.g. Gazipur" value={value.zilla} onChange={set('zilla')} id={`${prefix}-zilla`} />
         </Field>
       </div>
@@ -107,7 +115,7 @@ function PhoneInput({ value, onChange, id }: { value: string; onChange: (v: stri
       <input
         id={id}
         type="tel"
-        className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300"
+        className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-400"
         placeholder="01XXXXXXXXX"
         value={value.replace(/^\+88/, '')}
         onChange={(e) => onChange(e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '')}
@@ -362,7 +370,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
         <p className="text-xs font-bold text-green-700 uppercase tracking-wide mb-2">
           {lang === 'bn' ? 'স্থায়ী ঠিকানা' : lang === 'ja' ? '永住所' : 'Permanent Address'}
         </p>
-        <AddressFields value={permAddr} onChange={setPermAddr} prefix="perm" />
+        <AddressFields value={permAddr} onChange={setPermAddr} prefix="perm" lang={lang} />
 
         <div className="flex items-center gap-2 my-4">
           <input
@@ -382,7 +390,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
             <p className="text-xs font-bold text-green-700 uppercase tracking-wide mb-2">
               {lang === 'bn' ? 'বর্তমান ঠিকানা' : lang === 'ja' ? '現住所' : 'Present Address'}
             </p>
-            <AddressFields value={presAddr} onChange={setPresAddr} prefix="pres" />
+            <AddressFields value={presAddr} onChange={setPresAddr} prefix="pres" lang={lang} />
           </>
         )}
       </div>
@@ -410,7 +418,7 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
               </Field>
               <div>
                 <p className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wide">Address</p>
-                <AddressFields value={edu[key].address} onChange={addr => setEduAddr(key, addr)} prefix={`edu-${key}`} />
+                <AddressFields value={edu[key].address} onChange={addr => setEduAddr(key, addr)} prefix={`edu-${key}`} lang={lang} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Admission Date">

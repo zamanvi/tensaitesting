@@ -18,10 +18,11 @@ class HelpRequestController extends Controller
 
         $user = $request->user();
 
-        // Prevent duplicate pending requests for same doc type
+        // Prevent duplicate active requests for same doc type.
+        // 'resolved' / 'closed' requests are allowed to be re-submitted.
         $existing = HelpRequest::where('user_id', $user->id)
             ->where('document_type', $request->document_type)
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'in_progress'])
             ->first();
 
         if ($existing) {

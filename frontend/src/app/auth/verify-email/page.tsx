@@ -98,7 +98,7 @@ function VerifyEmailForm() {
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm text-center tracking-widest text-lg font-mono focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm text-center tracking-widest text-lg font-mono placeholder:text-slate-400 placeholder:tracking-normal placeholder:text-sm placeholder:font-sans focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   type="submit"

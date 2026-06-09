@@ -102,8 +102,10 @@ export default function StudentProfilePage() {
   }
 
   const inputCls = (disabled?: boolean) =>
-    `w-full border rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white transition-colors ${
-      disabled ? 'border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed' : 'border-slate-200 focus:outline-none focus:border-green-400'
+    `w-full border rounded-xl px-3 py-2.5 text-sm text-slate-700 bg-white transition-colors placeholder:text-slate-400 ${
+      disabled
+        ? 'border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed'
+        : 'border-slate-200 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent'
     }`;
 
   return (
@@ -147,8 +149,8 @@ export default function StudentProfilePage() {
       {/* Contact & Address */}
       <Section title={p.contactAddress}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label={p.phone}>
-            <input className={inputCls(true)} disabled value={user?.phone ?? ''} placeholder={p.phoneNote} />
+          <Field label={`${p.phone} 🔒`}>
+            <input className={inputCls(true)} disabled value={user?.phone ?? ''} placeholder="—" />
             <p className="text-xs text-slate-400 mt-1">{p.phoneNote}</p>
           </Field>
           <div /> {/* spacer */}

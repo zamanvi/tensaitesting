@@ -122,14 +122,14 @@ function RegisterForm() {
               <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.fullName}</label>
               <input type="text" placeholder={a.fullName} required value={form.name}
                 onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
             </div>
             {/* Email */}
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.emailAddress}</label>
               <input type="email" placeholder="you@example.com" required value={form.email}
                 onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
             </div>
             {/* Phone */}
             <div>
@@ -141,7 +141,7 @@ function RegisterForm() {
                 <input type="tel" placeholder="01XXXXXXXXX"
                   value={form.phone.replace(/^\+88/, '')}
                   onChange={(e) => setForm(f => ({ ...f, phone: e.target.value ? `+88${e.target.value.replace(/^\+88/, '')}` : '' }))}
-                  className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-300" />
+                  className="flex-1 border border-slate-200 rounded-r-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder:text-slate-400" />
               </div>
             </div>
             {/* Password */}
@@ -152,9 +152,10 @@ function RegisterForm() {
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} placeholder="••••••••" required
                   value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                  className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-                <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                  className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                <button type="button" onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? (ja ? 'パスワードを隠す' : bn ? 'পাসওয়ার্ড লুকান' : 'Hide password') : (ja ? 'パスワードを表示' : bn ? 'পাসওয়ার্ড দেখুন' : 'Show password')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 rounded">
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
@@ -165,9 +166,10 @@ function RegisterForm() {
               <div className="relative">
                 <input type={showConfirm ? 'text' : 'password'} placeholder="••••••••" required
                   value={form.password_confirmation} onChange={(e) => setForm(f => ({ ...f, password_confirmation: e.target.value }))}
-                  className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-                <button type="button" tabIndex={-1} onClick={() => setShowConfirm(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                  className="w-full px-4 py-2.5 pr-11 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                <button type="button" onClick={() => setShowConfirm(v => !v)}
+                  aria-label={showConfirm ? (ja ? 'パスワードを隠す' : bn ? 'পাসওয়ার্ড লুকান' : 'Hide password') : (ja ? 'パスワードを表示' : bn ? 'পাসওয়ার্ড দেখুন' : 'Show password')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 rounded">
                   {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               </div>
@@ -179,7 +181,7 @@ function RegisterForm() {
               </label>
               <input type="text" placeholder="e.g. TNS-XXXX" value={form.affiliate_code}
                 onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
             </div>
 
             {/* Terms */}

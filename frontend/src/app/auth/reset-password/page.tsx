@@ -70,17 +70,17 @@ function ResetPasswordForm() {
                 <input
                   type="email" placeholder={a.emailAddress} required
                   value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <input
                   type="password" placeholder={a.newPassword} required minLength={8}
                   value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <input
                   type="password" placeholder={a.confirmPassword} required
                   value={form.password_confirmation} onChange={(e) => setForm(f => ({ ...f, password_confirmation: e.target.value }))}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   type="submit" disabled={loading}

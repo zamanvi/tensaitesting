@@ -65,7 +65,7 @@ export default function StudentDashboard() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-slate-900 text-sm">{step.label}</div>
-                <div className="text-xs text-slate-500 truncate">{step.desc}</div>
+                <div className="text-xs text-slate-500 line-clamp-2">{step.desc}</div>
               </div>
               <span className="text-xs text-green-700 font-medium group-hover:underline shrink-0">{s.start}</span>
             </Link>

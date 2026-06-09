@@ -72,9 +72,9 @@ export default function InstitutionDashboard() {
             </div>
           </div>
           {instBanner.cta && (
-            <a href="/dashboard/institution/profile" className="shrink-0 text-xs font-bold text-indigo-600 hover:text-indigo-800 whitespace-nowrap">
+            <Link href="/dashboard/institution/profile" className="shrink-0 text-xs font-bold text-indigo-600 hover:text-indigo-800 whitespace-nowrap">
               {instBanner.cta}
-            </a>
+            </Link>
           )}
         </div>
       )}

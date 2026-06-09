@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\AdminGalleryController;
 use App\Models\Setting;
 use App\Http\Controllers\Api\HelpRequestController;
+use App\Http\Controllers\Api\AdminUserController;
 use Illuminate\Support\Facades\Route;
 
 // Health check
@@ -36,13 +37,15 @@ Route::get('/settings/public', fn() => response()->json([
 Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/gallery/featured', [GalleryController::class, 'featured']);
 
-// Public
-Route::post('/auth/register', [AuthController::class, 'register']);
-Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/verify-email', [AuthController::class, 'verifyEmail']);
-Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification']);
-Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+// Public auth endpoints — rate-limited to prevent brute-force attacks
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/auth/register',             [AuthController::class, 'register']);
+    Route::post('/auth/login',                [AuthController::class, 'login']);
+    Route::post('/auth/verify-email',         [AuthController::class, 'verifyEmail']);
+    Route::post('/auth/resend-verification',  [AuthController::class, 'resendVerification']);
+    Route::post('/auth/forgot-password',      [AuthController::class, 'forgotPassword']);
+    Route::post('/auth/reset-password',       [AuthController::class, 'resetPassword']);
+});
 
 // Authenticated
 Route::middleware('auth:sanctum')->group(function () {
@@ -106,8 +109,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/ocr/{job}/reject', [OcrController::class, 'reject']);
         Route::post('/interviews/{interview}/arrange', [InterviewController::class, 'arrange']);
         Route::get('/commissions', [CommissionController::class, 'index']);
+        Route::get('/users',                      [AdminUserController::class, 'index']);
+        Route::get('/agencies',                   [AgencyController::class, 'index']);
         Route::post('/agencies/{agency}/approve', [AgencyController::class, 'approve']);
-        Route::post('/agencies/{agency}/reject', [AgencyController::class, 'reject']);
+        Route::post('/agencies/{agency}/reject',  [AgencyController::class, 'reject']);
 
         // Gallery management
         Route::get('/gallery',                          [AdminGalleryController::class, 'index']);

@@ -18,6 +18,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // ID of the platform super-admin user that receives platform fees (e.g. unlock_fee).
+    // Override via APP_PLATFORM_ADMIN_ID in .env if the first user is not the admin.
+    'platform_admin_id' => env('APP_PLATFORM_ADMIN_ID', 1),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

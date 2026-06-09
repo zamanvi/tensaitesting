@@ -17,7 +17,7 @@ interface Referral {
 
 export default function AffiliateReferrals() {
   const { user } = useAuthStore();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const ar = t.affiliateReferrals;
   const [copied, setCopied] = useState(false);
 
@@ -60,7 +60,7 @@ export default function AffiliateReferrals() {
       <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6 mb-5 sm:mb-6">
         <div className="font-semibold text-sm text-slate-900 mb-2">{ar.linkTitle}</div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 font-mono truncate min-w-0">
+          <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 font-mono break-all min-w-0 select-all">
             {refLink}
           </div>
           <button
@@ -95,7 +95,9 @@ export default function AffiliateReferrals() {
                     {r.status}
                   </span>
                   {r.converted && (
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">Converted ✓</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-600 text-white">
+                      {lang === 'ja' ? 'コンバート済 ✓' : lang === 'bn' ? 'কনভার্টেড ✓' : 'Converted ✓'}
+                    </span>
                   )}
                   <span className="text-xs text-slate-400">{new Date(r.joined_at).toLocaleDateString()}</span>
                 </div>

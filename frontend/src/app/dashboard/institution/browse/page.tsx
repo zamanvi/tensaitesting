@@ -69,7 +69,7 @@ export default function BrowseStudents() {
           <select
             value={filters.jlpt_level}
             onChange={(e) => setFilters({ ...filters, jlpt_level: e.target.value })}
-            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm w-full"
+            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300"
           >
             <option value="">{ib.jlptAny}</option>
             {JLPT_OPTIONS.map((l) => <option key={l} value={l}>{l}</option>)}
@@ -77,15 +77,15 @@ export default function BrowseStudents() {
           <select
             value={filters.nat_level}
             onChange={(e) => setFilters({ ...filters, nat_level: e.target.value })}
-            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm w-full"
+            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300"
           >
             <option value="">{ib.natAny}</option>
-            {NAT_OPTIONS.map((l) => <option key={l} value={l}>Level {l}</option>)}
+            {NAT_OPTIONS.map((l) => <option key={l} value={l}>NAT {l}</option>)}
           </select>
           <select
             value={filters.gender}
             onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
-            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm w-full"
+            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300"
           >
             <option value="">{ib.genderAny}</option>
             <option value="male">{ib.male}</option>
@@ -96,13 +96,13 @@ export default function BrowseStudents() {
             type="number" min="0" max="5" step="0.1" placeholder={ib.minGpa}
             value={filters.min_gpa}
             onChange={(e) => setFilters({ ...filters, min_gpa: e.target.value })}
-            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm w-full"
+            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300"
           />
           <input
             type="text" placeholder={ib.qualKeyword}
             value={filters.qualification}
             onChange={(e) => setFilters({ ...filters, qualification: e.target.value })}
-            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm w-full"
+            className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 w-full focus:outline-none focus:ring-2 focus:ring-indigo-300"
           />
           <button
             onClick={() => setApplied({ ...filters })}
@@ -144,7 +144,7 @@ export default function BrowseStudents() {
               <button
                 onClick={() => { setShortlisting(s.student_id); shortlist.mutate(s.student_id); }}
                 disabled={shortlist.isPending && shortlisting === s.student_id}
-                className="w-full py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                className="w-full py-2 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {shortlist.isPending && shortlisting === s.student_id ? ib.shortlisting : ib.shortlistBtn}
               </button>

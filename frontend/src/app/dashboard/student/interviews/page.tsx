@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import { STATUS_COLORS } from '@/lib/constants';
+import { STATUS_COLORS, MEDIUM_LABEL } from '@/lib/constants';
 
 interface Interview {
   id: number;
@@ -53,7 +53,7 @@ export default function StudentInterviews() {
                 <span className="ml-auto font-mono text-xs text-slate-400">{iv.lead?.lead_code}</span>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                <span>{iv.medium === 'online' ? si.online : si.inPerson}</span>
+                <span>{MEDIUM_LABEL[iv.medium] ?? iv.medium}</span>
                 {iv.scheduled_at && (
                   <span>📅 {new Date(iv.scheduled_at).toLocaleString(undefined, {
                     dateStyle: 'medium', timeStyle: 'short',
