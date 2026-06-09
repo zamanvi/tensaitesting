@@ -16,7 +16,7 @@ class InstitutionProfile extends Model
         'country', 'city', 'address', 'website', 'logo', 'description',
         'intake_months', 'accepted_qualifications', 'required_language_scores',
         'tuition_fee_min', 'tuition_fee_max', 'currency',
-        'commission_percent', 'status', 'verified_at',
+        'commission_percent', 'status', 'verified_at', 'admin_notes',
     ];
 
     protected $casts = [

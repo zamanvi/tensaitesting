@@ -36,6 +36,8 @@ interface ProfileForm {
   currency: string;
   intake_months: number[];
   accepted_qualifications: string[];
+  required_jlpt: string;
+  required_nat: string;
 }
 
 const blank: ProfileForm = {
@@ -43,6 +45,7 @@ const blank: ProfileForm = {
   country: 'Japan', city: '', address: '', website: '', description: '',
   tuition_fee_min: '', tuition_fee_max: '', currency: 'JPY',
   intake_months: [], accepted_qualifications: [],
+  required_jlpt: '', required_nat: '',
 };
 
 const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400';
@@ -78,6 +81,8 @@ export default function InstitutionProfilePage() {
         currency: data.currency ?? 'JPY',
         intake_months: data.intake_months ?? [],
         accepted_qualifications: data.accepted_qualifications ?? [],
+        required_jlpt: data.required_language_scores?.jlpt ?? '',
+        required_nat: data.required_language_scores?.nat ?? '',
       });
     }
   }, [data]);
@@ -117,7 +122,15 @@ export default function InstitutionProfilePage() {
     setError('');
     setSaved(false);
     const fd = new FormData();
+    // Build required_language_scores JSON from separate JLPT/NAT fields
+    const langScores: Record<string, string> = {};
+    if (form.required_jlpt) langScores.jlpt = form.required_jlpt;
+    if (form.required_nat)  langScores.nat  = form.required_nat;
+    if (Object.keys(langScores).length > 0) {
+      fd.append('required_language_scores', JSON.stringify(langScores));
+    }
     Object.entries(form).forEach(([k, v]) => {
+      if (k === 'required_jlpt' || k === 'required_nat') return; // handled above
       if (Array.isArray(v)) v.forEach(i => fd.append(`${k}[]`, String(i)));
       else if (v !== null && v !== undefined && v !== '') fd.append(k, String(v));
     });
@@ -269,6 +282,33 @@ export default function InstitutionProfilePage() {
                 }`}
               >{q}</button>
             ))}
+          </div>
+        </div>
+
+        {/* Required Language Scores */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3 mb-4">
+            {ja ? '必要な語学レベル' : bn ? 'প্রয়োজনীয় ভাষা স্কোর' : 'Required Language Scores'}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                {ja ? '必要なJLPTレベル' : bn ? 'প্রয়োজনীয় JLPT' : 'Minimum JLPT Level'}
+              </label>
+              <select className={inputCls} value={form.required_jlpt} onChange={e => set('required_jlpt', e.target.value)}>
+                <option value="">{ja ? '不問' : bn ? 'যেকোনো' : 'Not required'}</option>
+                {['N1','N2','N3','N4','N5'].map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                {ja ? '必要なNATレベル' : bn ? 'প্রয়োজনীয় NAT' : 'Minimum NAT Level'}
+              </label>
+              <select className={inputCls} value={form.required_nat} onChange={e => set('required_nat', e.target.value)}>
+                <option value="">{ja ? '不問' : bn ? 'যেকোনো' : 'Not required'}</option>
+                {['1','2','3','4','5'].map(l => <option key={l} value={l}>NAT {l}</option>)}
+              </select>
+            </div>
           </div>
         </div>
 

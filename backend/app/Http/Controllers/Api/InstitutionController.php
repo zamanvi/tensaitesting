@@ -20,6 +20,12 @@ class InstitutionController extends Controller
 
     public function updateProfile(Request $request): JsonResponse
     {
+        // required_language_scores may arrive as a JSON string via FormData
+        if ($request->has('required_language_scores') && is_string($request->input('required_language_scores'))) {
+            $decoded = json_decode($request->input('required_language_scores'), true);
+            $request->merge(['required_language_scores' => is_array($decoded) ? $decoded : null]);
+        }
+
         $validated = $request->validate([
             'institution_name'          => 'required|string|max:255',
             'institution_name_local'    => 'nullable|string|max:255',
@@ -40,7 +46,7 @@ class InstitutionController extends Controller
 
         $user    = $request->user();
         $profile = $user->institutionProfile;
-        $disk    = config('filesystems.disks.r2.key') ? 'r2' : 'public';
+        $disk    = app()->environment('production') ? 'r2' : 'public';
 
         if ($request->hasFile('logo')) {
             if ($profile?->logo) Storage::disk($disk)->delete($profile->logo);

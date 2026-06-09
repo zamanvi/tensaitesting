@@ -5,18 +5,18 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function InstitutionDashboard() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const id = t.institutionDash;
   const { user } = useAuthStore();
   const router = useRouter();
 
-  const { lang } = useLang();
   const isInstitution = user?.gateway_type === 'institution';
-  if (user && !isInstitution) { router.replace(`/dashboard/${user.gateway_type}`); return null; }
 
+  // All hooks must be called unconditionally before any early returns
   const { data: instProfile } = useQuery({
     queryKey: ['institution-profile'],
     queryFn: () => api.get('/institution/profile').then(r => r.data.profile),
@@ -29,6 +29,14 @@ export default function InstitutionDashboard() {
       { queryKey: ['institution-interviews'], queryFn: () => api.get('/institution/interviews').then(r => r.data), enabled: isInstitution },
     ],
   });
+
+  useEffect(() => {
+    if (user && !isInstitution) {
+      router.replace(`/dashboard/${user.gateway_type}`);
+    }
+  }, [user, isInstitution, router]);
+
+  if (user && !isInstitution) return null;
 
   const leads = Array.isArray(leadsQ.data?.data) ? leadsQ.data.data : Array.isArray(leadsQ.data) ? leadsQ.data : [];
   const interviews = Array.isArray(interviewsQ.data) ? interviewsQ.data : [];
@@ -101,6 +109,25 @@ export default function InstitutionDashboard() {
             {id.browseCta}
           </Link>
         </div>
+      </div>
+
+      {/* Quick links */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <Link href="/dashboard/institution/leads" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-indigo-200 transition-all">
+          <div className="text-2xl mb-2">📋</div>
+          <div className="font-semibold text-sm">{lang === 'ja' ? '応募一覧' : lang === 'bn' ? 'আবেদন তালিকা' : 'My Applications'}</div>
+          <div className="text-xs text-slate-500 mt-1">{lang === 'ja' ? '割り当てられた学生の申請を確認' : lang === 'bn' ? 'নিযুক্ত শিক্ষার্থীর আবেদন দেখুন' : 'View all assigned student applications'}</div>
+        </Link>
+        <Link href="/dashboard/institution/interviews" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-indigo-200 transition-all">
+          <div className="text-2xl mb-2">🎙️</div>
+          <div className="font-semibold text-sm">{t.nav.interviews}</div>
+          <div className="text-xs text-slate-500 mt-1">{lang === 'ja' ? '面接スケジュールを管理' : lang === 'bn' ? 'ইন্টারভিউ শিডিউল পরিচালনা' : 'Manage interview schedule'}</div>
+        </Link>
+        <Link href="/dashboard/institution/profile" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-indigo-200 transition-all">
+          <div className="text-2xl mb-2">🏫</div>
+          <div className="font-semibold text-sm">{t.nav.institutionProfile}</div>
+          <div className="text-xs text-slate-500 mt-1">{lang === 'ja' ? '機関情報を更新' : lang === 'bn' ? 'প্রতিষ্ঠানের তথ্য আপডেট করুন' : 'Update institution details'}</div>
+        </Link>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">

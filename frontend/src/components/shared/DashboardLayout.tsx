@@ -65,6 +65,7 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
     institution: [
       { label: t.nav.overview, href: '/dashboard/institution' },
+      { label: lang === 'ja' ? '応募一覧' : lang === 'bn' ? 'আবেদন তালিকা' : 'Applications', href: '/dashboard/institution/leads' },
       { label: t.nav.browseStudents, href: '/dashboard/institution/browse' },
       { label: t.nav.interviews, href: '/dashboard/institution/interviews' },
       { label: t.nav.institutionProfile, href: '/dashboard/institution/profile' },
