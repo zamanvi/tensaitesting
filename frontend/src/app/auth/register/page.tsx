@@ -159,6 +159,18 @@ function RegisterForm() {
               </div>
             </div>
           )}
+          {/* Referral code — shown right after gateway selection for all types */}
+          <div className="mt-3">
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+              {a.affiliateCode} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
+            </label>
+            <input type="text" placeholder="e.g. TEN-XXXXXXXX" value={form.affiliate_code}
+              onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all bg-white" />
+            <p className="text-[11px] text-slate-400 mt-1">
+              {ja ? '紹介者がいる場合はコードを入力してください。' : bn ? 'কেউ আপনাকে রেফার করলে তার কোড দিন।' : 'Enter the code of whoever referred you to Tensai.'}
+            </p>
+          </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -219,16 +231,6 @@ function RegisterForm() {
                 </button>
               </div>
             </div>
-            {/* Affiliate code */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                {a.affiliateCode} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
-              </label>
-              <input type="text" placeholder="e.g. TNS-XXXX" value={form.affiliate_code}
-                onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all" />
-            </div>
-
             {/* Terms */}
             <label className="flex items-start gap-3 cursor-pointer">
               <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)}
