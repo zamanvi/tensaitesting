@@ -16,8 +16,8 @@ class StudentProfileResource extends Resource
 {
     protected static ?string $model = StudentProfile::class;
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
-    protected static ?string $navigationGroup = 'User Management';
-    protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Users & Gateways';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -53,6 +53,16 @@ class StudentProfileResource extends Resource
                 Forms\Components\TextInput::make('nid_number')->label('NID Number'),
                 Forms\Components\TextInput::make('passport_number'),
             ])->columns(2),
+
+            Forms\Components\Section::make('Admin Notes')
+                ->description('Internal notes visible only to admins.')
+                ->schema([
+                    Forms\Components\Textarea::make('admin_notes')
+                        ->label('Notes')
+                        ->rows(4)
+                        ->placeholder('Add internal notes about this student profile...'),
+                ])
+                ->collapsible(),
         ]);
     }
 
@@ -60,15 +70,67 @@ class StudentProfileResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')->label('Student')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('full_name')->searchable(),
-                Tables\Columns\TextColumn::make('jlpt_level')->badge()->color('info'),
-                Tables\Columns\TextColumn::make('nat_level')->badge()->color('warning'),
-                Tables\Columns\TextColumn::make('gpa')->sortable(),
-                Tables\Columns\TextColumn::make('highest_qualification'),
-                Tables\Columns\IconColumn::make('is_admin_verified')->boolean()->label('Verified'),
-                Tables\Columns\IconColumn::make('is_data_locked')->boolean()->label('Locked'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Student')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (StudentProfile $r) => $r->user?->email),
+
+                Tables\Columns\TextColumn::make('full_name')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('jlpt_level')
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('—'),
+
+                Tables\Columns\TextColumn::make('nat_level')
+                    ->badge()
+                    ->color('warning')
+                    ->placeholder('—'),
+
+                Tables\Columns\TextColumn::make('gpa')
+                    ->sortable()
+                    ->placeholder('—'),
+
+                Tables\Columns\TextColumn::make('highest_qualification')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                // Eligibility score — computed from the model method
+                Tables\Columns\TextColumn::make('eligibility_score')
+                    ->label('Eligibility')
+                    ->suffix('%')
+                    ->sortable(false)
+                    ->getStateUsing(fn (StudentProfile $r) => $r->eligibilityScore())
+                    ->color(fn ($state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'danger'))
+                    ->badge(),
+
+                Tables\Columns\IconColumn::make('is_admin_verified')
+                    ->boolean()
+                    ->label('Verified'),
+
+                Tables\Columns\IconColumn::make('is_data_locked')
+                    ->boolean()
+                    ->label('Locked'),
+
+                // Show when data was locked and by whom
+                Tables\Columns\TextColumn::make('locked_at')
+                    ->label('Locked At')
+                    ->dateTime()
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('locker.name')
+                    ->label('Locked By')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('jlpt_level')
@@ -95,7 +157,7 @@ class StudentProfileResource extends Resource
                     ->requiresConfirmation()
                     ->action(function (StudentProfile $record) {
                         if ($record->is_data_locked) {
-                            $record->update(['is_data_locked' => false]);
+                            $record->update(['is_data_locked' => false, 'locked_at' => null, 'locked_by' => null]);
                             Notification::make()->title('Data unlocked')->warning()->send();
                         } else {
                             $record->lock(auth()->id());
@@ -107,6 +169,27 @@ class StudentProfileResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    // Bulk verify action
+                    Tables\Actions\BulkAction::make('bulk_verify')
+                        ->label('Verify Selected')
+                        ->icon('heroicon-o-check-badge')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (\Illuminate\Support\Collection $records) {
+                            $count = 0;
+                            foreach ($records as $record) {
+                                if (!$record->is_admin_verified) {
+                                    $record->update(['is_admin_verified' => true]);
+                                    $count++;
+                                }
+                            }
+                            Notification::make()
+                                ->title("{$count} student(s) verified.")
+                                ->success()
+                                ->send();
+                        }),
+
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
@@ -120,9 +203,9 @@ class StudentProfileResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStudentProfiles::route('/'),
+            'index'  => Pages\ListStudentProfiles::route('/'),
             'create' => Pages\CreateStudentProfile::route('/create'),
-            'edit' => Pages\EditStudentProfile::route('/{record}/edit'),
+            'edit'   => Pages\EditStudentProfile::route('/{record}/edit'),
         ];
     }
 }
