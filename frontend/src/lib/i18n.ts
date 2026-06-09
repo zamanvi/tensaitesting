@@ -44,6 +44,9 @@ const translations = {
       galleryViewAll: 'View All →',
       footer: '© 2026 Tensai. All rights reserved.',
       about: 'About',
+      team: 'Team',
+      terms: 'Terms',
+      privacy: 'Privacy',
       gateways: {
         studentTitle: 'Student Gateway',
         studentDesc: 'OCR auto-reads your documents. AI scores your eligibility for each destination. Profile locks after admin verification — tamper-proof forever.',
@@ -476,6 +479,9 @@ const translations = {
       galleryViewAll: 'すべて見る →',
       footer: '© 2026 天才。全著作権所有。',
       about: '私たちについて',
+      team: 'チーム',
+      terms: '利用規約',
+      privacy: 'プライバシー',
       gateways: {
         studentTitle: '学生ゲートウェイ',
         studentDesc: 'OCRが書類を自動読取。AIが各渡航先への適格性をスコアリング。管理者認証後にプロフィールがロック — 永久に改ざん不可。',
@@ -908,6 +914,9 @@ const translations = {
       galleryViewAll: 'সব দেখুন →',
       footer: '© ২০২৬ টেনসাই। সর্বস্বত্ব সংরক্ষিত।',
       about: 'আমাদের সম্পর্কে',
+      team: 'দল',
+      terms: 'শর্তাবলী',
+      privacy: 'প্রাইভেসি',
       gateways: {
         studentTitle: 'শিক্ষার্থী গেটওয়ে',
         studentDesc: 'OCR স্বয়ংক্রিয়ভাবে কাগজপত্র পড়ে। AI প্রতিটি গন্তব্যের জন্য যোগ্যতা স্কোর করে। অ্যাডমিন যাচাইয়ের পর প্রোফাইল লক — চিরতরে অপরিবর্তনীয়।',

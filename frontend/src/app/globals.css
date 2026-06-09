@@ -182,3 +182,16 @@ body {
 .bg-alt-section {
   background: #0f1319;
 }
+
+/* ── Respect prefers-reduced-motion ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-slide-right,
+  .animate-float,
+  .animate-marquee,
+  .gradient-text {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
