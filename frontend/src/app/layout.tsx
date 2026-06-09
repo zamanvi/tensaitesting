@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import Providers from "@/components/shared/Providers";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const jakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-sans",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://tensai-kappa.vercel.app"),
@@ -35,7 +40,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.className} min-h-full bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
+      <body className={`${jakartaSans.variable} min-h-full bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>
