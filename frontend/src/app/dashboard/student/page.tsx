@@ -73,11 +73,47 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+      {/* ── Fill-up Information (separate section below Upload Documents) ── */}
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6 mb-5 sm:mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-bold text-slate-900">
+              {lang === 'bn' ? 'তথ্য পূরণ' : lang === 'ja' ? '情報入力' : 'Fill-up Information'}
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {lang === 'bn' ? 'ব্যক্তিগত, পরিবার, শিক্ষা ও জাপান সম্পর্কিত তথ্য' : lang === 'ja' ? '個人・家族・学歴・日本関連情報' : 'Personal, family, education & Japan-related details'}
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/dashboard/student/profile/info"
+          className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border border-slate-100 rounded-xl hover:border-green-200 transition-colors group"
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-base sm:text-lg group-hover:bg-green-50 shrink-0">
+            📝
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-slate-900 text-sm">
+              {lang === 'bn' ? 'তথ্য পূরণ করুন' : lang === 'ja' ? '情報を入力する' : 'Fill-up Info'}
+            </div>
+            <div className="text-xs text-slate-500 line-clamp-2">
+              {lang === 'bn' ? 'আপনার সমস্ত ব্যক্তিগত ও শিক্ষাগত তথ্য পূরণ করুন' : lang === 'ja' ? 'すべての個人情報と学歴を入力してください' : 'Complete all your personal and educational information'}
+            </div>
+          </div>
+          <span className="text-xs text-green-700 font-medium group-hover:underline shrink-0">{s.start}</span>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <Link href="/dashboard/student/profile" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
           <div className="text-2xl mb-2">👤</div>
           <div className="font-semibold text-sm">{t.nav.profile}</div>
           <div className="text-xs text-slate-500 mt-1">{lang === 'bn' ? 'যোগাযোগ, ঠিকানা ও তথ্য' : lang === 'ja' ? '連絡先・住所・情報' : 'Contact, address & info'}</div>
+        </Link>
+        <Link href="/dashboard/student/profile/info" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
+          <div className="text-2xl mb-2">📝</div>
+          <div className="font-semibold text-sm">{lang === 'bn' ? 'তথ্য পূরণ' : lang === 'ja' ? '情報入力' : 'Fill-up Info'}</div>
+          <div className="text-xs text-slate-500 mt-1">{lang === 'bn' ? 'ব্যক্তিগত ও শিক্ষাগত তথ্য' : lang === 'ja' ? '個人・学歴情報' : 'Personal & education details'}</div>
         </Link>
         <Link href="/dashboard/student/leads" className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
           <div className="text-2xl mb-2">📋</div>
