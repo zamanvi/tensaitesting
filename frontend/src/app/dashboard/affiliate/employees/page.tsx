@@ -18,9 +18,12 @@ interface Employee {
   notes: string | null;
 }
 
-const blank = {
+const blank: {
+  name: string; designation: string; contact_email: string; contact_phone: string;
+  country: string; city: string; status: 'prospect' | 'active' | 'inactive'; notes: string;
+} = {
   name: '', designation: '', contact_email: '', contact_phone: '',
-  country: '', city: '', status: 'prospect' as const, notes: '',
+  country: '', city: '', status: 'prospect', notes: '',
 };
 
 const STATUS_COLOR: Record<string, string> = {
