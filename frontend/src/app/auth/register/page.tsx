@@ -63,6 +63,43 @@ function RegisterForm() {
     </svg>
   );
 
+  /* ── Invitation gate ────────────────────────────────────────── */
+  if (!refCode) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12 text-center">
+        <Link href="/" className="flex items-center gap-2.5 mb-10">
+          <Image src="/tensai-logo.png" alt="Tensai" width={40} height={40} className="rounded-full object-contain" />
+          <div>
+            <div className="text-xl font-black text-green-800 tracking-tight leading-none">Tensai</div>
+            <div className="text-[9px] text-slate-400 tracking-widest mt-0.5 uppercase">The Way of Global Career</div>
+          </div>
+        </Link>
+        <div className="w-full max-w-sm bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+          <div className="text-5xl mb-4">🔒</div>
+          <h1 className="text-lg font-black text-slate-900 mb-2">
+            {ja ? '招待が必要です' : bn ? 'আমন্ত্রণ প্রয়োজন' : 'Invitation Required'}
+          </h1>
+          <p className="text-sm text-slate-500 leading-relaxed mb-6">
+            {ja
+              ? 'Tensaiへの登録はご招待制です。担当者から受け取った紹介リンクからアクセスしてください。'
+              : bn
+              ? 'Tensai-এ নিবন্ধন করতে আমন্ত্রণ লিংক প্রয়োজন। আপনার পরামর্শদাতার কাছ থেকে লিংক নিন।'
+              : 'Registration on Tensai is by invitation only. Please use the referral link provided by your consultant or representative.'}
+          </p>
+          <Link href="/auth/login" className="block w-full py-3 bg-green-700 hover:bg-green-600 text-white text-sm font-bold rounded-xl transition-colors">
+            {ja ? 'ログインはこちら' : bn ? 'লগইন করুন' : 'Already have an account? Sign in'}
+          </Link>
+        </div>
+        <div className="flex items-center gap-4 mt-6">
+          <button onClick={toggle} className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors">
+            {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
+          </button>
+          <span className="text-[11px] text-slate-400">© 2026 Tensai</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
 
@@ -159,18 +196,15 @@ function RegisterForm() {
               </div>
             </div>
           )}
-          {/* Referral code — shown right after gateway selection for all types */}
-          <div className="mt-3">
-            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-              {a.affiliateCode} <span className="text-slate-400 font-normal">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
-            </label>
-            <input type="text" placeholder="e.g. TEN-XXXXXXXX" value={form.affiliate_code}
-              onChange={(e) => setForm(f => ({ ...f, affiliate_code: e.target.value }))}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all bg-white" />
-            <p className="text-[11px] text-slate-400 mt-1">
-              {ja ? '紹介者がいる場合はコードを入力してください。' : bn ? 'কেউ আপনাকে রেফার করলে তার কোড দিন।' : 'Enter the code of whoever referred you to Tensai.'}
-            </p>
-          </div>
+          {/* Referral code captured silently from ?ref= URL param — no visible input */}
+          {form.affiliate_code && (
+            <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-100 rounded-xl">
+              <span className="text-green-600 text-sm">🔗</span>
+              <p className="text-xs text-green-700 font-medium">
+                {ja ? '紹介リンクから登録しています' : bn ? 'রেফারেল লিংক থেকে নিবন্ধন করছেন' : 'Registering via referral link'}
+              </p>
+            </div>
+          )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3.5">
