@@ -63,43 +63,6 @@ function RegisterForm() {
     </svg>
   );
 
-  /* ── Invitation gate ────────────────────────────────────────── */
-  if (!refCode) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12 text-center">
-        <Link href="/" className="flex items-center gap-2.5 mb-10">
-          <Image src="/tensai-logo.png" alt="Tensai" width={40} height={40} className="rounded-full object-contain" />
-          <div>
-            <div className="text-xl font-black text-green-800 tracking-tight leading-none">Tensai</div>
-            <div className="text-[9px] text-slate-400 tracking-widest mt-0.5 uppercase">The Way of Global Career</div>
-          </div>
-        </Link>
-        <div className="w-full max-w-sm bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-          <div className="text-5xl mb-4">🔒</div>
-          <h1 className="text-lg font-black text-slate-900 mb-2">
-            {ja ? '招待が必要です' : bn ? 'আমন্ত্রণ প্রয়োজন' : 'Invitation Required'}
-          </h1>
-          <p className="text-sm text-slate-500 leading-relaxed mb-6">
-            {ja
-              ? 'Tensaiへの登録はご招待制です。担当者から受け取った紹介リンクからアクセスしてください。'
-              : bn
-              ? 'Tensai-এ নিবন্ধন করতে আমন্ত্রণ লিংক প্রয়োজন। আপনার পরামর্শদাতার কাছ থেকে লিংক নিন।'
-              : 'Registration on Tensai is by invitation only. Please use the referral link provided by your consultant or representative.'}
-          </p>
-          <Link href="/auth/login" className="block w-full py-3 bg-green-700 hover:bg-green-600 text-white text-sm font-bold rounded-xl transition-colors">
-            {ja ? 'ログインはこちら' : bn ? 'লগইন করুন' : 'Already have an account? Sign in'}
-          </Link>
-        </div>
-        <div className="flex items-center gap-4 mt-6">
-          <button onClick={toggle} className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors">
-            {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
-          </button>
-          <span className="text-[11px] text-slate-400">© 2026 Tensai</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
 

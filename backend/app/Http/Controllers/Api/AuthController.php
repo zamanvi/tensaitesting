@@ -26,10 +26,12 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'gateway_type'   => 'required|in:student,agency,institution,affiliate',
             'affiliate_type' => 'nullable|in:local,global|required_if:gateway_type,affiliate',
-            'affiliate_code' => 'required|string|exists:users,affiliate_code',
+            'affiliate_code' => 'nullable|string|exists:users,affiliate_code',
         ]);
 
-        $referredBy = User::where('affiliate_code', $validated['affiliate_code'])->value('id');
+        $referredBy = !empty($validated['affiliate_code'])
+            ? User::where('affiliate_code', $validated['affiliate_code'])->value('id')
+            : null;
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
