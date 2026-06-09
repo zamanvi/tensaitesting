@@ -25,6 +25,7 @@ function RegisterForm() {
   const [form, setForm] = useState({
     name: "", email: "", phone: "", password: "", password_confirmation: "",
     gateway_type: defaultType, affiliate_code: refCode,
+    affiliate_type: "" as "" | "local" | "global",
   });
   const [agreedTerms, setAgreedTerms]   = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -36,9 +37,10 @@ function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (form.password.length < 8)                     { setError(a.passwordTooShort);  return; }
-    if (form.password !== form.password_confirmation) { setError(a.passwordMismatch);   return; }
-    if (!agreedTerms)                                 { setError(a.agreeTermsRequired); return; }
+    if (form.password.length < 8)                                         { setError(a.passwordTooShort);  return; }
+    if (form.password !== form.password_confirmation)                     { setError(a.passwordMismatch);   return; }
+    if (!agreedTerms)                                                     { setError(a.agreeTermsRequired); return; }
+    if (form.gateway_type === 'affiliate' && !form.affiliate_type)        { setError(ja ? 'アフィリエイトタイプを選択してください。' : bn ? 'অ্যাফিলিয়েট ধরন বেছে নিন।' : 'Please select your affiliate type.'); return; }
     try {
       await register(form);
       router.push(`/auth/verify-email?email=${encodeURIComponent(form.email)}&gateway=${form.gateway_type}`);
@@ -101,7 +103,7 @@ function RegisterForm() {
             <div className="grid grid-cols-2 gap-2">
               {gateways.map((g) => (
                 <button key={g.value} type="button"
-                  onClick={() => setForm(f => ({ ...f, gateway_type: g.value }))}
+                  onClick={() => setForm(f => ({ ...f, gateway_type: g.value, affiliate_type: '' }))}
                   className={`p-3 rounded-xl border text-left text-xs transition-all ${
                     form.gateway_type === g.value
                       ? 'border-green-500 bg-green-50 text-green-800 shadow-sm'
@@ -114,6 +116,49 @@ function RegisterForm() {
                 </button>
               ))}
             </div>
+
+          {/* Affiliate sub-type selector — shown only when Affiliate is selected */}
+          {form.gateway_type === 'affiliate' && (
+            <div className="mt-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <p className="text-xs font-semibold text-slate-600 mb-2.5">
+                {ja ? 'アフィリエイトタイプを選択' : bn ? 'অ্যাফিলিয়েট ধরন বেছে নিন' : 'Choose your affiliate type'} <span className="text-red-400">*</span>
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button"
+                  onClick={() => setForm(f => ({ ...f, affiliate_type: 'local' }))}
+                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
+                    form.affiliate_type === 'local'
+                      ? 'border-indigo-500 bg-indigo-50 text-indigo-800 shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
+                >
+                  <span className="text-lg block mb-1">🎓</span>
+                  <div className="font-semibold">
+                    {ja ? 'ローカル' : bn ? 'লোকাল' : 'Local'}
+                  </div>
+                  <div className="text-[11px] opacity-70 leading-tight mt-0.5">
+                    {ja ? '学生を紹介・固定報酬' : bn ? 'শিক্ষার্থী রেফার করুন' : 'Refer students, earn fixed fee'}
+                  </div>
+                </button>
+                <button type="button"
+                  onClick={() => setForm(f => ({ ...f, affiliate_type: 'global' }))}
+                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
+                    form.affiliate_type === 'global'
+                      ? 'border-amber-500 bg-amber-50 text-amber-800 shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
+                >
+                  <span className="text-lg block mb-1">🌐</span>
+                  <div className="font-semibold">
+                    {ja ? 'グローバル' : bn ? 'গ্লোবাল' : 'Global'}
+                  </div>
+                  <div className="text-[11px] opacity-70 leading-tight mt-0.5">
+                    {ja ? '機関・従業員を管理・%報酬' : bn ? 'প্রতিষ্ঠান ম্যানেজ করুন' : 'Manage institutions, earn % fee'}
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3.5">

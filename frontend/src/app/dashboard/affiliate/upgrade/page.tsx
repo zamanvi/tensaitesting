@@ -2,12 +2,18 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
 
 export default function AffiliateUpgradePage() {
   const { lang } = useLang();
+  const qc = useQueryClient();
+  const affiliateType = (qc.getQueryData<{ affiliate_type?: string }>(['affiliate-dashboard']))?.affiliate_type;
+  if (affiliateType && affiliateType !== 'local') {
+    if (typeof window !== 'undefined') window.location.replace('/dashboard/affiliate');
+    return null;
+  }
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
   const [orgName, setOrgName]     = useState('');

@@ -1,6 +1,7 @@
 ﻿'use client';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
+import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -16,6 +17,10 @@ export default function DashboardLayout({ children, title }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { t, lang, toggle } = useLang();
+  const qc = useQueryClient();
+  // Read affiliate type from cache (populated by affiliate dashboard/profile queries)
+  const affiliateDash = qc.getQueryData<{ affiliate_type?: string }>(['affiliate-dashboard']);
+  const affiliateType = affiliateDash?.affiliate_type ?? null;
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -73,8 +78,21 @@ export default function DashboardLayout({ children, title }: Props) {
     affiliate: [
       { label: t.nav.overview, href: '/dashboard/affiliate' },
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile & Payout', href: '/dashboard/affiliate/profile' },
-      { label: lang === 'ja' ? '紹介学生' : lang === 'bn' ? 'স্টুডেন্টস' : 'Students', href: '/dashboard/affiliate/students' },
+      // Local-only
+      ...(affiliateType === 'local' || affiliateType === null ? [
+        { label: lang === 'ja' ? '紹介学生' : lang === 'bn' ? 'স্টুডেন্টস' : 'Students', href: '/dashboard/affiliate/students' },
+      ] : []),
+      // Global-only
+      ...(affiliateType === 'global' ? [
+        { label: lang === 'ja' ? '機関管理' : lang === 'bn' ? 'প্রতিষ্ঠান' : 'Institutions', href: '/dashboard/affiliate/institutions' },
+        { label: lang === 'ja' ? '従業員管理' : lang === 'bn' ? 'কর্মী' : 'Employees', href: '/dashboard/affiliate/employees' },
+      ] : []),
+      // Both
       { label: lang === 'ja' ? 'コミッション' : lang === 'bn' ? 'কমিশন' : 'Commissions', href: '/dashboard/affiliate/commissions' },
+      // Local upgrade link
+      ...(affiliateType === 'local' ? [
+        { label: lang === 'ja' ? 'グローバルへ' : lang === 'bn' ? 'আপগ্রেড' : 'Upgrade', href: '/dashboard/affiliate/upgrade' },
+      ] : []),
     ],
   };
 

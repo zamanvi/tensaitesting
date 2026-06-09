@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 interface Student {
@@ -37,6 +37,12 @@ const LEAD_STATUS_COLOR: Record<string, string> = {
 export default function AffiliateStudentsPage() {
   const { lang } = useLang();
   const { user }  = useAuthStore();
+  const qc = useQueryClient();
+  const affiliateType = (qc.getQueryData<{ affiliate_type?: string }>(['affiliate-dashboard']))?.affiliate_type;
+  if (affiliateType && affiliateType !== 'local') {
+    if (typeof window !== 'undefined') window.location.replace('/dashboard/affiliate');
+    return null;
+  }
   const [copied, setCopied] = useState(false);
   const ja = lang === 'ja'; const bn = lang === 'bn';
 

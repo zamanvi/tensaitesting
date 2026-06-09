@@ -37,6 +37,11 @@ const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm 
 export default function EmployeesPage() {
   const { lang } = useLang();
   const qc = useQueryClient();
+  const affiliateType = (qc.getQueryData<{ affiliate_type?: string }>(['affiliate-dashboard']))?.affiliate_type;
+  if (affiliateType && affiliateType !== 'global') {
+    if (typeof window !== 'undefined') window.location.replace('/dashboard/affiliate');
+    return null;
+  }
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
   const [showForm, setShowForm] = useState(false);

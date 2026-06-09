@@ -24,7 +24,8 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'phone' => 'nullable|string|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'gateway_type' => 'required|in:student,agency,institution,affiliate',
+            'gateway_type'   => 'required|in:student,agency,institution,affiliate',
+            'affiliate_type' => 'nullable|in:local,global|required_if:gateway_type,affiliate',
             'affiliate_code' => 'nullable|string|exists:users,affiliate_code',
         ]);
 
@@ -58,8 +59,12 @@ class AuthController extends Controller
 
         // Auto-create profile shell
         match ($validated['gateway_type']) {
-            'student' => StudentProfile::create(['user_id' => $user->id]),
-            'affiliate' => AffiliateProfile::create(['user_id' => $user->id]),
+            'student'   => StudentProfile::create(['user_id' => $user->id]),
+            'affiliate' => AffiliateProfile::create([
+                'user_id'        => $user->id,
+                'affiliate_type' => $validated['affiliate_type'],
+                'type_confirmed' => true,
+            ]),
             default => null,
         };
 

@@ -143,6 +143,10 @@ class AffiliateController extends Controller
 
     public function referredStudents(Request $request): JsonResponse
     {
+        $profile = $this->ensureProfile($request->user());
+        if (!$profile->isLocal()) {
+            return response()->json(['message' => 'This endpoint is for local affiliates only.'], 403);
+        }
         $userId = $request->user()->id;
 
         // IDs of students whose leads have been paid commission to this affiliate
@@ -187,6 +191,10 @@ class AffiliateController extends Controller
 
     public function entities(Request $request): JsonResponse
     {
+        $profile = $this->ensureProfile($request->user());
+        if (!$profile->isGlobal()) {
+            return response()->json(['message' => 'This endpoint is for global affiliates only.'], 403);
+        }
         $userId = $request->user()->id;
         $type   = $request->query('type'); // 'institution' | 'employee' | null (both)
 
@@ -200,6 +208,9 @@ class AffiliateController extends Controller
 
     public function storeEntity(Request $request): JsonResponse
     {
+        if (!$this->ensureProfile($request->user())->isGlobal()) {
+            return response()->json(['message' => 'This endpoint is for global affiliates only.'], 403);
+        }
         $request->validate([
             'entity_type'       => 'required|in:institution,employee',
             'name'              => 'required|string|max:200',
@@ -302,6 +313,10 @@ class AffiliateController extends Controller
 
     public function upgradeRequest(Request $request): JsonResponse
     {
+        $profile = $this->ensureProfile($request->user());
+        if (!$profile->isLocal()) {
+            return response()->json(['message' => 'Only local affiliates can request an upgrade.'], 403);
+        }
         $request->validate([
             'organization_name' => 'nullable|string|max:200',
             'reason'            => 'nullable|string|max:1000',
