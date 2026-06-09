@@ -19,6 +19,8 @@ class InstitutionProfile extends Model
         'commission_percent', 'status', 'verified_at', 'admin_notes',
     ];
 
+    protected $appends = ['logo_url'];
+
     protected $casts = [
         'intake_months' => 'array',
         'accepted_qualifications' => 'array',
@@ -33,4 +35,11 @@ class InstitutionProfile extends Model
     public function leads() { return $this->hasMany(Lead::class, 'assigned_institution_id', 'user_id'); }
     public function interviews() { return $this->hasMany(Interview::class, 'institution_id', 'user_id'); }
     public function isActive(): bool { return $this->status === 'active'; }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (!$this->logo) return null;
+        $disk = app()->environment('production') ? 'r2' : 'public';
+        return \Illuminate\Support\Facades\Storage::disk($disk)->url($this->logo);
+    }
 }

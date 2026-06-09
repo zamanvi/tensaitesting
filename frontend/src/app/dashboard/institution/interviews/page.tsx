@@ -15,12 +15,13 @@ interface Interview {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  requested: 'bg-slate-100 text-slate-600',
-  arranged: 'bg-blue-100 text-blue-700',
-  confirmed: 'bg-indigo-100 text-indigo-700',
-  completed: 'bg-emerald-100 text-emerald-700',
-  cancelled: 'bg-red-100 text-red-700',
-  no_show: 'bg-red-100 text-red-700',
+  requested:            'bg-slate-100 text-slate-600',
+  arranged:             'bg-blue-100 text-blue-700',
+  confirmed:            'bg-indigo-100 text-indigo-700',
+  interview_scheduled:  'bg-purple-100 text-purple-700',
+  completed:            'bg-emerald-100 text-emerald-700',
+  cancelled:            'bg-red-100 text-red-700',
+  no_show:              'bg-red-100 text-red-700',
 };
 
 export default function InstitutionInterviews() {

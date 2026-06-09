@@ -24,7 +24,8 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function InstitutionLeadsPage() {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
+  const statuses = t.statuses;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
@@ -63,7 +64,7 @@ export default function InstitutionLeadsPage() {
                   {lead.student?.name ?? (ja ? '学生' : bn ? 'শিক্ষার্থী' : 'Student')}
                 </span>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLOR[lead.status] ?? 'bg-slate-100 text-slate-600'}`}>
-                  {lead.status.replace(/_/g, ' ')}
+                  {statuses[lead.status as keyof typeof statuses] ?? lead.status.replace(/_/g, ' ')}
                 </span>
                 <span className="ml-auto font-mono text-xs text-slate-400">{lead.lead_code}</span>
               </div>

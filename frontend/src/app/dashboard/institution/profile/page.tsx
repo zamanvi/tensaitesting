@@ -3,7 +3,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const MONTHS = [
   { value: 1,  en: 'January',   ja: '1月',  bn: 'জানুয়ারি' },
@@ -20,7 +20,7 @@ const MONTHS = [
   { value: 12, en: 'December',  ja: '12月', bn: 'ডিসেম্বর' },
 ];
 
-const QUALIFICATIONS = ['SSC', 'HSC', 'Diploma', 'Bachelor\'s', 'Master\'s', 'N5', 'N4', 'N3', 'N2'];
+const QUALIFICATIONS = ['SSC', 'HSC', 'Diploma', "Bachelor's", "Master's", 'N5', 'N4', 'N3', 'N2'];
 
 interface ProfileForm {
   institution_name: string;
@@ -48,17 +48,18 @@ const blank: ProfileForm = {
   required_jlpt: '', required_nat: '',
 };
 
-const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400';
-
 export default function InstitutionProfilePage() {
   const { lang } = useLang();
   const qc = useQueryClient();
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
-  const [form, setForm]   = useState<ProfileForm>(blank);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState('');
+  const [form, setForm]         = useState<ProfileForm>(blank);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [saved, setSaved]       = useState(false);
+  const [error, setError]       = useState('');
+  const logoInputRef            = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-profile'],
@@ -68,23 +69,26 @@ export default function InstitutionProfilePage() {
   useEffect(() => {
     if (data) {
       setForm({
-        institution_name: data.institution_name ?? '',
+        institution_name:       data.institution_name       ?? '',
         institution_name_local: data.institution_name_local ?? '',
-        institution_type: data.institution_type ?? 'university',
-        country: data.country ?? 'Japan',
-        city: data.city ?? '',
-        address: data.address ?? '',
-        website: data.website ?? '',
-        description: data.description ?? '',
-        tuition_fee_min: data.tuition_fee_min ?? '',
-        tuition_fee_max: data.tuition_fee_max ?? '',
-        currency: data.currency ?? 'JPY',
-        intake_months: data.intake_months ?? [],
-        accepted_qualifications: data.accepted_qualifications ?? [],
-        required_jlpt: data.required_language_scores?.jlpt ?? '',
-        required_nat: data.required_language_scores?.nat ?? '',
+        institution_type:       data.institution_type       ?? 'university',
+        country:                data.country                ?? 'Japan',
+        city:                   data.city                   ?? '',
+        address:                data.address                ?? '',
+        website:                data.website                ?? '',
+        description:            data.description            ?? '',
+        tuition_fee_min:        data.tuition_fee_min        ?? '',
+        tuition_fee_max:        data.tuition_fee_max        ?? '',
+        currency:               data.currency               ?? 'JPY',
+        intake_months:          data.intake_months          ?? [],
+        accepted_qualifications:data.accepted_qualifications?? [],
+        required_jlpt: data.required_language_scores?.jlpt  ?? '',
+        required_nat:  data.required_language_scores?.nat   ?? '',
       });
+      // Show saved logo if present, but only if no new file selected
+      if (data.logo_url && !logoFile) setLogoPreview(data.logo_url);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const mutation = useMutation({
@@ -104,6 +108,7 @@ export default function InstitutionProfilePage() {
   function set(k: keyof ProfileForm, v: string) { setForm(f => ({ ...f, [k]: v })); }
 
   function toggleMonth(m: number) {
+    if (isLocked) return;
     setForm(f => ({
       ...f,
       intake_months: f.intake_months.includes(m) ? f.intake_months.filter(x => x !== m) : [...f.intake_months, m],
@@ -111,10 +116,20 @@ export default function InstitutionProfilePage() {
   }
 
   function toggleQual(q: string) {
+    if (isLocked) return;
     setForm(f => ({
       ...f,
-      accepted_qualifications: f.accepted_qualifications.includes(q) ? f.accepted_qualifications.filter(x => x !== q) : [...f.accepted_qualifications, q],
+      accepted_qualifications: f.accepted_qualifications.includes(q)
+        ? f.accepted_qualifications.filter(x => x !== q)
+        : [...f.accepted_qualifications, q],
     }));
+  }
+
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -129,20 +144,30 @@ export default function InstitutionProfilePage() {
     if (Object.keys(langScores).length > 0) {
       fd.append('required_language_scores', JSON.stringify(langScores));
     }
+    if (logoFile) fd.append('logo', logoFile);
     Object.entries(form).forEach(([k, v]) => {
-      if (k === 'required_jlpt' || k === 'required_nat') return; // handled above
+      if (k === 'required_jlpt' || k === 'required_nat') return;
       if (Array.isArray(v)) v.forEach(i => fd.append(`${k}[]`, String(i)));
       else if (v !== null && v !== undefined && v !== '') fd.append(k, String(v));
     });
     mutation.mutate(fd);
   }
 
-  const status = data?.status ?? null;
+  const status   = data?.status ?? null;
+  const isLocked = status === 'active';
+
+  // Locked input style
+  const inputCls = (extra = '') =>
+    `w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-slate-400 transition-colors ${
+      isLocked
+        ? 'border-slate-100 bg-slate-50 text-slate-400 cursor-not-allowed'
+        : 'border-slate-200 bg-white text-slate-800'
+    } ${extra}`;
 
   const STATUS_BANNER: Record<string, { bg: string; icon: string; title: string; desc: string }> = {
-    pending:   { bg: 'bg-amber-50 border-amber-200',   icon: '⏳', title: ja ? '審査待ち' : bn ? 'পর্যালোচনা অপেক্ষায়' : 'Under Review', desc: ja ? '管理者がプロフィールを確認中です。通常24〜48時間かかります。' : bn ? 'অ্যাডমিন যাচাই করছেন। সাধারণত ২৪-৪৮ ঘন্টা লাগে।' : 'Admin is reviewing your profile. Usually takes 24–48 hours.' },
-    active:    { bg: 'bg-emerald-50 border-emerald-200', icon: '✅', title: ja ? '認証済み ✓' : bn ? 'অনুমোদিত ✓' : 'Verified & Active ✓', desc: ja ? 'エージェンシーからの学生申請が届きます。' : bn ? 'এজেন্সি থেকে শিক্ষার্থীর আবেদন আসবে।' : 'You will receive student applications from agencies.' },
-    suspended: { bg: 'bg-red-50 border-red-200',       icon: '❌', title: ja ? 'アカウント停止中' : bn ? 'অ্যাকাউন্ট স্থগিত' : 'Account Suspended', desc: ja ? 'サポートにお問い合わせください。' : bn ? 'সাপোর্টে যোগাযোগ করুন।' : 'Contact support for assistance.' },
+    pending:   { bg: 'bg-amber-50 border-amber-200',    icon: '⏳', title: ja ? '審査待ち' : bn ? 'পর্যালোচনা অপেক্ষায়' : 'Under Review', desc: ja ? '管理者がプロフィールを確認中です。通常24〜48時間かかります。' : bn ? 'অ্যাডমিন যাচাই করছেন। সাধারণত ২৪-৪৮ ঘন্টা লাগে।' : 'Admin is reviewing your profile. Usually takes 24–48 hours.' },
+    active:    { bg: 'bg-emerald-50 border-emerald-200', icon: '✅', title: ja ? '認証済み ✓' : bn ? 'অনুমোদিত ✓' : 'Verified & Active ✓', desc: ja ? 'プロフィールは承認済みです。変更するには管理者にお問い合わせください。' : bn ? 'প্রোফাইল অনুমোদিত। পরিবর্তনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।' : 'Profile is approved. Contact support to make changes.' },
+    suspended: { bg: 'bg-red-50 border-red-200',        icon: '❌', title: ja ? 'アカウント停止中' : bn ? 'অ্যাকাউন্ট স্থগিত' : 'Account Suspended', desc: ja ? 'サポートにお問い合わせください。' : bn ? 'সাপোর্টে যোগাযোগ করুন।' : 'Contact support for assistance.' },
   };
 
   const banner = status ? STATUS_BANNER[status] : null;
@@ -156,18 +181,34 @@ export default function InstitutionProfilePage() {
 
       {/* Status banner */}
       {banner && (
-        <div className={`rounded-2xl border p-4 mb-6 flex items-start gap-3 ${banner.bg}`}>
+        <div className={`rounded-2xl border p-4 mb-5 flex items-start gap-3 ${banner.bg}`}>
           <span className="text-xl shrink-0">{banner.icon}</span>
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="font-bold text-sm text-slate-900">{banner.title}</p>
             <p className="text-xs text-slate-600 mt-0.5">{banner.desc}</p>
           </div>
+          {/* Show commission + verified date when active */}
+          {status === 'active' && (
+            <div className="shrink-0 text-right">
+              {data?.commission_percent > 0 && (
+                <div className="text-xs font-semibold text-emerald-700">
+                  {ja ? 'コミッション' : bn ? 'কমিশন' : 'Commission'}: {data.commission_percent}%
+                </div>
+              )}
+              {data?.verified_at && (
+                <div className="text-xs text-slate-400 mt-0.5">
+                  {ja ? '承認日' : bn ? 'অনুমোদনের তারিখ' : 'Verified'}:{' '}
+                  {new Date(data.verified_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
       {/* No profile yet */}
       {!data && (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
+        <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 mb-5 flex items-start gap-3">
           <span className="text-xl">🏫</span>
           <div>
             <p className="font-bold text-sm text-slate-900">
@@ -182,6 +223,43 @@ export default function InstitutionProfilePage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
 
+        {/* Logo Upload */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3 mb-4">
+            {ja ? '機関ロゴ' : bn ? 'প্রতিষ্ঠানের লোগো' : 'Institution Logo'}
+          </h3>
+          <div className="flex items-center gap-4">
+            {/* Preview */}
+            <div className="w-20 h-20 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
+              {logoPreview
+                ? <img src={logoPreview} alt="Logo" className="w-full h-full object-contain" />
+                : <span className="text-3xl">🏫</span>
+              }
+            </div>
+            <div className="flex-1 min-w-0">
+              {!isLocked ? (
+                <>
+                  <button type="button" onClick={() => logoInputRef.current?.click()}
+                    className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-indigo-300 transition-colors">
+                    {logoPreview
+                      ? (ja ? 'ロゴを変更' : bn ? 'লোগো পরিবর্তন করুন' : 'Change Logo')
+                      : (ja ? 'ロゴをアップロード' : bn ? 'লোগো আপলোড করুন' : 'Upload Logo')}
+                  </button>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {ja ? 'JPG、PNG、WEBP・最大2MB' : bn ? 'JPG, PNG, WEBP · সর্বোচ্চ ২MB' : 'JPG, PNG, WEBP · max 2MB'}
+                  </p>
+                  <input ref={logoInputRef} type="file" accept="image/jpg,image/jpeg,image/png,image/webp"
+                    className="hidden" onChange={handleLogoChange} />
+                </>
+              ) : (
+                <p className="text-xs text-slate-400">
+                  {ja ? 'プロフィール承認後はロゴを変更できません。' : bn ? 'অনুমোদনের পর লোগো পরিবর্তন করা যাবে না।' : 'Logo cannot be changed after approval.'}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Basic Info */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3 mb-4">
@@ -192,19 +270,24 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '機関名 (英語)' : bn ? 'প্রতিষ্ঠানের নাম (ইংরেজি)' : 'Institution Name (English)'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls} placeholder="e.g. Tokyo Language Academy" value={form.institution_name} onChange={e => set('institution_name', e.target.value)} required />
+              <input className={inputCls()} placeholder="e.g. Tokyo Language Academy"
+                value={form.institution_name} onChange={e => set('institution_name', e.target.value)}
+                required disabled={isLocked} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '機関名 (現地語)' : bn ? 'প্রতিষ্ঠানের নাম (স্থানীয় ভাষায়)' : 'Institution Name (Local)'}
               </label>
-              <input className={inputCls} placeholder="東京語学院" value={form.institution_name_local} onChange={e => set('institution_name_local', e.target.value)} />
+              <input className={inputCls()} placeholder="東京語学院"
+                value={form.institution_name_local} onChange={e => set('institution_name_local', e.target.value)}
+                disabled={isLocked} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '機関タイプ' : bn ? 'প্রতিষ্ঠানের ধরন' : 'Institution Type'}
               </label>
-              <select className={inputCls} value={form.institution_type} onChange={e => set('institution_type', e.target.value)}>
+              <select className={inputCls()} value={form.institution_type}
+                onChange={e => set('institution_type', e.target.value)} disabled={isLocked}>
                 <option value="university">{ja ? '大学' : bn ? 'বিশ্ববিদ্যালয়' : 'University'}</option>
                 <option value="college">{ja ? '短大・専門大学院' : bn ? 'কলেজ' : 'College'}</option>
                 <option value="language_school">{ja ? '語学学校' : bn ? 'ভাষা শিক্ষালয়' : 'Language School'}</option>
@@ -216,33 +299,42 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '国' : bn ? 'দেশ' : 'Country'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls} placeholder="Japan" value={form.country} onChange={e => set('country', e.target.value)} required />
+              <input className={inputCls()} placeholder="Japan"
+                value={form.country} onChange={e => set('country', e.target.value)}
+                required disabled={isLocked} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '市区町村' : bn ? 'শহর' : 'City'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls} placeholder="e.g. Tokyo" value={form.city} onChange={e => set('city', e.target.value)} required />
+              <input className={inputCls()} placeholder="e.g. Tokyo"
+                value={form.city} onChange={e => set('city', e.target.value)}
+                required disabled={isLocked} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? 'ウェブサイト' : bn ? 'ওয়েবসাইট' : 'Website'}
               </label>
-              <input className={inputCls} type="url" placeholder="https://" value={form.website} onChange={e => set('website', e.target.value)} />
+              <input className={inputCls()} type="url" placeholder="https://"
+                value={form.website} onChange={e => set('website', e.target.value)}
+                disabled={isLocked} />
             </div>
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '住所' : bn ? 'ঠিকানা' : 'Address'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls} placeholder="Full address" value={form.address} onChange={e => set('address', e.target.value)} required />
+              <input className={inputCls()} placeholder="Full address"
+                value={form.address} onChange={e => set('address', e.target.value)}
+                required disabled={isLocked} />
             </div>
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '説明' : bn ? 'বিবরণ' : 'Description'}
               </label>
-              <textarea className={`${inputCls} resize-none`} rows={3}
+              <textarea className={`${inputCls()} resize-none`} rows={3}
                 placeholder={ja ? '機関について説明してください...' : bn ? 'প্রতিষ্ঠান সম্পর্কে বলুন...' : 'Describe your institution...'}
-                value={form.description} onChange={e => set('description', e.target.value)} />
+                value={form.description} onChange={e => set('description', e.target.value)}
+                disabled={isLocked} />
             </div>
           </div>
         </div>
@@ -256,10 +348,15 @@ export default function InstitutionProfilePage() {
             {MONTHS.map(m => (
               <button key={m.value} type="button"
                 onClick={() => toggleMonth(m.value)}
+                disabled={isLocked}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  form.intake_months.includes(m.value)
-                    ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'border-slate-200 text-slate-600 hover:border-indigo-300'
+                  isLocked
+                    ? form.intake_months.includes(m.value)
+                      ? 'bg-slate-200 text-slate-500 border-slate-200 cursor-not-allowed'
+                      : 'border-slate-100 text-slate-300 cursor-not-allowed'
+                    : form.intake_months.includes(m.value)
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'border-slate-200 text-slate-600 hover:border-indigo-300'
                 }`}
               >{ja ? m.ja : bn ? m.bn : m.en}</button>
             ))}
@@ -275,10 +372,15 @@ export default function InstitutionProfilePage() {
             {QUALIFICATIONS.map(q => (
               <button key={q} type="button"
                 onClick={() => toggleQual(q)}
+                disabled={isLocked}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  form.accepted_qualifications.includes(q)
-                    ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'border-slate-200 text-slate-600 hover:border-indigo-300'
+                  isLocked
+                    ? form.accepted_qualifications.includes(q)
+                      ? 'bg-slate-200 text-slate-500 border-slate-200 cursor-not-allowed'
+                      : 'border-slate-100 text-slate-300 cursor-not-allowed'
+                    : form.accepted_qualifications.includes(q)
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'border-slate-200 text-slate-600 hover:border-indigo-300'
                 }`}
               >{q}</button>
             ))}
@@ -295,7 +397,8 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '必要なJLPTレベル' : bn ? 'প্রয়োজনীয় JLPT' : 'Minimum JLPT Level'}
               </label>
-              <select className={inputCls} value={form.required_jlpt} onChange={e => set('required_jlpt', e.target.value)}>
+              <select className={inputCls()} value={form.required_jlpt}
+                onChange={e => set('required_jlpt', e.target.value)} disabled={isLocked}>
                 <option value="">{ja ? '不問' : bn ? 'যেকোনো' : 'Not required'}</option>
                 {['N1','N2','N3','N4','N5'].map(l => <option key={l} value={l}>{l}</option>)}
               </select>
@@ -304,7 +407,8 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '必要なNATレベル' : bn ? 'প্রয়োজনীয় NAT' : 'Minimum NAT Level'}
               </label>
-              <select className={inputCls} value={form.required_nat} onChange={e => set('required_nat', e.target.value)}>
+              <select className={inputCls()} value={form.required_nat}
+                onChange={e => set('required_nat', e.target.value)} disabled={isLocked}>
                 <option value="">{ja ? '不問' : bn ? 'যেকোনো' : 'Not required'}</option>
                 {['1','2','3','4','5'].map(l => <option key={l} value={l}>NAT {l}</option>)}
               </select>
@@ -322,21 +426,24 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '最低学費' : bn ? 'সর্বনিম্ন ফি' : 'Min Fee'}
               </label>
-              <input className={inputCls} type="number" min="0" placeholder="0"
-                value={form.tuition_fee_min} onChange={e => set('tuition_fee_min', e.target.value)} />
+              <input className={inputCls()} type="number" min="0" placeholder="0"
+                value={form.tuition_fee_min} onChange={e => set('tuition_fee_min', e.target.value)}
+                disabled={isLocked} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '最高学費' : bn ? 'সর্বোচ্চ ফি' : 'Max Fee'}
               </label>
-              <input className={inputCls} type="number" min="0" placeholder="0"
-                value={form.tuition_fee_max} onChange={e => set('tuition_fee_max', e.target.value)} />
+              <input className={inputCls()} type="number" min="0" placeholder="0"
+                value={form.tuition_fee_max} onChange={e => set('tuition_fee_max', e.target.value)}
+                disabled={isLocked} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '通貨' : bn ? 'মুদ্রা' : 'Currency'}
               </label>
-              <select className={inputCls} value={form.currency} onChange={e => set('currency', e.target.value)}>
+              <select className={inputCls()} value={form.currency}
+                onChange={e => set('currency', e.target.value)} disabled={isLocked}>
                 <option value="JPY">JPY</option>
                 <option value="USD">USD</option>
                 <option value="BDT">BDT</option>
@@ -347,7 +454,7 @@ export default function InstitutionProfilePage() {
           </div>
         </div>
 
-        {/* Save */}
+        {/* Feedback */}
         {error && (
           <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
             <span className="shrink-0">⚠️</span> {error}
@@ -360,14 +467,20 @@ export default function InstitutionProfilePage() {
           </div>
         )}
 
-        {status !== 'active' && (
+        {isLocked ? (
+          <div className="w-full py-3.5 rounded-xl text-sm font-bold text-center bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed select-none">
+            🔒 {ja ? 'プロフィールはロックされています' : bn ? 'প্রোফাইল লক করা আছে' : 'Profile Locked — Contact support to update'}
+          </div>
+        ) : (
           <button type="submit" disabled={mutation.isPending}
             className={`w-full py-3.5 rounded-xl text-sm font-bold transition-all ${
               mutation.isPending ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-indigo-700 hover:bg-indigo-800 text-white shadow-sm'
             }`}>
             {mutation.isPending
               ? (ja ? '保存中...' : bn ? 'সংরক্ষণ হচ্ছে...' : 'Saving...')
-              : (data ? (ja ? 'プロフィールを更新' : bn ? 'প্রোফাইল আপডেট করুন' : 'Update & Resubmit') : (ja ? 'プロフィールを提出' : bn ? 'প্রোফাইল জমা দিন' : 'Submit Profile for Review'))}
+              : data
+                ? (ja ? 'プロフィールを更新' : bn ? 'প্রোফাইল আপডেট করুন' : 'Update & Resubmit')
+                : (ja ? 'プロフィールを提出' : bn ? 'প্রোফাইল জমা দিন' : 'Submit Profile for Review')}
           </button>
         )}
       </form>
