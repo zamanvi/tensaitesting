@@ -32,11 +32,14 @@ class GalleryItemResource extends Resource
 
                 Forms\Components\Select::make('category')
                     ->options([
-                        'success_story' => '🎓 Success Story',
-                        'event'         => '🎉 Event',
-                        'campus'        => '🏛️ Campus',
-                        'student_life'  => '👩‍🎓 Student Life',
-                        'milestone'     => '🏆 Milestone',
+                        'students'   => '🎓 Students',
+                        'japan'      => '🇯🇵 Japan',
+                        'milestones' => '🏆 Milestones',
+                        'agencies'   => '🏢 Agencies',
+                        'events'     => '🎉 Events',
+                        'docs'       => '📄 Docs',
+                        'departures' => '✈️ Departures',
+                        'institutes' => '🏫 Institutes',
                     ])
                     ->required(),
 
@@ -126,14 +129,16 @@ class GalleryItemResource extends Resource
                 Tables\Columns\TextColumn::make('category')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'success_story' => 'success',
-                        'event'         => 'warning',
-                        'campus'        => 'info',
-                        'student_life'  => 'primary',
-                        'milestone'     => 'danger',
-                        default         => 'gray',
+                        'students'   => 'success',
+                        'japan'      => 'danger',
+                        'milestones' => 'warning',
+                        'agencies'   => 'primary',
+                        'events'     => 'info',
+                        'departures' => 'success',
+                        'institutes' => 'primary',
+                        default      => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state) => ucwords(str_replace('_', ' ', $state))),
+                    ->formatStateUsing(fn (string $state) => ucfirst($state)),
 
                 Tables\Columns\IconColumn::make('is_featured')
                     ->label('Featured')
@@ -155,11 +160,14 @@ class GalleryItemResource extends Resource
             ->filters([
                 SelectFilter::make('category')
                     ->options([
-                        'success_story' => 'Success Story',
-                        'event'         => 'Event',
-                        'campus'        => 'Campus',
-                        'student_life'  => 'Student Life',
-                        'milestone'     => 'Milestone',
+                        'students'   => 'Students',
+                        'japan'      => 'Japan',
+                        'milestones' => 'Milestones',
+                        'agencies'   => 'Agencies',
+                        'events'     => 'Events',
+                        'docs'       => 'Docs',
+                        'departures' => 'Departures',
+                        'institutes' => 'Institutes',
                     ]),
                 TernaryFilter::make('is_featured')->label('Featured'),
                 TernaryFilter::make('is_active')->label('Active'),
