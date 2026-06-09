@@ -5,7 +5,6 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
-import StudentInfoForm from '@/components/student/StudentInfoForm';
 
 interface OcrJob {
   id: number;
@@ -571,27 +570,27 @@ export default function DocumentsPage() {
         )}
       </div>
 
-      {/* ── Submit Your All Info ── */}
-      <div className="mt-8">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center text-lg shrink-0">📋</div>
+      {/* CTA banner to info form */}
+      <div className="mt-8 bg-green-50 border border-green-200 rounded-2xl p-5 flex items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center text-lg shrink-0">📋</div>
           <div>
-            <h2 className="font-bold text-slate-900 text-base">
+            <p className="font-bold text-sm text-slate-900">
               {lang === 'bn' ? 'আপনার সকল তথ্য জমা দিন' : lang === 'ja' ? '全情報を提出する' : 'Submit Your All Info'}
-            </h2>
-            <p className="text-xs text-slate-400 mt-0.5">
+            </p>
+            <p className="text-xs text-slate-500 mt-0.5">
               {lang === 'bn'
                 ? 'ব্যক্তিগত, পারিবারিক, ঠিকানা, শিক্ষা ও স্পনসরের তথ্য পূরণ করুন।'
                 : lang === 'ja'
                 ? '個人・家族・住所・学歴・保証人の情報を入力してください。'
-                : 'Fill in your personal, family, address, educational background and sponsor details.'}
+                : 'Fill in your personal, family, address, education and sponsor details.'}
             </p>
           </div>
         </div>
-        <StudentInfoForm
-          initialProfile={data?.profile ?? undefined}
-          onSaved={() => refetch()}
-        />
+        <a href="/dashboard/student/profile/info"
+          className="shrink-0 px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-xl transition-colors whitespace-nowrap">
+          {lang === 'bn' ? 'তথ্য দিন →' : lang === 'ja' ? '入力する →' : 'Fill In →'}
+        </a>
       </div>
 
     </DashboardLayout>
