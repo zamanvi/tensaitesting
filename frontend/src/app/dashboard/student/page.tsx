@@ -67,12 +67,18 @@ export default function StudentDashboard() {
           />
         </div>
         <div className="space-y-2 sm:space-y-3">
-          {STEPS.map((step) => (
-            <Link key={step.label} href={step.href}
+          {STEPS.map((step, i) => (
+            <Link key={i} href={step.href}
               className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border border-slate-100 rounded-xl hover:border-green-200 transition-colors group"
             >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-base sm:text-lg group-hover:bg-green-50 shrink-0">
-                {step.icon}
+              {/* Step number badge */}
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-base sm:text-lg group-hover:bg-green-50">
+                  {step.icon}
+                </div>
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green-600 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                  {i + 1}
+                </span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-slate-900 text-sm">{step.label}</div>
