@@ -1,5 +1,6 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentInfoForm from '@/components/student/StudentInfoForm';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -484,6 +485,29 @@ export default function DocumentsPage() {
 
           <p className="text-xs text-slate-400 text-center">{sd.uploadHint}</p>
         </div>
+      </div>
+
+      {/* ── Fill-up Info ── */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center text-base shrink-0">📋</div>
+          <div>
+            <h2 className="font-bold text-slate-900 text-sm">
+              {lang === 'bn' ? 'তথ্য পূরণ করুন' : lang === 'ja' ? '情報を入力する' : 'Fill-up Info'}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {lang === 'bn'
+                ? 'ব্যক্তিগত, পারিবারিক, ঠিকানা, শিক্ষা ও স্পনসরের তথ্য পূরণ করুন।'
+                : lang === 'ja'
+                ? '個人・家族・住所・学歴・保証人の情報を入力してください。'
+                : 'Fill in your personal, family, address, educational background and sponsor details.'}
+            </p>
+          </div>
+        </div>
+        <StudentInfoForm
+          initialProfile={data?.profile ?? undefined}
+          onSaved={() => refetch()}
+        />
       </div>
 
       {/* Uploaded documents */}
