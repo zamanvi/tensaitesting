@@ -106,7 +106,7 @@ class InterviewController extends Controller
             'arranged_by' => $request->user()->id,
         ]);
 
-        $interview->lead->update(['status' => 'interview_scheduled']);
+        $interview->lead?->update(['status' => 'interview_scheduled']);
 
         // Create confirmation contact paper
         ContactPaper::create([

@@ -40,7 +40,7 @@ export default function AdminGalleryPage() {
   const isAdmin = user?.roles?.some((r: string) => r === 'admin' || r === 'super_admin');
 
   useEffect(() => {
-    if (user && !isAdmin) router.replace('/dashboard');
+    if (user && !isAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isAdmin, router]);
 
   const { data: items = [], isLoading } = useQuery<GalleryItem[]>({

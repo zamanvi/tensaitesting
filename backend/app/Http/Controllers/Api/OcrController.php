@@ -32,8 +32,8 @@ class OcrController extends Controller
             return response()->json(['message' => 'Student profile not found.'], 404);
         }
 
-        // Choose disk: R2 if credentials configured, otherwise local
-        $disk     = config('filesystems.disks.r2.key') ? 'r2' : 'local';
+        // Choose disk based on environment
+        $disk     = app()->environment('production') ? 'r2' : 'public';
         $uploaded = $request->file('file');
         $mime     = $uploaded->getMimeType();
         $folder   = "ocr/{$user->id}/{$request->document_type}";

@@ -33,9 +33,10 @@ class HelpRequestResource extends Resource
         return $form->schema([
             Forms\Components\Select::make('status')
                 ->options([
-                    'pending'   => 'Pending',
-                    'contacted' => 'Contacted',
-                    'resolved'  => 'Resolved',
+                    'pending'     => 'Pending',
+                    'in_progress' => 'In Progress',
+                    'contacted'   => 'Contacted',
+                    'resolved'    => 'Resolved',
                 ])->required(),
             Forms\Components\Textarea::make('note')->label('Admin Note')->rows(3),
             Forms\Components\DateTimePicker::make('contacted_at')->label('Contacted At'),

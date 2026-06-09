@@ -198,7 +198,7 @@ export default function DocumentsPage() {
       const form = new FormData();
       form.append('file', compressed);
       form.append('document_type', docType);
-      const token = localStorage.getItem('tensai_token');
+      const token = useAuthStore.getState().token ?? localStorage.getItem('tensai_token');
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
       const res = await fetch(`${baseUrl}/student/ocr/upload`, {
         method: 'POST',

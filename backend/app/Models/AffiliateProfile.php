@@ -36,6 +36,14 @@ class AffiliateProfile extends Model
         'local_commission_fixed',
         'global_commission_percent',
         'commission_percent',
+
+        // Denormalized counters (updated by syncEntityCounts)
+        'total_earned',
+        'pending_payout',
+        'total_referrals',
+        'converted_referrals',
+        'managed_institutions_count',
+        'managed_employees_count',
     ];
 
     protected $casts = [

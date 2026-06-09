@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
@@ -16,13 +16,16 @@ const EMPTY_FORM = {
 };
 
 export default function AgencyDashboard() {
-  const { t } = useLang();
+  const { t, lang } = useLang();      // lang here — not after the guard
   const a = t.agencyDash;
+  const ja = lang === 'ja';
+  const bn = lang === 'bn';
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
   const router = useRouter();
   const isAgency = user?.gateway_type === 'agency';
 
+  // All hooks BEFORE any conditional return
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState('');
@@ -41,7 +44,12 @@ export default function AgencyDashboard() {
     ],
   });
 
-  if (!isAgency) { router.replace(`/dashboard/${user?.gateway_type ?? ''}`); return null; }
+  useEffect(() => {
+    if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
+  }, [user, isAgency, router]);
+
+  if (!user) return null;
+  if (!isAgency) return null;
 
   const vaultLeads: Lead[] = Array.isArray(vaultQ.data?.data) ? vaultQ.data.data : Array.isArray(vaultQ.data) ? vaultQ.data : [];
   const poolLeads: Lead[] = Array.isArray(poolQ.data?.data) ? poolQ.data.data : Array.isArray(poolQ.data) ? poolQ.data : [];
@@ -92,10 +100,6 @@ export default function AgencyDashboard() {
     { title: a.forwardTitle, desc: a.forwardDesc },
     { title: a.referralTitle, desc: a.referralDesc },
   ];
-
-  const { lang } = useLang();
-  const ja = lang === 'ja';
-  const bn = lang === 'bn';
 
   // Profile status banner config
   const profileBanners: Record<string, { bg: string; icon: string; title: string; desc: string; cta?: string }> = {

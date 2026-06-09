@@ -116,8 +116,10 @@ class InstitutionController extends Controller
             return response()->json(['message' => 'You have already sent a contact request for this student.'], 409);
         }
 
-        // Find admin to notify (first super_admin)
-        $admin = User::role('super_admin')->first() ?? User::role('admin')->first();
+        // Find admin to notify (first super_admin, fallback to platform_admin_id config)
+        $adminId = User::role('super_admin')->value('id')
+            ?? User::role('admin')->value('id')
+            ?? (int) config('app.platform_admin_id', 1);
 
         $courseInfo = $validated['proposed_course']
             ? " | Proposed course: {$validated['proposed_course']}"
@@ -131,7 +133,7 @@ class InstitutionController extends Controller
             'lead_id'          => $lead->id,
             'type'             => 'institution_contact_request',
             'from_user_id'     => $institution->id,
-            'to_user_id'       => $admin?->id ?? $institution->id,
+            'to_user_id'       => $adminId,
             'subject'          => "Contact Request from {$institution->name} for Lead {$lead->lead_code}",
             'body'             => $validated['message'] . $courseInfo . $intakeInfo,
         ]);

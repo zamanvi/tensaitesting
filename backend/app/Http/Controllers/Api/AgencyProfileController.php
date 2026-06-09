@@ -40,7 +40,7 @@ class AgencyProfileController extends Controller
 
         $user    = $request->user();
         $profile = $user->agencyProfile;
-        $disk    = config('filesystems.disks.r2.key') ? 'r2' : 'public';
+        $disk    = app()->environment('production') ? 'r2' : 'public';
 
         $data = $request->only([
             'agency_name', 'agency_name_bn', 'contact_person_name',

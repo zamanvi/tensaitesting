@@ -25,13 +25,17 @@ class AffiliateResource extends Resource
         return $form->schema([
 
             Forms\Components\Section::make('Affiliate Identity')->schema([
-                Forms\Components\TextInput::make('user.name')
+                Forms\Components\TextInput::make('user_name_display')
                     ->label('Name')
-                    ->disabled(),
+                    ->getStateUsing(fn ($record) => $record?->user?->name)
+                    ->disabled()
+                    ->dehydrated(false),
 
-                Forms\Components\TextInput::make('user.email')
+                Forms\Components\TextInput::make('user_email_display')
                     ->label('Email')
-                    ->disabled(),
+                    ->getStateUsing(fn ($record) => $record?->user?->email)
+                    ->disabled()
+                    ->dehydrated(false),
 
                 Forms\Components\Select::make('affiliate_type')
                     ->label('Affiliate Type')

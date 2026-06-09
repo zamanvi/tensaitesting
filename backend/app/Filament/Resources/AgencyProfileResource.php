@@ -41,9 +41,10 @@ class AgencyProfileResource extends Resource
             Forms\Components\Section::make('Vetting')->schema([
                 Forms\Components\Select::make('vetting_status')
                     ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
+                        'pending'      => 'Pending',
+                        'under_review' => 'Under Review',
+                        'approved'     => 'Approved',
+                        'rejected'     => 'Rejected',
                     ])->required(),
                 Forms\Components\TextInput::make('slot_number')->numeric()->disabled(),
                 Forms\Components\Textarea::make('rejection_reason')->rows(3),
@@ -84,9 +85,10 @@ class AgencyProfileResource extends Resource
                     ->action(function (AgencyProfile $record) {
                         $nextSlot = AgencyProfile::where('vetting_status', 'approved')->max('slot_number') + 1;
                         $record->update([
-                            'vetting_status' => 'approved',
-                            'slot_number' => $nextSlot,
-                            'approved_at' => now(),
+                            'vetting_status'   => 'approved',
+                            'slot_number'      => $nextSlot,
+                            'approved_at'      => now(),
+                            'approved_by'      => auth()->id(),
                             'rejection_reason' => null,
                         ]);
                         $record->user->update(['status' => 'active']);
