@@ -136,7 +136,6 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
   // Personal
   const [applicantName, setApplicantName] = useState<string>((initialProfile?.applicant_name as string) ?? '');
   const [bloodGroup, setBloodGroup]       = useState<string>((initialProfile?.blood_group as string) ?? '');
-  const [dob, setDob]                     = useState<string>((initialProfile?.date_of_birth as string) ?? '');
   const [mobile, setMobile]               = useState<string>((initialProfile?.mobile_number as string) ?? '');
   const [whatsapp, setWhatsapp]           = useState<string>((initialProfile?.whatsapp_number as string) ?? '');
 
@@ -206,7 +205,6 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
       await api.put('/student/profile', {
         applicant_name: applicantName || null,
         blood_group: bloodGroup || null,
-        date_of_birth: dob || null,
         mobile_number: mobile || null,
         whatsapp_number: whatsapp || null,
         family_info: family,
@@ -259,9 +257,6 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
               ))}
             </select>
           </Field>
-          <Field label="Date of Birth">
-            <input type="date" className={inputCls} value={dob} onChange={e => setDob(e.target.value)} />
-          </Field>
           <Field label="Mobile Number" required>
             <PhoneInput value={mobile} onChange={setMobile} id="student-mobile" />
           </Field>
@@ -271,10 +266,10 @@ export default function StudentInfoForm({ initialProfile, onSaved }: Props) {
         </div>
         <p className="text-xs text-slate-400 mt-3">
           {lang === 'bn'
-            ? 'নাম ও ইমেইল প্রোফাইল পেইজে আপডেট করুন।'
+            ? 'নাম, ইমেইল ও জন্ম তারিখ প্রোফাইল পেইজে আপডেট করুন।'
             : lang === 'ja'
-            ? '氏名・メールアドレスはプロフィールページで更新できます。'
-            : 'Name and Email are managed from your Profile page.'}
+            ? '氏名・メールアドレス・生年月日はプロフィールページで更新できます。'
+            : 'Name, Email and Date of Birth are managed from your Profile page.'}
         </p>
       </div>
 

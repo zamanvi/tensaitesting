@@ -24,17 +24,6 @@ const STATUS_CONFIG: Record<string, { color: string; icon: string }> = {
   manually_approved:{ color: 'bg-purple-100 text-purple-700',  icon: '✓' },
 };
 
-const DOC_ICONS: Record<string, string> = {
-  passport: '📕', nid_student: '🪪', birth_certificate_student: '📜',
-  student_photo: '📷', sponsor_photo: '📷', father_birth_certificate: '📜',
-  father_nid: '🪪', mother_birth_certificate: '📜', mother_nid: '🪪',
-  ssc_certificate: '🎓', ssc_marksheet: '📊', hsc_certificate: '🎓',
-  hsc_marksheet: '📊', degree_certificate: '🎓', transcript: '📊',
-  jlpt_certificate: '🗾', jlpt_marksheet: '📊', nat_certificate: '🗾',
-  nat_marksheet: '📊', ielts_certificate: '🌐',
-};
-
-// Fallback for unsupported emoji
 const SAFE_DOC_ICONS: Record<string, string> = {
   passport: '📕', nid_student: '📋', birth_certificate_student: '📄',
   student_photo: '📸', sponsor_photo: '📸', father_birth_certificate: '📄',
