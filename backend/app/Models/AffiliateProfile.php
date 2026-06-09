@@ -29,6 +29,9 @@ class AffiliateProfile extends Model
         'bank_name', 'bank_account_number', 'bank_account_name',
         'bkash_number', 'nagad_number',
 
+        // Status
+        'status',
+
         // Commission rates (set by admin)
         'local_commission_fixed',
         'global_commission_percent',
