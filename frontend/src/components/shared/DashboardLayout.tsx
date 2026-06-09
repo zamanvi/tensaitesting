@@ -54,7 +54,7 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: t.nav.profile, href: '/dashboard/student/profile' },
       { label: t.nav.applications, href: '/dashboard/student/leads' },
       { label: t.nav.documents, href: '/dashboard/student/profile/documents' },
-      { label: lang === 'ja' ? '全情報提出' : lang === 'bn' ? 'সকল তথ্য' : 'All Info', href: '/dashboard/student/profile/info' },
+      { label: lang === 'ja' ? '情報入力' : lang === 'bn' ? 'তথ্য পূরণ' : 'Fill-up Info', href: '/dashboard/student/profile/info' },
       { label: t.nav.interviews, href: '/dashboard/student/interviews' },
     ],
     agency: [
