@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface GalleryItem {
   id: number;
@@ -25,34 +25,40 @@ const blank = { title: '', description: '', category: 'students', image_url: '',
 
 export default function AdminGalleryPage() {
   const { user } = useAuthStore();
-  const router    = useRouter();
-  const qc        = useQueryClient();
+  const router   = useRouter();
+  const qc       = useQueryClient();
 
-  const isAdmin = user?.roles?.some(r => r === 'admin' || r === 'super_admin');
-  if (user && !isAdmin) { router.replace('/dashboard'); return null; }
+  // ── All hooks MUST be declared before any conditional return ──
+  const [modal, setModal]     = useState<'add' | 'edit' | null>(null);
+  const [editing, setEditing] = useState<GalleryItem | null>(null);
+  const [form, setForm]       = useState(blank);
+  const [file, setFile]       = useState<File | null>(null);
+  const [preview, setPreview] = useState<string>('');
+  const [formErr, setFormErr] = useState('');
+  const fileRef               = useRef<HTMLInputElement>(null);
 
-  const [modal, setModal]       = useState<'add' | 'edit' | null>(null);
-  const [editing, setEditing]   = useState<GalleryItem | null>(null);
-  const [form, setForm]         = useState(blank);
-  const [file, setFile]         = useState<File | null>(null);
-  const [preview, setPreview]   = useState<string>('');
-  const [formErr, setFormErr]   = useState('');
-  const fileRef                 = useRef<HTMLInputElement>(null);
+  const isAdmin = user?.roles?.some((r: string) => r === 'admin' || r === 'super_admin');
+
+  useEffect(() => {
+    if (user && !isAdmin) router.replace('/dashboard');
+  }, [user, isAdmin, router]);
 
   const { data: items = [], isLoading } = useQuery<GalleryItem[]>({
     queryKey: ['admin-gallery'],
     queryFn: () => api.get('/admin/gallery').then(r => r.data),
+    enabled: !!isAdmin,
   });
 
   const save = useMutation({
-    // Let Axios auto-set Content-Type with boundary for FormData — do NOT set it manually
     mutationFn: (fd: FormData) => editing
-      ? api.post(`/admin/gallery/${editing.id}`, fd)
-      : api.post('/admin/gallery', fd),
+      ? api.post(`/admin/gallery/${editing.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      : api.post('/admin/gallery', fd, { headers: { 'Content-Type': 'multipart/form-data' } }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-gallery'] }); closeModal(); },
     onError: (e: unknown) => {
       const err = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
-      setFormErr(err.response?.data?.errors ? Object.values(err.response.data.errors).flat().join(' ') : err.response?.data?.message ?? 'Failed to save.');
+      setFormErr(err.response?.data?.errors
+        ? Object.values(err.response.data.errors).flat().join(' ')
+        : err.response?.data?.message ?? 'Failed to save.');
     },
   });
 
@@ -67,6 +73,10 @@ export default function AdminGalleryPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-gallery'] }),
   });
 
+  // ── Guard: don't render until we know the user ──
+  if (!user) return null;
+  if (!isAdmin) return null;
+
   function openAdd() {
     setEditing(null);
     setForm(blank);
@@ -79,13 +89,13 @@ export default function AdminGalleryPage() {
   function openEdit(item: GalleryItem) {
     setEditing(item);
     setForm({
-      title: item.title,
+      title:       item.title,
       description: item.description ?? '',
-      category: item.category,
-      image_url: item.image_url ?? '',
-      sort_order: item.sort_order,
+      category:    item.category,
+      image_url:   item.image_url ?? '',
+      sort_order:  item.sort_order,
       is_featured: item.is_featured,
-      is_active: item.is_active,
+      is_active:   item.is_active,
     });
     setFile(null);
     setPreview(item.display_image_url);
@@ -93,27 +103,42 @@ export default function AdminGalleryPage() {
     setModal('edit');
   }
 
-  function closeModal() { setModal(null); setEditing(null); setFile(null); setPreview(''); setFormErr(''); }
+  function closeModal() {
+    setModal(null);
+    setEditing(null);
+    setFile(null);
+    setPreview('');
+    setFormErr('');
+  }
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
     setFile(f);
     setPreview(URL.createObjectURL(f));
+    // Reset URL field when a file is picked
+    setForm(prev => ({ ...prev, image_url: '' }));
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormErr('');
+    if (!file && !form.image_url) {
+      setFormErr('Please upload an image or paste an image URL.');
+      return;
+    }
     const fd = new FormData();
-    fd.append('title', form.title);
-    fd.append('category', form.category);
-    if (form.description) fd.append('description', form.description);
-    if (form.image_url && !file) fd.append('image_url', form.image_url);
-    if (file) fd.append('image', file);
-    fd.append('sort_order', String(form.sort_order));
+    fd.append('title',       form.title);
+    fd.append('category',    form.category);
+    fd.append('sort_order',  String(form.sort_order));
     fd.append('is_featured', form.is_featured ? '1' : '0');
-    fd.append('is_active', form.is_active ? '1' : '0');
+    fd.append('is_active',   form.is_active   ? '1' : '0');
+    if (form.description) fd.append('description', form.description);
+    if (file) {
+      fd.append('image', file);
+    } else if (form.image_url) {
+      fd.append('image_url', form.image_url);
+    }
     save.mutate(fd);
   }
 
@@ -163,7 +188,7 @@ export default function AdminGalleryPage() {
               {/* Badges */}
               <div className="absolute top-2 left-2 flex gap-1">
                 {item.is_featured && <span className="text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full">★ Featured</span>}
-                {!item.is_active && <span className="text-[10px] font-bold bg-slate-600 text-white px-1.5 py-0.5 rounded-full">Hidden</span>}
+                {!item.is_active  && <span className="text-[10px] font-bold bg-slate-600 text-white px-1.5 py-0.5 rounded-full">Hidden</span>}
               </div>
 
               {/* Info + Actions */}
@@ -208,7 +233,9 @@ export default function AdminGalleryPage() {
 
                 {/* Image upload area */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Image</label>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                    Image <span className="text-red-400">*</span>
+                  </label>
                   <div
                     onClick={() => fileRef.current?.click()}
                     className="relative w-full aspect-video rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 hover:border-green-400 hover:bg-green-50 transition-all cursor-pointer flex items-center justify-center overflow-hidden"
@@ -220,7 +247,7 @@ export default function AdminGalleryPage() {
                       <div className="text-center">
                         <div className="text-3xl mb-2">📷</div>
                         <p className="text-xs text-slate-400">Click to upload image</p>
-                        <p className="text-[10px] text-slate-300 mt-1">JPG, PNG, WebP · max 5MB</p>
+                        <p className="text-[10px] text-slate-300 mt-1">JPG, PNG, WebP · max 8 MB</p>
                       </div>
                     )}
                     {preview && (
@@ -230,21 +257,36 @@ export default function AdminGalleryPage() {
                     )}
                   </div>
                   <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFile} />
+                  {file && (
+                    <p className="text-[11px] text-green-700 mt-1 font-medium">✓ {file.name} selected</p>
+                  )}
                 </div>
 
-                {/* Or paste URL */}
+                {/* Or paste URL — only when no file selected */}
                 {!file && (
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Or paste image URL</label>
-                    <input className={inputCls} type="url" placeholder="https://..." value={form.image_url}
-                      onChange={e => { setForm(f => ({ ...f, image_url: e.target.value })); setPreview(e.target.value); }} />
+                    <input className={inputCls} type="url" placeholder="https://..."
+                      value={form.image_url}
+                      onChange={e => {
+                        setForm(f => ({ ...f, image_url: e.target.value }));
+                        if (e.target.value) setPreview(e.target.value);
+                      }} />
                   </div>
+                )}
+
+                {/* Clear image button when editing and already has one */}
+                {file && (
+                  <button type="button" onClick={() => { setFile(null); setPreview(editing?.display_image_url ?? ''); }}
+                    className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+                    ✕ Remove selected file
+                  </button>
                 )}
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Title <span className="text-red-400">*</span></label>
-                  <input className={inputCls} required placeholder="e.g. Hana from Dhaka departed to Tokyo" value={form.title}
-                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                  <input className={inputCls} required placeholder="e.g. Hana from Dhaka departed to Tokyo"
+                    value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
                 </div>
 
                 <div>
@@ -269,12 +311,14 @@ export default function AdminGalleryPage() {
 
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={form.is_active} onChange={e => setForm(f => ({ ...f, is_active: e.target.checked }))}
+                    <input type="checkbox" checked={form.is_active}
+                      onChange={e => setForm(f => ({ ...f, is_active: e.target.checked }))}
                       className="w-4 h-4 accent-green-600" />
                     <span className="text-sm text-slate-700 font-medium">Active (visible)</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={form.is_featured} onChange={e => setForm(f => ({ ...f, is_featured: e.target.checked }))}
+                    <input type="checkbox" checked={form.is_featured}
+                      onChange={e => setForm(f => ({ ...f, is_featured: e.target.checked }))}
                       className="w-4 h-4 accent-amber-500" />
                     <span className="text-sm text-slate-700 font-medium">Featured</span>
                   </label>
