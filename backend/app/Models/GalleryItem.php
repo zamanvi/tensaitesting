@@ -26,7 +26,7 @@ class GalleryItem extends Model
     public function getDisplayImageUrlAttribute(): string
     {
         if ($this->image_path) {
-            $disk = config('filesystems.disks.r2.key') ? 'r2' : 'public';
+            $disk = app()->environment('production') ? 'r2' : 'public';
             return Storage::disk($disk)->url($this->image_path);
         }
         return $this->image_url ?? '';

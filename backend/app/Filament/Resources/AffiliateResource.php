@@ -16,7 +16,7 @@ class AffiliateResource extends Resource
 {
     protected static ?string $model = AffiliateProfile::class;
     protected static ?string $navigationIcon  = 'heroicon-o-user-group';
-    protected static ?string $navigationGroup = 'Users';
+    protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?string $navigationLabel = 'Affiliates';
     protected static ?int    $navigationSort  = 3;
 

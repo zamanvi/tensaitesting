@@ -57,7 +57,7 @@ class GalleryItemResource extends Resource
                     Forms\Components\FileUpload::make('image_path')
                         ->label('Upload Image from Computer')
                         ->image()
-                        ->disk('public')
+                        ->disk(fn () => app()->environment('production') ? 'r2' : 'public')
                         ->directory('gallery')
                         ->imageEditor()
                         ->imageEditorAspectRatios(['16:9', '4:3', '1:1'])
