@@ -20,6 +20,7 @@ class User extends Authenticatable implements FilamentUser
         'gateway_type', 'status', 'avatar',
         'affiliate_code', 'referred_by',
         'email_verification_code', 'email_verification_expires_at',
+        'branch_id',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -32,7 +33,12 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasRole(['admin', 'super_admin']);
+        return $this->hasRole(['admin', 'super_admin', 'branch_admin', 'branch_manager']);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function studentProfile()
