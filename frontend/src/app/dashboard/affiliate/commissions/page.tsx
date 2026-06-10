@@ -32,6 +32,14 @@ const STATUS_COLOR: Record<string, string> = {
   waived:   'bg-slate-100 text-slate-500',
 };
 
+const STATUS_LABEL: Record<string, { en: string; ja: string; bn: string }> = {
+  pending:  { en: 'Pending',  ja: '保留中',    bn: 'পেন্ডিং' },
+  due:      { en: 'Due',      ja: '支払い待ち', bn: 'বাকি' },
+  paid:     { en: 'Paid',     ja: '支払い済み', bn: 'পরিশোধিত' },
+  disputed: { en: 'Disputed', ja: '異議あり',   bn: 'বিতর্কিত' },
+  waived:   { en: 'Waived',   ja: '免除',       bn: 'মওকুফ' },
+};
+
 export default function CommissionsPage() {
   const { lang } = useLang();
   const ja = lang === 'ja'; const bn = lang === 'bn';
@@ -131,7 +139,7 @@ export default function CommissionsPage() {
                         ৳{Number(c.amount).toLocaleString()} {c.currency !== 'BDT' ? c.currency : ''}
                       </span>
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLOR[c.status] ?? 'bg-slate-100 text-slate-600'}`}>
-                        {c.status}
+                        {STATUS_LABEL[c.status]?.[lang as 'en'|'ja'|'bn'] ?? c.status}
                       </span>
                       {c.percent && (
                         <span className="text-xs text-slate-400">{c.percent}%</span>

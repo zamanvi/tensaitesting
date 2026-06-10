@@ -35,6 +35,13 @@ const STATUS_COLORS: Record<string, string> = {
   rejected:     'bg-red-100 text-red-700',
 };
 
+const VETTING_LABEL: Record<string, { en: string; ja: string; bn: string }> = {
+  pending:      { en: 'Pending',      ja: '審査待ち',   bn: 'পেন্ডিং' },
+  under_review: { en: 'Under Review', ja: '審査中',     bn: 'পর্যালোচনাধীন' },
+  approved:     { en: 'Approved',     ja: '承認済み',   bn: 'অনুমোদিত' },
+  rejected:     { en: 'Rejected',     ja: '却下',       bn: 'প্রত্যাখ্যাত' },
+};
+
 export default function AdminAgenciesPage() {
   const { user } = useAuthStore();
   const router = useRouter();
@@ -133,7 +140,7 @@ export default function AdminAgenciesPage() {
                       <span className="text-slate-500 text-sm">({agency.agency_name_bn})</span>
                     )}
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[agency.vetting_status]}`}>
-                      {agency.vetting_status.replace('_', ' ')}
+                      {VETTING_LABEL[agency.vetting_status]?.[lang as 'en'|'ja'|'bn'] ?? agency.vetting_status.replace('_', ' ')}
                     </span>
                     {agency.slot_number && (
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
