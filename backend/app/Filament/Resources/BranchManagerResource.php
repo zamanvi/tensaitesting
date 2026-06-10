@@ -73,7 +73,8 @@ class BranchManagerResource extends Resource
                         : Branch::where('is_active', true)->pluck('name', 'id'))
                     ->default(fn () => $isBranchAdmin ? $authUser->branch_id : null)
                     ->required()
-                    ->disabled(fn () => $isBranchAdmin),
+                    ->disabled(fn () => $isBranchAdmin)
+                    ->dehydrated(true),
 
                 Forms\Components\Select::make('status')
                     ->options(['active' => 'Active', 'suspended' => 'Suspended'])

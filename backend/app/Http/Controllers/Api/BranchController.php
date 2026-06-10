@@ -19,10 +19,7 @@ class BranchController extends Controller
             ->get(['id', 'name', 'slug', 'tagline', 'city', 'country',
                    'address', 'phone', 'email', 'whatsapp', 'logo', 'cover_image',
                    'stats', 'is_active', 'sort_order'])
-            ->map(fn ($b) => array_merge($b->toArray(), [
-                'logo_url'        => $b->logo_url,
-                'cover_image_url' => $b->cover_image_url,
-            ]));
+            ->map(fn ($b) => $b->toArray());
 
         return response()->json($branches);
     }
@@ -33,13 +30,11 @@ class BranchController extends Controller
         $branch = Branch::where('slug', $slug)->where('is_active', true)->firstOrFail();
 
         $data = array_merge($branch->toArray(), [
-            'logo_url'        => $branch->logo_url,
-            'cover_image_url' => $branch->cover_image_url,
-            'team'            => $branch->teamMembers()->where('is_active', true)->get()
-                ->map(fn ($m) => array_merge($m->toArray(), ['photo_url' => $m->photo_url])),
-            'gallery'         => $branch->galleryItems()->where('is_active', true)->get()
-                ->map(fn ($g) => array_merge($g->toArray(), ['display_image_url' => $g->display_image_url])),
-            'services'        => $branch->services()->where('is_active', true)->get(),
+            'team'    => $branch->teamMembers()->where('is_active', true)->get()
+                ->map(fn ($m) => $m->toArray()),
+            'gallery' => $branch->galleryItems()->where('is_active', true)->get()
+                ->map(fn ($g) => $g->toArray()),
+            'services' => $branch->services()->where('is_active', true)->get(),
         ]);
 
         return response()->json($data);
