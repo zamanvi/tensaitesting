@@ -1,7 +1,15 @@
 'use client';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+function AuthHydrator() {
+  useEffect(() => {
+    useAuthStore.persist.rehydrate();
+  }, []);
+  return null;
+}
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -10,7 +18,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>{children}</LanguageProvider>
+      <LanguageProvider>
+        <AuthHydrator />
+        {children}
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

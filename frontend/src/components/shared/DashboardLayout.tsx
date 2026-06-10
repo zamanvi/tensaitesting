@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 interface Props {
   children: React.ReactNode;
@@ -26,10 +26,7 @@ export default function DashboardLayout({ children, title }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    useAuthStore.persist.rehydrate();
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (mounted && !user) router.push('/auth/login'); }, [mounted, user, router]);
   useEffect(() => { setMenuOpen(false); setUserMenuOpen(false); }, [pathname]);
   useEffect(() => {
@@ -42,13 +39,7 @@ export default function DashboardLayout({ children, title }: Props) {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  if (!mounted || !user) return null;
-
-  const userInitial = user.name?.charAt(0).toUpperCase() ?? '?';
-
-  const isAdmin = user.roles?.some(r => r === 'admin' || r === 'super_admin') ?? false;
-
-  const NAV_LINKS: Record<string, { label: string; href: string }[]> = {
+  const NAV_LINKS: Record<string, { label: string; href: string }[]> = useMemo(() => ({
     admin: [
       { label: lang === 'ja' ? 'ギャラリー管理' : lang === 'bn' ? 'গ্যালারি ম্যানেজ' : 'Gallery', href: '/dashboard/admin/gallery' },
       { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার ম্যানেজ' : 'Users', href: '/dashboard/admin/users' },
@@ -94,8 +85,12 @@ export default function DashboardLayout({ children, title }: Props) {
         { label: lang === 'ja' ? 'グローバルへ' : lang === 'bn' ? 'আপগ্রেড' : 'Upgrade', href: '/dashboard/affiliate/upgrade' },
       ] : []),
     ],
-  };
+  }), [lang, t, affiliateType]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (!mounted || !user) return null;
+
+  const userInitial = user.name?.charAt(0).toUpperCase() ?? '?';
+  const isAdmin = user.roles?.some(r => r === 'admin' || r === 'super_admin') ?? false;
   const links = isAdmin ? NAV_LINKS.admin : (NAV_LINKS[user.gateway_type] ?? []);
 
   return (
