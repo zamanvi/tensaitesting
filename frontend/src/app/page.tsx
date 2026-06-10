@@ -23,6 +23,7 @@ export default function HomePage() {
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [galleryError, setGalleryError] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     setGalleryLoading(true);
@@ -222,33 +223,43 @@ export default function HomePage() {
             >
               {toggleLabel}
             </button>
-            <Link href="/about"   className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{navAbout}</Link>
-            <Link href="/team"    className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{navTeam}</Link>
-            <Link href="/gallery" className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{l.gallery}</Link>
+            <Link href="/about"    className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{navAbout}</Link>
+            <Link href="/team"     className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{navTeam}</Link>
+            <Link href="/gallery"  className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{l.gallery}</Link>
             <Link href="/branches" className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
-            {/* Social icons */}
-            <a href="https://www.facebook.com/TensaiConsultancyy" target="_blank" rel="noopener noreferrer" aria-label="Facebook"
-              className="hidden md:inline-flex items-center justify-center w-8 h-8 rounded-full text-white/45 hover:text-white hover:bg-white/[0.08] transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-              </svg>
-            </a>
-            <a href="https://www.youtube.com/@tensaiconsultancy7582" target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-              className="hidden md:inline-flex items-center justify-center w-8 h-8 rounded-full text-white/45 hover:text-white hover:bg-white/[0.08] transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
-                <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0d1117"/>
-              </svg>
-            </a>
-            <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5">{l.login}</Link>
+            <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5 hidden sm:inline">{l.login}</Link>
             <Link
               href="/auth/register"
-              className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
+              className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300 hidden sm:inline"
             >
               {l.getStarted}
             </Link>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileOpen(o => !o)}
+              className="md:hidden p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/[0.08] transition-all"
+              aria-label="Menu"
+            >
+              {mobileOpen
+                ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+              }
+            </button>
           </div>
         </div>
+        {/* Mobile menu dropdown */}
+        {mobileOpen && (
+          <div className="md:hidden bg-[#0d1117]/95 backdrop-blur-md border-t border-white/[0.08] px-4 py-4 flex flex-col gap-1">
+            <Link href="/about"    onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{navAbout}</Link>
+            <Link href="/team"     onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{navTeam}</Link>
+            <Link href="/gallery"  onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{l.gallery}</Link>
+            <Link href="/branches" onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <div className="border-t border-white/[0.08] mt-2 pt-3 flex gap-2">
+              <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-white/70 hover:text-white border border-white/10 hover:border-white/25 px-4 py-2.5 rounded-full transition-all">{l.login}</Link>
+              <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-full font-semibold transition-all">{l.getStarted}</Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       <main>

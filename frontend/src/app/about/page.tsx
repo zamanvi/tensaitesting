@@ -12,6 +12,7 @@ export default function AboutPage() {
   const bn = lang === 'bn';
 
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', fn);
@@ -122,18 +123,43 @@ export default function AboutPage() {
               {toggleLabel}
             </button>
             {/* Active page indicator */}
-            <Link href="/about"   className="text-sm font-semibold text-green-700 px-2 py-1 hidden md:inline border-b-2 border-green-600">{a.navAbout}</Link>
-            <Link href="/team"    className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navTeam}</Link>
-            <Link href="/gallery" className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navGallery}</Link>
-            <Link href="/auth/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors px-3 py-1.5">{l.login}</Link>
+            <Link href="/about"    className="text-sm font-semibold text-green-700 px-2 py-1 hidden md:inline border-b-2 border-green-600">{a.navAbout}</Link>
+            <Link href="/team"     className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navTeam}</Link>
+            <Link href="/gallery"  className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navGallery}</Link>
+            <Link href="/branches" className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <Link href="/auth/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors px-3 py-1.5 hidden sm:inline">{l.login}</Link>
             <Link
               href="/auth/register"
-              className="text-sm bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full font-semibold transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="text-sm bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full font-semibold transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 hidden sm:inline"
             >
               {l.getStarted}
             </Link>
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMobileOpen(o => !o)}
+              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all"
+              aria-label="Menu"
+            >
+              {mobileOpen
+                ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+              }
+            </button>
           </div>
         </div>
+        {/* Mobile menu dropdown */}
+        {mobileOpen && (
+          <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-slate-100 px-4 py-4 flex flex-col gap-1 shadow-lg">
+            <Link href="/about"    onClick={() => setMobileOpen(false)} className="text-sm font-semibold text-green-700 px-3 py-2.5 rounded-xl bg-green-50">{a.navAbout}</Link>
+            <Link href="/team"     onClick={() => setMobileOpen(false)} className="text-sm text-slate-600 hover:text-slate-900 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all">{a.navTeam}</Link>
+            <Link href="/gallery"  onClick={() => setMobileOpen(false)} className="text-sm text-slate-600 hover:text-slate-900 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all">{a.navGallery}</Link>
+            <Link href="/branches" onClick={() => setMobileOpen(false)} className="text-sm text-slate-600 hover:text-slate-900 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <div className="border-t border-slate-100 mt-2 pt-3 flex gap-2">
+              <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-full transition-all">{l.login}</Link>
+              <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-700 hover:bg-green-600 text-white px-4 py-2.5 rounded-full font-semibold transition-all">{l.getStarted}</Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       <main>
