@@ -17,7 +17,7 @@ class StudentProfile extends Model
         'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relation',
         'passport_number', 'passport_expiry', 'passport_document',
         'nid_number', 'nid_document', 'highest_qualification', 'gpa',
-        'institution_name', 'passing_year', 'jlpt_level', 'nat_level',
+        'institution_name', 'passing_year', 'jlpt_level', 'nat_level', 'eligibility_score',
         'ielts_score', 'language_documents', 'is_ocr_verified',
         'is_admin_verified', 'is_data_locked', 'ocr_status',
         'admin_notes', 'locked_at', 'locked_by',
@@ -44,6 +44,13 @@ class StudentProfile extends Model
         'gpa' => 'decimal:2',
         'ielts_score' => 'decimal:1',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (StudentProfile $profile) {
+            $profile->eligibility_score = $profile->eligibilityScore();
+        });
+    }
 
     public function user() { return $this->belongsTo(User::class); }
     public function locker() { return $this->belongsTo(User::class, 'locked_by'); }

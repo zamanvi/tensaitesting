@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\StudentProfileController;
 use App\Http\Controllers\Api\AgencyController;
@@ -59,6 +60,11 @@ Route::middleware('throttle:10,1')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
+
+    // Notifications (all authenticated users)
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
 
     // Student gateway
     Route::prefix('student')->middleware('role:student')->group(function () {

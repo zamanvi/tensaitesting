@@ -1,11 +1,22 @@
 ﻿'use client';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
-import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
+
+interface Notification {
+  id: number;
+  type: string;
+  title: string;
+  body: string;
+  action_url: string | null;
+  is_read: boolean;
+  created_at: string;
+}
 
 interface Props {
   children: React.ReactNode;
@@ -24,15 +35,35 @@ export default function DashboardLayout({ children, title }: Props) {
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const { data: notifData } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => api.get('/notifications').then(r => r.data),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    enabled: !!mounted,
+  });
+  const notifications: Notification[] = notifData?.notifications ?? [];
+  const unreadCount: number = notifData?.unread_count ?? 0;
+
+  const markAllRead = useMutation({
+    mutationFn: () => api.post('/notifications/read-all'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
+  });
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (mounted && !user) router.push('/auth/login'); }, [mounted, user, router]);
-  useEffect(() => { setMenuOpen(false); setUserMenuOpen(false); }, [pathname]);
+  useEffect(() => { setMenuOpen(false); setUserMenuOpen(false); setNotifOpen(false); }, [pathname]);
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClick);
@@ -127,7 +158,7 @@ export default function DashboardLayout({ children, title }: Props) {
             </div>
           </div>
 
-          {/* Right: lang toggle + user avatar + hamburger */}
+          {/* Right: lang toggle + notifications + user avatar + hamburger */}
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={toggle}
@@ -135,6 +166,61 @@ export default function DashboardLayout({ children, title }: Props) {
             >
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
+
+            {/* Notification bell */}
+            <div className="relative hidden sm:block" ref={notifRef}>
+              <button
+                onClick={() => { setNotifOpen(o => !o); if (!notifOpen && unreadCount > 0) markAllRead.mutate(); }}
+                className="relative p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+                aria-label={lang === 'ja' ? '通知' : lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
+              >
+                <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 bg-green-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl border border-slate-100 shadow-xl overflow-hidden z-30">
+                  <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-slate-900">
+                      {lang === 'ja' ? '通知' : lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
+                    </span>
+                    {notifications.length > 0 && (
+                      <span className="text-xs text-slate-400">{notifications.length} {lang === 'ja' ? '件' : lang === 'bn' ? 'টি' : 'total'}</span>
+                    )}
+                  </div>
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-slate-400 text-sm">
+                        {lang === 'ja' ? '通知はありません' : lang === 'bn' ? 'কোনো বিজ্ঞপ্তি নেই' : 'No notifications yet'}
+                      </div>
+                    ) : notifications.map((n) => (
+                      <div key={n.id} className={`px-4 py-3 hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-green-50/50' : ''}`}>
+                        {n.action_url ? (
+                          <Link href={n.action_url} onClick={() => setNotifOpen(false)} className="block">
+                            <div className="text-xs font-semibold text-slate-800">{n.title}</div>
+                            <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{n.body}</div>
+                            <div className="text-[10px] text-slate-400 mt-1">{new Date(n.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}</div>
+                          </Link>
+                        ) : (
+                          <>
+                            <div className="text-xs font-semibold text-slate-800">{n.title}</div>
+                            <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{n.body}</div>
+                            <div className="text-[10px] text-slate-400 mt-1">{new Date(n.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}</div>
+                          </>
+                        )}
+                        {!n.is_read && <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full mt-1" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* User dropdown — desktop */}
             <div className="relative hidden sm:block" ref={userMenuRef}>

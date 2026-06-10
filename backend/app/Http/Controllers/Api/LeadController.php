@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AffiliateProfile;
 use App\Models\Commission;
 use App\Models\Lead;
 use App\Models\StudentProfile;
+use App\Models\TensaiNotification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class LeadController extends Controller
@@ -47,8 +48,22 @@ class LeadController extends Controller
         return response()->json($leads);
     }
 
+    private function requireApprovedAgency(Request $request): ?JsonResponse
+    {
+        $profile = $request->user()->agencyProfile;
+        if (!$profile || $profile->vetting_status !== 'approved') {
+            return response()->json([
+                'message' => 'Your agency must be approved before performing this action.',
+                'vetting_status' => $profile?->vetting_status ?? 'none',
+            ], 403);
+        }
+        return null;
+    }
+
     public function addLead(Request $request): JsonResponse
     {
+        if ($gate = $this->requireApprovedAgency($request)) return $gate;
+
         $validated = $request->validate([
             'student_name'   => 'required|string|max:255',
             'student_email'  => 'required|email|max:255',
@@ -137,6 +152,8 @@ class LeadController extends Controller
 
     public function publishToOpenPool(Request $request, Lead $lead): JsonResponse
     {
+        if ($gate = $this->requireApprovedAgency($request)) return $gate;
+
         if ($lead->source_agency_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
@@ -183,6 +200,8 @@ class LeadController extends Controller
 
     public function unlockLead(Request $request, Lead $lead): JsonResponse
     {
+        if ($gate = $this->requireApprovedAgency($request)) return $gate;
+
         if ($lead->pool_type !== 'open') {
             return response()->json(['message' => 'Lead is not in open pool.'], 422);
         }
@@ -234,7 +253,83 @@ class LeadController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:new,profile_complete,under_review,shortlisted,interview_scheduled,interviewed,offer_received,accepted,visa_processing,visa_approved,visa_rejected,enrolled,closed,on_hold',
         ]);
+
+        $previousStatus = $lead->status;
         $lead->update(['status' => $validated['status']]);
+
+        // Auto-create affiliate commission when lead enrolls for the first time
+        if ($validated['status'] === 'enrolled' && $previousStatus !== 'enrolled') {
+            $student = $lead->student ?? User::find($lead->student_id);
+            if ($student?->referred_by) {
+                $affiliate = User::find($student->referred_by);
+                if ($affiliate?->isAffiliate()) {
+                    $affiliateProfile = AffiliateProfile::firstWhere('user_id', $affiliate->id);
+                    $amount = $affiliateProfile?->local_commission_fixed ?? 0;
+
+                    if ($amount > 0) {
+                        Commission::create([
+                            'lead_id'   => $lead->id,
+                            'type'      => 'affiliate_associate',
+                            'payer_id'  => (int) config('app.platform_admin_id', 1),
+                            'payee_id'  => $affiliate->id,
+                            'amount'    => $amount,
+                            'currency'  => 'BDT',
+                            'status'    => 'due',
+                        ]);
+
+                        // Update affiliate's pending_payout
+                        if ($affiliateProfile) {
+                            $affiliateProfile->increment('pending_payout', $amount);
+                            $affiliateProfile->increment('converted_referrals');
+                        }
+
+                        TensaiNotification::create([
+                            'user_id'    => $affiliate->id,
+                            'type'       => 'commission_due',
+                            'title'      => 'Commission Earned',
+                            'body'       => "A student you referred has enrolled. ৳{$amount} commission is now due.",
+                            'data'       => ['lead_id' => $lead->id, 'amount' => $amount],
+                            'action_url' => '/dashboard/affiliate/commissions',
+                        ]);
+                    }
+                }
+            }
+
+            // Notify student
+            TensaiNotification::create([
+                'user_id'    => $lead->student_id,
+                'type'       => 'lead_enrolled',
+                'title'      => 'Enrollment Confirmed',
+                'body'       => "Congratulations! Your enrollment for {$lead->target_country} has been confirmed.",
+                'data'       => ['lead_id' => $lead->id, 'lead_code' => $lead->lead_code],
+                'action_url' => '/dashboard/student/leads',
+            ]);
+        }
+
+        // Notify student on any status change (except terminal→terminal)
+        if ($validated['status'] !== $previousStatus && $validated['status'] !== 'enrolled') {
+            $statusLabels = [
+                'shortlisted'         => 'Your application has been shortlisted!',
+                'interview_scheduled' => 'Your interview has been scheduled.',
+                'interviewed'         => 'Interview completed. Results coming soon.',
+                'offer_received'      => 'You have received an offer!',
+                'accepted'            => 'Your application has been accepted!',
+                'visa_processing'     => 'Your visa is being processed.',
+                'visa_approved'       => 'Your visa has been approved!',
+                'visa_rejected'       => 'Your visa application was not successful.',
+            ];
+            if (isset($statusLabels[$validated['status']])) {
+                TensaiNotification::create([
+                    'user_id'    => $lead->student_id,
+                    'type'       => 'lead_status_changed',
+                    'title'      => 'Application Update',
+                    'body'       => $statusLabels[$validated['status']],
+                    'data'       => ['lead_id' => $lead->id, 'status' => $validated['status']],
+                    'action_url' => '/dashboard/student/leads',
+                ]);
+            }
+        }
+
         return response()->json(['message' => 'Status updated.', 'lead' => $lead]);
     }
 }
