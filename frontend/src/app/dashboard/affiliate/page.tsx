@@ -100,7 +100,7 @@ export default function AffiliateDashboard() {
             >
               <div className="text-3xl mb-3">🎓</div>
               <h2 className="font-bold text-slate-900 text-lg mb-2">
-                {ja ? 'ローカル' : bn ? 'লোকাল' : 'Local Affiliate'}
+                {ja ? 'リードアフィリエイト' : bn ? 'লিডস অ্যাফিলিয়েট' : 'Leads Affiliate'}
               </h2>
               <p className="text-sm text-slate-500 leading-relaxed mb-4">
                 {ja
@@ -123,7 +123,7 @@ export default function AffiliateDashboard() {
             >
               <div className="text-3xl mb-3">🌐</div>
               <h2 className="font-bold text-slate-900 text-lg mb-2">
-                {ja ? 'グローバル' : bn ? 'গ্লোবাল' : 'Global Affiliate'}
+                {ja ? 'インスティテューションアフィリエイト' : bn ? 'ইনস্টিটিউশনস অ্যাফিলিয়েট' : 'Institutions Affiliate'}
               </h2>
               <p className="text-sm text-slate-500 leading-relaxed mb-4">
                 {ja
@@ -160,7 +160,7 @@ export default function AffiliateDashboard() {
           <div className="flex items-center gap-2">
             <span className="text-xl">🎓</span>
             <h1 className="font-bold text-slate-900">
-              {ja ? 'ローカルアフィリエイト' : bn ? 'লোকাল অ্যাফিলিয়েট' : 'Local Affiliate'}
+              {ja ? 'リードアフィリエイト' : bn ? 'লিডস অ্যাফিলিয়েট' : 'Leads Affiliate'}
             </h1>
             {d.performance_level && (
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${LEVEL_COLORS[d.performance_level] ?? LEVEL_COLORS.bronze}`}>
@@ -239,7 +239,7 @@ export default function AffiliateDashboard() {
         {/* Upgrade CTA */}
         <div className="mt-4 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between gap-3">
           <div>
-            <p className="font-bold text-sm text-slate-900">🌐 {ja ? 'グローバルにアップグレード' : bn ? 'গ্লোবালে আপগ্রেড করুন' : 'Upgrade to Global'}</p>
+            <p className="font-bold text-sm text-slate-900">🌐 {ja ? 'インスティテューションにアップグレード' : bn ? 'ইনস্টিটিউশনসে আপগ্রেড করুন' : 'Upgrade to Institutions Affiliate'}</p>
             <p className="text-xs text-slate-500 mt-0.5">
               {ja ? '機関・従業員を管理してより高い収益を得ましょう。' : bn ? 'প্রতিষ্ঠান ও কর্মী ম্যানেজ করে বেশি আয় করুন।' : 'Manage institutions & employees for higher recurring commissions.'}
             </p>
@@ -261,7 +261,7 @@ export default function AffiliateDashboard() {
         <div className="flex items-center gap-2">
           <span className="text-xl">🌐</span>
           <h1 className="font-bold text-slate-900">
-            {ja ? 'グローバルアフィリエイト' : bn ? 'গ্লোবাল অ্যাফিলিয়েট' : 'Global Affiliate'}
+            {ja ? 'インスティテューションアフィリエイト' : bn ? 'ইনস্টিটিউশনস অ্যাফিলিয়েট' : 'Institutions Affiliate'}
           </h1>
           {d?.performance_level && (
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${LEVEL_COLORS[d.performance_level] ?? LEVEL_COLORS.bronze}`}>

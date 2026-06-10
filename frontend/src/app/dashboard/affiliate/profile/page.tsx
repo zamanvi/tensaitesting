@@ -90,8 +90,8 @@ export default function AffiliateProfilePage() {
         <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold mb-5 ${profile.affiliate_type === 'global' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'}`}>
           {profile.affiliate_type === 'global' ? '🌐' : '🎓'}
           {profile.affiliate_type === 'global'
-            ? (ja ? 'グローバルアフィリエイト' : bn ? 'গ্লোবাল অ্যাফিলিয়েট' : 'Global Affiliate')
-            : (ja ? 'ローカルアフィリエイト' : bn ? 'লোকাল অ্যাফিলিয়েট' : 'Local Affiliate')}
+            ? (ja ? 'インスティテューションアフィリエイト' : bn ? 'ইনস্টিটিউশনস অ্যাফিলিয়েট' : 'Institutions Affiliate')
+            : (ja ? 'リードアフィリエイト' : bn ? 'লিডস অ্যাফিলিয়েট' : 'Leads Affiliate')}
           {profile.performance_level && (
             <span className="opacity-70 capitalize">· {profile.performance_level}</span>
           )}

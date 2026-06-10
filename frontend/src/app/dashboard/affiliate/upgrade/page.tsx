@@ -32,7 +32,7 @@ export default function AffiliateUpgradePage() {
   if (!isLocal) return null;
 
   return (
-    <DashboardLayout title={ja ? 'グローバルに申請' : bn ? 'গ্লোবালে আবেদন' : 'Apply for Global Affiliate'}>
+    <DashboardLayout title={ja ? 'インスティテューションに申請' : bn ? 'ইনস্টিটিউশনসে আবেদন' : 'Apply for Institutions Affiliate'}>
 
       {submitted ? (
         <div className="max-w-md mx-auto py-12 text-center">
@@ -53,7 +53,7 @@ export default function AffiliateUpgradePage() {
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 mb-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">🌐</span>
-              <h2 className="font-bold text-slate-900">{ja ? 'グローバルの特典' : bn ? 'গ্লোবালের সুবিধা' : 'Global Affiliate Benefits'}</h2>
+              <h2 className="font-bold text-slate-900">{ja ? 'インスティテューションの特典' : bn ? 'ইনস্টিটিউশনসের সুবিধা' : 'Institutions Affiliate Benefits'}</h2>
             </div>
             {[
               { icon: '🏫', text: ja ? '学校・機関をTensaiのために管理' : bn ? 'স্কুল ও প্রতিষ্ঠান ম্যানেজ করুন' : 'Manage schools & institutions for Tensai' },
