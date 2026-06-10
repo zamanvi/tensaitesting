@@ -54,7 +54,7 @@ export default function TeamPage() {
     },
     {
       name: 'Nasir Sarker',
-      photo: 'https://pub-f01f8a3511524b808cb8116aa5d495aa.r2.dev/nasir.enc',
+      photo: 'https://pub-f01f8a3511524b808cb8116aa5d495aa.r2.dev/2.png',
       nameJa: 'ナシル・サーカー',
       initials: 'NS',
       role: a.role2,
