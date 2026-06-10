@@ -4,17 +4,15 @@ import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AffiliateUpgradePage() {
   const { lang } = useLang();
+  const router = useRouter();
   const qc = useQueryClient();
   const affiliateType = (qc.getQueryData<{ affiliate_type?: string }>(['affiliate-dashboard']))?.affiliate_type;
-  if (affiliateType && affiliateType !== 'local') {
-    if (typeof window !== 'undefined') window.location.replace('/dashboard/affiliate');
-    return null;
-  }
-  const ja = lang === 'ja'; const bn = lang === 'bn';
+  const isLocal = !affiliateType || affiliateType === 'local';
 
   const [orgName, setOrgName]     = useState('');
   const [reason, setReason]       = useState('');
@@ -24,6 +22,14 @@ export default function AffiliateUpgradePage() {
     mutationFn: () => api.post('/affiliate/upgrade-request', { organization_name: orgName, reason }),
     onSuccess: () => setSubmitted(true),
   });
+
+  useEffect(() => {
+    if (affiliateType && affiliateType !== 'local') router.replace('/dashboard/affiliate');
+  }, [affiliateType, router]);
+
+  const ja = lang === 'ja'; const bn = lang === 'bn';
+
+  if (!isLocal) return null;
 
   return (
     <DashboardLayout title={ja ? 'グローバルに申請' : bn ? 'গ্লোবালে আবেদন' : 'Apply for Global Affiliate'}>

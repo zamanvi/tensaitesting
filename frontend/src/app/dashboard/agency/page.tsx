@@ -48,14 +48,6 @@ export default function AgencyDashboard() {
     if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isAgency, router]);
 
-  if (!user) return null;
-  if (!isAgency) return null;
-
-  const vaultLeads: Lead[] = Array.isArray(vaultQ.data?.data) ? vaultQ.data.data : Array.isArray(vaultQ.data) ? vaultQ.data : [];
-  const poolLeads: Lead[] = Array.isArray(poolQ.data?.data) ? poolQ.data.data : Array.isArray(poolQ.data) ? poolQ.data : [];
-  const activeCount = vaultLeads.filter(l => !['closed', 'enrolled'].includes(l.status)).length;
-  const loading = vaultQ.isLoading || poolQ.isLoading;
-
   const addLead = useMutation({
     mutationFn: (data: typeof EMPTY_FORM) => api.post('/agency/leads', data),
     onSuccess: () => {
@@ -74,6 +66,14 @@ export default function AgencyDashboard() {
       setFormError(errs ? Object.values(errs).flat().join(' ') : e.response?.data?.message || 'Failed to create lead.');
     },
   });
+
+  if (!user) return null;
+  if (!isAgency) return null;
+
+  const vaultLeads: Lead[] = Array.isArray(vaultQ.data?.data) ? vaultQ.data.data : Array.isArray(vaultQ.data) ? vaultQ.data : [];
+  const poolLeads: Lead[] = Array.isArray(poolQ.data?.data) ? poolQ.data.data : Array.isArray(poolQ.data) ? poolQ.data : [];
+  const activeCount = vaultLeads.filter(l => !['closed', 'enrolled'].includes(l.status)).length;
+  const loading = vaultQ.isLoading || poolQ.isLoading;
 
   const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
