@@ -3,7 +3,8 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Employee {
   id: number;
@@ -36,12 +37,15 @@ const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm 
 
 export default function EmployeesPage() {
   const { lang } = useLang();
+  const router = useRouter();
   const qc = useQueryClient();
   const affiliateType = (qc.getQueryData<{ affiliate_type?: string }>(['affiliate-dashboard']))?.affiliate_type;
-  if (affiliateType && affiliateType !== 'global') {
-    if (typeof window !== 'undefined') window.location.replace('/dashboard/affiliate');
-    return null;
-  }
+  const isGlobal = affiliateType === 'global';
+
+  useEffect(() => {
+    if (affiliateType && affiliateType !== 'global') router.replace('/dashboard/affiliate');
+  }, [affiliateType, router]);
+
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
   const [showForm, setShowForm] = useState(false);
@@ -53,6 +57,7 @@ export default function EmployeesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['affiliate-employees'],
     queryFn: () => api.get('/affiliate/entities?type=employee').then(r => r.data),
+    enabled: isGlobal,
   });
 
   const employees: Employee[] = Array.isArray(data?.data) ? data.data : [];

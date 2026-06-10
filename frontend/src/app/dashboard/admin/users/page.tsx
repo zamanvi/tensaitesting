@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface UserRow {
   id: number;
@@ -41,9 +41,10 @@ export default function AdminUsersPage() {
   const [filterStatus, setFilterStatus] = useState('all');
 
   const isAdmin = user?.roles?.some(r => r === 'admin' || r === 'super_admin');
-  if (typeof window !== 'undefined' && user && !isAdmin) {
-    router.replace('/dashboard/' + user.gateway_type);
-  }
+
+  useEffect(() => {
+    if (user && !isAdmin) router.replace('/dashboard/' + user.gateway_type);
+  }, [user, isAdmin, router]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users'],

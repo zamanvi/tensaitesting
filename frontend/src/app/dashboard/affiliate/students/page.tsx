@@ -4,7 +4,8 @@ import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Student {
   id: number;
@@ -38,11 +39,14 @@ export default function AffiliateStudentsPage() {
   const { lang } = useLang();
   const { user }  = useAuthStore();
   const qc = useQueryClient();
+  const router = useRouter();
   const affiliateType = (qc.getQueryData<{ affiliate_type?: string }>(['affiliate-dashboard']))?.affiliate_type;
-  if (affiliateType && affiliateType !== 'local') {
-    if (typeof window !== 'undefined') window.location.replace('/dashboard/affiliate');
-    return null;
-  }
+  const isLocal = !affiliateType || affiliateType === 'local';
+
+  useEffect(() => {
+    if (affiliateType && affiliateType !== 'local') router.replace('/dashboard/affiliate');
+  }, [affiliateType, router]);
+
   const [copied, setCopied] = useState(false);
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
@@ -54,11 +58,13 @@ export default function AffiliateStudentsPage() {
   const { data: dash } = useQuery({
     queryKey: ['affiliate-dashboard'],
     queryFn: () => api.get('/affiliate/dashboard').then(r => r.data),
+    enabled: isLocal,
   });
 
   const { data, isLoading } = useQuery({
     queryKey: ['affiliate-referrals'],
     queryFn: () => api.get('/affiliate/referrals').then(r => r.data),
+    enabled: isLocal,
   });
 
   const students: Student[] = Array.isArray(data?.data) ? data.data : [];

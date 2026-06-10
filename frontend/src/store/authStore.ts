@@ -57,9 +57,9 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const res = await api.post('/auth/register', data);
-          const { user, token } = res.data;
+          const { user, token, roles } = res.data;
           localStorage.setItem('tensai_token', token);
-          set({ user, token, isLoading: false });
+          set({ user: { ...user, roles: roles ?? [] }, token, isLoading: false });
         } catch (e) {
           set({ isLoading: false });
           throw e;
