@@ -1,7 +1,6 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
-import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -43,7 +42,6 @@ const LEVEL_COLORS: Record<string, string> = {
 /* ── main component ─────────────────────────────────────────────────────── */
 export default function AffiliateDashboard() {
   const { lang } = useLang();
-  const { user } = useAuthStore();
   const qc = useQueryClient();
   const [copied, setCopied] = useState(false);
 
