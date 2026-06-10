@@ -16,8 +16,8 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static ?string $navigationGroup = 'User Management';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Users & Gateways';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -48,6 +48,14 @@ class UserResource extends Resource
                         'suspended' => 'Suspended',
                     ])->required(),
                 Forms\Components\TextInput::make('affiliate_code')->disabled(),
+                Forms\Components\DateTimePicker::make('email_verified_at')
+                    ->label('Email Verified At')
+                    ->disabled(),
+                Forms\Components\TextInput::make('referred_by_display')
+                    ->label('Referred By')
+                    ->getStateUsing(fn ($record) => $record?->referredBy?->name ?? '—')
+                    ->disabled()
+                    ->dehydrated(false),
             ])->columns(3),
         ]);
     }
@@ -77,6 +85,14 @@ class UserResource extends Resource
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('affiliate_code')->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\IconColumn::make('email_verified_at')
+                    ->label('Verified')
+                    ->boolean()
+                    ->getStateUsing(fn ($record) => !is_null($record->email_verified_at)),
+                Tables\Columns\TextColumn::make('referredBy.name')
+                    ->label('Referred By')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([

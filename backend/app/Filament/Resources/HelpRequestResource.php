@@ -73,10 +73,11 @@ class HelpRequestResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                        'pending'   => 'warning',
-                        'contacted' => 'info',
-                        'resolved'  => 'success',
-                        default     => 'gray',
+                        'pending'     => 'warning',
+                        'in_progress' => 'primary',
+                        'contacted'   => 'info',
+                        'resolved'    => 'success',
+                        default       => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Requested')
@@ -86,9 +87,10 @@ class HelpRequestResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'pending'   => 'Pending',
-                        'contacted' => 'Contacted',
-                        'resolved'  => 'Resolved',
+                        'pending'     => 'Pending',
+                        'in_progress' => 'In Progress',
+                        'contacted'   => 'Contacted',
+                        'resolved'    => 'Resolved',
                     ]),
             ])
             ->actions([

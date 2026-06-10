@@ -37,7 +37,7 @@ class InterviewResource extends Resource
                     ->searchable()->required(),
                 Forms\Components\Select::make('arranged_by')
                     ->label('Arranged By (Admin)')
-                    ->options(fn () => User::role('super_admin')->orRole('admin')->pluck('name', 'id'))
+                    ->options(fn () => User::whereHas('roles', fn ($q) => $q->whereIn('name', ['super_admin', 'admin']))->pluck('name', 'id'))
                     ->default(fn () => auth()->id())
                     ->searchable(),
             ])->columns(2),
@@ -68,7 +68,15 @@ class InterviewResource extends Resource
             Forms\Components\Section::make('Notes')->schema([
                 Forms\Components\Textarea::make('admin_notes')->rows(3),
                 Forms\Components\Textarea::make('institution_notes')->rows(3),
-                Forms\Components\TextInput::make('result'),
+                Forms\Components\Select::make('result')
+                    ->options([
+                        'pending' => 'Pending',
+                        'passed'  => 'Passed',
+                        'failed'  => 'Failed',
+                    ])
+                    ->default('pending'),
+                Forms\Components\DateTimePicker::make('completed_at')
+                    ->label('Completed At'),
             ])->columns(2),
         ]);
     }
@@ -100,6 +108,19 @@ class InterviewResource extends Resource
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('scheduled_at')->dateTime()->sortable(),
+                Tables\Columns\TextColumn::make('result')
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'passed'  => 'success',
+                        'failed'  => 'danger',
+                        'pending' => 'warning',
+                        default   => 'gray',
+                    }),
+                Tables\Columns\TextColumn::make('completed_at')
+                    ->label('Completed')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -120,6 +141,29 @@ class InterviewResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('complete')
+                    ->label('Complete')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (Interview $r) => !in_array($r->status, ['completed', 'cancelled']))
+                    ->action(function (Interview $r) {
+                        $r->update(['status' => 'completed', 'completed_at' => now()]);
+                        $r->lead?->update(['status' => 'interview_scheduled']);
+                        \Filament\Notifications\Notification::make()->title('Interview marked complete')->success()->send();
+                    }),
+
+                Tables\Actions\Action::make('cancel')
+                    ->label('Cancel')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Interview $r) => !in_array($r->status, ['completed', 'cancelled']))
+                    ->action(function (Interview $r) {
+                        $r->update(['status' => 'cancelled']);
+                        \Filament\Notifications\Notification::make()->title('Interview cancelled')->warning()->send();
+                    }),
+
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

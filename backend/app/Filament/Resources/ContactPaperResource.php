@@ -96,16 +96,17 @@ class ContactPaperResource extends Resource
                     ->searchable()
                     ->copyable(),
 
-                Tables\Columns\BadgeColumn::make('type')
+                Tables\Columns\TextColumn::make('type')
                     ->label('Type')
-                    ->colors([
-                        'primary' => 'institution_contact_request',
-                        'info'    => 'interview_request',
-                        'success' => 'interview_confirmation',
-                        'warning' => 'offer_letter',
-                        'danger'  => 'visa_status',
-                        'gray'    => 'general_notice',
-                    ])
+                    ->badge()
+                    ->color(fn (string $state) => match ($state) {
+                        'institution_contact_request' => 'primary',
+                        'interview_request'           => 'info',
+                        'interview_confirmation'      => 'success',
+                        'offer_letter'                => 'warning',
+                        'visa_status'                 => 'danger',
+                        default                       => 'gray',
+                    })
                     ->formatStateUsing(fn (string $state) => match ($state) {
                         'institution_contact_request' => '🏫 Contact Request',
                         'interview_request'           => '📅 Interview Request',

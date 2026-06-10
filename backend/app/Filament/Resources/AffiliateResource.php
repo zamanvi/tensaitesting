@@ -18,7 +18,7 @@ class AffiliateResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?string $navigationLabel = 'Affiliates';
-    protected static ?int    $navigationSort  = 3;
+    protected static ?int    $navigationSort  = 4;
 
     public static function form(Form $form): Form
     {

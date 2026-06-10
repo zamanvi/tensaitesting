@@ -78,6 +78,7 @@ class LeadResource extends Resource
                 Forms\Components\TextInput::make('unlock_fee')->numeric()->prefix('BDT'),
                 Forms\Components\TextInput::make('referral_fee')->numeric()->prefix('BDT'),
                 Forms\Components\Toggle::make('referral_fee_paid'),
+                Forms\Components\DateTimePicker::make('published_at')->label('Published At')->disabled(),
             ])->columns(3),
 
             Forms\Components\Section::make('Notes')->schema([
@@ -111,6 +112,7 @@ class LeadResource extends Resource
                         default => 'primary',
                     }),
                 Tables\Columns\TextColumn::make('target_country'),
+                Tables\Columns\TextColumn::make('target_intake')->label('Intake')->date()->sortable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('assignedAgency.name')->label('Agency'),
                 Tables\Columns\IconColumn::make('is_published')->boolean()->label('Published'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
@@ -118,10 +120,30 @@ class LeadResource extends Resource
             ->filters([
                 SelectFilter::make('pool_type')->options(['open' => 'Open Pool', 'private' => 'Private Vault']),
                 SelectFilter::make('status')->options([
-                    'new' => 'New', 'shortlisted' => 'Shortlisted',
-                    'enrolled' => 'Enrolled', 'closed' => 'Closed',
+                    'new'                  => 'New',
+                    'profile_complete'     => 'Profile Complete',
+                    'under_review'         => 'Under Review',
+                    'shortlisted'          => 'Shortlisted',
+                    'interview_scheduled'  => 'Interview Scheduled',
+                    'interviewed'          => 'Interviewed',
+                    'offer_received'       => 'Offer Received',
+                    'accepted'             => 'Accepted',
+                    'visa_processing'      => 'Visa Processing',
+                    'visa_approved'        => 'Visa Approved',
+                    'visa_rejected'        => 'Visa Rejected',
+                    'enrolled'             => 'Enrolled',
+                    'closed'               => 'Closed',
+                    'on_hold'              => 'On Hold',
                 ]),
-                SelectFilter::make('target_country')->options(['Japan' => 'Japan', 'Korea' => 'Korea']),
+                SelectFilter::make('target_country')->options([
+                    'Japan'       => 'Japan',
+                    'South Korea' => 'South Korea',
+                    'Australia'   => 'Australia',
+                    'Canada'      => 'Canada',
+                    'UK'          => 'UK',
+                    'Germany'     => 'Germany',
+                    'USA'         => 'USA',
+                ]),
             ])
             ->actions([
                 Tables\Actions\Action::make('publish')

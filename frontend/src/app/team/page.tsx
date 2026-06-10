@@ -53,7 +53,7 @@ export default function TeamPage() {
     },
     {
       name: 'Nasir Sarker',
-      photo: null,
+      photo: 'https://pub-f01f8a3511524b808cb8116aa5d495aa.r2.dev/nasir.enc',
       nameJa: 'ナシル・サーカー',
       initials: 'NS',
       role: a.role2,
@@ -108,6 +108,35 @@ export default function TeamPage() {
         : bn
         ? '"জাপানি প্রতিষ্ঠানগুলো বিশ্বস্ত অংশীদার খোঁজে। আমরা সেই বিশ্বাস একটি একটি করে অর্জন করি — কোনো শর্টকাট নেই।"'
         : '"Japanese institutions are looking for partners they can genuinely trust. We earn that trust one relationship at a time — no shortcuts."',
+    },
+    {
+      name: 'Amir Hossain',
+      nameJa: 'アミル・ホサイン',
+      photo: 'https://pub-f01f8a3511524b808cb8116aa5d495aa.r2.dev/amir%20vai.png',
+      initials: 'AH',
+      role: ja ? 'オフラインマーケティングマネージャー' : bn ? 'অফলাইন মার্কেটিং ম্যানেজার' : 'Offline Marketing Manager',
+      badge: ja ? 'マーケティング' : bn ? 'মার্কেটিং' : 'Marketing',
+      avatarBg: 'bg-orange-700',
+      badgeColor: 'bg-orange-400/10 text-orange-400 border border-orange-400/20',
+      accentColor: 'orange',
+      bio: ja
+        ? 'オフラインマーケティングの専門家として、バングラデシュ各地でTensaiのブランドを広める最前線に立つ。大学キャンパス、教育フェア、地域コミュニティへのアウトリーチを通じ、デジタルでは届かない学生にリーチする。フィールドの声を直接組織へ届ける橋渡し役。'
+        : bn
+        ? 'অফলাইন মার্কেটিংয়ের সামনের সারির মানুষ। সারাদেশে বিশ্ববিদ্যালয় ক্যাম্পাস, শিক্ষামেলা এবং স্থানীয় কমিউনিটিতে টেনসাইয়ের বার্তা পৌঁছে দেন। যেসব শিক্ষার্থীর কাছে ডিজিটাল মাধ্যম সহজলভ্য নয়, তাদের কাছে সরাসরি পৌঁছানোই তার মূল কাজ।'
+        : 'The face of Tensai on the ground. Amir leads offline marketing across Bangladesh — reaching students at university campuses, education fairs, and local communities where digital channels fall short. He is the direct link between the real world and the Tensai platform.',
+      skills: ja
+        ? ['フィールドマーケティング', 'キャンパスアウトリーチ', 'ブランド認知', 'コミュニティ構築']
+        : bn
+        ? ['ফিল্ড মার্কেটিং', 'ক্যাম্পাস আউটরিচ', 'ব্র্যান্ড সচেতনতা', 'কমিউনিটি গঠন']
+        : ['Field Marketing', 'Campus Outreach', 'Brand Awareness', 'Community Building'],
+      linkedin: null,
+      also: null,
+      alsoLink: null,
+      quote: ja
+        ? '「デジタルが届かない場所にこそ、リアルな信頼がある。」'
+        : bn
+        ? '"ডিজিটাল যেখানে পৌঁছায় না, সেখানে আসল বিশ্বাস তৈরি হয়।"'
+        : '"The strongest trust is built in the places the internet hasn\'t reached yet."',
     },
   ];
 

@@ -113,6 +113,26 @@ class CommissionResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('mark_paid')
+                    ->label('Mark Paid')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('success')
+                    ->visible(fn (Commission $r) => $r->status !== 'paid')
+                    ->form([
+                        Forms\Components\TextInput::make('payment_reference')
+                            ->label('Payment Reference')
+                            ->required()
+                            ->placeholder('e.g. TXN-20260609-XXXX'),
+                    ])
+                    ->action(function (Commission $r, array $data) {
+                        $r->update([
+                            'status'            => 'paid',
+                            'paid_at'           => now(),
+                            'payment_reference' => $data['payment_reference'],
+                        ]);
+                        \Filament\Notifications\Notification::make()->title('Commission marked as paid')->success()->send();
+                    }),
+
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

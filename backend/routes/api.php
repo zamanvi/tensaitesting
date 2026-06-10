@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\AdminGalleryController;
 use App\Models\Setting;
 use App\Http\Controllers\Api\HelpRequestController;
 use App\Http\Controllers\Api\AdminUserController;
+use App\Http\Controllers\Api\BranchController;
 use Illuminate\Support\Facades\Route;
 
 // Health check
@@ -35,8 +36,14 @@ Route::get('/settings/public', fn() => response()->json([
     'support_phone'    => Setting::get('support_phone', '+8801826192179'),
 ]));
 
+// Branches (public)
+Route::get('/branches', [BranchController::class, 'index']);
+Route::get('/branches/file', [BranchController::class, 'serveFile']); // R2 proxy
+Route::get('/branches/{slug}', [BranchController::class, 'show']);
+
 Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/gallery/featured', [GalleryController::class, 'featured']);
+Route::get('/gallery/image/{gallery}', [GalleryController::class, 'serveImage']); // R2 proxy for private buckets
 
 // Public auth endpoints — rate-limited to prevent brute-force attacks
 Route::middleware('throttle:10,1')->group(function () {

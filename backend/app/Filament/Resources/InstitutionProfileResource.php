@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\InstitutionProfileResource\Pages;
 use App\Models\InstitutionProfile;
+use App\Models\TensaiNotification;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -32,16 +33,41 @@ class InstitutionProfileResource extends Resource
                 Forms\Components\TextInput::make('institution_name')->required()->maxLength(255),
                 Forms\Components\TextInput::make('institution_name_local')->label('Local Name'),
                 Forms\Components\Select::make('institution_type')->options([
-                    'university'    => 'University',
-                    'college'       => 'College',
+                    'university'      => 'University',
+                    'college'         => 'College',
                     'language_school' => 'Language School',
-                    'vocational'    => 'Vocational School',
-                    'employer'      => 'Employer',
+                    'vocational'      => 'Vocational School',
+                    'employer'        => 'Employer',
                 ]),
                 Forms\Components\TextInput::make('country')->required(),
                 Forms\Components\TextInput::make('city')->required(),
+                Forms\Components\TextInput::make('address')->label('Full Address'),
                 Forms\Components\TextInput::make('website')->url(),
+                Forms\Components\FileUpload::make('logo')
+                    ->label('Logo')
+                    ->image()
+                    ->disk(app()->environment('production') ? 'r2' : 'public')
+                    ->directory('institution/logos')
+                    ->visibility('public')
+                    ->maxSize(2048)
+                    ->columnSpanFull(),
             ])->columns(2),
+
+            Forms\Components\Section::make('Programs & Requirements')
+                ->schema([
+                    Forms\Components\TagsInput::make('intake_months')
+                        ->label('Intake Months')
+                        ->placeholder('e.g. April, October')
+                        ->helperText('Press Enter to add each month.'),
+                    Forms\Components\TagsInput::make('accepted_qualifications')
+                        ->label('Accepted Qualifications')
+                        ->placeholder('e.g. N4, Bachelor'),
+                    Forms\Components\KeyValue::make('required_language_scores')
+                        ->label('Required Language Scores')
+                        ->keyLabel('Test')
+                        ->valueLabel('Min Score')
+                        ->columnSpanFull(),
+                ])->columns(2)->collapsible(),
 
             Forms\Components\Section::make('Admin Controls')
                 ->description('Manage approval, commission, and status.')
@@ -163,6 +189,17 @@ class InstitutionProfileResource extends Resource
                             'status'      => 'active',
                             'verified_at' => now(),
                         ]);
+                        // Sync user account status
+                        $record->user?->update(['status' => 'active']);
+                        // Send in-app notification to institution owner
+                        if ($record->user_id) {
+                            TensaiNotification::create([
+                                'user_id' => $record->user_id,
+                                'type'    => 'success',
+                                'title'   => 'Your institution profile has been approved!',
+                                'body'    => 'Congratulations! Your institution profile for "' . $record->institution_name . '" has been verified and approved. You now have full platform access.',
+                            ]);
+                        }
                         Notification::make()->title('Institution approved')->success()->send();
                     }),
 
@@ -175,6 +212,7 @@ class InstitutionProfileResource extends Resource
                     ->visible(fn (InstitutionProfile $r) => $r->status === 'active')
                     ->action(function (InstitutionProfile $record) {
                         $record->update(['status' => 'suspended']);
+                        $record->user?->update(['status' => 'suspended']);
                         Notification::make()->title('Institution suspended')->warning()->send();
                     }),
 

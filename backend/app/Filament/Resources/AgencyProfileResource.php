@@ -17,7 +17,7 @@ class AgencyProfileResource extends Resource
 {
     protected static ?string $model = AgencyProfile::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-    protected static ?string $navigationGroup = 'User Management';
+    protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
@@ -30,6 +30,31 @@ class AgencyProfileResource extends Resource
                 Forms\Components\TextInput::make('trade_license'),
                 Forms\Components\TextInput::make('contact_person_name'),
                 Forms\Components\TextInput::make('contact_person_phone'),
+                Forms\Components\Textarea::make('description')
+                    ->label('Agency Description')
+                    ->rows(3)
+                    ->columnSpanFull(),
+                Forms\Components\FileUpload::make('logo')
+                    ->label('Agency Logo')
+                    ->image()
+                    ->disk(app()->environment('production') ? 'r2' : 'public')
+                    ->directory('agency/logos')
+                    ->visibility('public')
+                    ->maxSize(2048)
+                    ->columnSpanFull(),
+                Forms\Components\FileUpload::make('trade_license_document')
+                    ->label('Trade License Document')
+                    ->disk(app()->environment('production') ? 'r2' : 'public')
+                    ->directory('agency/documents')
+                    ->visibility('private')
+                    ->maxSize(5120)
+                    ->columnSpanFull(),
+                Forms\Components\TagsInput::make('target_countries')
+                    ->label('Target Countries')
+                    ->placeholder('e.g. Japan, Korea'),
+                Forms\Components\TagsInput::make('service_types')
+                    ->label('Service Types')
+                    ->placeholder('e.g. Language School, University'),
             ])->columns(2),
 
             Forms\Components\Section::make('Location & Web')->schema([
@@ -73,7 +98,7 @@ class AgencyProfileResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('vetting_status')
-                    ->options(['pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected']),
+                    ->options(['pending' => 'Pending', 'under_review' => 'Under Review', 'approved' => 'Approved', 'rejected' => 'Rejected']),
             ])
             ->actions([
                 Tables\Actions\Action::make('approve')
