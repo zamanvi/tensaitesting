@@ -4,6 +4,7 @@ import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface PoolLead {
@@ -29,11 +30,16 @@ export default function OpenPool() {
   const statuses = t.statuses;
   const { user } = useAuthStore();
   const router = useRouter();
-  if (user && user.gateway_type !== 'agency') { router.replace(`/dashboard/${user.gateway_type}`); return null; }
+  const isAgency = user?.gateway_type === 'agency';
+
+  useEffect(() => {
+    if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type}`);
+  }, [user, isAgency, router]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['open-pool'],
     queryFn: () => api.get('/agency/leads/open-pool').then((r) => r.data),
+    enabled: isAgency,
   });
 
   const unlock = useMutation({

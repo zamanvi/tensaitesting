@@ -17,7 +17,7 @@ export default function StudentInfoPage() {
   const title =
     lang === 'bn' ? 'আপনার সকল তথ্য জমা দিন' :
     lang === 'ja' ? '全情報を提出する' :
-    'Submit Your All Info';
+    'Submit Your Information';
 
   return (
     <DashboardLayout title={title}>

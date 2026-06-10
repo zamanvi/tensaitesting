@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
@@ -42,17 +42,20 @@ export default function PrivateVault() {
   const [referralFee, setReferralFee] = useState('');
   const [forwardSuccess, setForwardSuccess] = useState(false);
 
-  if (!isAgency) { router.replace(`/dashboard/${user?.gateway_type ?? ''}`); return null; }
+  useEffect(() => {
+    if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
+  }, [user, isAgency, router]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['agency-vault'],
     queryFn: () => api.get('/agency/leads/private-vault').then((r) => r.data),
+    enabled: isAgency,
   });
 
   const { data: partnersData } = useQuery({
     queryKey: ['agency-partners'],
     queryFn: () => api.get('/agency/partners').then((r) => r.data),
-    enabled: forwardingLead !== null,
+    enabled: isAgency && forwardingLead !== null,
   });
 
   const publish = useMutation({

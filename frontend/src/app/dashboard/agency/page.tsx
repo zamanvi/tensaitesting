@@ -161,7 +161,22 @@ export default function AgencyDashboard() {
             <Link href="/dashboard/agency/vault" className="text-xs text-green-700 hover:underline">{t.common.viewAll}</Link>
           </div>
           <p className="text-sm text-slate-500 mb-4">{a.vaultDesc}</p>
-          <div className="text-center py-6 text-slate-400 text-sm">{a.vaultEmpty}</div>
+          {loading ? (
+            <div className="text-center py-6 text-slate-300 text-sm">…</div>
+          ) : vaultLeads.length === 0 ? (
+            <div className="text-center py-6 text-slate-400 text-sm">{a.vaultEmpty}</div>
+          ) : (
+            <div className="space-y-2">
+              {vaultLeads.slice(0, 3).map(l => (
+                <div key={l.id} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs ${l.is_published ? 'bg-green-50 text-green-700' : 'bg-slate-50 text-slate-600'}`}>
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: l.is_published ? '#16a34a' : '#94a3b8' }} />
+                  <span className="flex-1 font-medium">{l.status.replace(/_/g, ' ')}</span>
+                  <span>{l.is_published ? '🌐' : '🔒'}</span>
+                </div>
+              ))}
+              {vaultLeads.length > 3 && <p className="text-xs text-slate-400 text-center pt-1">+{vaultLeads.length - 3} more</p>}
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">
@@ -170,7 +185,16 @@ export default function AgencyDashboard() {
             <Link href="/dashboard/agency/pool" className="text-xs text-green-700 hover:underline">{t.common.browse}</Link>
           </div>
           <p className="text-sm text-slate-500 mb-4">{a.poolDesc}</p>
-          <div className="text-center py-6 text-slate-300 text-sm">{a.poolEmpty}</div>
+          {loading ? (
+            <div className="text-center py-6 text-slate-300 text-sm">…</div>
+          ) : poolLeads.length === 0 ? (
+            <div className="text-center py-6 text-slate-300 text-sm">{a.poolEmpty}</div>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-2xl font-black text-slate-800">{poolLeads.length}</p>
+              <p className="text-xs text-slate-400 mt-1">{ja ? '公開中の学生' : bn ? 'পাবলিশড লিড' : 'students in open pool'}</p>
+            </div>
+          )}
         </div>
       </div>
 

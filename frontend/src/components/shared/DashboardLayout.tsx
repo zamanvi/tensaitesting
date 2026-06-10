@@ -79,7 +79,7 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: t.nav.overview, href: '/dashboard/affiliate' },
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile & Payout', href: '/dashboard/affiliate/profile' },
       // Local-only
-      ...(affiliateType === 'local' || affiliateType === null ? [
+      ...(affiliateType === 'local' ? [
         { label: lang === 'ja' ? '紹介学生' : lang === 'bn' ? 'স্টুডেন্টস' : 'Students', href: '/dashboard/affiliate/students' },
       ] : []),
       // Global-only
@@ -107,7 +107,7 @@ export default function DashboardLayout({ children, title }: Props) {
 
           {/* Left: logo + desktop nav */}
           <div className="flex items-center min-w-0">
-            <Link href={`/dashboard/${user.gateway_type}`} className="flex items-center gap-2 shrink-0 mr-4">
+            <Link href={isAdmin ? '/dashboard/admin/gallery' : `/dashboard/${user.gateway_type}`} className="flex items-center gap-2 shrink-0 mr-4">
               <Image src="/tensai-logo.png" alt="Tensai" width={30} height={30} className="rounded-full object-contain" />
               <span className="font-bold text-green-800 tracking-tight">Tensai</span>
             </Link>

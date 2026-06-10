@@ -230,7 +230,7 @@ export default function StudentProfilePage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6 mb-5">
-      <h2 className="font-bold text-slate-900 mb-4 text-sm uppercase tracking-wide text-slate-500">{title}</h2>
+      <h2 className="font-semibold text-slate-500 mb-4 text-xs uppercase tracking-wide">{title}</h2>
       {children}
     </div>
   );
