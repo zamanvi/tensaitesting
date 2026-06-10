@@ -120,6 +120,66 @@ export default function HomePage() {
     },
   ];
 
+  const TESTIMONIALS = [
+    {
+      avatar: 'R',
+      name: ja ? 'ラヒム・ウッディン' : bn ? 'রহিম উদ্দিন' : 'Rahim Uddin',
+      role: ja ? '学生 · 東京日本語学校' : bn ? 'শিক্ষার্থী · টোকিও জাপানিজ স্কুল' : 'Student · Tokyo Japanese School',
+      quote: ja
+        ? '書類が偽造されているか心配でしたが、TensaiのOCRロックシステムが完全に保護してくれました。3ヶ月でビザが承認されました。'
+        : bn
+        ? 'আমার কাগজপত্র জাল হওয়ার ভয় ছিল। Tensai-এর OCR লক সিস্টেম সবকিছু নিরাপদ রেখেছে। মাত্র ৩ মাসে ভিসা অনুমোদন পেয়েছি।'
+        : 'I was worried my documents could be tampered with. Tensai\'s OCR lock system kept everything safe. Got my visa approved in just 3 months.',
+      flag: '🇯🇵',
+      color: 'from-green-500/15 to-green-600/5',
+      border: 'border-green-500/20',
+    },
+    {
+      avatar: 'K',
+      name: ja ? 'カリム・エージェンシー' : bn ? 'করিম এডুকেশন এজেন্সি' : 'Karim Education Agency',
+      role: ja ? 'エージェンシーオーナー · ダッカ' : bn ? 'এজেন্সি মালিক · ঢাকা' : 'Agency Owner · Dhaka',
+      quote: ja
+        ? 'TensaiのプールシステムでAI検証済みの学生を見つけられます。書類詐欺の問題がなくなり、日本のパートナー校との信頼が向上しました。'
+        : bn
+        ? 'Tensai-এর পুল সিস্টেমে AI যাচাইকৃত স্টুডেন্ট পাই। ডকুমেন্ট জালিয়াতির সমস্যা শেষ — জাপানি পার্টনার স্কুলের সাথে আমাদের সম্পর্ক অনেক ভালো হয়েছে।'
+        : 'We find AI-verified students through Tensai\'s pool system. Zero document fraud issues — our trust with Japanese partner schools has improved dramatically.',
+      flag: '🏢',
+      color: 'from-cyan-500/15 to-cyan-600/5',
+      border: 'border-cyan-500/20',
+    },
+    {
+      avatar: 'Y',
+      name: ja ? '山田先生' : bn ? 'ইয়ামাদা সেন্সেই' : 'Yamada-sensei',
+      role: ja ? '入学担当 · 大阪語学センター' : bn ? 'ভর্তি সমন্বয়কারী · ওসাকা ল্যাঙ্গুয়েজ সেন্টার' : 'Admissions Coordinator · Osaka Language Center',
+      quote: ja
+        ? 'AI適格性スコアで学生を事前にスクリーニングできます。ビザ却下率が大幅に低下し、入学プロセスが透明になりました。'
+        : bn
+        ? 'AI eligibility score দিয়ে আবেদনকারীদের আগে থেকে স্ক্রিন করতে পারি। ভিসা রিজেকশন রেট অনেক কমেছে, ভর্তি প্রক্রিয়া স্বচ্ছ হয়েছে।'
+        : 'The AI eligibility score lets us pre-screen applicants before interviews. Visa rejection rates dropped significantly and the admissions process became transparent.',
+      flag: '🏫',
+      color: 'from-violet-500/15 to-violet-600/5',
+      border: 'border-violet-500/20',
+    },
+  ];
+
+  const AGENCY_BENEFITS = [
+    { icon: '🔍', text: ja ? 'AI検証済み学生プールへのアクセス' : bn ? 'AI যাচাইকৃত স্টুডেন্ট পুলে প্রবেশাধিকার' : 'Access to AI-verified student pool' },
+    { icon: '💰', text: ja ? 'エスクロー保護の手数料収益' : bn ? 'এসক্রো সুরক্ষিত ফি আয়' : 'Escrow-protected fee earnings' },
+    { icon: '🤝', text: ja ? '日本機関との直接マッチング' : bn ? 'জাপানি প্রতিষ্ঠানের সাথে সরাসরি ম্যাচিং' : 'Direct matching with Japanese institutions' },
+    { icon: '📊', text: ja ? 'リアルタイムパイプラインダッシュボード' : bn ? 'রিয়েল-টাইম পাইপলাইন ড্যাশবোর্ড' : 'Real-time placement pipeline dashboard' },
+    { icon: '🛡️', text: ja ? '書類詐欺ゼロ保証' : bn ? 'ডকুমেন্ট জালিয়াতি শূন্য নিশ্চয়তা' : 'Zero document fraud — guaranteed' },
+    { icon: '🌐', text: ja ? '複数の学校と同時に連携' : bn ? 'একসাথে একাধিক স্কুলের সাথে কাজ' : 'Work with multiple schools simultaneously' },
+  ];
+
+  const INSTITUTION_BENEFITS = [
+    { icon: '🤖', text: ja ? 'AI適格性スコアで事前スクリーニング' : bn ? 'AI স্কোরে প্রাক-স্ক্রিনিং' : 'Pre-screen applicants by AI eligibility score' },
+    { icon: '🔒', text: ja ? 'OCRロック済み書類 — 改ざん不可' : bn ? 'OCR-লকড ডকুমেন্ট — টেম্পার-প্রুফ' : 'OCR-locked documents — tamper-proof' },
+    { icon: '📋', text: ja ? '直接面接リクエストと調整' : bn ? 'সরাসরি ইন্টারভিউ রিকোয়েস্ট ও সমন্বয়' : 'Direct interview request & scheduling' },
+    { icon: '📈', text: ja ? '合格率とビザ成功率の追跡' : bn ? 'অ্যাকসেপ্টেন্স ও ভিসা রেট ট্র্যাকিং' : 'Track acceptance & visa success rates' },
+    { icon: '🎯', text: ja ? 'JLPTレベル、GPA、国籍でフィルター' : bn ? 'JLPT, GPA, জাতীয়তা দিয়ে ফিল্টার' : 'Filter by JLPT level, GPA, nationality' },
+    { icon: '💬', text: ja ? '認定エージェンシーとの安全な通信' : bn ? 'অনুমোদিত এজেন্সির সাথে নিরাপদ যোগাযোগ' : 'Secure comms with approved agencies' },
+  ];
+
   /* Derive nav/footer labels from i18n */
   const navAbout  = l.about;
   const navTeam   = l.team;
@@ -498,6 +558,133 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── Testimonials ───────────────────────────────────── */}
+        <section className="bg-alt-section py-20 border-t border-white/[0.05]">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+                {ja ? '体験談' : bn ? 'সাফল্যের গল্প' : 'Success Stories'}
+              </p>
+              <h2 className="text-fluid-4xl font-bold text-white">
+                {ja ? '実際に変えた人たち' : bn ? 'বাস্তব মানুষ, বাস্তব সাফল্য' : 'Real people. Real results.'}
+              </h2>
+              <p className="text-fluid-sm text-white/38 mt-3 max-w-md mx-auto">
+                {ja ? '学生、エージェンシー、教育機関 — 全員に効果があります' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান — সবার জন্য কাজ করে' : 'Students, agencies, institutions — it works for everyone'}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {TESTIMONIALS.map((tm) => (
+                <div key={tm.name} className={`glass-card rounded-2xl p-6 flex flex-col gap-4 border ${tm.border} relative`}>
+                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
+                  <div className="text-2xl mb-1" aria-hidden="true">❝</div>
+                  <p className="text-white/70 text-sm leading-relaxed flex-1">{tm.quote}</p>
+                  <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
+                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${tm.color} border ${tm.border} flex items-center justify-center text-sm font-bold text-white shrink-0`}>
+                      {tm.avatar}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-white text-sm font-semibold truncate">{tm.name}</p>
+                      <p className="text-white/40 text-[11px] truncate">{tm.role}</p>
+                    </div>
+                    <span className="ml-auto text-xl shrink-0" aria-hidden="true">{tm.flag}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── For Partners ────────────────────────────────────── */}
+        <section className="py-20 border-t border-white/[0.05]">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+                {ja ? 'ビジネスパートナー' : bn ? 'ব্যবসায়িক অংশীদার' : 'Business Partners'}
+              </p>
+              <h2 className="text-fluid-4xl font-bold text-white">
+                {ja ? 'ビジネスのために構築' : bn ? 'আপনার ব্যবসার জন্য তৈরি' : 'Built to grow your business'}
+              </h2>
+              <p className="text-fluid-base text-white/40 max-w-xl mx-auto mt-3 leading-relaxed">
+                {ja
+                  ? 'エージェンシーも教育機関も、Tensaiはあなたの収益と信頼を同時に高めます。'
+                  : bn
+                  ? 'এজেন্সি হোক বা শিক্ষাপ্রতিষ্ঠান — Tensai আপনার আয় ও বিশ্বাসযোগ্যতা একসাথে বাড়ায়।'
+                  : 'Whether you\'re an agency or a school, Tensai increases your revenue and credibility simultaneously.'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Agency card */}
+              <div className="glass-card rounded-2xl p-7 border border-cyan-500/20 relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-cyan-500/30 to-transparent" />
+                <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/5 border border-cyan-500/20 flex items-center justify-center text-xl" aria-hidden="true">🏢</div>
+                    <div>
+                      <h3 className="text-white font-bold">
+                        {ja ? 'エージェンシー向け' : bn ? 'এজেন্সির জন্য' : 'For Agencies'}
+                      </h3>
+                      <p className="text-cyan-400/70 text-xs mt-0.5">
+                        {ja ? '学生プールへのアクセス' : bn ? 'স্টুডেন্ট পুলে প্রবেশ' : 'Access the verified student pool'}
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2.5 mb-6">
+                    {AGENCY_BENEFITS.map((b) => (
+                      <li key={b.text} className="flex items-start gap-2.5 text-sm text-white/65">
+                        <span className="shrink-0 mt-0.5" aria-hidden="true">{b.icon}</span>
+                        {b.text}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/auth/register?type=agency"
+                    className="inline-flex items-center gap-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 hover:border-cyan-400/50 text-cyan-400 hover:text-cyan-300 px-5 py-2.5 rounded-full text-sm font-semibold transition-all"
+                  >
+                    {ja ? 'エージェンシーとして登録 →' : bn ? 'এজেন্সি হিসেবে যোগ দিন →' : 'Join as Agency →'}
+                  </Link>
+                </div>
+              </div>
+
+              {/* Institution card */}
+              <div className="glass-card rounded-2xl p-7 border border-violet-500/20 relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-violet-500/30 to-transparent" />
+                <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-violet-500/5 blur-2xl pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-600/5 border border-violet-500/20 flex items-center justify-center text-xl" aria-hidden="true">🏫</div>
+                    <div>
+                      <h3 className="text-white font-bold">
+                        {ja ? '教育機関向け' : bn ? 'শিক্ষা প্রতিষ্ঠানের জন্য' : 'For Schools & Institutions'}
+                      </h3>
+                      <p className="text-violet-400/70 text-xs mt-0.5">
+                        {ja ? 'AI検証済み学生を受け入れる' : bn ? 'AI যাচাইকৃত শিক্ষার্থী গ্রহণ করুন' : 'Receive AI-scored, verified applicants'}
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2.5 mb-6">
+                    {INSTITUTION_BENEFITS.map((b) => (
+                      <li key={b.text} className="flex items-start gap-2.5 text-sm text-white/65">
+                        <span className="shrink-0 mt-0.5" aria-hidden="true">{b.icon}</span>
+                        {b.text}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/auth/register?type=institution"
+                    className="inline-flex items-center gap-2 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 hover:border-violet-400/50 text-violet-400 hover:text-violet-300 px-5 py-2.5 rounded-full text-sm font-semibold transition-all"
+                  >
+                    {ja ? '機関として登録 →' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন →' : 'Join as Institution →'}
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
         {/* ── BD → JP Corridor ───────────────────────────────── */}
         <section className="bg-alt-section py-20 px-4 border-t border-white/[0.05]">
           <div className="max-w-4xl mx-auto">
@@ -636,6 +823,49 @@ export default function HomePage() {
         </section>
 
       </main>
+
+      {/* ── Final CTA ──────────────────────────────────────── */}
+      <section className="bg-alt-section border-t border-white/[0.05] py-20 px-4">
+        <div className="max-w-3xl mx-auto text-center relative">
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-green-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" />
+              {ja ? '現在受付中' : bn ? 'এখন অনবোর্ডিং চলছে' : 'Now onboarding partners'}
+            </div>
+            <h2 className="text-fluid-4xl font-bold text-white mb-4">
+              {ja ? '次は、あなたの番です' : bn ? 'পরের পদক্ষেপটা আপনার' : "Your turn to make the move"}
+            </h2>
+            <p className="text-fluid-base text-white/45 max-w-xl mx-auto mb-8 leading-relaxed">
+              {ja
+                ? '日本留学を夢見る学生、学生を守りたいエージェンシー、質の高い入学者を求める学校 — Tensaiはすべての人のために構築されています。'
+                : bn
+                ? 'জাপান যেতে চাওয়া শিক্ষার্থী, স্টুডেন্ট রক্ষা করতে চাওয়া এজেন্সি, বা মানসম্পন্ন শিক্ষার্থী খোঁজা স্কুল — Tensai সবার জন্য।'
+                : 'Whether you\'re a student dreaming of Japan, an agency protecting your students, or a school seeking quality applicants — Tensai was built for you.'}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/auth/register?type=student"
+                className="w-full sm:w-auto px-7 py-3.5 bg-green-600 hover:bg-green-500 text-white rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
+              >
+                {ja ? '学生として始める' : bn ? 'শিক্ষার্থী হিসেবে শুরু করুন' : 'Start as Student'}
+              </Link>
+              <Link
+                href="/auth/register?type=agency"
+                className="w-full sm:w-auto px-7 py-3.5 glass-card text-white/80 hover:text-white rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-cyan-500/30"
+              >
+                {ja ? 'エージェンシーとして参加' : bn ? 'এজেন্সি হিসেবে যোগ দিন' : 'Join as Agency'}
+              </Link>
+              <Link
+                href="/auth/register?type=institution"
+                className="w-full sm:w-auto px-7 py-3.5 glass-card text-white/80 hover:text-white rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-violet-500/30"
+              >
+                {ja ? '教育機関として参加' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন' : 'Join as School'}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-white/[0.06] py-8 px-4 bg-alt-section">

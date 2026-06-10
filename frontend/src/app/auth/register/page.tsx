@@ -63,11 +63,101 @@ function RegisterForm() {
     </svg>
   );
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
+  const TRUST_POINTS = [
+    {
+      icon: '🔒',
+      title: ja ? 'OCRロック書類' : bn ? 'OCR-লকড ডকুমেন্ট' : 'OCR-Locked Documents',
+      desc: ja ? 'アップロード後に改ざん不可' : bn ? 'আপলোডের পর টেম্পার-প্রুফ' : 'Tamper-proof once uploaded',
+    },
+    {
+      icon: '🤖',
+      title: ja ? 'AI適格性スコア' : bn ? 'AI যোগ্যতা স্কোর' : 'AI Eligibility Score',
+      desc: ja ? '自動計算・機関と即座にマッチング' : bn ? 'স্বয়ংক্রিয় স্কোর ও ম্যাচিং' : 'Auto-scored, matched with institutions',
+    },
+    {
+      icon: '💰',
+      title: ja ? 'エスクロー決済保護' : bn ? 'এসক্রো পেমেন্ট সুরক্ষা' : 'Escrow Payment Protection',
+      desc: ja ? '入学確定後にのみ費用が支払われる' : bn ? 'ভর্তি নিশ্চিতের পরেই ফি প্রদান' : 'Fees only released on confirmed placement',
+    },
+    {
+      icon: '🌐',
+      title: ja ? '透明な追跡' : bn ? 'স্বচ্ছ ট্র্যাকিং' : 'Transparent Tracking',
+      desc: ja ? 'すべてのステップをQRで追跡' : bn ? 'প্রতিটি ধাপ QR দিয়ে ট্র্যাক করুন' : 'Every step tracked via QR',
+    },
+  ];
 
-      {/* Logo */}
-      <Link href="/" className="flex items-center gap-2.5 mb-8">
+  return (
+    <div className="min-h-screen flex">
+
+      {/* ── Left: Brand panel (desktop only) ── */}
+      <div className="hidden lg:flex flex-col justify-between w-[420px] xl:w-[480px] bg-[#0d1117] px-10 py-10 relative overflow-hidden shrink-0">
+        {/* Ambient glow */}
+        <div className="absolute top-[20%] left-[-30%] w-80 h-80 bg-green-600/15 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-[10%] right-[-20%] w-60 h-60 bg-cyan-500/8 rounded-full blur-[80px] pointer-events-none" />
+        {/* Grid overlay */}
+        <div className="absolute inset-0 opacity-[0.018] pointer-events-none"
+          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.8) 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
+
+        <div className="relative z-10">
+          <Link href="/" className="flex items-center gap-2.5 mb-14">
+            <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-full object-contain" />
+            <div>
+              <div className="text-base font-bold text-white tracking-tight leading-none">Tensai</div>
+              <div className="text-[9px] text-white/35 tracking-wider leading-none mt-0.5 uppercase">The Way of Global Career</div>
+            </div>
+          </Link>
+
+          <div className="mb-10">
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-[11px] font-semibold px-3 py-1 rounded-full mb-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" />
+              {ja ? '現在受付中' : bn ? 'এখন নিবন্ধন চলছে' : 'Now accepting registrations'}
+            </div>
+            <h2 className="text-2xl font-black text-white leading-tight mb-3">
+              {ja ? '信頼された\nエコシステムに\n参加する' : bn ? 'বিশ্বস্ত\nইকোসিস্টেমে\nযোগ দিন' : 'Join the\nverified\necosystem'}
+            </h2>
+            <p className="text-white/45 text-sm leading-relaxed">
+              {ja
+                ? 'バングラデシュから日本へ — 詐欺なし、透明性あり、AI検証済み。'
+                : bn
+                ? 'বাংলাদেশ থেকে জাপান — কোনো প্রতারণা নেই, সম্পূর্ণ স্বচ্ছ, AI যাচাইকৃত।'
+                : 'Bangladesh to Japan — zero fraud, full transparency, AI-verified.'}
+            </p>
+          </div>
+
+          <ul className="space-y-4">
+            {TRUST_POINTS.map((p) => (
+              <li key={p.title} className="flex items-start gap-3">
+                <span className="w-9 h-9 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-base shrink-0">{p.icon}</span>
+                <div>
+                  <p className="text-white text-sm font-semibold leading-tight">{p.title}</p>
+                  <p className="text-white/38 text-xs mt-0.5 leading-relaxed">{p.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="relative z-10">
+          <div className="border-t border-white/[0.07] pt-5 flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {['R','K','Y','S'].map((l, i) => (
+                <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-green-500/30 to-cyan-500/20 border-2 border-[#0d1117] flex items-center justify-center text-[10px] font-bold text-green-300">
+                  {l}
+                </div>
+              ))}
+            </div>
+            <p className="text-white/38 text-xs leading-snug">
+              {ja ? '信頼されたプラットフォームに参加' : bn ? 'বিশ্বস্ত প্ল্যাটফর্মে যোগ দিন' : 'Join a trusted platform'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Right: Form panel ── */}
+      <div className="flex-1 bg-slate-50 flex flex-col items-center justify-center px-4 py-10 overflow-y-auto">
+
+      {/* Logo (mobile only) */}
+      <Link href="/" className="flex items-center gap-2.5 mb-8 lg:hidden">
         <Image src="/tensai-logo.png" alt="Tensai" width={40} height={40} className="rounded-full object-contain" />
         <div>
           <div className="text-xl font-black text-green-800 tracking-tight leading-none">Tensai</div>
@@ -263,6 +353,8 @@ function RegisterForm() {
         <Link href="/privacy" className="text-[11px] text-slate-400 hover:underline">Privacy</Link>
         <span className="text-[11px] text-slate-400">© 2026 Tensai</span>
       </div>
+
+      </div>{/* end right panel */}
     </div>
   );
 }
