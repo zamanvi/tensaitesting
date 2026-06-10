@@ -333,15 +333,13 @@ export default function HomePage() {
                 </div>
 
                 {/* Stats strip — use index keys (labels change with lang) */}
-                <div className="overflow-x-auto justify-center lg:justify-start flex">
-                  <div className="inline-flex items-stretch rounded-2xl overflow-hidden border border-white/[0.08] divide-x divide-white/[0.08] min-w-max">
-                    {STATS.map((s, i) => (
-                      <div key={i} className="px-5 sm:px-6 py-3 bg-white/[0.03] text-center">
-                        <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
-                        <div className="text-white/38 text-[10px] mt-0.5 whitespace-nowrap">{s.label}</div>
-                      </div>
-                    ))}
-                  </div>
+                <div className="grid grid-cols-3 sm:grid-cols-5 rounded-2xl overflow-hidden border border-white/[0.08] divide-x-0 sm:divide-x divide-white/[0.08] max-w-lg lg:mx-0 mx-auto">
+                  {STATS.map((s, i) => (
+                    <div key={i} className={`px-3 sm:px-5 py-3 bg-white/[0.03] text-center border-b sm:border-b-0 border-white/[0.08] ${i >= 3 ? 'col-span-1 sm:col-span-1' : ''}`}>
+                      <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
+                      <div className="text-white/38 text-[10px] mt-0.5 leading-snug">{s.label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

@@ -30,6 +30,7 @@ export default function BranchesPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading]   = useState(true);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -65,14 +66,30 @@ export default function BranchesPage() {
             <button onClick={toggle} className="text-xs font-semibold px-2.5 py-1 rounded-full border border-white/10 text-white/60 hover:border-green-500/40 hover:text-green-400 transition-all">
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
-            <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5">
+            <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5 hidden sm:inline">
               {ja ? 'ログイン' : bn ? 'লগইন' : 'Login'}
             </Link>
-            <Link href="/auth/register" className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all">
+            <Link href="/auth/register" className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all hidden sm:inline">
               {ja ? '始める' : bn ? 'শুরু করুন' : 'Get Started'}
             </Link>
+            <button
+              onClick={() => setMobileOpen(o => !o)}
+              className="sm:hidden p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/[0.08] transition-all"
+              aria-label="Menu"
+            >
+              {mobileOpen
+                ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+              }
+            </button>
           </div>
         </div>
+        {mobileOpen && (
+          <div className="sm:hidden bg-[#0d1117]/95 backdrop-blur-md border-t border-white/[0.08] px-4 py-4 flex gap-2">
+            <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-white/70 border border-white/10 px-4 py-2.5 rounded-full">{ja ? 'ログイン' : bn ? 'লগইন' : 'Login'}</Link>
+            <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-full font-semibold">{ja ? '始める' : bn ? 'শুরু করুন' : 'Get Started'}</Link>
+          </div>
+        )}
       </nav>
 
       {/* Hero */}
