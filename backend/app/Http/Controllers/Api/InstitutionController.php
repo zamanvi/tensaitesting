@@ -80,9 +80,33 @@ class InstitutionController extends Controller
     public function myLeads(Request $request): JsonResponse
     {
         $leads = Lead::where('assigned_institution_id', $request->user()->id)
-            ->with('student:id,name,email')
+            ->with([
+                'student:id,name,email',
+                'student.studentProfile:id,user_id,jlpt_level,nat_level,gpa,highest_qualification,is_ocr_verified',
+                'sourceAgency:id,name',
+            ])
             ->orderByDesc('created_at')
             ->paginate(20);
+
+        // Flatten student profile fields and compute eligibility score
+        $leads->getCollection()->transform(function (Lead $lead) {
+            $profile = $lead->student?->studentProfile;
+            $data = $lead->toArray();
+            $data['agency_name'] = $lead->sourceAgency?->name;
+            if ($lead->student) {
+                $data['student'] = [
+                    'name'                  => $lead->student->name,
+                    'email'                 => $lead->student->email,
+                    'jlpt_level'            => $profile?->jlpt_level,
+                    'nat_level'             => $profile?->nat_level,
+                    'gpa'                   => $profile?->gpa,
+                    'highest_qualification' => $profile?->highest_qualification,
+                    'eligibility_score'     => $profile?->eligibilityScore(),
+                ];
+            }
+            unset($data['source_agency'], $data['student']['student_profile']);
+            return $data;
+        });
 
         return response()->json($leads);
     }

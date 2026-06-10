@@ -43,22 +43,35 @@ class InterviewController extends Controller
         ]);
 
         $adminId = User::role('super_admin')->value('id') ?? 1;
+        $institution = $request->user();
 
-        // Create contact paper (formal record — institution → Tensai)
+        // Create pending Interview row so admin has something to arrange
+        $interview = Interview::create([
+            'lead_id'        => $lead->id,
+            'student_id'     => $lead->student_id,
+            'institution_id' => $institution->id,
+            'medium'         => $request->medium,
+            'scheduled_at'   => $request->preferred_date,
+            'status'         => 'pending',
+            'admin_notes'    => $request->notes,
+        ]);
+
         ContactPaper::create([
             'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(Str::random(8)),
-            'lead_id' => $lead->id,
-            'type' => 'interview_request',
-            'from_user_id' => $request->user()->id,
-            'to_user_id' => $adminId,
-            'subject' => "Interview Request for Lead #{$lead->lead_code}",
-            'body' => "Institution requests interview.\nPreferred date: {$request->preferred_date}\nMedium: {$request->medium}\nNotes: {$request->notes}",
+            'lead_id'          => $lead->id,
+            'interview_id'     => $interview->id,
+            'type'             => 'interview_request',
+            'from_user_id'     => $institution->id,
+            'to_user_id'       => $adminId,
+            'subject'          => "Interview Request for Lead #{$lead->lead_code}",
+            'body'             => "Institution requests interview.\nPreferred date: {$request->preferred_date}\nMedium: {$request->medium}\nNotes: {$request->notes}",
         ]);
 
         $lead->update(['status' => 'shortlisted']);
 
         return response()->json([
-            'message' => 'Interview request submitted. Tensai will arrange and confirm the schedule.',
+            'message'      => 'Interview request submitted. Tensai will arrange and confirm the schedule.',
+            'interview_id' => $interview->id,
         ]);
     }
 
@@ -73,17 +86,31 @@ class InterviewController extends Controller
 
         $adminId = User::role('super_admin')->value('id') ?? 1;
 
-        ContactPaper::create([
-            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(Str::random(8)),
-            'lead_id' => $lead->id,
-            'type' => 'interview_request',
-            'from_user_id' => $request->user()->id,
-            'to_user_id' => $adminId,
-            'subject' => "Interview Request: Lead #{$lead->lead_code}",
-            'body' => "Agency requests interview with institution #{$request->institution_id}.\nPreferred: {$request->preferred_date}\nMedium: {$request->medium}",
+        // Create pending Interview row
+        $interview = Interview::create([
+            'lead_id'        => $lead->id,
+            'student_id'     => $lead->student_id,
+            'institution_id' => $request->institution_id,
+            'medium'         => $request->medium,
+            'scheduled_at'   => $request->preferred_date,
+            'status'         => 'pending',
         ]);
 
-        return response()->json(['message' => 'Interview request sent to Tensai admin.']);
+        ContactPaper::create([
+            'reference_number' => 'CP-' . date('Y') . '-' . strtoupper(Str::random(8)),
+            'lead_id'          => $lead->id,
+            'interview_id'     => $interview->id,
+            'type'             => 'interview_request',
+            'from_user_id'     => $request->user()->id,
+            'to_user_id'       => $adminId,
+            'subject'          => "Interview Request: Lead #{$lead->lead_code}",
+            'body'             => "Agency requests interview with institution #{$request->institution_id}.\nPreferred: {$request->preferred_date}\nMedium: {$request->medium}",
+        ]);
+
+        return response()->json([
+            'message'      => 'Interview request sent to Tensai admin.',
+            'interview_id' => $interview->id,
+        ]);
     }
 
     // Admin arranges interview (sets time, sends confirmation)

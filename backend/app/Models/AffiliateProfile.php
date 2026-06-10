@@ -32,6 +32,11 @@ class AffiliateProfile extends Model
         // Status
         'status',
 
+        // Upgrade request
+        'upgrade_request_reason',
+        'upgrade_requested_at',
+        'upgrade_status',
+
         // Commission rates (set by admin)
         'local_commission_fixed',
         'global_commission_percent',
@@ -57,6 +62,7 @@ class AffiliateProfile extends Model
         'managed_institutions_count' => 'integer',
         'managed_employees_count'    => 'integer',
         'type_confirmed'             => 'boolean',
+        'upgrade_requested_at'       => 'datetime',
         'target_regions'             => 'array',
     ];
 

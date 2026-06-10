@@ -14,7 +14,7 @@ interface Lead {
   target_course: string | null;
   target_intake: string | null;
   created_at: string;
-  agency_name?: string | null;
+  assigned_agency?: { id: number; name: string } | null;
 }
 
 const PIPELINE_STAGES = [
@@ -167,9 +167,9 @@ export default function StudentLeads() {
                       {sl.intake} {new Date(lead.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </span>
                   )}
-                  {lead.agency_name && (
+                  {lead.assigned_agency?.name && (
                     <span className="text-xs text-slate-400">
-                      {ja ? '経由:' : bn ? 'এজেন্সি:' : 'via'} {lead.agency_name}
+                      {ja ? '経由:' : bn ? 'এজেন্সি:' : 'via'} {lead.assigned_agency.name}
                     </span>
                   )}
                 </div>

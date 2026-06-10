@@ -317,25 +317,31 @@ class AffiliateController extends Controller
         if (!$profile->isLocal()) {
             return response()->json(['message' => 'Only local affiliates can request an upgrade.'], 403);
         }
+        if ($profile->upgrade_status === 'pending') {
+            return response()->json(['message' => 'You already have a pending upgrade request.'], 409);
+        }
+        if ($profile->upgrade_status === 'approved') {
+            return response()->json(['message' => 'Your account has already been upgraded.'], 409);
+        }
+
         $request->validate([
             'organization_name' => 'nullable|string|max:200',
             'reason'            => 'nullable|string|max:1000',
         ]);
 
-        $user = $request->user();
-
-        \Illuminate\Support\Facades\Log::info('Affiliate upgrade to global request', [
-            'user_id'           => $user->id,
-            'name'              => $user->name,
-            'email'             => $user->email,
-            'affiliate_code'    => $user->affiliate_code,
-            'organization_name' => $request->organization_name,
-            'reason'            => $request->reason,
-            'requested_at'      => now()->toIso8601String(),
+        $profile->update([
+            'upgrade_request_reason' => $request->reason,
+            'upgrade_requested_at'   => now(),
+            'upgrade_status'         => 'pending',
         ]);
 
+        if ($request->organization_name) {
+            $profile->update(['organization_name' => $request->organization_name]);
+        }
+
         return response()->json([
-            'message' => 'Upgrade request received. Our team will review and contact you within 2–3 business days.',
+            'message'        => 'Upgrade request received. Our team will review and contact you within 2–3 business days.',
+            'upgrade_status' => 'pending',
         ]);
     }
 
