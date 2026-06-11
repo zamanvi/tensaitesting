@@ -32,6 +32,7 @@ export default function AgencyDashboard() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [cityInput, setCityInput] = useState('');
 
   const { data: agencyProfile } = useQuery({
     queryKey: ['agency-profile'],
@@ -88,6 +89,7 @@ export default function AgencyDashboard() {
     setForm(EMPTY_FORM);
     setFormError('');
     setSuccess(false);
+    setCityInput('');
   };
 
   const STATS = [
@@ -138,12 +140,28 @@ export default function AgencyDashboard() {
       {/* Header row with Add Lead CTA */}
       <div className="flex items-center justify-between mb-5 sm:mb-6">
         <div />
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-semibold transition-colors"
-        >
-          {a.addLeadBtn}
-        </button>
+        <div className="relative group">
+          <button
+            onClick={() => { if (profileStatus === 'approved') setShowModal(true); }}
+            disabled={profileStatus !== 'approved'}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              profileStatus === 'approved'
+                ? 'bg-green-700 hover:bg-green-800 text-white cursor-pointer'
+                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            }`}
+          >
+            {a.addLeadBtn}
+          </button>
+          {profileStatus !== 'approved' && (
+            <div className="absolute right-0 top-full mt-1.5 w-56 bg-slate-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+              {ja
+                ? '代理店が承認されると利用可能になります'
+                : bn
+                ? 'এজেন্সি অনুমোদিত হলে উপলব্ধ হবে'
+                : 'Available once your agency is approved'}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -323,52 +341,104 @@ export default function AgencyDashboard() {
                           />
                         </div>
 
-                        {/* Preferred cities — multi-tag input */}
+                        {/* Preferred cities — preset + custom */}
                         <div>
-                          <label className="block text-xs text-slate-500 mb-1">
-                            {ja ? '希望都市（複数可）' : bn ? 'পছন্দের শহর (একাধিক যোগ করুন)' : 'Preferred City (add multiple)'}
+                          <label className="block text-xs text-slate-500 mb-2">
+                            {ja ? '希望都市（複数選択可）' : bn ? 'পছন্দের শহর (একাধিক বেছে নিন)' : 'Preferred City (select multiple)'}
                           </label>
-                          <div className="flex flex-wrap gap-1.5 mb-2">
-                            {form.preferred_cities.map((city, i) => (
-                              <span key={i} className="inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-xs font-medium px-2.5 py-1 rounded-full">
-                                {city}
+
+                          {/* Selected tags */}
+                          {form.preferred_cities.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-3">
+                              {form.preferred_cities.map((city, i) => (
+                                <span key={i} className="inline-flex items-center gap-1 bg-green-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                                  {city}
+                                  <button
+                                    type="button"
+                                    onClick={() => setForm(f => ({ ...f, preferred_cities: f.preferred_cities.filter((_, idx) => idx !== i) }))}
+                                    className="opacity-70 hover:opacity-100 leading-none ml-0.5 text-sm"
+                                  >×</button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Preset city checkboxes */}
+                          <div className="grid grid-cols-2 gap-1.5 mb-3">
+                            {[
+                              { en: 'Tokyo',     ja: '東京',   bn: 'টোকিও' },
+                              { en: 'Osaka',     ja: '大阪',   bn: 'ওসাকা' },
+                              { en: 'Kyoto',     ja: '京都',   bn: 'কিয়োটো' },
+                              { en: 'Nagoya',    ja: '名古屋',  bn: 'নাগোয়া' },
+                              { en: 'Sapporo',   ja: '札幌',   bn: 'সাপ্পোরো' },
+                              { en: 'Fukuoka',   ja: '福岡',   bn: 'ফুকুওকা' },
+                              { en: 'Yokohama',  ja: '横浜',   bn: 'ইয়োকোহামা' },
+                              { en: 'Kobe',      ja: '神戸',   bn: 'কোবে' },
+                              { en: 'Hiroshima', ja: '広島',   bn: 'হিরোশিমা' },
+                              { en: 'Sendai',    ja: '仙台',   bn: 'সেন্দাই' },
+                              { en: 'Nara',      ja: '奈良',   bn: 'নারা' },
+                              { en: 'Okinawa',   ja: '沖縄',   bn: 'ওকিনাওয়া' },
+                            ].map(city => {
+                              const label = ja ? city.ja : bn ? city.bn : city.en;
+                              const selected = form.preferred_cities.includes(city.en);
+                              return (
                                 <button
+                                  key={city.en}
                                   type="button"
-                                  onClick={() => setForm(f => ({ ...f, preferred_cities: f.preferred_cities.filter((_, idx) => idx !== i) }))}
-                                  className="text-green-500 hover:text-red-500 leading-none ml-0.5"
-                                >×</button>
-                              </span>
-                            ))}
+                                  onClick={() => setForm(f => ({
+                                    ...f,
+                                    preferred_cities: selected
+                                      ? f.preferred_cities.filter(c => c !== city.en)
+                                      : [...f.preferred_cities, city.en],
+                                  }))}
+                                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium border transition-all text-left ${
+                                    selected
+                                      ? 'bg-green-50 border-green-400 text-green-700'
+                                      : 'bg-white border-slate-200 text-slate-600 hover:border-green-300 hover:bg-green-50/50'
+                                  }`}
+                                >
+                                  <span className={`w-4 h-4 rounded flex items-center justify-center border shrink-0 ${selected ? 'bg-green-600 border-green-600 text-white' : 'border-slate-300'}`}>
+                                    {selected && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                                  </span>
+                                  {label}
+                                  {ja && city.en !== city.ja && <span className="text-slate-400 text-[10px] ml-auto">{city.en}</span>}
+                                </button>
+                              );
+                            })}
                           </div>
-                          <div className="flex gap-2">
+
+                          {/* Custom city input */}
+                          <div className="flex gap-2 border-t border-slate-100 pt-3">
                             <input
-                              id="city-input"
                               type="text"
-                              placeholder={ja ? '都市名を入力してEnter' : bn ? 'শহরের নাম লিখে Enter দিন' : 'Type a city and press Enter'}
-                              className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                              value={cityInput}
+                              onChange={e => setCityInput(e.target.value)}
+                              placeholder={ja ? '他の都市を追加...' : bn ? 'অন্য শহর যোগ করুন...' : 'Add other city...'}
+                              className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
                               onKeyDown={e => {
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
-                                  const val = (e.target as HTMLInputElement).value.trim();
+                                  const val = cityInput.trim();
                                   if (val && !form.preferred_cities.includes(val)) {
                                     setForm(f => ({ ...f, preferred_cities: [...f.preferred_cities, val] }));
                                   }
-                                  (e.target as HTMLInputElement).value = '';
+                                  setCityInput('');
                                 }
                               }}
                             />
                             <button
                               type="button"
                               onClick={() => {
-                                const input = document.getElementById('city-input') as HTMLInputElement;
-                                const val = input?.value.trim();
+                                const val = cityInput.trim();
                                 if (val && !form.preferred_cities.includes(val)) {
                                   setForm(f => ({ ...f, preferred_cities: [...f.preferred_cities, val] }));
-                                  input.value = '';
+                                  setCityInput('');
                                 }
                               }}
-                              className="px-3 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors"
-                            >+</button>
+                              className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors"
+                            >
+                              {ja ? '追加' : bn ? 'যোগ' : 'Add'}
+                            </button>
                           </div>
                         </div>
                       </div>
