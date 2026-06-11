@@ -97,6 +97,9 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: t.nav.interviews, href: '/dashboard/institution/interviews' },
       { label: t.nav.institutionProfile, href: '/dashboard/institution/profile' },
     ],
+    branch_admin: [
+      { label: lang === 'ja' ? '支局管理' : lang === 'bn' ? 'শাখা ড্যাশবোর্ড' : 'Branch Dashboard', href: '/dashboard/branch' },
+    ],
     affiliate: [
       { label: t.nav.overview, href: '/dashboard/affiliate' },
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile & Payout', href: '/dashboard/affiliate/profile' },
@@ -122,7 +125,8 @@ export default function DashboardLayout({ children, title }: Props) {
 
   const userInitial = user.name?.charAt(0).toUpperCase() ?? '?';
   const isAdmin = user.roles?.some(r => r === 'admin' || r === 'super_admin') ?? false;
-  const links = isAdmin ? NAV_LINKS.admin : (NAV_LINKS[user.gateway_type] ?? []);
+  const isBranchAdmin = user.roles?.some(r => r === 'branch_admin' || r === 'branch_manager') ?? false;
+  const links = isAdmin ? NAV_LINKS.admin : isBranchAdmin ? NAV_LINKS.branch_admin : (NAV_LINKS[user.gateway_type] ?? []);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -133,7 +137,7 @@ export default function DashboardLayout({ children, title }: Props) {
 
           {/* Left: logo + desktop nav */}
           <div className="flex items-center min-w-0">
-            <Link href={isAdmin ? '/dashboard/admin/gallery' : `/dashboard/${user.gateway_type}`} className="flex items-center gap-2 shrink-0 mr-4">
+            <Link href={isAdmin ? '/dashboard/admin/gallery' : isBranchAdmin ? '/dashboard/branch' : `/dashboard/${user.gateway_type}`} className="flex items-center gap-2 shrink-0 mr-4">
               <Image src="/tensai-logo.png" alt="Tensai" width={30} height={30} className="rounded-full object-contain" />
               <span className="font-bold text-green-800 tracking-tight">Tensai</span>
             </Link>

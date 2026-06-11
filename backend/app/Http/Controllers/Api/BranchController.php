@@ -40,6 +40,47 @@ class BranchController extends Controller
         return response()->json($data);
     }
 
+    /** Branch admin updates their own branch contact info */
+    public function updateContact(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user->branch_id) {
+            return response()->json(['message' => 'You are not assigned to a branch.'], 403);
+        }
+
+        $validated = $request->validate([
+            'phone'    => 'nullable|string|max:30',
+            'whatsapp' => 'nullable|string|max:30',
+            'address'  => 'nullable|string|max:500',
+        ]);
+
+        $branch = Branch::findOrFail($user->branch_id);
+        $branch->update($validated);
+
+        return response()->json([
+            'message' => 'Contact info updated.',
+            'branch'  => $branch->only(['id', 'name', 'phone', 'whatsapp', 'address']),
+        ]);
+    }
+
+    /** Branch admin fetches their own branch */
+    public function myBranch(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (!$user->branch_id) {
+            return response()->json(['message' => 'You are not assigned to a branch.'], 403);
+        }
+
+        $branch = Branch::findOrFail($user->branch_id);
+
+        return response()->json($branch->only([
+            'id', 'name', 'slug', 'city', 'country',
+            'phone', 'whatsapp', 'address', 'email',
+        ]));
+    }
+
     /** Proxy-serve a branch file from R2 (when no public CDN URL) */
     public function serveFile(Request $request): Response
     {
