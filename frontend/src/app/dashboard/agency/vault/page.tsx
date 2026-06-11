@@ -51,7 +51,6 @@ export default function PrivateVault() {
   const isAgency = user?.gateway_type === 'agency';
 
   const [forwardingLead, setForwardingLead] = useState<Lead | null>(null);
-  const [publishingLead, setPublishingLead] = useState<Lead | null>(null);
   const [targetAgencyId, setTargetAgencyId] = useState('');
   const [referralFee, setReferralFee] = useState('');
   const [forwardSuccess, setForwardSuccess] = useState(false);
@@ -74,13 +73,6 @@ export default function PrivateVault() {
     enabled: isAgency && forwardingLead !== null,
   });
 
-  const publish = useMutation({
-    mutationFn: (leadId: number) => api.post(`/agency/leads/${leadId}/publish`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['agency-vault'] });
-      setPublishingLead(null);
-    },
-  });
 
   const forward = useMutation({
     mutationFn: ({ leadId, target_agency_id, referral_fee }: { leadId: number; target_agency_id: number; referral_fee: number | null }) =>
@@ -254,58 +246,12 @@ export default function PrivateVault() {
                       >
                         {av.forwardBtn}
                       </button>
-                      {lead.is_published ? (
-                        <span className="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                          🏫 {ja ? '公開済み' : bn ? 'প্রকাশিত' : 'Visible to Institutions'}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => setPublishingLead(lead)}
-                          className="px-4 py-2 bg-slate-100 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 border border-slate-100 rounded-xl text-xs font-semibold transition-colors"
-                        >
-                          🏫 {ja ? '学校に公開する' : bn ? 'প্রতিষ্ঠানে প্রকাশ করুন' : 'Publish to Institutions'}
-                        </button>
-                      )}
                     </div>
                   )}
                 </div>
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* Publish confirmation modal */}
-      {publishingLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <div className="text-3xl mb-3 text-center">🏫</div>
-            <h3 className="font-bold text-slate-900 text-base text-center mb-2">
-              {ja ? 'オープンプールに公開しますか？' : bn ? 'ওপেন পুলে প্রকাশ করবেন?' : 'Publish to Open Pool?'}
-            </h3>
-            <div className="bg-slate-50 rounded-xl p-3 mb-4 text-sm text-center">
-              <div className="font-mono text-xs text-slate-400 mb-0.5">{publishingLead.lead_code}</div>
-              <div className="font-semibold text-slate-800">{publishingLead.student?.name}</div>
-            </div>
-            <p className="text-xs text-slate-500 text-center mb-5">
-              {ja ? '公開すると、機関がこの学生を閲覧できるようになります。' : bn ? 'প্রকাশ করলে প্রতিষ্ঠানগুলো এই শিক্ষার্থীকে দেখতে পাবে।' : 'Institutions will be able to view this student profile in the open pool.'}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => publish.mutate(publishingLead.id)}
-                disabled={publish.isPending}
-                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
-              >
-                {publish.isPending ? '…' : (ja ? '公開する' : bn ? 'প্রকাশ করুন' : 'Yes, Publish')}
-              </button>
-              <button
-                onClick={() => setPublishingLead(null)}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
-              >
-                {t.common.cancel}
-              </button>
-            </div>
-          </div>
         </div>
       )}
 

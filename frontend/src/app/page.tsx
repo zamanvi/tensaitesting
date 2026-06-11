@@ -511,6 +511,58 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── Platform Stats ─────────────────────────────────── */}
+        <section className="py-14 sm:py-20 px-4 bg-white border-t border-slate-100">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-10">
+              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-green-600 mb-2">
+                {ja ? 'プラットフォームの実績' : bn ? 'আমাদের প্ল্যাটফর্ম' : 'Our Platform'}
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                {ja ? '国境を越えた学生たちに信頼されています' : bn ? 'বিশ্বজুড়ে শিক্ষার্থীদের বিশ্বাসের প্ল্যাটফর্ম' : 'Trusted by students across borders'}
+              </h2>
+              <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
+                {ja ? 'パートナーシップと信頼に基づいて成長するネットワーク' : bn ? 'অংশীদারিত্ব ও বিশ্বাসের উপর গড়ে ওঠা একটি ক্রমবর্ধমান নেটওয়ার্ক' : 'A growing network of partners dedicated to your success'}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+              {[
+                {
+                  value: '205+',
+                  label: ja ? '登録学生' : bn ? 'নিবন্ধিত শিক্ষার্থী' : 'Students Registered',
+                  icon: '🎓',
+                  desc: ja ? '留学を夢見る学生たち' : bn ? 'বিদেশে পড়তে আগ্রহী' : 'Aspiring to study abroad',
+                },
+                {
+                  value: '3',
+                  label: ja ? '拠点オフィス' : bn ? 'শাখা অফিস' : 'Branch Offices',
+                  icon: '🏢',
+                  desc: ja ? '全国に広がるネットワーク' : bn ? 'সারাদেশে বিস্তৃত' : 'Nationwide presence',
+                },
+                {
+                  value: '9',
+                  label: ja ? 'パートナー校' : bn ? 'পার্টনার স্কুল' : 'Partner Schools',
+                  icon: '🏫',
+                  desc: ja ? '日本の認定教育機関' : bn ? 'জাপানে স্বীকৃত প্রতিষ্ঠান' : 'Accredited institutions in Japan',
+                },
+                {
+                  value: '4',
+                  label: ja ? '認定エージェンシー' : bn ? 'অনুমোদিত এজেন্সি' : 'Approved Agencies',
+                  icon: '🤝',
+                  desc: ja ? '審査済みパートナー' : bn ? 'যাচাইকৃত অংশীদার' : 'Verified trusted partners',
+                },
+              ].map((stat) => (
+                <div key={stat.label} className="bg-slate-50 rounded-2xl p-5 sm:p-6 text-center border border-slate-100 hover:border-green-200 hover:bg-green-50/30 transition-all">
+                  <div className="text-3xl mb-2">{stat.icon}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-slate-900 mb-1">{stat.value}</div>
+                  <div className="text-sm font-semibold text-slate-700 mb-1">{stat.label}</div>
+                  <div className="text-xs text-slate-400">{stat.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── How It Works ───────────────────────────────────── */}
         <section className="bg-alt-section py-20 border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto px-4">

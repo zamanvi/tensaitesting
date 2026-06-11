@@ -88,7 +88,6 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: t.nav.overview, href: '/dashboard/agency' },
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Agency Profile', href: '/dashboard/agency/profile' },
       { label: t.nav.privateVault, href: '/dashboard/agency/vault' },
-      { label: t.nav.openPool, href: '/dashboard/agency/pool' },
     ],
     institution: [
       { label: t.nav.overview, href: '/dashboard/institution' },

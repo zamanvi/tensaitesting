@@ -154,10 +154,26 @@ class LeadResource extends Resource
                         default                => 'primary',
                     }),
                 Tables\Columns\TextColumn::make('target_country'),
-                Tables\Columns\TextColumn::make('sourceAgency.name')
-                    ->label('Source Agency')
-                    ->default('Direct')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('source')
+                    ->label('Source')
+                    ->getStateUsing(fn (Lead $record) => match($record->source_type) {
+                        'agency'    => $record->sourceAgency?->name ?? '—',
+                        'branch'    => $record->sourceBranch?->name ?? '—',
+                        'affiliate' => $record->sourceAffiliate?->name ?? '—',
+                        'student'   => 'Self-applied',
+                        'admin'     => 'Head Office',
+                        default     => 'Head Office',
+                    })
+                    ->badge()
+                    ->color(fn (Lead $record) => match($record->source_type) {
+                        'agency'    => 'warning',
+                        'branch'    => 'info',
+                        'affiliate' => 'primary',
+                        'student'   => 'success',
+                        'admin'     => 'gray',
+                        default     => 'gray',
+                    })
+                    ->sortable('source_type'),
                 Tables\Columns\TextColumn::make('assignedAgency.name')
                     ->label('Assigned Agency')
                     ->default('—'),
@@ -207,6 +223,15 @@ class LeadResource extends Resource
                         'enrolled'             => 'Enrolled',
                         'closed'               => 'Closed',
                         'on_hold'              => 'On Hold',
+                    ]),
+                SelectFilter::make('source_type')
+                    ->label('Source')
+                    ->options([
+                        'agency'    => 'Agency',
+                        'branch'    => 'Branch',
+                        'affiliate' => 'Affiliate',
+                        'student'   => 'Self-applied',
+                        'admin'     => 'Head Office',
                     ]),
                 SelectFilter::make('source_agency_id')
                     ->label('Source Agency')

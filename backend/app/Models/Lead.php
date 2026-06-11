@@ -12,8 +12,9 @@ class Lead extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'lead_code', 'student_id', 'pool_type',
-        'source_agency_id', 'assigned_agency_id', 'assigned_institution_id',
+        'lead_code', 'student_id', 'pool_type', 'source_type',
+        'source_agency_id', 'source_branch_id', 'source_affiliate_id',
+        'assigned_agency_id', 'assigned_institution_id',
         'affiliate_id', 'status', 'is_published', 'published_at',
         'unlock_fee', 'is_locked', 'target_country', 'target_course',
         'target_intake', 'admin_notes', 'agency_notes',
@@ -41,6 +42,8 @@ class Lead extends Model
 
     public function student() { return $this->belongsTo(User::class, 'student_id'); }
     public function sourceAgency() { return $this->belongsTo(User::class, 'source_agency_id'); }
+    public function sourceBranch() { return $this->belongsTo(\App\Models\Branch::class, 'source_branch_id'); }
+    public function sourceAffiliate() { return $this->belongsTo(User::class, 'source_affiliate_id'); }
     public function assignedAgency() { return $this->belongsTo(User::class, 'assigned_agency_id'); }
     public function assignedInstitution() { return $this->belongsTo(User::class, 'assigned_institution_id'); }
     public function affiliate() { return $this->belongsTo(User::class, 'affiliate_id'); }

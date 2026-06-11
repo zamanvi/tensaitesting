@@ -4,7 +4,7 @@ import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useMutation, useQueries, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -40,11 +40,11 @@ export default function AgencyDashboard() {
     enabled: isAgency,
   });
 
-  const [vaultQ, poolQ] = useQueries({
-    queries: [
-      { queryKey: ['agency-vault'], queryFn: () => api.get('/agency/leads/private-vault').then(r => r.data), staleTime: 30_000, enabled: isAgency },
-      { queryKey: ['open-pool'], queryFn: () => api.get('/agency/leads/open-pool').then(r => r.data), staleTime: 30_000, enabled: isAgency },
-    ],
+  const vaultQ = useQuery({
+    queryKey: ['agency-vault'],
+    queryFn: () => api.get('/agency/leads/private-vault').then(r => r.data),
+    staleTime: 30_000,
+    enabled: isAgency,
   });
 
   useEffect(() => {
@@ -74,9 +74,8 @@ export default function AgencyDashboard() {
   if (!isAgency) return null;
 
   const vaultLeads: Lead[] = Array.isArray(vaultQ.data?.data) ? vaultQ.data.data : Array.isArray(vaultQ.data) ? vaultQ.data : [];
-  const poolLeads: Lead[] = Array.isArray(poolQ.data?.data) ? poolQ.data.data : Array.isArray(poolQ.data) ? poolQ.data : [];
   const activeCount = vaultLeads.filter(l => !['closed', 'enrolled'].includes(l.status)).length;
-  const loading = vaultQ.isLoading || poolQ.isLoading;
+  const loading = vaultQ.isLoading;
 
   const handleSubmit = (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -94,15 +93,8 @@ export default function AgencyDashboard() {
 
   const STATS = [
     { label: a.privateVault, value: loading ? '…' : String(vaultLeads.length), icon: '🔒', href: '/dashboard/agency/vault' },
-    { label: a.openPool, value: loading ? '…' : String(poolLeads.length), icon: '🌐', href: '/dashboard/agency/pool' },
     { label: a.activeLeads, value: loading ? '…' : String(activeCount), icon: '👥', href: '/dashboard/agency/vault' },
     { label: a.commissionsDue, value: '৳0', icon: '💰', href: '#' },
-  ];
-
-  const B2B_ITEMS = [
-    { title: a.publishTitle, desc: a.publishDesc },
-    { title: a.forwardTitle, desc: a.forwardDesc },
-    { title: a.referralTitle, desc: a.referralDesc },
   ];
 
   // Profile status banner config
@@ -164,7 +156,7 @@ export default function AgencyDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
         {STATS.map((s) => (
           <Link key={s.label} href={s.href} className="bg-white border border-slate-100 rounded-2xl p-4 sm:p-5 hover:border-green-200 transition-all">
             <div className="text-xl mb-2">{s.icon}</div>
@@ -199,35 +191,6 @@ export default function AgencyDashboard() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-bold text-slate-900">🌐 {a.openPool}</h2>
-            <Link href="/dashboard/agency/pool" className="text-xs text-green-700 hover:underline">{t.common.browse}</Link>
-          </div>
-          <p className="text-sm text-slate-500 mb-4">{a.poolDesc}</p>
-          {loading ? (
-            <div className="text-center py-6 text-slate-300 text-sm">…</div>
-          ) : poolLeads.length === 0 ? (
-            <div className="text-center py-6 text-slate-300 text-sm">{a.poolEmpty}</div>
-          ) : (
-            <div className="text-center py-6">
-              <p className="text-2xl font-black text-slate-800">{poolLeads.length}</p>
-              <p className="text-xs text-slate-400 mt-1">{ja ? '公開中の学生' : bn ? 'পাবলিশড লিড' : 'students in open pool'}</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">
-        <h2 className="font-bold text-slate-900 mb-1">🤝 {a.b2bTitle}</h2>
-        <p className="text-sm text-slate-500 mb-4">{a.b2bDesc}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {B2B_ITEMS.map((item) => (
-            <div key={item.title} className="p-3 sm:p-4 bg-slate-50 rounded-xl text-sm">
-              <div className="font-semibold text-slate-700 mb-1">{item.title}</div>
-              <div className="text-slate-500 text-xs">{item.desc}</div>
-            </div>
-          ))}
         </div>
       </div>
 
