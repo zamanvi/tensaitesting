@@ -191,7 +191,6 @@ export default function AgencyDashboard() {
           )}
         </div>
 
-        </div>
       </div>
 
       {/* Add Lead Modal */}
