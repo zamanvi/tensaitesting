@@ -113,14 +113,10 @@ class StudentProfileController extends Controller
     // Institution: browse agency-published leads (contact masked)
     public function institutionBrowse(Request $request): JsonResponse
     {
-        // Only show leads that agencies have published (is_published=true)
-        // These are students that agencies explicitly want institutions to see
-        $query = Lead::where('is_published', true)
-            ->whereNotNull('source_agency_id')
-            ->with([
-                'student:id,name',
+        // Show all platform leads — academic info only, no student name/contact
+        $query = Lead::with([
+                'student:id',
                 'student.studentProfile',
-                'sourceAgency:id,name',
             ]);
 
         // Filters on the student profile
@@ -136,22 +132,29 @@ class StudentProfileController extends Controller
         if ($request->gender) {
             $query->whereHas('student.studentProfile', fn ($q) => $q->where('gender', $request->gender));
         }
+        if ($request->preferred_city) {
+            $query->whereJsonContains('preferred_cities', $request->preferred_city);
+        }
+        if ($request->target_course) {
+            $query->where('target_course', 'like', '%' . $request->target_course . '%');
+        }
 
-        $leads = $query->orderByDesc('published_at')->paginate(20);
+        $leads = $query->orderByDesc('created_at')->paginate(20);
 
-        // Return lead + masked student profile (no contact info)
+        // Return academic info only — no name, no contact
         $leads->getCollection()->transform(function (Lead $lead) {
             $profile = $lead->student?->studentProfile;
+            $dob = $profile?->date_of_birth;
+            $age = $dob ? now()->diffInYears(\Carbon\Carbon::parse($dob)) : null;
             return [
                 'lead_id'              => $lead->id,
                 'lead_code'            => $lead->lead_code,
+                'candidate_id'         => 'Candidate #' . strtoupper(substr($lead->lead_code, -5)),
                 'target_country'       => $lead->target_country,
                 'target_course'        => $lead->target_course,
                 'target_intake'        => $lead->target_intake?->format('Y-m-d'),
-                'published_at'         => $lead->published_at?->toDateString(),
-                'source_agency'        => $lead->sourceAgency?->name,
-                'student_id'           => $lead->student_id,
-                'student_name'         => $lead->student?->name,
+                'preferred_cities'     => $lead->preferred_cities ?? [],
+                'jlpt_nat_score'       => $lead->jlpt_nat_score,
                 'gender'               => $profile?->gender,
                 'nationality'          => $profile?->nationality,
                 'highest_qualification'=> $profile?->highest_qualification,
@@ -160,8 +163,8 @@ class StudentProfileController extends Controller
                 'jlpt_level'           => $profile?->jlpt_level,
                 'nat_level'            => $profile?->nat_level,
                 'ielts_score'          => $profile?->ielts_score,
+                'age'                  => $age,
                 'eligibility_score'    => $profile?->eligibilityScore() ?? 0,
-                // phone/email/passport/nid intentionally omitted
             ];
         });
 

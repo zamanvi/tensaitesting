@@ -117,11 +117,6 @@ class InstitutionController extends Controller
      */
     public function contactRequest(Request $request, Lead $lead): JsonResponse
     {
-        // Only published leads can be contacted
-        if (!$lead->is_published) {
-            return response()->json(['message' => 'This lead is not publicly available.'], 403);
-        }
-
         $validated = $request->validate([
             'message'         => 'required|string|max:1000',
             'proposed_course' => 'nullable|string|max:255',
