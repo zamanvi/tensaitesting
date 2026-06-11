@@ -50,6 +50,15 @@ class LeadResource extends Resource
                     ])->required(),
             ])->columns(2),
 
+            Forms\Components\Section::make('Student Info')->schema([
+                Forms\Components\Placeholder::make('student_email')
+                    ->label('Email')
+                    ->content(fn (Lead $record): string => $record->student?->email ?? '—'),
+                Forms\Components\Placeholder::make('student_phone')
+                    ->label('Phone')
+                    ->content(fn (Lead $record): string => $record->student?->phone ?? '—'),
+            ])->columns(2)->visibleOn('edit'),
+
             Forms\Components\Section::make('Assignment')->schema([
                 Forms\Components\Select::make('source_agency_id')
                     ->label('Source Agency')
@@ -66,7 +75,18 @@ class LeadResource extends Resource
             ])->columns(3),
 
             Forms\Components\Section::make('Target')->schema([
-                Forms\Components\TextInput::make('target_country')->default('Japan'),
+                Forms\Components\Select::make('target_country')
+                    ->options([
+                        'Japan'       => 'Japan',
+                        'South Korea' => 'South Korea',
+                        'Australia'   => 'Australia',
+                        'Canada'      => 'Canada',
+                        'UK'          => 'UK',
+                        'Germany'     => 'Germany',
+                        'USA'         => 'USA',
+                    ])
+                    ->default('Japan')
+                    ->searchable(),
                 Forms\Components\TextInput::make('target_course'),
                 Forms\Components\DatePicker::make('target_intake'),
             ])->columns(3),
@@ -117,12 +137,21 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state) => match($state) {
-                        'new'          => 'gray',
-                        'under_review' => 'info',
-                        'shortlisted'  => 'warning',
-                        'enrolled'     => 'success',
-                        'visa_rejected', 'closed' => 'danger',
-                        default        => 'primary',
+                        'new'                  => 'gray',
+                        'profile_complete'     => 'info',
+                        'under_review'         => 'info',
+                        'shortlisted'          => 'warning',
+                        'interview_scheduled'  => 'warning',
+                        'interviewed'          => 'warning',
+                        'offer_received'       => 'success',
+                        'accepted'             => 'success',
+                        'visa_processing'      => 'primary',
+                        'visa_approved'        => 'success',
+                        'visa_rejected'        => 'danger',
+                        'enrolled'             => 'success',
+                        'closed'               => 'danger',
+                        'on_hold'              => 'gray',
+                        default                => 'primary',
                     }),
                 Tables\Columns\TextColumn::make('target_country'),
                 Tables\Columns\TextColumn::make('sourceAgency.name')
@@ -132,8 +161,13 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('assignedAgency.name')
                     ->label('Assigned Agency')
                     ->default('—'),
+                Tables\Columns\TextColumn::make('assignedInstitution.name')
+                    ->label('Institution')
+                    ->default('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('target_course')
                     ->label('Course')
+                    ->default('—')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('jlpt_nat_score')
                     ->label('JLPT/NAT')
@@ -141,7 +175,10 @@ class LeadResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('preferred_cities')
                     ->label('Preferred Cities')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : ($state ?? '—'))
+                    ->getStateUsing(fn (Lead $record) => $record->preferred_cities
+                        ? implode(', ', $record->preferred_cities)
+                        : '—'
+                    )
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('target_intake')
                     ->label('Intake')
@@ -152,42 +189,50 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
-                SelectFilter::make('pool_type')->options(['open' => 'Open Pool', 'private' => 'Private Vault']),
-                SelectFilter::make('status')->options([
-                    'new'                  => 'New',
-                    'profile_complete'     => 'Profile Complete',
-                    'under_review'         => 'Under Review',
-                    'shortlisted'          => 'Shortlisted',
-                    'interview_scheduled'  => 'Interview Scheduled',
-                    'interviewed'          => 'Interviewed',
-                    'offer_received'       => 'Offer Received',
-                    'accepted'             => 'Accepted',
-                    'visa_processing'      => 'Visa Processing',
-                    'visa_approved'        => 'Visa Approved',
-                    'visa_rejected'        => 'Visa Rejected',
-                    'enrolled'             => 'Enrolled',
-                    'closed'               => 'Closed',
-                    'on_hold'              => 'On Hold',
-                ]),
+                SelectFilter::make('pool_type')
+                    ->options(['open' => 'Open Pool', 'private' => 'Private Vault']),
+                SelectFilter::make('status')
+                    ->options([
+                        'new'                  => 'New',
+                        'profile_complete'     => 'Profile Complete',
+                        'under_review'         => 'Under Review',
+                        'shortlisted'          => 'Shortlisted',
+                        'interview_scheduled'  => 'Interview Scheduled',
+                        'interviewed'          => 'Interviewed',
+                        'offer_received'       => 'Offer Received',
+                        'accepted'             => 'Accepted',
+                        'visa_processing'      => 'Visa Processing',
+                        'visa_approved'        => 'Visa Approved',
+                        'visa_rejected'        => 'Visa Rejected',
+                        'enrolled'             => 'Enrolled',
+                        'closed'               => 'Closed',
+                        'on_hold'              => 'On Hold',
+                    ]),
                 SelectFilter::make('source_agency_id')
                     ->label('Source Agency')
                     ->relationship('sourceAgency', 'name')
                     ->searchable(),
-                SelectFilter::make('target_country')->options([
-                    'Japan'       => 'Japan',
-                    'South Korea' => 'South Korea',
-                    'Australia'   => 'Australia',
-                    'Canada'      => 'Canada',
-                    'UK'          => 'UK',
-                    'Germany'     => 'Germany',
-                    'USA'         => 'USA',
-                ]),
+                SelectFilter::make('assigned_institution_id')
+                    ->label('Institution')
+                    ->relationship('assignedInstitution', 'name')
+                    ->searchable(),
+                SelectFilter::make('target_country')
+                    ->options([
+                        'Japan'       => 'Japan',
+                        'South Korea' => 'South Korea',
+                        'Australia'   => 'Australia',
+                        'Canada'      => 'Canada',
+                        'UK'          => 'UK',
+                        'Germany'     => 'Germany',
+                        'USA'         => 'USA',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\Action::make('change_status')
                     ->label('Status')
                     ->icon('heroicon-o-arrow-path')
                     ->color('info')
+                    ->fillForm(fn (Lead $record) => ['status' => $record->status])
                     ->form([
                         Forms\Components\Select::make('status')
                             ->label('New Status')
@@ -211,17 +256,35 @@ class LeadResource extends Resource
                     ])
                     ->action(function (Lead $record, array $data) {
                         $record->update(['status' => $data['status']]);
-                        Notification::make()->title('Status updated')->success()->send();
+                        Notification::make()->title('Status updated to ' . str_replace('_', ' ', $data['status']))->success()->send();
+                    }),
+                Tables\Actions\Action::make('assign_agency')
+                    ->label('Assign Agency')
+                    ->icon('heroicon-o-building-office')
+                    ->color('warning')
+                    ->fillForm(fn (Lead $record) => ['assigned_agency_id' => $record->assigned_agency_id])
+                    ->form([
+                        Forms\Components\Select::make('assigned_agency_id')
+                            ->label('Agency')
+                            ->relationship('assignedAgency', 'name')
+                            ->searchable()
+                            ->nullable(),
+                    ])
+                    ->action(function (Lead $record, array $data) {
+                        $record->update(['assigned_agency_id' => $data['assigned_agency_id']]);
+                        Notification::make()->title('Agency assigned')->success()->send();
                     }),
                 Tables\Actions\Action::make('publish')
                     ->label('Publish')
                     ->icon('heroicon-o-globe-alt')
                     ->color('success')
                     ->requiresConfirmation()
+                    ->modalDescription('This will make the lead visible to all institutions in the open pool.')
                     ->visible(fn (Lead $record) => !$record->is_published)
                     ->action(fn (Lead $record) => $record->publishToOpenPool()),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->modalDescription('This will soft-delete the lead. It can be restored from the database if needed.'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
