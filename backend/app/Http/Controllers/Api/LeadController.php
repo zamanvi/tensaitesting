@@ -65,12 +65,17 @@ class LeadController extends Controller
         if ($gate = $this->requireApprovedAgency($request)) return $gate;
 
         $validated = $request->validate([
-            'student_name'   => 'required|string|max:255',
-            'student_email'  => 'required|email|max:255',
-            'student_phone'  => 'nullable|string|max:20',
-            'target_country' => 'required|string|max:100',
-            'target_course'  => 'nullable|string|max:255',
-            'target_intake'  => 'nullable|date',
+            'student_name'                => 'required|string|max:255',
+            'student_email'               => 'required|email|max:255',
+            'student_phone'               => 'nullable|string|max:20',
+            'target_country'              => 'required|string|max:100',
+            'target_course'               => 'nullable|string|max:255',
+            'target_intake'               => 'nullable|date',
+            'jlpt_nat_score'              => 'nullable|string|max:50',
+            'jlpt_nat_result_date'        => 'nullable|date',
+            'expected_jlpt_nat_exam_date' => 'nullable|date',
+            'preferred_cities'            => 'nullable|array',
+            'preferred_cities.*'          => 'string|max:100',
         ]);
 
         $student = User::where('email', $validated['student_email'])->first();
@@ -102,13 +107,17 @@ class LeadController extends Controller
         }
 
         $lead = Lead::create([
-            'student_id'       => $student->id,
-            'source_agency_id' => $request->user()->id,
-            'pool_type'        => 'private',
-            'status'           => 'new',
-            'target_country'   => $validated['target_country'],
-            'target_course'    => $validated['target_course'] ?? null,
-            'target_intake'    => $validated['target_intake'] ?? null,
+            'student_id'                  => $student->id,
+            'source_agency_id'            => $request->user()->id,
+            'pool_type'                   => 'private',
+            'status'                      => 'new',
+            'target_country'              => $validated['target_country'],
+            'target_course'               => $validated['target_course'] ?? null,
+            'target_intake'               => $validated['target_intake'] ?? null,
+            'jlpt_nat_score'              => $validated['jlpt_nat_score'] ?? null,
+            'jlpt_nat_result_date'        => $validated['jlpt_nat_result_date'] ?? null,
+            'expected_jlpt_nat_exam_date' => $validated['expected_jlpt_nat_exam_date'] ?? null,
+            'preferred_cities'            => $validated['preferred_cities'] ?? null,
         ]);
 
         return response()->json([

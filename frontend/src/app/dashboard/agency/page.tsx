@@ -13,6 +13,8 @@ interface Lead { id: number; status: string; is_published: boolean }
 const EMPTY_FORM = {
   student_name: '', student_email: '', student_phone: '',
   target_country: '', target_course: '', target_intake: '',
+  jlpt_nat_score: '', jlpt_nat_result_date: '', expected_jlpt_nat_exam_date: '',
+  preferred_cities: [] as string[],
 };
 
 export default function AgencyDashboard() {
@@ -280,6 +282,96 @@ export default function AgencyDashboard() {
                         onChange={e => setForm(f => ({ ...f, target_intake: e.target.value }))}
                         className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
+                    </div>
+
+                    {/* ── JLPT / NAT fields ── */}
+                    <div className="border-t border-slate-100 pt-3 mt-1">
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
+                        {ja ? 'JLPT / NAT 情報' : bn ? 'JLPT / NAT তথ্য' : 'JLPT / NAT Info'}
+                      </p>
+
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          placeholder={ja ? 'JLPT/NATスコア (例: N3, NAT 3級)' : bn ? 'JLPT/NAT স্কোর (যেমন: N3, NAT 3級)' : 'JLPT/NAT Score (e.g. N3, NAT 3級)'}
+                          value={form.jlpt_nat_score}
+                          onChange={e => setForm(f => ({ ...f, jlpt_nat_score: e.target.value }))}
+                          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        />
+
+                        <div>
+                          <label className="block text-xs text-slate-500 mb-1">
+                            {ja ? 'JLPT/NAT 結果発表日' : bn ? 'JLPT/NAT ফলাফল প্রকাশের তারিখ' : 'JLPT/NAT Result Publish Date'}
+                          </label>
+                          <input
+                            type="date"
+                            value={form.jlpt_nat_result_date}
+                            onChange={e => setForm(f => ({ ...f, jlpt_nat_result_date: e.target.value }))}
+                            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs text-slate-500 mb-1">
+                            {ja ? '予定JLPT/NAT受験日' : bn ? 'প্রত্যাশিত JLPT/NAT পরীক্ষার তারিখ' : 'Expected JLPT/NAT Exam Date'}
+                          </label>
+                          <input
+                            type="date"
+                            value={form.expected_jlpt_nat_exam_date}
+                            onChange={e => setForm(f => ({ ...f, expected_jlpt_nat_exam_date: e.target.value }))}
+                            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          />
+                        </div>
+
+                        {/* Preferred cities — multi-tag input */}
+                        <div>
+                          <label className="block text-xs text-slate-500 mb-1">
+                            {ja ? '希望都市（複数可）' : bn ? 'পছন্দের শহর (একাধিক যোগ করুন)' : 'Preferred City (add multiple)'}
+                          </label>
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            {form.preferred_cities.map((city, i) => (
+                              <span key={i} className="inline-flex items-center gap-1 bg-green-50 border border-green-200 text-green-700 text-xs font-medium px-2.5 py-1 rounded-full">
+                                {city}
+                                <button
+                                  type="button"
+                                  onClick={() => setForm(f => ({ ...f, preferred_cities: f.preferred_cities.filter((_, idx) => idx !== i) }))}
+                                  className="text-green-500 hover:text-red-500 leading-none ml-0.5"
+                                >×</button>
+                              </span>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              id="city-input"
+                              type="text"
+                              placeholder={ja ? '都市名を入力してEnter' : bn ? 'শহরের নাম লিখে Enter দিন' : 'Type a city and press Enter'}
+                              className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const val = (e.target as HTMLInputElement).value.trim();
+                                  if (val && !form.preferred_cities.includes(val)) {
+                                    setForm(f => ({ ...f, preferred_cities: [...f.preferred_cities, val] }));
+                                  }
+                                  (e.target as HTMLInputElement).value = '';
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const input = document.getElementById('city-input') as HTMLInputElement;
+                                const val = input?.value.trim();
+                                if (val && !form.preferred_cities.includes(val)) {
+                                  setForm(f => ({ ...f, preferred_cities: [...f.preferred_cities, val] }));
+                                  input.value = '';
+                                }
+                              }}
+                              className="px-3 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors"
+                            >+</button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex gap-2 pt-1">

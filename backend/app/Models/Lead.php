@@ -17,6 +17,7 @@ class Lead extends Model
         'affiliate_id', 'status', 'is_published', 'published_at',
         'unlock_fee', 'is_locked', 'target_country', 'target_course',
         'target_intake', 'admin_notes', 'agency_notes',
+        'jlpt_nat_score', 'jlpt_nat_result_date', 'expected_jlpt_nat_exam_date', 'preferred_cities',
         'forwarded_from_agency_id', 'referral_fee', 'referral_fee_paid',
     ];
 
@@ -25,6 +26,9 @@ class Lead extends Model
         'is_locked' => 'boolean',
         'referral_fee_paid' => 'boolean',
         'target_intake' => 'date',
+        'jlpt_nat_result_date' => 'date',
+        'expected_jlpt_nat_exam_date' => 'date',
+        'preferred_cities' => 'array',
         'published_at' => 'datetime',
     ];
 
