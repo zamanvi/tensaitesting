@@ -31,11 +31,17 @@ Route::get('/health', function () {
     }
 });
 
-// Gallery (public)
-Route::get('/settings/public', fn() => response()->json([
-    'support_whatsapp' => Setting::get('support_whatsapp', '8801826192179'),
-    'support_phone'    => Setting::get('support_phone', '+8801826192179'),
-]));
+// Public settings (contact info, social links, copyright)
+Route::get('/settings/public', function () {
+    $keys = [
+        'facebook_url', 'youtube_url', 'instagram_url', 'tiktok_url',
+        'linkedin_url', 'twitter_url',
+        'support_whatsapp', 'support_phone', 'support_email', 'office_address',
+        'copyright_en', 'copyright_ja', 'copyright_bn',
+    ];
+    $settings = \App\Models\Setting::whereIn('key', $keys)->pluck('value', 'key');
+    return response()->json($settings);
+});
 
 // Branches (public)
 Route::get('/branches', [BranchController::class, 'index']);

@@ -3,6 +3,15 @@ import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
+
+interface SiteSettings {
+  support_whatsapp?: string;
+  support_phone?: string;
+  support_email?: string;
+  office_address?: string;
+}
 
 export default function AboutPage() {
   const { t, lang, toggle } = useLang();
@@ -13,6 +22,12 @@ export default function AboutPage() {
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ['public-settings'],
+    queryFn: () => api.get('/settings/public').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', fn);
@@ -358,6 +373,42 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* ── Contact Info ───────────────────────────────────── */}
+        {(settings?.support_phone || settings?.support_email || settings?.support_whatsapp || settings?.office_address) && (
+          <section className="py-12 sm:py-16 px-4 bg-white">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                {ja ? 'お問い合わせ' : bn ? 'যোগাযোগ করুন' : 'Get in Touch'}
+              </h2>
+              <p className="text-slate-500 text-sm mb-8">
+                {ja ? 'ご質問やご相談はお気軽にどうぞ。' : bn ? 'যেকোনো প্রশ্ন বা পরামর্শের জন্য আমাদের সাথে যোগাযোগ করুন।' : 'Have questions? We\'re here to help.'}
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                {settings?.support_phone && (
+                  <a href={`tel:${settings.support_phone}`} className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 hover:border-green-300 hover:bg-green-50 transition-all">
+                    <span>📞</span><span>{settings.support_phone}</span>
+                  </a>
+                )}
+                {settings?.support_whatsapp && (
+                  <a href={`https://wa.me/${settings.support_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-5 py-3 bg-green-50 border border-green-200 rounded-2xl text-sm text-green-700 hover:bg-green-100 transition-all">
+                    <span>💬</span><span>WhatsApp</span>
+                  </a>
+                )}
+                {settings?.support_email && (
+                  <a href={`mailto:${settings.support_email}`} className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700 hover:border-green-300 hover:bg-green-50 transition-all">
+                    <span>✉️</span><span>{settings.support_email}</span>
+                  </a>
+                )}
+                {settings?.office_address && (
+                  <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-700">
+                    <span>📍</span><span>{settings.office_address}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ── CTA ────────────────────────────────────────────── */}
         <section className="bg-slate-900 py-16 sm:py-24 px-4 relative overflow-hidden">

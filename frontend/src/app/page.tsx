@@ -4,6 +4,7 @@ import api from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 interface GalleryItem {
   id: number;
@@ -11,6 +12,22 @@ interface GalleryItem {
   description: string | null;
   image_url: string;
   category: string;
+}
+
+interface SiteSettings {
+  facebook_url?: string;
+  youtube_url?: string;
+  instagram_url?: string;
+  tiktok_url?: string;
+  linkedin_url?: string;
+  twitter_url?: string;
+  support_whatsapp?: string;
+  support_phone?: string;
+  support_email?: string;
+  office_address?: string;
+  copyright_en?: string;
+  copyright_ja?: string;
+  copyright_bn?: string;
 }
 
 export default function HomePage() {
@@ -24,6 +41,12 @@ export default function HomePage() {
   const [galleryError, setGalleryError] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ['public-settings'],
+    queryFn: () => api.get('/settings/public').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
   useEffect(() => {
     setGalleryLoading(true);
@@ -894,21 +917,50 @@ export default function HomePage() {
                 <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
               </div>
             </nav>
-            <div className="flex items-center gap-3">
-              <a href="https://www.facebook.com/TensaiConsultancyy" target="_blank" rel="noopener noreferrer" aria-label="Facebook"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-                </svg>
-              </a>
-              <a href="https://www.youtube.com/@tensaiconsultancy7582" target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
-                  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0d1117"/>
-                </svg>
-              </a>
-              <p className="text-xs text-white/32">{l.footer}</p>
+            <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
+              {/* Social icons — only render if URL exists in settings */}
+              {settings?.facebook_url && (
+                <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </a>
+              )}
+              {settings?.youtube_url && (
+                <a href={settings.youtube_url} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
+                    <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0d1117"/>
+                  </svg>
+                </a>
+              )}
+              {settings?.instagram_url && (
+                <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                </a>
+              )}
+              {settings?.tiktok_url && (
+                <a href={settings.tiktok_url} target="_blank" rel="noopener noreferrer" aria-label="TikTok"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/></svg>
+                </a>
+              )}
+              {settings?.linkedin_url && (
+                <a href={settings.linkedin_url} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                </a>
+              )}
+              {settings?.twitter_url && (
+                <a href={settings.twitter_url} target="_blank" rel="noopener noreferrer" aria-label="X / Twitter"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-white/[0.08] text-white/40 hover:text-white hover:border-white/20 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+              )}
+              <p className="text-xs text-white/32">
+                {ja ? (settings?.copyright_ja || '© 2026 Tensai Consultancy Ltd.') : bn ? (settings?.copyright_bn || '© 2026 তেনসাই কনসালটেন্সি লিমিটেড।') : (settings?.copyright_en || '© 2026 Tensai Consultancy Ltd. All rights reserved.')}
+              </p>
             </div>
           </div>
         </div>
