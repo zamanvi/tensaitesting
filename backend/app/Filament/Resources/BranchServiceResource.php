@@ -19,6 +19,7 @@ class BranchServiceResource extends Resource
     protected static ?string $navigationGroup = 'Branches';
     protected static ?string $navigationLabel = 'Branch Services';
     protected static ?int    $navigationSort  = 5;
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function getEloquentQuery(): Builder
     {

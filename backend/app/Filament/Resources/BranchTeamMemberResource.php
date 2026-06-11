@@ -19,6 +19,7 @@ class BranchTeamMemberResource extends Resource
     protected static ?string $navigationGroup = 'Branches';
     protected static ?string $navigationLabel = 'Team Members';
     protected static ?int    $navigationSort  = 3;
+    protected static bool $shouldRegisterNavigation = false;
 
     // Branch admins/managers only see their own branch
     public static function getEloquentQuery(): Builder

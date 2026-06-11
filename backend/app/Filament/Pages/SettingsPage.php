@@ -12,8 +12,8 @@ class SettingsPage extends Page
 {
     protected static ?string $navigationIcon  = 'heroicon-o-cog-6-tooth';
     protected static ?string $navigationLabel = 'Settings';
-    protected static ?string $navigationGroup = 'Support';
-    protected static ?int    $navigationSort  = 99;
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?int    $navigationSort  = 2;
     protected static string  $view            = 'filament.pages.settings-page';
 
     public string $support_whatsapp = '';

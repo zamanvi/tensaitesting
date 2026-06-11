@@ -16,9 +16,9 @@ class TensaiNotificationResource extends Resource
 {
     protected static ?string $model = TensaiNotification::class;
     protected static ?string $navigationIcon  = 'heroicon-o-bell';
-    protected static ?string $navigationGroup = 'Operations';
+    protected static ?string $navigationGroup = 'Support';
     protected static ?string $navigationLabel = 'Notifications';
-    protected static ?int    $navigationSort  = 2;
+    protected static ?int    $navigationSort  = 3;
 
     public static function getNavigationBadge(): ?string
     {

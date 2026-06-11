@@ -16,7 +16,7 @@ class GalleryItemResource extends Resource
 {
     protected static ?string $model = GalleryItem::class;
     protected static ?string $navigationIcon = 'heroicon-o-photo';
-    protected static ?string $navigationGroup = 'System';
+    protected static ?string $navigationGroup = 'Content';
     protected static ?string $navigationLabel = 'Gallery';
     protected static ?int $navigationSort = 1;
 

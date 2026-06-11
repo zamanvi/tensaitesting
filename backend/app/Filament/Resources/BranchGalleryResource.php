@@ -19,6 +19,7 @@ class BranchGalleryResource extends Resource
     protected static ?string $navigationGroup = 'Branches';
     protected static ?string $navigationLabel = 'Branch Gallery';
     protected static ?int    $navigationSort  = 4;
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function getEloquentQuery(): Builder
     {
