@@ -42,14 +42,17 @@ export default function BranchAdminDashboard() {
     queryKey: ['my-branch'],
     queryFn: () => api.get('/branch-admin/my-branch').then(r => r.data),
     enabled: !!isBranchAdmin,
-    onSuccess: (data) => {
-      setForm({
-        phone:    data.phone    ?? '',
-        whatsapp: data.whatsapp ?? '',
-        address:  data.address  ?? '',
-      });
-    },
   });
+
+  useEffect(() => {
+    if (branch) {
+      setForm({
+        phone:    branch.phone    ?? '',
+        whatsapp: branch.whatsapp ?? '',
+        address:  branch.address  ?? '',
+      });
+    }
+  }, [branch]);
 
   const update = useMutation({
     mutationFn: (data: typeof form) => api.patch('/branch-admin/contact', data),
