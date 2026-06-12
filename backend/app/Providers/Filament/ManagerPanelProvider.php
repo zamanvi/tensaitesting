@@ -21,41 +21,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class ManagerPanelProvider extends PanelProvider
 {
-    // Map section names to resource classes
-    const SECTION_RESOURCES = [
-        'Lead Management'    => [
-            \App\Filament\Resources\LeadResource::class,
-            \App\Filament\Resources\InterviewResource::class,
-        ],
-        'Verification'       => [
-            \App\Filament\Resources\OcrJobResource::class,
-        ],
-        'Users & Gateways'   => [
-            \App\Filament\Resources\UserResource::class,
-            \App\Filament\Resources\AgencyProfileResource::class,
-            \App\Filament\Resources\InstitutionProfileResource::class,
-            \App\Filament\Resources\StudentProfileResource::class,
-            \App\Filament\Resources\AffiliateResource::class,
-        ],
-        'Branches'           => [
-            \App\Filament\Resources\BranchResource::class,
-            \App\Filament\Resources\BranchManagerResource::class,
-        ],
-        'Support'            => [
-            \App\Filament\Resources\HelpRequestResource::class,
-            \App\Filament\Resources\ContactPaperResource::class,
-            \App\Filament\Resources\TensaiNotificationResource::class,
-        ],
-        'Earnings & Payouts' => [
-            \App\Filament\Resources\CommissionResource::class,
-        ],
-        'Content'            => [
-            \App\Filament\Resources\GalleryItemResource::class,
-        ],
-        'Settings'           => [
-            \App\Filament\Resources\SettingResource::class,
-        ],
-    ];
 
     public function panel(Panel $panel): Panel
     {
@@ -104,14 +69,21 @@ class ManagerPanelProvider extends PanelProvider
             return [];
         }
 
-        $sections = $user->manager_sections ?? [];
+        $allowedSections = $user->manager_sections ?? [];
+        if (empty($allowedSections)) return [];
+
+        // Auto-discover all resources from the Filament/Resources directory
+        $resourcePath = app_path('Filament/Resources');
         $resources = [];
 
-        foreach ($sections as $section) {
-            foreach (self::SECTION_RESOURCES[$section] ?? [] as $resource) {
-                if (class_exists($resource)) {
-                    $resources[] = $resource;
-                }
+        foreach (glob($resourcePath . '/*.php') as $file) {
+            $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
+            if (!class_exists($class)) continue;
+
+            $group = $class::getNavigationGroup() ?? 'General';
+
+            if (in_array($group, $allowedSections)) {
+                $resources[] = $class;
             }
         }
 

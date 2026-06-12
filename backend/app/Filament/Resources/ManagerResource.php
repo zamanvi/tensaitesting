@@ -28,16 +28,15 @@ class ManagerResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $sections = [
-            'Lead Management'   => 'Lead Management',
-            'Verification'      => 'Verification',
-            'Users & Gateways'  => 'Users & Gateways',
-            'Branches'          => 'Branches',
-            'Support'           => 'Support',
-            'Earnings & Payouts'=> 'Earnings & Payouts',
-            'Content'           => 'Content',
-            'Settings'          => 'Settings',
-        ];
+        // Auto-discover nav groups from all existing resources
+        $sections = [];
+        foreach (glob(app_path('Filament/Resources/*.php')) as $file) {
+            $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
+            if (!class_exists($class)) continue;
+            $group = $class::getNavigationGroup() ?? 'General';
+            $sections[$group] = $group;
+        }
+        ksort($sections);
 
         return $form->schema([
             Forms\Components\Section::make('Manager Account')->schema([
