@@ -20,19 +20,23 @@ class User extends Authenticatable implements FilamentUser
         'gateway_type', 'status', 'avatar',
         'affiliate_code', 'referred_by',
         'email_verification_code', 'email_verification_expires_at',
-        'branch_id',
+        'branch_id', 'manager_sections', 'manager_plain_password',
     ];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'phone_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'email_verified_at'  => 'datetime',
+        'phone_verified_at'  => 'datetime',
+        'password'           => 'hashed',
+        'manager_sections'   => 'array',
     ];
 
     public function canAccessPanel(Panel $panel): bool
     {
+        if ($panel->getId() === 'manager') {
+            return $this->hasRole('manager');
+        }
         return $this->hasRole(['admin', 'super_admin', 'branch_admin', 'branch_manager']);
     }
 

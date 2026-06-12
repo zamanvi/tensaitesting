@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         Role::firstOrCreate(['name' => 'agency']);
         Role::firstOrCreate(['name' => 'institution']);
         Role::firstOrCreate(['name' => 'affiliate']);
+        Role::firstOrCreate(['name' => 'manager']);
 
         // Permissions
         $permissions = [
