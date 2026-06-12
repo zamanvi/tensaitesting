@@ -288,7 +288,7 @@ export default function HomePage() {
       <main>
 
         {/* ── Hero — Split Layout ────────────────────────────── */}
-        <section className="hero-mesh min-h-screen flex items-center px-4 pt-20 pb-16 relative overflow-hidden">
+        <section className="hero-mesh min-h-screen flex items-center px-4 pt-24 pb-16 relative overflow-hidden">
 
           {/* Enhanced ambient orbs */}
           <div className="absolute top-[15%] left-[8%]  w-[480px] h-[480px] bg-green-600/12  rounded-full blur-[140px] pointer-events-none" aria-hidden="true" />
@@ -334,31 +334,33 @@ export default function HomePage() {
                 </p>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 mb-10 max-w-lg lg:mx-0 mx-auto">
+                <div className="flex flex-col items-stretch justify-center lg:justify-start gap-2.5 mb-10 max-w-sm sm:max-w-lg lg:mx-0 mx-auto w-full">
                   <Link
                     href="/auth/register?type=student"
-                    className="flex-[1.4] text-center bg-green-600 hover:bg-green-500 text-white px-6 py-4 rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
+                    className="w-full text-center bg-green-600 hover:bg-green-500 text-white px-6 py-4 rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
                   >
                     {l.ctaStudent}
                   </Link>
-                  <Link
-                    href="/auth/register?type=agency"
-                    className="flex-1 text-center glass-card text-white/75 hover:text-white px-5 py-3.5 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-                  >
-                    {l.ctaAgency}
-                  </Link>
-                  <Link
-                    href="/auth/register?type=institution"
-                    className="flex-1 text-center glass-card text-white/75 hover:text-white px-5 py-3.5 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-                  >
-                    {l.ctaInstitution}
-                  </Link>
+                  <div className="flex gap-2.5">
+                    <Link
+                      href="/auth/register?type=agency"
+                      className="flex-1 text-center glass-card text-white/75 hover:text-white px-4 py-3 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+                    >
+                      {l.ctaAgency}
+                    </Link>
+                    <Link
+                      href="/auth/register?type=institution"
+                      className="flex-1 text-center glass-card text-white/75 hover:text-white px-4 py-3 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+                    >
+                      {l.ctaInstitution}
+                    </Link>
+                  </div>
                 </div>
 
-                {/* Stats strip — use index keys (labels change with lang) */}
-                <div className="grid grid-cols-3 sm:grid-cols-5 rounded-2xl overflow-hidden border border-white/[0.08] divide-x-0 sm:divide-x divide-white/[0.08] max-w-lg lg:mx-0 mx-auto">
+                {/* Stats strip */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-white/[0.08] max-w-lg lg:mx-0 mx-auto">
                   {STATS.map((s, i) => (
-                    <div key={i} className={`px-3 sm:px-5 py-3 bg-white/[0.03] text-center border-b sm:border-b-0 border-white/[0.08] ${i >= 3 ? 'col-span-1 sm:col-span-1' : ''}`}>
+                    <div key={i} className="px-3 sm:px-5 py-3 bg-white/[0.03] text-center border-b border-r border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r">
                       <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
                       <div className="text-white/38 text-[10px] mt-0.5 leading-snug">{s.label}</div>
                     </div>
@@ -512,7 +514,7 @@ export default function HomePage() {
         </section>
 
         {/* ── Platform Stats ─────────────────────────────────── */}
-        <section className="py-14 sm:py-20 px-4 bg-white border-t border-slate-100">
+        <section className="py-12 sm:py-20 px-4 bg-white border-t border-slate-100">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10">
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-green-600 mb-2">
@@ -578,30 +580,30 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="flex flex-col md:flex-row items-start gap-6 md:gap-0">
+            <div className="flex flex-col md:flex-row items-start gap-0 md:gap-0">
               {HOW_IT_WORKS.map((step, i) => (
-                <div key={step.num} className="flex flex-row md:flex-col items-start md:items-center md:flex-1 gap-5 md:gap-0 md:text-center">
-                  {/* Step number + icon */}
-                  <div className="flex flex-col items-center gap-2 shrink-0">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center text-2xl" aria-hidden="true">
-                      {step.icon}
+                <div key={step.num} className="flex flex-col md:flex-col md:items-center md:flex-1 md:text-center">
+                  {/* Step row: icon + content side by side on mobile */}
+                  <div className="flex flex-row md:flex-col items-start md:items-center gap-4 md:gap-0 px-2">
+                    <div className="flex flex-col items-center gap-1 shrink-0">
+                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center text-xl md:text-2xl" aria-hidden="true">
+                        {step.icon}
+                      </div>
+                      <span className="text-[10px] text-green-500/70 font-black tracking-wider" aria-hidden="true">{step.num}</span>
                     </div>
-                    <span className="text-[10px] text-green-500/70 font-black tracking-wider" aria-hidden="true">{step.num}</span>
+                    <div className="flex-1 md:px-4 md:mt-5 pb-2 md:pb-0">
+                      <h3 className="text-white font-bold text-sm mb-1.5 leading-snug">{step.title}</h3>
+                      <p className="text-[12px] text-white/45 leading-relaxed">{step.desc}</p>
+                    </div>
                   </div>
 
-                  {/* Connector — decorative */}
+                  {/* Connector */}
                   {i < 2 && (
                     <div className="hidden md:block step-connector mx-4 mt-7" aria-hidden="true" />
                   )}
                   {i < 2 && (
-                    <div className="md:hidden w-px h-8 bg-green-500/20 ml-7 mt-1 self-start" aria-hidden="true" />
+                    <div className="md:hidden w-px h-6 bg-green-500/20 ml-8 my-1" aria-hidden="true" />
                   )}
-
-                  {/* Content */}
-                  <div className="flex-1 md:px-4 md:mt-5">
-                    <h3 className="text-white font-bold text-sm mb-2 leading-snug">{step.title}</h3>
-                    <p className="text-[12px] text-white/45 leading-relaxed">{step.desc}</p>
-                  </div>
                 </div>
               ))}
             </div>
@@ -775,14 +777,14 @@ export default function HomePage() {
             <div className="glass-card rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-transparent to-cyan-600/5 rounded-3xl pointer-events-none" aria-hidden="true" />
               <div className="relative z-10">
-                <div className="flex items-center justify-center gap-3 sm:gap-5 mb-7" aria-hidden="true">
-                  <span className="text-4xl animate-float">{'🇧🇩'}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-12 sm:w-20 h-px bg-gradient-to-r from-white/15 to-green-400/60" />
-                    <span className="text-green-400 text-base">{'✈️'}</span>
-                    <div className="w-12 sm:w-20 h-px bg-gradient-to-r from-green-400/60 to-white/15" />
+                <div className="flex items-center justify-center gap-2 sm:gap-5 mb-7" aria-hidden="true">
+                  <span className="text-3xl sm:text-4xl animate-float">{'🇧🇩'}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="w-8 sm:w-20 h-px bg-gradient-to-r from-white/15 to-green-400/60" />
+                    <span className="text-green-400 text-sm sm:text-base">{'✈️'}</span>
+                    <div className="w-8 sm:w-20 h-px bg-gradient-to-r from-green-400/60 to-white/15" />
                   </div>
-                  <span className="text-4xl animate-float" style={{ animationDelay: '2s' }}>{'🇯🇵'}</span>
+                  <span className="text-3xl sm:text-4xl animate-float" style={{ animationDelay: '2s' }}>{'🇯🇵'}</span>
                 </div>
 
                 <h3 className="text-fluid-3xl font-bold text-white mb-3">
@@ -822,19 +824,21 @@ export default function HomePage() {
 
         {/* ── Gallery ────────────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-20 border-t border-white/[0.05]">
-          <div className="flex flex-wrap items-end justify-between gap-3 mb-8">
-            <div>
-              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-1">
-                {ja ? 'コミュニティ' : bn ? 'কমিউনিটি' : 'Community'}
-              </p>
-              <h2 className="text-fluid-3xl font-bold text-white leading-tight">
-                {ja ? '学生ギャラリー' : bn ? 'শিক্ষার্থী গ্যালারি' : 'Student Gallery'}
-              </h2>
-              <p className="text-fluid-sm text-white/38 mt-1 max-w-md">{l.gallerySub}</p>
+          <div className="mb-8">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-1">
+                  {ja ? 'コミュニティ' : bn ? 'কমিউনিটি' : 'Community'}
+                </p>
+                <h2 className="text-fluid-3xl font-bold text-white leading-tight">
+                  {ja ? '学生ギャラリー' : bn ? 'শিক্ষার্থী গ্যালারি' : 'Student Gallery'}
+                </h2>
+              </div>
+              <Link href="/gallery" className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors shrink-0 mt-1">
+                {l.galleryViewAll}
+              </Link>
             </div>
-            <Link href="/gallery" className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors shrink-0">
-              {l.galleryViewAll}
-            </Link>
+            <p className="text-fluid-sm text-white/38 mt-1 max-w-md">{l.gallerySub}</p>
           </div>
 
           {galleryLoading ? (
@@ -954,22 +958,23 @@ export default function HomePage() {
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-white/[0.06] py-8 px-4 bg-alt-section">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
-            <Link href="/" className="flex items-center gap-2.5">
+          <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
+            <Link href="/" className="flex items-center gap-2.5 shrink-0">
               <Image src="/tensai-logo.png" alt="Tensai" width={30} height={30} className="rounded-full object-contain" />
               <span className="text-sm font-bold text-white/80">Tensai</span>
             </Link>
             <nav aria-label={ja ? 'フッターナビゲーション' : bn ? 'ফুটার নেভিগেশন' : 'Footer navigation'}>
-              <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/38">
-                <Link href="/about"   className="hover:text-white/65 transition-colors">{navAbout}</Link>
-                <Link href="/team"    className="hover:text-white/65 transition-colors">{navTeam}</Link>
-                <Link href="/gallery" className="hover:text-white/65 transition-colors">{l.gallery}</Link>
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-white/38">
+                <Link href="/about"    className="hover:text-white/65 transition-colors">{navAbout}</Link>
+                <Link href="/team"     className="hover:text-white/65 transition-colors">{navTeam}</Link>
+                <Link href="/gallery"  className="hover:text-white/65 transition-colors">{l.gallery}</Link>
                 <Link href="/branches" className="hover:text-white/65 transition-colors">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
-                <Link href="/terms"   className="hover:text-white/65 transition-colors">{termsText}</Link>
-                <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
+                <Link href="/terms"    className="hover:text-white/65 transition-colors">{termsText}</Link>
+                <Link href="/privacy"  className="hover:text-white/65 transition-colors">{privText}</Link>
               </div>
             </nav>
-            <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
+            <div className="flex flex-col items-center sm:items-end gap-2">
+              <div className="flex items-center gap-2 flex-wrap justify-center">
               {/* Social icons — only render if URL exists in settings */}
               {settings?.facebook_url && (
                 <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
@@ -1010,7 +1015,8 @@ export default function HomePage() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 </a>
               )}
-              <p className="text-xs text-white/32">
+              </div>
+              <p className="text-xs text-white/32 text-center sm:text-right">
                 {ja ? (settings?.copyright_ja || '© 2026 Tensai Consultancy Ltd.') : bn ? (settings?.copyright_bn || '© 2026 তেনসাই কনসালটেন্সি লিমিটেড।') : (settings?.copyright_en || '© 2026 Tensai Consultancy Ltd. All rights reserved.')}
               </p>
             </div>
