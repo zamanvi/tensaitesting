@@ -137,18 +137,19 @@ export default function GalleryPage() {
           </h1>
           <p className="text-fluid-base text-white/45 max-w-lg mx-auto leading-relaxed">
             {ja
-              ? '学生の旅、マイルストーン、そして日本への成功事例をご覧ください。'
+              ? '学生の旅、マイルストーン、パートナーの成功事例をご覧ください。'
               : bn
-              ? 'শিক্ষার্থীদের যাত্রা, মাইলস্টোন এবং জাপানের সাফল্যের গল্প।'
-              : 'Success stories, milestones, and journeys of Tensai students on their way to Japan.'}
+              ? 'শিক্ষার্থীদের যাত্রা, মাইলস্টোন এবং পার্টনারদের সাফল্যের গল্প।'
+              : 'Real success stories, milestones, and journeys from Tensai students and partners across the globe.'}
           </p>
         </div>
       </section>
 
       {/* ── Category Filter ────────────────────────────────── */}
       <div className="sticky top-16 z-40 bg-[#0d1117]/80 backdrop-blur-xl border-b border-white/[0.05] px-4 py-3">
-        <div className="max-w-7xl mx-auto overflow-x-auto">
-          <div className="flex items-center gap-2 min-w-max">
+        <div className="max-w-7xl mx-auto relative">
+          <div className="overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-2 min-w-max pr-8">
             {CATEGORIES.map((cat) => {
               const label = ja ? cat.labelJa : bn ? cat.labelBn : cat.labelEn;
               return (
@@ -166,6 +167,8 @@ export default function GalleryPage() {
               );
             })}
           </div>
+          </div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0d1117]/80 to-transparent pointer-events-none md:hidden" aria-hidden="true" />
         </div>
       </div>
 
@@ -205,12 +208,13 @@ export default function GalleryPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                      <p className="text-white font-bold text-xs leading-tight mb-0.5">{item.title}</p>
+                    {/* Always visible on mobile, hover-reveal on desktop */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent flex flex-col justify-end p-4 md:opacity-0 md:group-hover:opacity-100 md:transition-opacity md:duration-300">
+                      <p className="text-white font-bold text-xs leading-tight mb-0.5 line-clamp-1">{item.title}</p>
                       {item.description && (
-                        <p className="text-white/55 text-[10px] leading-snug line-clamp-2">{item.description}</p>
+                        <p className="text-white/55 text-[10px] leading-snug line-clamp-2 hidden md:block">{item.description}</p>
                       )}
-                      <span className="mt-2 self-start text-[9px] font-bold text-green-400 bg-green-400/15 border border-green-400/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      <span className="mt-1.5 self-start text-[9px] font-bold text-green-400 bg-green-400/15 border border-green-400/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
                         {item.category}
                       </span>
                     </div>
@@ -218,6 +222,27 @@ export default function GalleryPage() {
                 ))}
               </div>
             )}
+
+            {/* Contribute CTA below real grid */}
+            <div className="mt-10 glass-card rounded-2xl p-6 sm:p-8 text-center max-w-lg mx-auto">
+              <div className="text-3xl mb-3">{'📸'}</div>
+              <h3 className="text-white font-bold text-sm mb-1.5">
+                {ja ? 'あなたのストーリーをシェアしませんか？' : bn ? 'আপনার গল্প শেয়ার করুন' : 'Share your story'}
+              </h3>
+              <p className="text-white/40 text-xs mb-5 leading-relaxed">
+                {ja
+                  ? 'Tensaiで夢を叶えた学生の写真や体験談をお待ちしています。'
+                  : bn
+                  ? 'টেনসাই দিয়ে স্বপ্ন পূরণের ছবি ও গল্প পাঠান।'
+                  : 'If you are a Tensai student or partner, send us your photos and we will feature you here.'}
+              </p>
+              <a
+                href="mailto:norozzaman996@gmail.com"
+                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-full text-xs font-bold transition-all glow-green"
+              >
+                {ja ? '写真を送る →' : bn ? 'ছবি পাঠান →' : 'Send Your Photos →'}
+              </a>
+            </div>
           </>
         )}
 
@@ -270,7 +295,7 @@ export default function GalleryPage() {
                   : 'If you are a Tensai student or partner, send us your photos and we will feature you here.'}
               </p>
               <a
-                href="mailto:support@tensai.com"
+                href="mailto:norozzaman996@gmail.com"
                 className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-full text-xs font-bold transition-all glow-green"
               >
                 {ja ? '写真を送る →' : bn ? 'ছবি পাঠান →' : 'Send Your Photos →'}
