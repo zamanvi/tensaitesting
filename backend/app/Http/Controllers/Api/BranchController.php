@@ -90,7 +90,7 @@ class BranchController extends Controller
     public function adminIndex(): JsonResponse
     {
         $branches = Branch::orderBy('sort_order')
-            ->get(['id', 'name', 'slug', 'city', 'country', 'email', 'is_active', 'sort_order'])
+            ->get(['id', 'name', 'slug', 'city', 'country', 'email', 'phone', 'whatsapp', 'is_active', 'sort_order'])
             ->map(function ($branch) {
                 $admins = User::where('branch_id', $branch->id)
                     ->whereHas('roles', fn ($q) => $q->whereIn('name', ['branch_admin', 'branch_manager']))
@@ -187,8 +187,8 @@ class BranchController extends Controller
 
         $branch->update([
             'name'     => $validated['branch_name'],
-            'phone'    => $validated['phone'] ?? $branch->phone,
-            'whatsapp' => $validated['whatsapp'] ?? $branch->whatsapp,
+            'phone'    => $validated['phone'],
+            'whatsapp' => $validated['whatsapp'],
         ]);
 
         $admin = $branch->admins()->first();

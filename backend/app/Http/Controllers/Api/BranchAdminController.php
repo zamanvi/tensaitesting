@@ -15,7 +15,9 @@ class BranchAdminController extends Controller
 {
     private function branch(Request $request): Branch
     {
-        return Branch::findOrFail($request->user()->branch_id);
+        $branchId = $request->user()->branch_id;
+        if (!$branchId) abort(403, 'You are not assigned to a branch.');
+        return Branch::findOrFail($branchId);
     }
 
     // ── Settings ──────────────────────────────────────────────────────────────
