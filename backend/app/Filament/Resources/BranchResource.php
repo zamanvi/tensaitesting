@@ -54,16 +54,16 @@ class BranchResource extends Resource
                     ->rows(4)
                     ->columnSpanFull(),
 
-                Forms\Components\TextInput::make('city')->required(),
-                Forms\Components\TextInput::make('country')->default('Bangladesh'),
+                Forms\Components\TextInput::make('city')->required()->placeholder('e.g. Dhaka'),
+                Forms\Components\TextInput::make('country')->default('Bangladesh')->placeholder('e.g. Bangladesh'),
             ])->columns(2),
 
             Forms\Components\Section::make('Contact Information')->schema([
                 Forms\Components\TextInput::make('address')->columnSpanFull(),
-                Forms\Components\TextInput::make('phone'),
-                Forms\Components\TextInput::make('email')->email(),
-                Forms\Components\TextInput::make('whatsapp')->label('WhatsApp Number'),
-                Forms\Components\TextInput::make('google_maps_url')->label('Google Maps URL')->url(),
+                Forms\Components\TextInput::make('phone')->placeholder('+880 1XXX-XXXXXX'),
+                Forms\Components\TextInput::make('email')->email()->placeholder('branch@tensai.jp'),
+                Forms\Components\TextInput::make('whatsapp')->label('WhatsApp Number')->placeholder('8801XXXXXXXXX')->helperText('International format without +'),
+                Forms\Components\TextInput::make('google_maps_url')->label('Google Maps URL')->url()->placeholder('https://maps.google.com/...'),
             ])->columns(2),
 
             Forms\Components\Section::make('Branding')->schema([
@@ -73,7 +73,8 @@ class BranchResource extends Resource
                     ->directory('branches/logos')
                     ->visibility('public')
                     ->maxSize(2048)
-                    ->label('Branch Logo'),
+                    ->label('Branch Logo')
+                    ->helperText('Recommended: 400×400px, PNG/JPG, max 2 MB'),
 
                 Forms\Components\FileUpload::make('cover_image')
                     ->image()
@@ -81,7 +82,8 @@ class BranchResource extends Resource
                     ->directory('branches/covers')
                     ->visibility('public')
                     ->maxSize(5120)
-                    ->label('Cover Image'),
+                    ->label('Cover Image')
+                    ->helperText('Recommended: 1200×400px, JPG, max 5 MB'),
             ])->columns(2),
 
             Forms\Components\Section::make('Working Hours')->schema([
@@ -112,7 +114,7 @@ class BranchResource extends Resource
 
             Forms\Components\Section::make('Status')->schema([
                 Forms\Components\Toggle::make('is_active')->label('Active (visible on website)')->default(true),
-                Forms\Components\TextInput::make('sort_order')->numeric()->default(0)->label('Sort Order'),
+                Forms\Components\TextInput::make('sort_order')->numeric()->default(0)->label('Sort Order')->helperText('Lower number = appears first'),
             ])->columns(2),
 
             Forms\Components\Section::make('Branch Admin')
@@ -154,6 +156,12 @@ class BranchResource extends Resource
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean(),
+
+                Tables\Columns\TextColumn::make('admins_count')
+                    ->label('Admins')
+                    ->counts('admins')
+                    ->badge()
+                    ->color(fn (int $state) => $state === 0 ? 'danger' : 'success'),
 
                 Tables\Columns\TextColumn::make('sort_order')
                     ->label('Order')
@@ -204,14 +212,15 @@ class BranchResource extends Resource
                             return;
                         }
 
-                        // Fix #1: branch_id now in fillable, so this saves correctly
                         $user = User::create([
-                            'name'         => $data['name'],
-                            'email'        => $data['email'],
-                            'password'     => bcrypt($data['password']),
-                            'gateway_type' => 'admin',
-                            'status'       => 'active',
-                            'branch_id'    => $record->id,
+                            'name'                   => $data['name'],
+                            'email'                  => $data['email'],
+                            'password'               => bcrypt($data['password']),
+                            'gateway_type'           => 'branch',
+                            'status'                 => 'active',
+                            'branch_id'              => $record->id,
+                            'manager_plain_password' => $data['password'],
+                            'email_verified_at'      => now(),
                         ]);
                         $user->assignRole('branch_admin');
 
