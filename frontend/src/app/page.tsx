@@ -71,17 +71,6 @@ export default function HomePage() {
 
   /* ── Data ──────────────────────────────────────────────── */
 
-  /* Trust ticker — trilingual */
-  const TICKER = [
-    ja ? '100% OCR検証済み'      : bn ? '১০০% OCR যাচাইকৃত'          : '100% OCR Verified',
-    ja ? '偽プロフィール0件'      : bn ? '০টি ভুয়া প্রোফাইল'           : '0 Fake Profiles',
-    ja ? 'AI適格性スコアリング'   : bn ? 'AI যোগ্যতা স্কোরিং'           : 'AI Eligibility Scoring',
-    ja ? 'バングラデシュ→日本'    : bn ? 'বাংলাদেশ → জাপান'             : 'Bangladesh → Japan',
-    ja ? 'エスクロー決済保護'     : bn ? 'এসক্রো পেমেন্ট সুরক্ষা'       : 'Escrow Payment Protection',
-    ja ? 'QRセキュア追跡'        : bn ? 'QR নিরাপদ ট্র্যাকিং'           : 'QR Secure Tracking',
-    ja ? 'プライバシーファースト' : bn ? 'প্রাইভেসি-ফার্স্ট আর্কিটেকচার' : 'Privacy-First Architecture',
-    ja ? 'データ改ざんゼロ'       : bn ? 'শূন্য ডেটা টেম্পারিং'          : 'Zero Data Tampering',
-  ];
 
   const GATEWAYS = [
     {
@@ -457,21 +446,6 @@ export default function HomePage() {
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0d1117] to-transparent pointer-events-none" aria-hidden="true" />
         </section>
 
-        {/* ── Trust Ticker (decorative — hidden from screen readers) ── */}
-        <div
-          className="border-y border-white/[0.05] py-3.5 overflow-hidden bg-white/[0.015]"
-          aria-hidden="true"
-        >
-          <div className="flex animate-marquee gap-0">
-            {[...TICKER, ...TICKER].map((item, i) => (
-              <span key={i} className="flex items-center gap-3 px-6 text-[11px] font-semibold text-white/35 whitespace-nowrap shrink-0">
-                <span className="w-1 h-1 rounded-full bg-green-500/60 shrink-0" />
-                {item}
-              </span>
-            ))}
-          </div>
-        </div>
-
         {/* ── Gateway Bento Grid ─────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 pt-20 pb-20">
           <div className="text-center mb-10">
@@ -797,19 +771,6 @@ export default function HomePage() {
                     ? 'আমাদের প্রথম করিডোর। জাপান বিশ্বের কঠোরতম যাচাই মান দাবি করে — তাই আমরা এখান থেকেই শুরু করেছি। জাপানের জন্য তৈরি সিস্টেম সর্বত্র কাজ করে।'
                     : 'Our first corridor. Japan demands the strictest verification standards in the world — that is exactly why we started here. A system built for Japan works everywhere.'}
                 </p>
-
-                <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-8 text-xs text-white/40">
-                  {[
-                    ja ? 'AI適格性スコアリング'  : bn ? 'AI যোগ্যতা স্কোরিং'     : 'AI Eligibility Scoring',
-                    ja ? 'OCR書類ロック'        : bn ? 'OCR ডকুমেন্ট লক'         : 'OCR Document Lock',
-                    ja ? 'エスクロー決済保護'    : bn ? 'এসক্রো পেমেন্ট সুরক্ষা'  : 'Escrow Payment Protection',
-                    ja ? 'QRセキュア追跡'       : bn ? 'QR নিরাপদ ট্র্যাকিং'     : 'QR Secure Tracking',
-                  ].map((item) => (
-                    <span key={item} className="flex items-center gap-1.5">
-                      <span className="text-green-500/60" aria-hidden="true">✓</span> {item}
-                    </span>
-                  ))}
-                </div>
 
                 <Link
                   href="/about"
