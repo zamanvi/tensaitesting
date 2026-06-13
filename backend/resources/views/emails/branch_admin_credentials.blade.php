@@ -34,7 +34,7 @@
       <p class="greeting">Hi {{ $adminName }},</p>
       <p class="text">
         You have been assigned as the <strong>Branch Admin</strong> for <strong>{{ $branchName }}</strong> on the Tensai platform.
-        Use the credentials below to log in to the admin panel.
+        Use the credentials below to log in to your branch dashboard.
       </p>
 
       <div class="credentials">
@@ -53,7 +53,7 @@
       </div>
 
       <div style="text-align:center;">
-        <a href="{{ $loginUrl }}" class="btn">Log In to Admin Panel →</a>
+        <a href="{{ $loginUrl }}" class="btn">Log In to Branch Dashboard →</a>
       </div>
 
       <div class="warning">

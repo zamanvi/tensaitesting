@@ -159,7 +159,7 @@ class BranchResource extends Resource
 
                 Tables\Columns\TextColumn::make('access_link')
                     ->label('Access Link')
-                    ->getStateUsing(fn () => rtrim(env('FRONTEND_URL', config('app.url')), '/') . '/auth/login')
+                    ->getStateUsing(fn () => rtrim(config('app.frontend_url', config('app.url')), '/') . '/auth/login')
                     ->copyable()
                     ->copyMessage('Login URL copied!')
                     ->color('primary')
@@ -232,7 +232,7 @@ class BranchResource extends Resource
                         ]);
                         $user->assignRole('branch_admin');
 
-                        $loginUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/') . '/auth/login';
+                        $loginUrl = rtrim(config('app.frontend_url', config('app.url')), '/') . '/auth/login';
                         try {
                             Mail::to($data['email'])->send(new BranchAdminCredentialsMail(
                                 adminName:     $data['name'],

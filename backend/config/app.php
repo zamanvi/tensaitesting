@@ -22,6 +22,8 @@ return [
     // Override via APP_PLATFORM_ADMIN_ID in .env if the first user is not the admin.
     'platform_admin_id' => env('APP_PLATFORM_ADMIN_ID', 1),
 
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
