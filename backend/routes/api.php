@@ -19,6 +19,7 @@ use App\Models\Setting;
 use App\Http\Controllers\Api\HelpRequestController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\BranchController;
+use App\Http\Controllers\Api\BranchAdminController;
 use Illuminate\Support\Facades\Route;
 
 // Health check
@@ -143,6 +144,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('branch-admin')->middleware('role:branch_admin')->group(function () {
         Route::get('/my-branch',   [BranchController::class, 'myBranch']);
         Route::patch('/contact',   [BranchController::class, 'updateContact']);
+
+        Route::get('/settings',    [BranchAdminController::class, 'getSettings']);
+        Route::patch('/settings',  [BranchAdminController::class, 'updateSettings']);
+
+        Route::get('/leads',       [BranchAdminController::class, 'leads']);
+
+        Route::get('/team',                    [BranchAdminController::class, 'team']);
+        Route::post('/team',                   [BranchAdminController::class, 'storeTeamMember']);
+        Route::patch('/team/{id}',             [BranchAdminController::class, 'updateTeamMember']);
+        Route::delete('/team/{id}',            [BranchAdminController::class, 'deleteTeamMember']);
+
+        Route::get('/gallery',                 [BranchAdminController::class, 'gallery']);
+        Route::post('/gallery',                [BranchAdminController::class, 'storeGallery']);
+        Route::post('/gallery/{id}',           [BranchAdminController::class, 'updateGallery']);
+        Route::delete('/gallery/{id}',         [BranchAdminController::class, 'deleteGallery']);
     });
 
     // Admin only
