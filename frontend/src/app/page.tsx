@@ -126,10 +126,10 @@ export default function HomePage() {
       icon: '✈️',
       title: ja ? '安全に日本へ' : bn ? 'নিরাপদে জাপানে যান' : 'Get Placed — Safely',
       desc: ja
-        ? 'エスクロー決済が費用を保護。QR追跡で進捗を確認。あなたのプライバシーは守られます。'
+        ? 'エスクロー決済がすべてのステップで費用を保護。支払いは安全。プライバシーは守られます。'
         : bn
-        ? 'এসক্রো পেমেন্ট ফি সুরক্ষিত রাখে। QR ট্র্যাকিং আপডেট দেয়। আপনার প্রাইভেসি সুরক্ষিত থাকে।'
-        : 'Escrow protects your fees. QR tracking keeps you updated every step. Your privacy stays intact.',
+        ? 'এস্ক্রো পেমেন্ট প্রতিটি ধাপে ফি সুরক্ষিত রাখে। আপনার অর্থ নিরাপদ। আপনার প্রাইভেসি অক্ষুণ্ণ থাকে।'
+        : 'Escrow protects your fees every step of the way. Your payments are safe. Your privacy stays intact.',
     },
   ];
 
@@ -172,6 +172,19 @@ export default function HomePage() {
       flag: '🏫',
       color: 'from-violet-500/15 to-violet-600/5',
       border: 'border-violet-500/20',
+    },
+    {
+      avatar: 'F',
+      name: ja ? 'ファリダ・アクター' : bn ? 'ফারিদা আক্তার' : 'Farida Akter',
+      role: ja ? 'アフィリエイトパートナー · チッタゴン' : bn ? 'অ্যাফিলিয়েট পার্টনার · চট্টগ্রাম' : 'Affiliate Partner · Chittagong',
+      quote: ja
+        ? '友人に学生登録を紹介するだけで৳20,000を獲得できました。ダッシュボードで全部追跡できて、支払いも約束通りでした。'
+        : bn
+        ? 'বন্ধুকে স্টুডেন্ট হিসেবে রেফার করেছিলাম, ৳২০,০০০ পেয়েছি। ড্যাশবোর্ডে সব ট্র্যাক করা যায়, পেমেন্টও প্রতিশ্রুতি মতো।'
+        : 'I referred a friend for student registration and earned ৳20,000. Everything is trackable on the dashboard and the payment came exactly as promised.',
+      flag: '💼',
+      color: 'from-amber-500/15 to-amber-600/5',
+      border: 'border-amber-500/20',
     },
   ];
 
@@ -343,6 +356,12 @@ export default function HomePage() {
                     >
                       {l.ctaInstitution}
                     </Link>
+                    <Link
+                      href="/auth/register?type=affiliate"
+                      className="flex-1 text-center glass-card text-white/75 hover:text-white px-4 py-3 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+                    >
+                      {ja ? 'アフィリエイト' : bn ? 'অ্যাফিলিয়েট' : 'Affiliate'}
+                    </Link>
                   </div>
                 </div>
 
@@ -400,7 +419,7 @@ export default function HomePage() {
                     </div>
                     {[
                       { name: ja ? 'パスポート'         : bn ? 'পাসপোর্ট'              : 'Passport'              },
-                      { name: ja ? 'IELTS証明書'        : bn ? 'IELTS সার্টিফিকেট'     : 'IELTS Certificate'     },
+                      { name: ja ? 'JLPT証明書'         : bn ? 'JLPT সার্টিফিকেট'      : 'JLPT Certificate'      },
                       { name: ja ? '学業成績証明書'      : bn ? 'একাডেমিক ট্রান্সক্রিপ্ট': 'Academic Transcript'   },
                     ].map((d) => (
                       <div key={d.name} className="flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5">
@@ -495,10 +514,10 @@ export default function HomePage() {
                 {ja ? 'プラットフォームの実績' : bn ? 'আমাদের প্ল্যাটফর্ম' : 'Our Platform'}
               </p>
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
-                {ja ? '国境を越えた学生たちに信頼されています' : bn ? 'বিশ্বজুড়ে শিক্ষার্থীদের বিশ্বাসের প্ল্যাটফর্ম' : 'Trusted by students across borders'}
+                {ja ? '国境を越えるための、信頼できるプラットフォーム' : bn ? 'বিদেশে পড়াশোনার জন্য বিশ্বাসযোগ্য প্ল্যাটফর্ম' : 'The platform built for students crossing borders'}
               </h2>
               <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
-                {ja ? 'パートナーシップと信頼に基づいて成長するネットワーク' : bn ? 'অংশীদারিত্ব ও বিশ্বাসের উপর গড়ে ওঠা একটি ক্রমবর্ধমান নেটওয়ার্ক' : 'A growing network of partners dedicated to your success'}
+                {ja ? 'パートナーシップと信頼に基づいて成長するネットワーク' : bn ? 'অংশীদারিত্ব ও বিশ্বাসের উপর গড়ে ওঠা একটি ক্রমবর্ধমান নেটওয়ার্ক' : 'A growing network built on verified partnerships and zero fraud'}
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
@@ -632,7 +651,7 @@ export default function HomePage() {
                 {ja ? '学生、エージェンシー、教育機関 — 全員に効果があります' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান — সবার জন্য কাজ করে' : 'Students, agencies, institutions — it works for everyone'}
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {TESTIMONIALS.map((tm) => (
                 <div key={tm.name} className={`glass-card rounded-2xl p-6 flex flex-col gap-4 border ${tm.border} relative`}>
                   <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
@@ -673,7 +692,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
               {/* Agency card */}
               <div className="glass-card rounded-2xl p-7 border border-cyan-500/20 relative overflow-hidden">
@@ -737,6 +756,44 @@ export default function HomePage() {
                     className="inline-flex items-center gap-2 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/25 hover:border-violet-400/50 text-violet-400 hover:text-violet-300 px-5 py-2.5 rounded-full text-sm font-semibold transition-all"
                   >
                     {ja ? '機関として登録 →' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন →' : 'Join as Institution →'}
+                  </Link>
+                </div>
+              </div>
+
+              {/* Affiliate card */}
+              <div className="glass-card rounded-2xl p-7 border border-amber-500/20 relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500/30 to-transparent" />
+                <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-amber-500/5 blur-2xl pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-600/5 border border-amber-500/20 flex items-center justify-center text-xl" aria-hidden="true">💼</div>
+                    <div>
+                      <h3 className="text-white font-bold">
+                        {ja ? 'アフィリエイト向け' : bn ? 'অ্যাফিলিয়েটের জন্য' : 'For Affiliates'}
+                      </h3>
+                      <p className="text-amber-400/70 text-xs mt-0.5">
+                        {ja ? '紹介で収益を得る' : bn ? 'রেফার করে আয় করুন' : 'Earn by referring students'}
+                      </p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2.5 mb-6">
+                    {[
+                      { icon: '💰', text: ja ? '1紹介あたり৳20,000' : bn ? 'প্রতি রেফারেলে ৳২০,০০০' : '৳20,000 per successful referral' },
+                      { icon: '📊', text: ja ? 'ダッシュボードで収益管理' : bn ? 'ড্যাশবোর্ডে আয় ট্র্যাক করুন' : 'Track earnings on dashboard' },
+                      { icon: '🎓', text: ja ? '学生・機関どちらも紹介可' : bn ? 'শিক্ষার্থী বা প্রতিষ্ঠান রেফার করুন' : 'Refer students or institutions' },
+                      { icon: '⚡', text: ja ? '承認後すぐに支払い' : bn ? 'অনুমোদনের পরেই পেমেন্ট' : 'Fast payout on approval' },
+                    ].map((b) => (
+                      <li key={b.text} className="flex items-start gap-2.5 text-sm text-white/65">
+                        <span className="shrink-0 mt-0.5" aria-hidden="true">{b.icon}</span>
+                        {b.text}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/auth/register?type=affiliate"
+                    className="inline-flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 hover:border-amber-400/50 text-amber-400 hover:text-amber-300 px-5 py-2.5 rounded-full text-sm font-semibold transition-all"
+                  >
+                    {ja ? 'アフィリエイトとして参加 →' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন →' : 'Join as Affiliate →'}
                   </Link>
                 </div>
               </div>
@@ -910,6 +967,12 @@ export default function HomePage() {
                 className="w-full sm:w-auto px-7 py-3.5 glass-card text-white/80 hover:text-white rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-violet-500/30"
               >
                 {ja ? '教育機関として参加' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন' : 'Join as School'}
+              </Link>
+              <Link
+                href="/auth/register?type=affiliate"
+                className="w-full sm:w-auto px-7 py-3.5 glass-card text-white/80 hover:text-white rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-amber-500/30"
+              >
+                {ja ? 'アフィリエイトとして参加' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন' : 'Join as Affiliate'}
               </Link>
             </div>
           </div>
