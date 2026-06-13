@@ -21,6 +21,7 @@ interface Branch {
   slug: string;
   city: string | null;
   country: string | null;
+  email: string | null;
   is_active: boolean;
   sort_order: number;
   admins: BranchAdmin[];
@@ -413,14 +414,19 @@ export default function AdminBranchesPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 mb-1">Email Address <span className="text-red-400">*</span></label>
+                      <label className="block text-xs font-semibold text-slate-500 mb-1">
+                        Login Email <span className="text-slate-400 font-normal">(optional)</span>
+                      </label>
                       <input
-                        type="email" required
-                        placeholder="admin@branch.com"
+                        type="email"
+                        placeholder={selectedBranch?.email ? `Leave blank to use ${selectedBranch.email}` : 'admin@branch.com'}
                         value={form.email}
                         onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                         className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
+                      {selectedBranch?.email && !form.email && (
+                        <p className="text-[11px] text-slate-400 mt-1">Will use branch email: <span className="font-mono text-slate-600">{selectedBranch.email}</span></p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-slate-500 mb-1">

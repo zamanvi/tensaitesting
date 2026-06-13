@@ -90,7 +90,7 @@ class BranchController extends Controller
     public function adminIndex(): JsonResponse
     {
         $branches = Branch::orderBy('sort_order')
-            ->get(['id', 'name', 'slug', 'city', 'country', 'is_active', 'sort_order'])
+            ->get(['id', 'name', 'slug', 'city', 'country', 'email', 'is_active', 'sort_order'])
             ->map(function ($branch) {
                 $admins = User::where('branch_id', $branch->id)
                     ->whereHas('roles', fn ($q) => $q->whereIn('name', ['branch_admin', 'branch_manager']))

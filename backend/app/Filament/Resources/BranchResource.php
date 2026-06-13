@@ -196,25 +196,37 @@ class BranchResource extends Resource
                     ->form([
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->label('Admin Name'),
+                            ->label('Admin Name')
+                            ->placeholder('e.g. Rahim Uddin'),
                         Forms\Components\TextInput::make('email')
                             ->email()
-                            ->required()
-                            ->label('Admin Email')
-                            ->rules(['unique:users,email']),
+                            ->label('Login Email')
+                            ->helperText('Leave blank to use the branch email.')
+                            ->rules(['nullable', 'email', 'unique:users,email']),
                         Forms\Components\TextInput::make('password')
                             ->password()
                             ->required()
                             ->minLength(8)
                             ->label('Temporary Password')
-                            ->helperText('Will be emailed to the admin. They should change it after first login.'),
+                            ->helperText('Will be emailed to the admin.'),
                     ])
                     ->action(function (Branch $record, array $data) {
-                        // Fix #4: block duplicate if admin already exists
-                        if ($record->admins()->where('email', $data['email'])->exists()) {
+                        // Use branch email if no custom email provided
+                        $email = $data['email'] ?: $record->email;
+
+                        if (!$email) {
+                            Notification::make()
+                                ->title('Email required')
+                                ->body('This branch has no email set. Either add an email to the branch or enter one here.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        if ($record->admins()->where('email', $email)->exists()) {
                             Notification::make()
                                 ->title('Admin already exists')
-                                ->body("An admin with that email is already assigned to this branch.")
+                                ->body("An admin with email {$email} is already assigned to this branch.")
                                 ->danger()
                                 ->send();
                             return;
@@ -222,7 +234,7 @@ class BranchResource extends Resource
 
                         $user = User::create([
                             'name'                   => $data['name'],
-                            'email'                  => $data['email'],
+                            'email'                  => $email,
                             'password'               => bcrypt($data['password']),
                             'gateway_type'           => 'branch',
                             'status'                 => 'active',
@@ -234,10 +246,10 @@ class BranchResource extends Resource
 
                         $loginUrl = rtrim(config('app.frontend_url', config('app.url')), '/') . '/auth/login';
                         try {
-                            Mail::to($data['email'])->send(new BranchAdminCredentialsMail(
+                            Mail::to($email)->send(new BranchAdminCredentialsMail(
                                 adminName:     $data['name'],
                                 branchName:    $record->name,
-                                email:         $data['email'],
+                                email:         $email,
                                 plainPassword: $data['password'],
                                 loginUrl:      $loginUrl,
                             ));
@@ -249,13 +261,13 @@ class BranchResource extends Resource
                             'user_id'    => $user->id,
                             'type'       => 'info',
                             'title'      => 'Branch Admin Access Ready',
-                            'body'       => "You have been assigned as admin for {$record->name}. Log in at {$loginUrl}. Check your email for credentials.",
+                            'body'       => "You have been assigned as admin for {$record->name}. Log in at {$loginUrl}.",
                             'action_url' => $loginUrl,
                         ]);
 
                         Notification::make()
                             ->title("Admin created for {$record->name}")
-                            ->body("Credentials emailed to {$data['email']}")
+                            ->body("Credentials sent to {$email}")
                             ->success()
                             ->send();
                     }),
