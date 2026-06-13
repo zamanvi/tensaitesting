@@ -7,10 +7,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const TRUST_POINTS = [
-  { icon: '🔒', en: 'OCR-locked documents — tamper-proof',   ja: 'OCRロック書類 — 改ざん防止',       bn: 'OCR লক ডকুমেন্ট — টেম্পার প্রুফ' },
-  { icon: '🤖', en: 'AI eligibility score for every student', ja: '全学生にAI適性スコアを付与',        bn: 'প্রতিটি শিক্ষার্থীর AI স্কোর' },
-  { icon: '💰', en: 'Escrow-protected fee payments',          ja: 'エスクロー保護の手数料決済',       bn: 'এসক্রো সুরক্ষিত পেমেন্ট' },
-  { icon: '📊', en: 'Real-time visa & placement tracking',    ja: 'ビザ・就職のリアルタイム追跡',     bn: 'রিয়েল-টাইম ভিসা ট্র্যাকিং' },
+  { icon: '🔒', en: 'OCR-locked documents — tamper-proof',       ja: 'OCRロック書類 — 改ざん防止',       bn: 'OCR লক ডকুমেন্ট — টেম্পার প্রুফ' },
+  { icon: '🤖', en: 'AI eligibility score for every student',     ja: '全学生にAI適性スコアを付与',        bn: 'প্রতিটি শিক্ষার্থীর AI স্কোর' },
+  { icon: '💰', en: 'Escrow-protected fee payments',              ja: 'エスクロー保護の手数料決済',       bn: 'এসক্রো সুরক্ষিত পেমেন্ট' },
+  { icon: '📊', en: 'Real-time visa & placement tracking',        ja: 'ビザ・就職のリアルタイム追跡',     bn: 'রিয়েল-টাইম ভিসা ট্র্যাকিং' },
+  { icon: '💼', en: 'Earn ৳20,000 per referral as an affiliate', ja: '紹介1件で৳20,000の報酬',          bn: 'অ্যাফিলিয়েট হিসেবে প্রতি রেফারেলে ৳২০,০০০' },
 ];
 
 export default function LoginPage() {
@@ -22,6 +23,7 @@ export default function LoginPage() {
   const router                          = useRouter();
   const { t, lang, toggle }             = useLang();
   const a  = t.auth;
+  const l  = t.landing;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
@@ -74,9 +76,9 @@ export default function LoginPage() {
             {ja ? 'アカウントに\nサインイン' : bn ? 'একাউন্টে\nপ্রবেশ করুন' : 'Sign in to your\nTensai account'}
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-8">
-            {ja ? '学生、エージェンシー、機関のための検証済みエコシステム'
-              : bn ? 'শিক্ষার্থী, এজেন্সি এবং প্রতিষ্ঠানের জন্য যাচাইকৃত ইকোসিস্টেম'
-              : 'The verified ecosystem for students, agencies, and institutions.'}
+            {ja ? '学生・エージェンシー・機関・アフィリエイトのための検証済みエコシステム'
+              : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান ও অ্যাফিলিয়েটের জন্য যাচাইকৃত ইকোসিস্টেম'
+              : 'The verified ecosystem for students, agencies, institutions, and affiliates.'}
           </p>
 
           {/* Trust points */}
@@ -112,6 +114,16 @@ export default function LoginPage() {
 
       {/* RIGHT: Form panel */}
       <div className="flex-1 bg-slate-50 flex flex-col items-center justify-center px-4 py-10 overflow-y-auto">
+
+        {/* Tablet brand strip (md only — hidden on lg where left panel shows) */}
+        <div className="hidden md:flex lg:hidden items-center justify-center gap-6 mb-6 w-full max-w-md">
+          {TRUST_POINTS.slice(0, 3).map((pt) => (
+            <div key={pt.en} className="flex items-center gap-1.5 text-xs text-slate-500">
+              <span>{pt.icon}</span>
+              <span className="hidden sm:inline">{ja ? pt.ja.split('—')[0].trim() : bn ? pt.bn.split('—')[0].trim() : pt.en.split('—')[0].trim()}</span>
+            </div>
+          ))}
+        </div>
 
         {/* Mobile-only logo */}
         <Link href="/" className="flex lg:hidden items-center gap-2.5 mb-8">
@@ -203,9 +215,9 @@ export default function LoginPage() {
             {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
           </button>
           <span className="text-slate-300 text-xs">·</span>
-          <Link href="/terms" className="text-[11px] text-slate-400 hover:underline">Terms</Link>
-          <Link href="/privacy" className="text-[11px] text-slate-400 hover:underline">Privacy</Link>
-          <span className="text-[11px] text-slate-400">© 2026 Tensai</span>
+          <Link href="/terms"   className="text-[11px] text-slate-400 hover:underline">{l.terms}</Link>
+          <Link href="/privacy" className="text-[11px] text-slate-400 hover:underline">{l.privacy}</Link>
+          <span className="text-[11px] text-slate-400">{l.footer}</span>
         </div>
       </div>{/* end right panel */}
     </div>
