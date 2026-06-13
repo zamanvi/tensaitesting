@@ -29,6 +29,7 @@ const TYPE_COLORS: Record<string, string> = {
   agency:      'bg-purple-100 text-purple-700',
   institution: 'bg-indigo-100 text-indigo-700',
   affiliate:   'bg-green-100 text-green-700',
+  branch:      'bg-teal-100 text-teal-700',
 };
 
 export default function AdminUsersPage() {
@@ -81,7 +82,7 @@ export default function AdminUsersPage() {
         />
         <div className="flex gap-2 flex-wrap">
           {/* Type filter */}
-          {['all', 'student', 'agency', 'institution', 'affiliate'].map(t => (
+          {['all', 'student', 'agency', 'institution', 'affiliate', 'branch'].map(t => (
             <button
               key={t}
               onClick={() => setFilterType(t)}

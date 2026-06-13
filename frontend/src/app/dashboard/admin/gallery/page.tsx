@@ -2,6 +2,7 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
+import { useLang } from '@/context/LanguageContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -27,6 +28,9 @@ export default function AdminGalleryPage() {
   const { user } = useAuthStore();
   const router   = useRouter();
   const qc       = useQueryClient();
+  const { lang } = useLang();
+  const ja = lang === 'ja';
+  const bn = lang === 'bn';
 
   // ── All hooks MUST be declared before any conditional return ──
   const [modal, setModal]     = useState<'add' | 'edit' | null>(null);
@@ -144,29 +148,40 @@ export default function AdminGalleryPage() {
 
   const inputCls = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500';
 
+  const title = ja ? 'ギャラリー管理' : bn ? 'গ্যালারি ম্যানেজমেন্ট' : 'Gallery Management';
+
   return (
-    <DashboardLayout title="Gallery Management">
+    <DashboardLayout title={title}>
       <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">{items.length} {items.length === 1 ? 'item' : 'items'}</p>
+        <p className="text-sm text-slate-500">
+          {items.length} {ja ? '件' : bn ? `টি ${items.length === 1 ? 'আইটেম' : 'আইটেম'}` : items.length === 1 ? 'item' : 'items'}
+        </p>
         <button onClick={openAdd} className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
-          + Add Image
+          {ja ? '+ 画像を追加' : bn ? '+ ছবি যোগ করুন' : '+ Add Image'}
         </button>
       </div>
 
       {isLoading && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="aspect-square rounded-xl bg-slate-100 animate-pulse" />
-          ))}
+        <div>
+          <p className="text-sm text-slate-400 mb-4 text-center">
+            {ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="aspect-square rounded-xl bg-slate-100 animate-pulse" />
+            ))}
+          </div>
         </div>
       )}
 
       {!isLoading && items.length === 0 && (
         <div className="text-center py-20">
           <div className="text-5xl mb-4">🖼️</div>
-          <p className="text-slate-400 text-sm mb-4">No gallery items yet.</p>
+          <p className="text-slate-400 text-sm mb-4">
+            {ja ? 'ギャラリーにまだ画像がありません。' : bn ? 'এখনো কোনো ছবি নেই।' : 'No gallery items yet.'}
+          </p>
           <button onClick={openAdd} className="px-5 py-2 bg-green-700 text-white text-sm font-semibold rounded-xl hover:bg-green-800">
-            Upload First Image
+            {ja ? '最初の画像をアップロード' : bn ? 'প্রথম ছবি আপলোড করুন' : 'Upload First Image'}
           </button>
         </div>
       )}
@@ -225,7 +240,11 @@ export default function AdminGalleryPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="font-bold text-slate-900">{modal === 'add' ? 'Add Gallery Image' : 'Edit Gallery Image'}</h3>
+                <h3 className="font-bold text-slate-900">
+                  {modal === 'add'
+                    ? (ja ? '画像を追加' : bn ? 'ছবি যোগ করুন' : 'Add Gallery Image')
+                    : (ja ? '画像を編集' : bn ? 'ছবি সম্পাদনা করুন' : 'Edit Gallery Image')}
+                </h3>
                 <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
               </div>
 
@@ -331,11 +350,15 @@ export default function AdminGalleryPage() {
                 <div className="flex gap-2 pt-1">
                   <button type="submit" disabled={save.isPending}
                     className="flex-1 py-2.5 bg-green-700 hover:bg-green-800 disabled:opacity-50 text-white rounded-xl text-sm font-bold transition-colors">
-                    {save.isPending ? 'Saving…' : (modal === 'add' ? 'Upload & Save' : 'Save Changes')}
+                    {save.isPending
+                      ? (ja ? '保存中…' : bn ? 'সেভ হচ্ছে…' : 'Saving…')
+                      : modal === 'add'
+                        ? (ja ? 'アップロードして保存' : bn ? 'আপলোড ও সেভ করুন' : 'Upload & Save')
+                        : (ja ? '変更を保存' : bn ? 'পরিবর্তন সেভ করুন' : 'Save Changes')}
                   </button>
                   <button type="button" onClick={closeModal}
                     className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold">
-                    Cancel
+                    {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
                   </button>
                 </div>
               </form>
