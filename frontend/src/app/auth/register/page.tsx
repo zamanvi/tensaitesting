@@ -344,7 +344,7 @@ function RegisterForm() {
       </div>
 
       {/* Footer row */}
-      <div className="flex items-center gap-4 mt-6">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-6">
         <button onClick={toggle} className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors">
           {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
         </button>
