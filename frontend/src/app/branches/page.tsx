@@ -23,7 +23,9 @@ interface Branch {
 }
 
 export default function BranchesPage() {
-  const { lang, toggle } = useLang();
+  const { t, lang, toggle } = useLang();
+  const l = t.landing;
+  const a = t.about;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
@@ -62,19 +64,19 @@ export default function BranchesPage() {
               <div className="text-[9px] text-white/35 tracking-wider leading-none mt-0.5 hidden sm:block">THE WAY OF GLOBAL CAREER</div>
             </div>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button onClick={toggle} className="text-xs font-semibold px-2.5 py-1 rounded-full border border-white/10 text-white/60 hover:border-green-500/40 hover:text-green-400 transition-all">
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
-            <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5 hidden sm:inline">
-              {ja ? 'ログイン' : bn ? 'লগইন' : 'Login'}
-            </Link>
-            <Link href="/auth/register" className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all hidden sm:inline">
-              {ja ? '始める' : bn ? 'শুরু করুন' : 'Get Started'}
-            </Link>
+            <Link href="/about"    className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{a.navAbout}</Link>
+            <Link href="/team"     className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{a.navTeam}</Link>
+            <Link href="/gallery"  className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{a.navGallery}</Link>
+            <Link href="/branches" className="text-sm font-semibold text-green-400 px-2 py-1 hidden md:inline border-b border-green-500/50">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5 hidden sm:inline">{l.login}</Link>
+            <Link href="/auth/register" className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all hidden sm:inline">{l.getStarted}</Link>
             <button
               onClick={() => setMobileOpen(o => !o)}
-              className="sm:hidden p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/[0.08] transition-all"
+              className="md:hidden p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/[0.08] transition-all"
               aria-label="Menu"
             >
               {mobileOpen
@@ -85,9 +87,15 @@ export default function BranchesPage() {
           </div>
         </div>
         {mobileOpen && (
-          <div className="sm:hidden bg-[#0d1117]/95 backdrop-blur-md border-t border-white/[0.08] px-4 py-4 flex gap-2">
-            <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-white/70 border border-white/10 px-4 py-2.5 rounded-full">{ja ? 'ログイン' : bn ? 'লগইন' : 'Login'}</Link>
-            <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-full font-semibold">{ja ? '始める' : bn ? 'শুরু করুন' : 'Get Started'}</Link>
+          <div className="md:hidden bg-[#0d1117]/95 backdrop-blur-md border-t border-white/[0.08] px-4 py-4 flex flex-col gap-1">
+            <Link href="/about"    onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{a.navAbout}</Link>
+            <Link href="/team"     onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{a.navTeam}</Link>
+            <Link href="/gallery"  onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{a.navGallery}</Link>
+            <Link href="/branches" onClick={() => setMobileOpen(false)} className="text-sm font-semibold text-green-400 px-3 py-2.5 rounded-xl bg-green-500/[0.08]">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <div className="border-t border-white/[0.08] mt-2 pt-3 flex gap-2">
+              <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-white/70 border border-white/10 px-4 py-2.5 rounded-full">{l.login}</Link>
+              <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-full font-semibold">{l.getStarted}</Link>
+            </div>
           </div>
         )}
       </nav>
@@ -100,8 +108,8 @@ export default function BranchesPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             {ja ? '全国展開' : bn ? 'সারাদেশে' : 'Nationwide'}
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4">{title}</h1>
-          <p className="text-white/45 max-w-lg mx-auto leading-relaxed">{subtitle}</p>
+          <h1 className="text-fluid-hero font-black text-white tracking-tight mb-4 leading-[1.06]">{title}</h1>
+          <p className="text-fluid-base text-white/45 max-w-lg mx-auto leading-relaxed">{subtitle}</p>
         </div>
       </section>
 
@@ -116,9 +124,24 @@ export default function BranchesPage() {
         )}
 
         {!loading && branches.length === 0 && (
-          <div className="text-center py-20">
-            <div className="text-5xl mb-4">🏢</div>
-            <p className="text-white/40 text-sm">{ja ? '支局情報は近日公開' : bn ? 'শীঘ্রই শাখা তথ্য আসছে' : 'Branch information coming soon.'}</p>
+          <div className="text-center py-20 max-w-lg mx-auto">
+            <div className="text-5xl mb-5">🏢</div>
+            <h2 className="text-white font-bold text-lg mb-2">
+              {ja ? '支局は近日公開' : bn ? 'শাখা তথ্য শীঘ্রই আসছে' : 'Branch offices coming soon'}
+            </h2>
+            <p className="text-white/40 text-sm mb-6 leading-relaxed">
+              {ja
+                ? 'Tensaiは全国に支局ネットワークを構築中です。あなたの都市にも間もなく開設します。'
+                : bn
+                ? 'টেনসাই সারা দেশে শাখা অফিসের নেটওয়ার্ক তৈরি করছে। শীঘ্রই আপনার শহরেও আসছে।'
+                : 'Tensai is building a nationwide branch office network. We will be in your city soon — register now to get notified.'}
+            </p>
+            <Link
+              href="/auth/register"
+              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-full text-sm font-bold transition-all"
+            >
+              {ja ? '今すぐ登録 →' : bn ? 'এখনই নিবন্ধন করুন →' : 'Register to get notified →'}
+            </Link>
           </div>
         )}
 
@@ -167,7 +190,7 @@ export default function BranchesPage() {
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] text-white/30 space-y-0.5">
+                    <div className="text-xs text-white/45 space-y-0.5">
                       {branch.phone && <div>📞 {branch.phone}</div>}
                       {branch.address && <div className="line-clamp-1">🏠 {branch.address}</div>}
                     </div>
@@ -189,12 +212,13 @@ export default function BranchesPage() {
             <Image src="/tensai-logo.png" alt="Tensai" width={28} height={28} className="rounded-full object-contain" />
             <span className="text-sm font-bold text-white/75">Tensai</span>
           </Link>
-          <div className="flex gap-4 text-xs text-white/38">
-            <Link href="/about" className="hover:text-white/65">About</Link>
-            <Link href="/gallery" className="hover:text-white/65">Gallery</Link>
-            <Link href="/branches" className="text-green-400 font-medium">Branches</Link>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/38">
+            <Link href="/about"    className="hover:text-white/65 transition-colors">{a.navAbout}</Link>
+            <Link href="/team"     className="hover:text-white/65 transition-colors">{a.navTeam}</Link>
+            <Link href="/gallery"  className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
+            <Link href="/branches" className="text-green-400 font-medium">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
           </div>
-          <p className="text-xs text-white/30">© 2026 Tensai. All rights reserved.</p>
+          <p className="text-xs text-white/30">{l.footer}</p>
         </div>
       </footer>
     </div>
