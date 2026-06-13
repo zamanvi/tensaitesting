@@ -139,6 +139,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/upgrade-request',[AffiliateController::class, 'upgradeRequest']);
     });
 
+    // Branch admin gateway (branch_admin role only)
+    Route::prefix('branch-admin')->middleware('role:branch_admin')->group(function () {
+        Route::get('/my-branch',   [BranchController::class, 'myBranch']);
+        Route::patch('/contact',   [BranchController::class, 'updateContact']);
+    });
+
     // Admin only
     Route::prefix('admin')->middleware('role:admin|super_admin')->group(function () {
         Route::get('/leads', [LeadController::class, 'adminIndex']);
@@ -157,9 +163,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/branches',                                [BranchController::class, 'adminIndex']);
         Route::post('/branches/{branch}/create-admin',         [BranchController::class, 'createAdmin']);
 
-        // Branch admin — contact info management (also used by branch_admin role)
-        Route::get('/branch-admin/my-branch',      [BranchController::class, 'myBranch']);
-        Route::patch('/branch-admin/contact',      [BranchController::class, 'updateContact']);
 
         // Gallery management
         Route::get('/gallery',                          [AdminGalleryController::class, 'index']);
