@@ -12,6 +12,7 @@ function RegisterForm() {
   const refCode      = searchParams.get("ref")  || "";
   const { t, lang, toggle } = useLang();
   const a  = t.auth;
+  const l  = t.landing;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
@@ -81,8 +82,8 @@ function RegisterForm() {
     },
     {
       icon: '🌐',
-      title: ja ? '透明な追跡' : bn ? 'স্বচ্ছ ট্র্যাকিং' : 'Transparent Tracking',
-      desc: ja ? 'すべてのステップをQRで追跡' : bn ? 'প্রতিটি ধাপ QR দিয়ে ট্র্যাক করুন' : 'Every step tracked via QR',
+      title: ja ? '完全な透明性' : bn ? 'সম্পূর্ণ স্বচ্ছতা' : 'Full Transparency',
+      desc: ja ? 'すべてのステップが正式に記録・監査可能' : bn ? 'প্রতিটি ধাপ আনুষ্ঠানিকভাবে রেকর্ড ও যাচাইযোগ্য' : 'Every step formally recorded and auditable',
     },
   ];
 
@@ -117,10 +118,10 @@ function RegisterForm() {
             </h2>
             <p className="text-white/45 text-sm leading-relaxed">
               {ja
-                ? 'バングラデシュから日本へ — 詐欺なし、透明性あり、AI検証済み。'
+                ? '詐欺ゼロ、完全透明、AI検証済みのグローバル留学インフラ。'
                 : bn
-                ? 'বাংলাদেশ থেকে জাপান — কোনো প্রতারণা নেই, সম্পূর্ণ স্বচ্ছ, AI যাচাইকৃত।'
-                : 'Bangladesh to Japan — zero fraud, full transparency, AI-verified.'}
+                ? 'প্রতারণামুক্ত, সম্পূর্ণ স্বচ্ছ, AI যাচাইকৃত — বৈশ্বিক শিক্ষা অবকাঠামো।'
+                : 'Zero fraud, full transparency, AI-verified — global education infrastructure.'}
             </p>
           </div>
 
@@ -324,9 +325,9 @@ function RegisterForm() {
                 className="mt-0.5 w-4 h-4 accent-green-700 shrink-0" />
               <span className="text-xs text-slate-500 leading-relaxed">
                 {a.agreeTerms}{' '}
-                <Link href="/terms" target="_blank" className="text-green-700 hover:underline">Terms</Link>
+                <Link href="/terms" target="_blank" className="text-green-700 hover:underline">{l.terms}</Link>
                 {' & '}
-                <Link href="/privacy" target="_blank" className="text-green-700 hover:underline">Privacy</Link>
+                <Link href="/privacy" target="_blank" className="text-green-700 hover:underline">{l.privacy}</Link>
               </span>
             </label>
 
@@ -349,9 +350,9 @@ function RegisterForm() {
           {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
         </button>
         <span className="text-slate-300 text-xs">·</span>
-        <Link href="/terms" className="text-[11px] text-slate-400 hover:underline">Terms</Link>
-        <Link href="/privacy" className="text-[11px] text-slate-400 hover:underline">Privacy</Link>
-        <span className="text-[11px] text-slate-400">© 2026 Tensai</span>
+        <Link href="/terms"   className="text-[11px] text-slate-400 hover:underline">{l.terms}</Link>
+        <Link href="/privacy" className="text-[11px] text-slate-400 hover:underline">{l.privacy}</Link>
+        <span className="text-[11px] text-slate-400">{l.footer}</span>
       </div>
 
       </div>{/* end right panel */}

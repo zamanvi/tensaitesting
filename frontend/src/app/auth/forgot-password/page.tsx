@@ -1,6 +1,7 @@
 "use client";
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -32,7 +33,10 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <Link href="/" className="text-2xl font-bold text-green-800">Tensai</Link>
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-full object-contain" />
+              <span className="text-xl font-black text-green-800">Tensai</span>
+            </Link>
             <button
               onClick={toggle}
               className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-800 transition-colors"
@@ -60,11 +64,17 @@ export default function ForgotPasswordPage() {
               )}
               <p className="text-sm text-slate-600 mb-5">{a.forgotDesc}</p>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                  type="email" placeholder={a.emailAddress} required
-                  value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.email}</label>
+                  <input
+                    type="email" placeholder="you@example.com" required
+                    value={email} onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1.5">
+                    {lang === 'ja' ? '登録時に使用したメールアドレスを入力してください。' : lang === 'bn' ? 'নিবন্ধনের সময় ব্যবহৃত ইমেইল ঠিকানা দিন।' : 'Use the email address you registered with.'}
+                  </p>
+                </div>
                 <button
                   type="submit" disabled={loading}
                   className="w-full bg-green-700 hover:bg-green-800 disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition-colors"
