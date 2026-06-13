@@ -36,12 +36,12 @@ export default function AboutPage() {
   }, []);
 
   const STATS = [
-    { value: '4',      label: a.stat1 },
-    { value: '100%',   label: a.stat2 },
-    { value: '0',      label: a.stat3 },
-    { value: 'BD→JP',  label: a.stat4 },
-    { value: '৳20K',   label: ja ? '紹介1件の収益' : bn ? 'প্রতি রেফারেলে আয়' : 'Per Referral Earned' },
-    { value: '2026',   label: ja ? '正式ローンチ' : bn ? 'আনুষ্ঠানিক লঞ্চ' : 'Official Launch' },
+    { value: '4',       label: a.stat1 },
+    { value: '100%',    label: a.stat2 },
+    { value: '0',       label: a.stat3 },
+    { value: 'BD→JP',   label: a.stat4, small: true },
+    { value: '৳20K',    label: ja ? '紹介1件の収益' : bn ? 'প্রতি রেফারেলে আয়' : 'Per Referral Earned' },
+    { value: '2026',    label: ja ? '正式ローンチ' : bn ? 'আনুষ্ঠানিক লঞ্চ' : 'Official Launch' },
   ];
 
   const PROBLEMS = [
@@ -68,6 +68,7 @@ export default function AboutPage() {
   const GATEWAYS = [
     {
       icon: '🎓',
+      href: '/auth/register?type=student',
       color: 'from-green-500/10 to-green-600/5',
       accent: 'border-green-200 hover:border-green-400 hover:shadow-green-100',
       badge: 'bg-green-50 text-green-700 border border-green-200',
@@ -81,6 +82,7 @@ export default function AboutPage() {
     },
     {
       icon: '🏢',
+      href: '/auth/register?type=agency',
       color: 'from-blue-500/10 to-blue-600/5',
       accent: 'border-blue-200 hover:border-blue-400 hover:shadow-blue-100',
       badge: 'bg-blue-50 text-blue-700 border border-blue-200',
@@ -94,6 +96,7 @@ export default function AboutPage() {
     },
     {
       icon: '🏫',
+      href: '/auth/register?type=institution',
       color: 'from-violet-500/10 to-violet-600/5',
       accent: 'border-violet-200 hover:border-violet-400 hover:shadow-violet-100',
       badge: 'bg-violet-50 text-violet-700 border border-violet-200',
@@ -107,6 +110,7 @@ export default function AboutPage() {
     },
     {
       icon: '💼',
+      href: '/auth/register?type=affiliate',
       color: 'from-amber-500/10 to-amber-600/5',
       accent: 'border-amber-200 hover:border-amber-400 hover:shadow-amber-100',
       badge: 'bg-amber-50 text-amber-700 border border-amber-200',
@@ -313,7 +317,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-slate-200 rounded-2xl overflow-hidden shadow-sm">
               {STATS.map((s, i) => (
                 <div key={i} className="bg-white px-4 py-6 text-center">
-                  <div className="text-2xl sm:text-3xl font-black text-green-700 leading-none mb-1">{s.value}</div>
+                  <div className={`font-black text-green-700 leading-none mb-1 ${s.small ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'}`}>{s.value}</div>
                   <div className="text-[10px] sm:text-xs text-slate-500 leading-snug mt-1">{s.label}</div>
                 </div>
               ))}
@@ -386,6 +390,16 @@ export default function AboutPage() {
           </div>
           <div className="space-y-5 text-slate-600 text-fluid-base leading-relaxed">
             <p>{a.story1}</p>
+            <blockquote className="border-l-4 border-green-500 pl-5 py-1 my-6">
+              <p className="text-slate-800 font-semibold text-fluid-lg leading-snug italic">
+                {ja
+                  ? '"書類の真偽を証明できない学生が、なぜ機会を失わなければならないのか？"'
+                  : bn
+                  ? '"যে শিক্ষার্থী তার কাগজের সত্যতা প্রমাণ করতে পারে না, সে কেন সুযোগ হারাবে?"'
+                  : '"Why should a student lose their chance because they can\'t prove their own documents are real?"'}
+              </p>
+              <footer className="text-sm text-slate-400 mt-2 not-italic">— Md. Norozzaman, Founder</footer>
+            </blockquote>
             <p>{a.story2}</p>
             <p>{a.story3}</p>
           </div>
@@ -447,7 +461,7 @@ export default function AboutPage() {
                       </li>
                     ))}
                   </ul>
-                  <Link href="/auth/register" className="mt-auto text-xs font-semibold text-green-700 hover:text-green-600 hover:underline transition-colors">
+                  <Link href={g.href} className="mt-auto text-xs font-semibold text-green-700 hover:text-green-600 hover:underline transition-colors">
                     {ja ? '今すぐ始める →' : bn ? 'শুরু করুন →' : 'Get started →'}
                   </Link>
                 </div>
@@ -606,11 +620,19 @@ export default function AboutPage() {
             <p className="text-slate-400 text-fluid-base mb-8 leading-relaxed max-w-lg mx-auto">
               {ja ? '学生・エージェンシー・教育機関・アフィリエイト — 天才はあなたのために作られています。' : bn ? 'শিক্ষার্থী, এজেন্সি, বিশ্ববিদ্যালয় বা অ্যাফিলিয়েট — টেনসাই আপনার জন্যই তৈরি।' : 'Student, agency, university, or affiliate — Tensai was built for you. Join the ecosystem that puts trust first.'}
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/auth/register" className="bg-green-600 hover:bg-green-500 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-green-600/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300">
-                {a.ctaStart}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
+              <Link href="/auth/register?type=student" className="w-full sm:w-auto bg-green-600 hover:bg-green-500 text-white px-7 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-green-600/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300">
+                {ja ? '学生として始める' : bn ? 'শিক্ষার্থী হিসেবে শুরু করুন' : 'Start as Student'}
               </Link>
-              <Link href="/" className="border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white px-8 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+              <Link href="/auth/register?type=agency" className="w-full sm:w-auto border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-white px-7 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+                {ja ? 'エージェンシーとして参加' : bn ? 'এজেন্সি হিসেবে যোগ দিন' : 'Join as Agency'}
+              </Link>
+              <Link href="/auth/register?type=affiliate" className="w-full sm:w-auto border border-slate-700 hover:border-amber-500/50 text-slate-300 hover:text-white px-7 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+                {ja ? 'アフィリエイトとして参加' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন' : 'Join as Affiliate'}
+              </Link>
+            </div>
+            <div className="mt-4">
+              <Link href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">
                 {ja ? '← ホームに戻る' : bn ? '← হোমে ফিরুন' : '← Back to Home'}
               </Link>
             </div>
