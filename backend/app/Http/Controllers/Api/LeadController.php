@@ -241,7 +241,7 @@ class LeadController extends Controller
 
     public function adminIndex(Request $request): JsonResponse
     {
-        $leads = Lead::with(['student:id,name', 'sourceAgency:id,name', 'assignedAgency:id,name', 'assignedInstitution:id,name'])
+        $leads = Lead::with(['student:id,name', 'sourceAgency:id,name', 'sourceBranch:id,name', 'assignedAgency:id,name', 'assignedInstitution:id,name'])
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
             ->when($request->pool_type, fn ($q) => $q->where('pool_type', $request->pool_type))
             ->latest()
