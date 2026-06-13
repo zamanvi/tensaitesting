@@ -240,14 +240,14 @@ export default function TeamPage() {
           </div>
           <h1 className="text-fluid-hero font-black text-white mb-5 leading-[1.06] tracking-tight">
             {ja ? 'Tensaiを作った' : bn ? 'যাঁরা তৈরি করেছেন' : 'The people'}<br />
-            <span className="gradient-text">{ja ? '3人のチーム' : bn ? 'টেনসাই' : 'behind Tensai'}</span>
+            <span className="gradient-text">{ja ? '4人のチーム' : bn ? 'টেনসাই' : 'behind Tensai'}</span>
           </h1>
           <p className="text-fluid-lg text-white/45 max-w-xl mx-auto leading-relaxed">
             {ja
-              ? 'バングラデシュの留学業界を変えることに情熱を持つ3人の創業者。それぞれの専門性がTensaiを支えている。'
+              ? 'バングラデシュの留学業界を変えることに情熱を持つ4人のチーム。それぞれの専門性がTensaiを支えている。'
               : bn
-              ? 'তিনজন প্রতিষ্ঠাতা। একটি ভাঙা শিল্পের প্রতি একই হতাশা। প্রযুক্তি, বিশ্বাস ও অদম্য কার্যক্ষমতা দিয়ে তা ঠিক করার একটি লক্ষ্য।'
-              : 'Three founders. One shared frustration with a broken industry. One mission to fix it with technology, trust, and relentless execution.'}
+              ? 'চারজনের দল। একটি ভাঙা শিল্পের প্রতি একই হতাশা। প্রযুক্তি, বিশ্বাস ও অদম্য কার্যক্ষমতা দিয়ে তা ঠিক করার একটি লক্ষ্য।'
+              : 'Four people. One shared frustration with a broken industry. One mission to fix it with technology, trust, and relentless execution.'}
           </p>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0d1117] to-transparent pointer-events-none" />
