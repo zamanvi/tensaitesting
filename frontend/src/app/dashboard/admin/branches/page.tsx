@@ -129,6 +129,7 @@ export default function AdminBranchesPage() {
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Email</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Password</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Access Link</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Created</th>
                   <th className="px-4 py-3" />
                 </tr>
@@ -188,6 +189,30 @@ export default function AdminBranchesPage() {
                         }`}>
                           {admin.status}
                         </span>
+                      ) : (
+                        <span className="text-slate-300 text-xs">—</span>
+                      )}
+                    </td>
+
+                    {/* Access Link */}
+                    <td className="px-4 py-3">
+                      {admin ? (
+                        <div className="flex items-center gap-1.5">
+                          <a
+                            href={`${typeof window !== 'undefined' ? window.location.origin : ''}/auth/login`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[10px] font-semibold text-green-700 hover:underline"
+                          >
+                            🔗 Login
+                          </a>
+                          <button
+                            onClick={() => copy(`${window.location.origin}/auth/login`, `link-${admin.id}`)}
+                            className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
+                          >
+                            {copiedField === `link-${admin.id}` ? '✓' : '📋'}
+                          </button>
+                        </div>
                       ) : (
                         <span className="text-slate-300 text-xs">—</span>
                       )}
