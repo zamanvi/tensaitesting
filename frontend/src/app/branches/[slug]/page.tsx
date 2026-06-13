@@ -27,7 +27,9 @@ interface Branch {
 
 export default function BranchPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { lang, toggle } = useLang();
+  const { t, lang, toggle } = useLang();
+  const l = t.landing;
+  const a = t.about;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
@@ -71,7 +73,7 @@ export default function BranchPage() {
 
       {/* Navbar */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0d1117]/95 backdrop-blur-xl border-b border-white/[0.06]' : 'bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <Image src="/tensai-logo.png" alt="Tensai" width={32} height={32} className="rounded-full object-contain" />
             <span className="text-sm font-bold text-white">Tensai</span>
@@ -80,7 +82,7 @@ export default function BranchPage() {
             <button onClick={toggle} className="text-xs font-semibold px-2.5 py-1 rounded-full border border-white/10 text-white/60 hover:border-green-500/40 hover:text-green-400 transition-all">
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
-            <Link href="/branches" className="text-xs text-white/50 hover:text-white px-3 py-1.5">
+            <Link href="/branches" className="text-xs text-white/50 hover:text-white px-2 sm:px-3 py-1.5 truncate max-w-[120px] sm:max-w-none">
               ← {ja ? '支局一覧' : bn ? 'সব শাখা' : 'All Branches'}
             </Link>
             <Link href="/auth/register" className="text-xs bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-full font-semibold transition-all">
@@ -107,7 +109,7 @@ export default function BranchPage() {
             )}
             <div>
               <p className="text-green-400 text-xs font-semibold mb-1">📍 {branch.city}, {branch.country}</p>
-              <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">{branch.name}</h1>
+              <h1 className="text-fluid-hero font-black text-white leading-[1.06]">{branch.name}</h1>
               {branch.tagline && <p className="text-white/60 mt-2 text-sm sm:text-base">{branch.tagline}</p>}
             </div>
           </div>
@@ -151,7 +153,7 @@ export default function BranchPage() {
                 <div key={s.id} className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:border-green-500/20 transition-all">
                   {s.icon && <div className="text-3xl mb-3">{s.icon}</div>}
                   <h3 className="font-bold text-white text-sm mb-2">{s.title}</h3>
-                  {s.description && <p className="text-white/40 text-xs leading-relaxed">{s.description}</p>}
+                  {s.description && <p className="text-white/55 text-xs leading-relaxed">{s.description}</p>}
                 </div>
               ))}
             </div>
@@ -177,7 +179,7 @@ export default function BranchPage() {
                   </div>
                   <p className="font-bold text-white text-sm">{m.name}</p>
                   {m.role && <p className="text-green-400 text-xs mt-0.5">{m.role}</p>}
-                  {m.bio && <p className="text-white/35 text-[11px] mt-1 leading-snug line-clamp-2">{m.bio}</p>}
+                  {m.bio && <p className="text-white/50 text-xs mt-1 leading-snug line-clamp-2">{m.bio}</p>}
                 </div>
               ))}
             </div>
@@ -283,9 +285,9 @@ export default function BranchPage() {
             {ja ? 'まずは無料相談から' : bn ? 'আজই শুরু করুন' : 'Start Your Journey Today'}
           </h2>
           <p className="text-white/45 text-sm mb-6 max-w-md mx-auto">
-            {ja ? `${branch.name}のチームがあなたの夢を日本で実現するお手伝いをします。`
-              : bn ? `${branch.name} এর টিম আপনার জাপান যাত্রা শুরু করতে সাহায্য করতে প্রস্তুত।`
-              : `The ${branch.name} team is ready to help you start your journey to Japan.`}
+            {ja ? `${branch.name}のチームがあなたの留学の夢を実現するお手伝いをします。`
+              : bn ? `${branch.name} এর টিম আপনার বিদেশে পড়াশোনার স্বপ্ন পূরণে সাহায্য করতে প্রস্তুত।`
+              : `The ${branch.name} team is ready to help you take your first step toward studying abroad.`}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link href="/auth/register" className="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-full text-sm font-bold transition-all">
@@ -309,12 +311,13 @@ export default function BranchPage() {
             <Image src="/tensai-logo.png" alt="Tensai" width={28} height={28} className="rounded-full object-contain" />
             <span className="text-sm font-bold text-white/75">Tensai</span>
           </Link>
-          <div className="flex gap-4 text-xs text-white/38">
-            <Link href="/about" className="hover:text-white/65">About</Link>
-            <Link href="/gallery" className="hover:text-white/65">Gallery</Link>
-            <Link href="/branches" className="hover:text-white/65">Branches</Link>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/38">
+            <Link href="/about"    className="hover:text-white/65 transition-colors">{a.navAbout}</Link>
+            <Link href="/team"     className="hover:text-white/65 transition-colors">{a.navTeam}</Link>
+            <Link href="/gallery"  className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
+            <Link href="/branches" className="hover:text-white/65 transition-colors">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
           </div>
-          <p className="text-xs text-white/30">© 2026 Tensai. All rights reserved.</p>
+          <p className="text-xs text-white/30">{l.footer}</p>
         </div>
       </footer>
 
