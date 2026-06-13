@@ -110,6 +110,117 @@ class BranchController extends Controller
         return response()->json($branches);
     }
 
+    /** Create branch + admin in one call */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'branch_name'  => 'required|string|max:100',
+            'manager_name' => 'required|string|max:100',
+            'password'     => 'required|string|min:6',
+            'phone'        => 'nullable|string|max:30',
+            'whatsapp'     => 'nullable|string|max:30',
+        ]);
+
+        $slug     = Str::slug($validated['branch_name']);
+        $baseSlug = $slug;
+        $i        = 1;
+        while (Branch::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $i++;
+        }
+
+        $username = $slug . '@branch.tensai.jp';
+
+        if (User::where('email', $username)->exists()) {
+            $username = $slug . '-' . Str::random(4) . '@branch.tensai.jp';
+        }
+
+        $branch = Branch::create([
+            'name'     => $validated['branch_name'],
+            'slug'     => $slug,
+            'phone'    => $validated['phone'] ?? null,
+            'whatsapp' => $validated['whatsapp'] ?? null,
+            'is_active'=> true,
+            'sort_order'=> Branch::max('sort_order') + 1,
+        ]);
+
+        $user = User::create([
+            'name'                   => $validated['manager_name'],
+            'email'                  => $username,
+            'password'               => Hash::make($validated['password']),
+            'gateway_type'           => 'branch',
+            'status'                 => 'active',
+            'branch_id'              => $branch->id,
+            'manager_plain_password' => $validated['password'],
+            'email_verified_at'      => now(),
+        ]);
+        $user->assignRole('branch_admin');
+
+        return response()->json([
+            'message' => 'Branch created.',
+            'branch'  => array_merge($branch->only(['id', 'name', 'slug', 'phone', 'whatsapp', 'is_active', 'sort_order']), [
+                'email'  => null,
+                'admins' => [[
+                    'id'             => $user->id,
+                    'name'           => $user->name,
+                    'email'          => $user->email,
+                    'status'         => $user->status,
+                    'plain_password' => $validated['password'],
+                    'created_at'     => $user->created_at,
+                ]],
+            ]),
+        ], 201);
+    }
+
+    /** Edit branch + admin credentials */
+    public function update(Request $request, int $branchId): JsonResponse
+    {
+        $branch = Branch::findOrFail($branchId);
+
+        $validated = $request->validate([
+            'branch_name'  => 'required|string|max:100',
+            'manager_name' => 'nullable|string|max:100',
+            'username'     => 'nullable|email|unique:users,email,' . ($branch->admins()->first()?->id ?? 0),
+            'password'     => 'nullable|string|min:6',
+            'phone'        => 'nullable|string|max:30',
+            'whatsapp'     => 'nullable|string|max:30',
+        ]);
+
+        $branch->update([
+            'name'     => $validated['branch_name'],
+            'phone'    => $validated['phone'] ?? $branch->phone,
+            'whatsapp' => $validated['whatsapp'] ?? $branch->whatsapp,
+        ]);
+
+        $admin = $branch->admins()->first();
+        if ($admin) {
+            $adminUpdates = [];
+            if (!empty($validated['manager_name'])) $adminUpdates['name'] = $validated['manager_name'];
+            if (!empty($validated['username']))     $adminUpdates['email'] = $validated['username'];
+            if (!empty($validated['password'])) {
+                $adminUpdates['password']               = Hash::make($validated['password']);
+                $adminUpdates['manager_plain_password'] = $validated['password'];
+            }
+            if ($adminUpdates) $admin->update($adminUpdates);
+        }
+
+        $fresh = $branch->fresh();
+        $freshAdmin = $fresh->admins()->first();
+
+        return response()->json([
+            'message' => 'Branch updated.',
+            'branch'  => array_merge($fresh->only(['id', 'name', 'slug', 'phone', 'whatsapp', 'email', 'is_active', 'sort_order']), [
+                'admins' => $freshAdmin ? [[
+                    'id'             => $freshAdmin->id,
+                    'name'           => $freshAdmin->name,
+                    'email'          => $freshAdmin->email,
+                    'status'         => $freshAdmin->status,
+                    'plain_password' => $freshAdmin->manager_plain_password,
+                    'created_at'     => $freshAdmin->created_at,
+                ]] : [],
+            ]),
+        ]);
+    }
+
     /** Create a new branch admin user for a given branch */
     public function createAdmin(Request $request, int $branchId): JsonResponse
     {

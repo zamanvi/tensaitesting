@@ -22,12 +22,17 @@ interface Branch {
   city: string | null;
   country: string | null;
   email: string | null;
+  phone: string | null;
+  whatsapp: string | null;
   is_active: boolean;
   sort_order: number;
   admins: BranchAdmin[];
 }
 
-const EMPTY_FORM = { name: '', email: '', password: '' };
+const EMPTY_CREATE = { branch_name: '', manager_name: '', password: '', phone: '', whatsapp: '' };
+const EMPTY_EDIT   = { branch_name: '', manager_name: '', username: '', password: '', phone: '', whatsapp: '' };
+
+const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500';
 
 export default function AdminBranchesPage() {
   const { user } = useAuthStore();
@@ -40,11 +45,13 @@ export default function AdminBranchesPage() {
     if (user && !isAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isAdmin, router]);
 
-  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [formErr, setFormErr] = useState('');
-  const [created, setCreated] = useState<{ name: string; email: string; password: string } | null>(null);
+  const [createForm, setCreateForm] = useState(EMPTY_CREATE);
+  const [createErr, setCreateErr]   = useState('');
+  const [editBranch, setEditBranch] = useState<Branch | null>(null);
+  const [editForm, setEditForm]     = useState(EMPTY_EDIT);
+  const [editErr, setEditErr]       = useState('');
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [showPassFor, setShowPassFor] = useState<number | null>(null);
 
   const { data: branches = [], isLoading } = useQuery<Branch[]>({
     queryKey: ['admin-branches'],
@@ -52,53 +59,67 @@ export default function AdminBranchesPage() {
     enabled: !!isAdmin,
   });
 
-  const createAdmin = useMutation({
-    mutationFn: (data: typeof EMPTY_FORM) =>
-      api.post(`/admin/branches/${selectedBranch!.id}/create-admin`, data).then(r => r.data),
-    onSuccess: (data) => {
+  const createMutation = useMutation({
+    mutationFn: (data: typeof EMPTY_CREATE) => api.post('/admin/branches', data).then(r => r.data),
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-branches'] });
-      setCreated(data.admin);
-      setForm(EMPTY_FORM);
-      setFormErr('');
+      setCreateForm(EMPTY_CREATE);
+      setCreateErr('');
     },
     onError: (err: unknown) => {
       const e = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
       const errs = e.response?.data?.errors;
-      setFormErr(errs ? Object.values(errs).flat().join(' ') : e.response?.data?.message || 'Failed to create admin.');
+      setCreateErr(errs ? Object.values(errs).flat().join(' ') : e.response?.data?.message || 'Failed to create branch.');
     },
   });
 
-  function closeModal() {
-    setSelectedBranch(null);
-    setForm(EMPTY_FORM);
-    setFormErr('');
-    setCreated(null);
+  const editMutation = useMutation({
+    mutationFn: (data: typeof EMPTY_EDIT) => api.patch(`/admin/branches/${editBranch!.id}`, data).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-branches'] });
+      setEditBranch(null);
+      setEditErr('');
+    },
+    onError: (err: unknown) => {
+      const e = err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+      const errs = e.response?.data?.errors;
+      setEditErr(errs ? Object.values(errs).flat().join(' ') : e.response?.data?.message || 'Failed to update.');
+    },
+  });
+
+  function openEdit(branch: Branch) {
+    const admin = branch.admins[0] ?? null;
+    setEditForm({
+      branch_name:  branch.name,
+      manager_name: admin?.name ?? '',
+      username:     admin?.email ?? '',
+      password:     '',
+      phone:        branch.phone ?? '',
+      whatsapp:     branch.whatsapp ?? '',
+    });
+    setEditErr('');
+    setEditBranch(branch);
   }
 
-  function copy(text: string, field: string) {
+  function copy(text: string, key: string) {
     navigator.clipboard.writeText(text);
-    setCopiedField(field);
+    setCopiedField(key);
     setTimeout(() => setCopiedField(null), 2000);
   }
 
-  if (!user || !isAdmin) return null;
+  const loginUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth/login` : '/auth/login';
 
-  // Flatten all branches+admins into table rows
-  const tableRows = branches.flatMap(branch =>
-    branch.admins.length === 0
-      ? [{ branch, admin: null as BranchAdmin | null }]
-      : branch.admins.map(admin => ({ branch, admin: admin as BranchAdmin | null }))
-  );
+  if (!user || !isAdmin) return null;
 
   return (
     <DashboardLayout title="Branch Management">
 
-      {/* ── Access credentials table ── */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-6">
+      {/* ── Branches table ── */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-slate-900 text-sm">Branch Access Credentials</h2>
-            <p className="text-xs text-slate-400 mt-0.5">All branch admin login details — copy and send to each branch.</p>
+            <h2 className="font-bold text-slate-900 text-sm">All Branches</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Click Edit to change any branch or admin details.</p>
           </div>
           <span className="text-xs bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-full">
             {branches.length} {branches.length === 1 ? 'branch' : 'branches'}
@@ -109,358 +130,248 @@ export default function AdminBranchesPage() {
           <div className="divide-y divide-slate-50">
             {[1, 2, 3].map(i => (
               <div key={i} className="px-5 py-4 flex gap-4 animate-pulse">
+                <div className="h-4 bg-slate-100 rounded w-32" />
+                <div className="h-4 bg-slate-100 rounded w-28" />
                 <div className="h-4 bg-slate-100 rounded w-40" />
-                <div className="h-4 bg-slate-100 rounded w-48" />
-                <div className="h-4 bg-slate-100 rounded w-24" />
+                <div className="h-4 bg-slate-100 rounded w-20" />
               </div>
             ))}
           </div>
         ) : branches.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-3xl mb-2">🏢</div>
-            <p className="text-slate-400 text-sm">No branches found. Add branches via the Filament admin panel.</p>
+            <p className="text-slate-400 text-sm">No branches yet. Add one below.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">Branch</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Admin Name</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Email</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Password</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Access Link</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Created</th>
+                <tr className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500">
+                  <th className="text-left px-5 py-3">Branch</th>
+                  <th className="text-left px-4 py-3">Manager</th>
+                  <th className="text-left px-4 py-3">Username</th>
+                  <th className="text-left px-4 py-3">Password</th>
+                  <th className="text-left px-4 py-3">Phone</th>
+                  <th className="text-left px-4 py-3">WhatsApp</th>
+                  <th className="text-left px-4 py-3">Access Link</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {tableRows.map(({ branch, admin }, idx) => (
-                  <tr key={`${branch.id}-${admin?.id ?? 'none'}-${idx}`} className="hover:bg-slate-50 transition-colors">
-                    {/* Branch */}
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">
-                          {branch.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-800 text-xs leading-tight">{branch.name}</p>
-                          {(branch.city || branch.country) && (
-                            <p className="text-[10px] text-slate-400">{[branch.city, branch.country].filter(Boolean).join(', ')}</p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
+                {branches.map(branch => {
+                  const admin = branch.admins[0] ?? null;
+                  return (
+                    <tr key={branch.id} className="hover:bg-slate-50 transition-colors">
 
-                    {/* Admin name */}
-                    <td className="px-4 py-3">
-                      {admin ? (
-                        <span className="text-slate-700 text-xs font-medium">{admin.name}</span>
-                      ) : (
-                        <span className="text-amber-600 text-xs font-medium bg-amber-50 px-2 py-0.5 rounded-full">⚠️ No admin</span>
-                      )}
-                    </td>
-
-                    {/* Email */}
-                    <td className="px-4 py-3">
-                      {admin ? (
-                        <span className="text-slate-500 text-xs font-mono">{admin.email}</span>
-                      ) : (
-                        <span className="text-slate-300 text-xs">—</span>
-                      )}
-                    </td>
-
-                    {/* Password */}
-                    <td className="px-4 py-3">
-                      {admin?.plain_password ? (
-                        <span className="text-slate-700 text-xs font-mono bg-slate-100 px-2 py-0.5 rounded">
-                          {admin.plain_password}
-                        </span>
-                      ) : (
-                        <span className="text-slate-300 text-xs">—</span>
-                      )}
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-4 py-3">
-                      {admin ? (
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                          admin.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                        }`}>
-                          {admin.status}
-                        </span>
-                      ) : (
-                        <span className="text-slate-300 text-xs">—</span>
-                      )}
-                    </td>
-
-                    {/* Access Link */}
-                    <td className="px-4 py-3">
-                      {admin ? (
-                        <div className="flex items-center gap-1.5">
-                          <a
-                            href={`${typeof window !== 'undefined' ? window.location.origin : ''}/auth/login`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-[10px] font-semibold text-green-700 hover:underline"
-                          >
-                            🔗 Login
-                          </a>
-                          <button
-                            onClick={() => copy(`${window.location.origin}/auth/login`, `link-${admin.id}`)}
-                            className="text-[10px] text-slate-400 hover:text-slate-600 transition-colors"
-                          >
-                            {copiedField === `link-${admin.id}` ? '✓' : '📋'}
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-slate-300 text-xs">—</span>
-                      )}
-                    </td>
-
-                    {/* Created */}
-                    <td className="px-4 py-3 text-[11px] text-slate-400">
-                      {admin ? new Date(admin.created_at).toLocaleDateString() : '—'}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5 justify-end">
-                        {admin?.plain_password && (
-                          <button
-                            onClick={() => copy(
-                              `Branch: ${branch.name}\nEmail: ${admin.email}\nPassword: ${admin.plain_password}\n\nLogin: ${window.location.origin}/auth/login`,
-                              `row-${admin.id}`
+                      {/* Branch name */}
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-lg bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">
+                            {branch.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-800 text-xs leading-tight">{branch.name}</p>
+                            {!branch.is_active && (
+                              <span className="text-[10px] text-slate-400">Inactive</span>
                             )}
-                            className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors whitespace-nowrap"
-                          >
-                            {copiedField === `row-${admin.id}` ? '✓ Copied' : '📋 Copy'}
-                          </button>
-                        )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Manager */}
+                      <td className="px-4 py-3">
+                        {admin
+                          ? <span className="text-slate-700 text-xs font-medium">{admin.name}</span>
+                          : <span className="text-amber-600 text-xs bg-amber-50 px-2 py-0.5 rounded-full">⚠ No admin</span>}
+                      </td>
+
+                      {/* Username */}
+                      <td className="px-4 py-3">
+                        {admin ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-slate-500 text-xs font-mono truncate max-w-[140px]">{admin.email}</span>
+                            <button onClick={() => copy(admin.email, `email-${admin.id}`)} className="text-slate-300 hover:text-slate-500 shrink-0">
+                              {copiedField === `email-${admin.id}` ? '✓' : '📋'}
+                            </button>
+                          </div>
+                        ) : <span className="text-slate-300 text-xs">—</span>}
+                      </td>
+
+                      {/* Password */}
+                      <td className="px-4 py-3">
+                        {admin?.plain_password ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-slate-700 text-xs font-mono bg-slate-100 px-2 py-0.5 rounded">
+                              {showPassFor === admin.id ? admin.plain_password : '••••••••'}
+                            </span>
+                            <button onClick={() => setShowPassFor(showPassFor === admin.id ? null : admin.id)} className="text-slate-300 hover:text-slate-500 text-[10px]">
+                              {showPassFor === admin.id ? '🙈' : '👁'}
+                            </button>
+                            <button onClick={() => copy(admin.plain_password!, `pass-${admin.id}`)} className="text-slate-300 hover:text-slate-500">
+                              {copiedField === `pass-${admin.id}` ? '✓' : '📋'}
+                            </button>
+                          </div>
+                        ) : <span className="text-slate-300 text-xs">—</span>}
+                      </td>
+
+                      {/* Phone */}
+                      <td className="px-4 py-3 text-xs text-slate-500">{branch.phone || <span className="text-slate-300">—</span>}</td>
+
+                      {/* WhatsApp */}
+                      <td className="px-4 py-3 text-xs text-slate-500">{branch.whatsapp || <span className="text-slate-300">—</span>}</td>
+
+                      {/* Access link */}
+                      <td className="px-4 py-3">
+                        {admin ? (
+                          <div className="flex items-center gap-1">
+                            <a href={loginUrl} target="_blank" rel="noreferrer" className="text-[10px] font-semibold text-green-700 hover:underline">🔗 Login</a>
+                            <button onClick={() => copy(loginUrl, `link-${branch.id}`)} className="text-slate-300 hover:text-slate-500">
+                              {copiedField === `link-${branch.id}` ? '✓' : '📋'}
+                            </button>
+                          </div>
+                        ) : <span className="text-slate-300 text-xs">—</span>}
+                      </td>
+
+                      {/* Edit action */}
+                      <td className="px-4 py-3">
                         <button
-                          onClick={() => { setSelectedBranch(branch); setCreated(null); setForm(EMPTY_FORM); setFormErr(''); }}
-                          className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors whitespace-nowrap"
+                          onClick={() => openEdit(branch)}
+                          className="text-[10px] font-semibold px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
                         >
-                          + Admin
+                          Edit
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      {/* ── Branch cards (detailed view) ── */}
-      {!isLoading && branches.length > 0 && (
-        <div className="space-y-3">
-          {branches.map(branch => (
-            <div key={branch.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h2 className="font-bold text-slate-900">{branch.name}</h2>
-                    {!branch.is_active && (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Inactive</span>
-                    )}
-                  </div>
-                  {(branch.city || branch.country) && (
-                    <p className="text-xs text-slate-500 mb-3">
-                      📍 {[branch.city, branch.country].filter(Boolean).join(', ')}
-                    </p>
-                  )}
+      {/* ── Add New Branch ── */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h2 className="font-bold text-slate-900 text-sm mb-1">Add New Branch</h2>
+        <p className="text-xs text-slate-400 mb-4">Creates the branch and manager account in one step. Login username is auto-generated from the branch name.</p>
 
-                  {branch.admins.length === 0 ? (
-                    <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 inline-block">
-                      ⚠️ No admin assigned yet
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {branch.admins.map(admin => (
-                        <div key={admin.id} className="flex items-center gap-3 bg-slate-50 rounded-xl px-3 py-2">
-                          <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-sm font-bold shrink-0">
-                            {admin.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-800 truncate">{admin.name}</p>
-                            <p className="text-xs text-slate-400 truncate">{admin.email}</p>
-                            {admin.plain_password && (
-                              <p className="text-[11px] font-mono text-slate-500 mt-0.5">🔑 {admin.plain_password}</p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            {admin.plain_password && (
-                              <button
-                                onClick={() => copy(
-                                  `Branch: ${branch.name}\nEmail: ${admin.email}\nPassword: ${admin.plain_password}\n\nLogin: ${window.location.origin}/auth/login`,
-                                  `card-${admin.id}`
-                                )}
-                                className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
-                              >
-                                {copiedField === `card-${admin.id}` ? '✓ Copied' : '📋 Copy Creds'}
-                              </button>
-                            )}
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${admin.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                              {admin.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+        {createErr && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {createErr}</div>
+        )}
 
-                <button
-                  onClick={() => { setSelectedBranch(branch); setCreated(null); setForm(EMPTY_FORM); setFormErr(''); }}
-                  className="shrink-0 px-3 py-1.5 bg-green-700 hover:bg-green-800 text-white text-xs font-semibold rounded-xl transition-colors"
-                >
-                  + Create Admin
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+        <form
+          onSubmit={e => { e.preventDefault(); setCreateErr(''); createMutation.mutate(createForm); }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+        >
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1">Branch Name <span className="text-red-400">*</span></label>
+            <input className={inputCls} required placeholder="e.g. Dhaka" value={createForm.branch_name}
+              onChange={e => setCreateForm(f => ({ ...f, branch_name: e.target.value }))} />
+            <p className="text-[11px] text-slate-400 mt-1">Username auto: <span className="font-mono">{createForm.branch_name ? `${createForm.branch_name.toLowerCase().replace(/\s+/g, '-')}@branch.tensai.jp` : 'dhaka@branch.tensai.jp'}</span></p>
+          </div>
 
-      {/* Create Admin Modal */}
-      {selectedBranch && (
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1">Manager Name <span className="text-red-400">*</span></label>
+            <input className={inputCls} required placeholder="e.g. Rahim Uddin" value={createForm.manager_name}
+              onChange={e => setCreateForm(f => ({ ...f, manager_name: e.target.value }))} />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1">Password <span className="text-red-400">*</span></label>
+            <input className={`${inputCls} font-mono`} required placeholder="Min 6 characters" value={createForm.password}
+              onChange={e => setCreateForm(f => ({ ...f, password: e.target.value }))} />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1">Phone <span className="text-slate-400 font-normal">(optional)</span></label>
+            <input className={inputCls} placeholder="+880 1XXX XXXXXX" value={createForm.phone}
+              onChange={e => setCreateForm(f => ({ ...f, phone: e.target.value }))} />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 mb-1">WhatsApp <span className="text-slate-400 font-normal">(optional)</span></label>
+            <input className={inputCls} placeholder="8801XXXXXXXXX" value={createForm.whatsapp}
+              onChange={e => setCreateForm(f => ({ ...f, whatsapp: e.target.value }))} />
+          </div>
+
+          <div className="flex items-end">
+            <button
+              type="submit"
+              disabled={createMutation.isPending}
+              className="w-full py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+            >
+              {createMutation.isPending ? 'Creating…' : '+ Create Branch'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* ── Edit Modal ── */}
+      {editBranch && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
             <div className="p-6">
               <div className="flex items-center justify-between mb-1">
-                <h3 className="font-bold text-slate-900">Create Branch Admin</h3>
-                <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
+                <h3 className="font-bold text-slate-900">Edit Branch</h3>
+                <button onClick={() => setEditBranch(null)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
               </div>
-              <p className="text-xs text-slate-500 mb-5">
-                For: <span className="font-semibold text-slate-700">{selectedBranch.name}</span>
-              </p>
+              <p className="text-xs text-slate-400 mb-5">Leave password blank to keep existing. Username change takes effect on next login.</p>
 
-              {created ? (
-                /* ── Credentials handoff screen ── */
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="text-2xl">✅</div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-sm">Admin account created!</p>
-                      <p className="text-xs text-slate-500">Share these credentials with the branch admin.</p>
-                    </div>
+              {editErr && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {editErr}</div>
+              )}
+
+              <form onSubmit={e => { e.preventDefault(); setEditErr(''); editMutation.mutate(editForm); }} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Branch Name <span className="text-red-400">*</span></label>
+                    <input className={inputCls} required value={editForm.branch_name}
+                      onChange={e => setEditForm(f => ({ ...f, branch_name: e.target.value }))} />
                   </div>
-
-                  <div className="space-y-2 mb-4">
-                    {[
-                      { label: 'Name', value: created.name, field: 'name' },
-                      { label: 'Email', value: created.email, field: 'email' },
-                      { label: 'Password', value: created.password, field: 'pass' },
-                    ].map(item => (
-                      <div key={item.field} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">{item.label}</p>
-                          <p className="text-sm font-mono text-slate-800 truncate">{item.value}</p>
-                        </div>
-                        <button
-                          onClick={() => copy(item.value, item.field)}
-                          className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-600 hover:border-green-300 hover:text-green-700 transition-colors"
-                        >
-                          {copiedField === item.field ? '✓' : 'Copy'}
-                        </button>
-                      </div>
-                    ))}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Manager Name</label>
+                    <input className={inputCls} placeholder="Keep existing" value={editForm.manager_name}
+                      onChange={e => setEditForm(f => ({ ...f, manager_name: e.target.value }))} />
                   </div>
+                </div>
 
-                  <button
-                    onClick={() => copy(
-                      `Branch Admin Credentials — ${selectedBranch.name}\n\nEmail: ${created.email}\nPassword: ${created.password}\n\nLogin at: ${window.location.origin}/auth/login`,
-                      'all'
-                    )}
-                    className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition-colors mb-2"
-                  >
-                    {copiedField === 'all' ? '✓ Copied all!' : '📋 Copy All Credentials'}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Username</label>
+                    <input className={`${inputCls} font-mono`} type="email" placeholder="Keep existing" value={editForm.username}
+                      onChange={e => setEditForm(f => ({ ...f, username: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">New Password</label>
+                    <input className={`${inputCls} font-mono`} placeholder="Leave blank to keep" value={editForm.password}
+                      onChange={e => setEditForm(f => ({ ...f, password: e.target.value }))} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Phone</label>
+                    <input className={inputCls} placeholder="+880 1XXX XXXXXX" value={editForm.phone}
+                      onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">WhatsApp</label>
+                    <input className={inputCls} placeholder="8801XXXXXXXXX" value={editForm.whatsapp}
+                      onChange={e => setEditForm(f => ({ ...f, whatsapp: e.target.value }))} />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button type="submit" disabled={editMutation.isPending}
+                    className="flex-1 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50">
+                    {editMutation.isPending ? 'Saving…' : 'Save Changes'}
                   </button>
-
-                  <p className="text-[11px] text-slate-400 text-center mb-4">
-                    The password is also stored against the account for future reference.
-                  </p>
-
-                  <button onClick={closeModal} className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors">
-                    Done
+                  <button type="button" onClick={() => setEditBranch(null)}
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors">
+                    Cancel
                   </button>
                 </div>
-              ) : (
-                /* ── Create form ── */
-                <>
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-xl text-xs text-blue-700">
-                    This creates a login account with <strong>Branch Admin</strong> access. The plain-text password is stored so you can share it later.
-                  </div>
-
-                  {formErr && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {formErr}</div>
-                  )}
-
-                  <form
-                    onSubmit={e => { e.preventDefault(); setFormErr(''); createAdmin.mutate(form); }}
-                    className="space-y-3"
-                  >
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-500 mb-1">Full Name <span className="text-red-400">*</span></label>
-                      <input
-                        type="text" required
-                        placeholder="e.g. Rahim Uddin"
-                        value={form.name}
-                        onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-500 mb-1">
-                        Login Email <span className="text-slate-400 font-normal">(optional)</span>
-                      </label>
-                      <input
-                        type="email"
-                        placeholder={selectedBranch?.email ? `Leave blank to use ${selectedBranch.email}` : 'admin@branch.com'}
-                        value={form.email}
-                        onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                      />
-                      {selectedBranch?.email && !form.email && (
-                        <p className="text-[11px] text-slate-400 mt-1">Will use branch email: <span className="font-mono text-slate-600">{selectedBranch.email}</span></p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-500 mb-1">
-                        Password <span className="text-slate-400 font-normal">(leave blank to auto-generate)</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Min 6 characters, or leave blank"
-                        value={form.password}
-                        onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                        className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 font-mono"
-                      />
-                      <p className="text-[11px] text-slate-400 mt-1">If left blank, a secure password is generated automatically.</p>
-                    </div>
-
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        type="submit"
-                        disabled={createAdmin.isPending}
-                        className="flex-1 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
-                      >
-                        {createAdmin.isPending ? 'Creating…' : 'Create & Get Credentials'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={closeModal}
-                        className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )}
+              </form>
             </div>
           </div>
         </div>

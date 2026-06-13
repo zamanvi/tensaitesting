@@ -161,6 +161,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Branch management
         Route::get('/branches',                                [BranchController::class, 'adminIndex']);
+        Route::post('/branches',                               [BranchController::class, 'store']);
+        Route::patch('/branches/{branch}',                     [BranchController::class, 'update']);
         Route::post('/branches/{branch}/create-admin',         [BranchController::class, 'createAdmin']);
 
 
