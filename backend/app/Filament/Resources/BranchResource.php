@@ -157,6 +157,14 @@ class BranchResource extends Resource
                     ->label('Active')
                     ->boolean(),
 
+                Tables\Columns\TextColumn::make('access_link')
+                    ->label('Access Link')
+                    ->getStateUsing(fn () => rtrim(env('FRONTEND_URL', config('app.url')), '/') . '/auth/login')
+                    ->copyable()
+                    ->copyMessage('Login URL copied!')
+                    ->color('primary')
+                    ->icon('heroicon-o-link'),
+
                 Tables\Columns\TextColumn::make('admins_count')
                     ->label('Admins')
                     ->counts('admins')
@@ -224,8 +232,7 @@ class BranchResource extends Resource
                         ]);
                         $user->assignRole('branch_admin');
 
-                        // Fix #2: send credentials email
-                        $loginUrl = config('app.url') . '/admin';
+                        $loginUrl = rtrim(env('FRONTEND_URL', config('app.url')), '/') . '/auth/login';
                         try {
                             Mail::to($data['email'])->send(new BranchAdminCredentialsMail(
                                 adminName:     $data['name'],
@@ -238,13 +245,12 @@ class BranchResource extends Resource
                             // Mail failure should not block account creation
                         }
 
-                        // Fix #3: in-app notification without the password
                         TensaiNotification::create([
                             'user_id'    => $user->id,
                             'type'       => 'info',
                             'title'      => 'Branch Admin Access Ready',
                             'body'       => "You have been assigned as admin for {$record->name}. Log in at {$loginUrl}. Check your email for credentials.",
-                            'action_url' => '/admin',
+                            'action_url' => $loginUrl,
                         ]);
 
                         Notification::make()
