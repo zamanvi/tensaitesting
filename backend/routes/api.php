@@ -153,7 +153,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/agencies/{agency}/approve', [AgencyController::class, 'approve']);
         Route::post('/agencies/{agency}/reject',  [AgencyController::class, 'reject']);
 
-        // Branch admin — contact info management
+        // Branch management
+        Route::get('/branches',                                [BranchController::class, 'adminIndex']);
+        Route::post('/branches/{branch}/create-admin',         [BranchController::class, 'createAdmin']);
+
+        // Branch admin — contact info management (also used by branch_admin role)
         Route::get('/branch-admin/my-branch',      [BranchController::class, 'myBranch']);
         Route::patch('/branch-admin/contact',      [BranchController::class, 'updateContact']);
 

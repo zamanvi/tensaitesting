@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class BranchController extends Controller
 {
@@ -79,6 +82,70 @@ class BranchController extends Controller
             'id', 'name', 'slug', 'city', 'country',
             'phone', 'whatsapp', 'address', 'email',
         ]));
+    }
+
+    // ── Admin-only methods ────────────────────────────────────────────────────
+
+    /** List all branches with their assigned admin users */
+    public function adminIndex(): JsonResponse
+    {
+        $branches = Branch::orderBy('sort_order')
+            ->get(['id', 'name', 'slug', 'city', 'country', 'is_active', 'sort_order'])
+            ->map(function ($branch) {
+                $admins = User::where('branch_id', $branch->id)
+                    ->whereHas('roles', fn ($q) => $q->whereIn('name', ['branch_admin', 'branch_manager']))
+                    ->get(['id', 'name', 'email', 'status', 'manager_plain_password', 'created_at'])
+                    ->map(fn ($u) => [
+                        'id'             => $u->id,
+                        'name'           => $u->name,
+                        'email'          => $u->email,
+                        'status'         => $u->status,
+                        'plain_password' => $u->manager_plain_password,
+                        'created_at'     => $u->created_at,
+                    ]);
+
+                return array_merge($branch->toArray(), ['admins' => $admins]);
+            });
+
+        return response()->json($branches);
+    }
+
+    /** Create a new branch admin user for a given branch */
+    public function createAdmin(Request $request, int $branchId): JsonResponse
+    {
+        $branch = Branch::findOrFail($branchId);
+
+        $validated = $request->validate([
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $password = $validated['password'] ?? Str::random(10);
+
+        $user = User::create([
+            'name'                  => $validated['name'],
+            'email'                 => $validated['email'],
+            'password'              => Hash::make($password),
+            'gateway_type'          => 'branch',
+            'status'                => 'active',
+            'branch_id'             => $branch->id,
+            'manager_plain_password'=> $password,
+            'email_verified_at'     => now(),
+        ]);
+
+        $user->assignRole('branch_admin');
+
+        return response()->json([
+            'message'  => 'Branch admin created successfully.',
+            'admin'    => [
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'email'    => $user->email,
+                'password' => $password,
+                'branch'   => $branch->name,
+            ],
+        ], 201);
     }
 
     /** Proxy-serve a branch file from R2 (when no public CDN URL) */

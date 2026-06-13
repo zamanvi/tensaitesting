@@ -75,6 +75,7 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: lang === 'ja' ? 'ギャラリー管理' : lang === 'bn' ? 'গ্যালারি ম্যানেজ' : 'Gallery', href: '/dashboard/admin/gallery' },
       { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার ম্যানেজ' : 'Users', href: '/dashboard/admin/users' },
       { label: lang === 'ja' ? 'エージェンシー審査' : lang === 'bn' ? 'এজেন্সি অ্যাপ্রুভাল' : 'Agency Vetting', href: '/dashboard/admin/agencies' },
+      { label: lang === 'ja' ? '支局管理' : lang === 'bn' ? 'শাখা ম্যানেজ' : 'Branches', href: '/dashboard/admin/branches' },
     ],
     student: [
       { label: t.nav.overview, href: '/dashboard/student' },
