@@ -83,7 +83,7 @@ export default function AdminBranchesPage() {
   if (!user || !isAdmin) return null;
 
   // Flatten all branches+admins into table rows
-  const tableRows = branches.flatMap(branch =>
+  const tableRows: { branch: Branch; admin: BranchAdmin | null }[] = branches.flatMap(branch =>
     branch.admins.length === 0
       ? [{ branch, admin: null }]
       : branch.admins.map(admin => ({ branch, admin }))
