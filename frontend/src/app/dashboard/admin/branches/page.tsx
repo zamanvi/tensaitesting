@@ -82,25 +82,153 @@ export default function AdminBranchesPage() {
 
   if (!user || !isAdmin) return null;
 
+  // Flatten all branches+admins into table rows
+  const tableRows = branches.flatMap(branch =>
+    branch.admins.length === 0
+      ? [{ branch, admin: null }]
+      : branch.admins.map(admin => ({ branch, admin }))
+  );
+
   return (
     <DashboardLayout title="Branch Management">
 
-      {isLoading && (
-        <div className="space-y-3">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-20 bg-slate-100 rounded-2xl animate-pulse" />
-          ))}
+      {/* ── Access credentials table ── */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-6">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-slate-900 text-sm">Branch Access Credentials</h2>
+            <p className="text-xs text-slate-400 mt-0.5">All branch admin login details — copy and send to each branch.</p>
+          </div>
+          <span className="text-xs bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-full">
+            {branches.length} {branches.length === 1 ? 'branch' : 'branches'}
+          </span>
         </div>
-      )}
 
-      {!isLoading && branches.length === 0 && (
-        <div className="text-center py-20">
-          <div className="text-5xl mb-4">🏢</div>
-          <p className="text-slate-500 text-sm font-medium">No branches found.</p>
-          <p className="text-slate-400 text-xs mt-1">Add branches via the database or Filament admin panel.</p>
-        </div>
-      )}
+        {isLoading ? (
+          <div className="divide-y divide-slate-50">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="px-5 py-4 flex gap-4 animate-pulse">
+                <div className="h-4 bg-slate-100 rounded w-40" />
+                <div className="h-4 bg-slate-100 rounded w-48" />
+                <div className="h-4 bg-slate-100 rounded w-24" />
+              </div>
+            ))}
+          </div>
+        ) : branches.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-3xl mb-2">🏢</div>
+            <p className="text-slate-400 text-sm">No branches found. Add branches via the Filament admin panel.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500">Branch</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Admin Name</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Email</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Password</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500">Created</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {tableRows.map(({ branch, admin }, idx) => (
+                  <tr key={`${branch.id}-${admin?.id ?? 'none'}-${idx}`} className="hover:bg-slate-50 transition-colors">
+                    {/* Branch */}
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">
+                          {branch.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-800 text-xs leading-tight">{branch.name}</p>
+                          {(branch.city || branch.country) && (
+                            <p className="text-[10px] text-slate-400">{[branch.city, branch.country].filter(Boolean).join(', ')}</p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
 
+                    {/* Admin name */}
+                    <td className="px-4 py-3">
+                      {admin ? (
+                        <span className="text-slate-700 text-xs font-medium">{admin.name}</span>
+                      ) : (
+                        <span className="text-amber-600 text-xs font-medium bg-amber-50 px-2 py-0.5 rounded-full">⚠️ No admin</span>
+                      )}
+                    </td>
+
+                    {/* Email */}
+                    <td className="px-4 py-3">
+                      {admin ? (
+                        <span className="text-slate-500 text-xs font-mono">{admin.email}</span>
+                      ) : (
+                        <span className="text-slate-300 text-xs">—</span>
+                      )}
+                    </td>
+
+                    {/* Password */}
+                    <td className="px-4 py-3">
+                      {admin?.plain_password ? (
+                        <span className="text-slate-700 text-xs font-mono bg-slate-100 px-2 py-0.5 rounded">
+                          {admin.plain_password}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300 text-xs">—</span>
+                      )}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-4 py-3">
+                      {admin ? (
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          admin.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                        }`}>
+                          {admin.status}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300 text-xs">—</span>
+                      )}
+                    </td>
+
+                    {/* Created */}
+                    <td className="px-4 py-3 text-[11px] text-slate-400">
+                      {admin ? new Date(admin.created_at).toLocaleDateString() : '—'}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 justify-end">
+                        {admin?.plain_password && (
+                          <button
+                            onClick={() => copy(
+                              `Branch: ${branch.name}\nEmail: ${admin.email}\nPassword: ${admin.plain_password}\n\nLogin: ${window.location.origin}/auth/login`,
+                              `row-${admin.id}`
+                            )}
+                            className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors whitespace-nowrap"
+                          >
+                            {copiedField === `row-${admin.id}` ? '✓ Copied' : '📋 Copy'}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => { setSelectedBranch(branch); setCreated(null); setForm(EMPTY_FORM); setFormErr(''); }}
+                          className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 transition-colors whitespace-nowrap"
+                        >
+                          + Admin
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ── Branch cards (detailed view) ── */}
       {!isLoading && branches.length > 0 && (
         <div className="space-y-3">
           {branches.map(branch => (
@@ -119,7 +247,6 @@ export default function AdminBranchesPage() {
                     </p>
                   )}
 
-                  {/* Assigned admins */}
                   {branch.admins.length === 0 ? (
                     <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 inline-block">
                       ⚠️ No admin assigned yet
@@ -134,14 +261,20 @@ export default function AdminBranchesPage() {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-slate-800 truncate">{admin.name}</p>
                             <p className="text-xs text-slate-400 truncate">{admin.email}</p>
+                            {admin.plain_password && (
+                              <p className="text-[11px] font-mono text-slate-500 mt-0.5">🔑 {admin.plain_password}</p>
+                            )}
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
                             {admin.plain_password && (
                               <button
-                                onClick={() => copy(`Email: ${admin.email}\nPassword: ${admin.plain_password}`, `creds-${admin.id}`)}
+                                onClick={() => copy(
+                                  `Branch: ${branch.name}\nEmail: ${admin.email}\nPassword: ${admin.plain_password}\n\nLogin: ${window.location.origin}/auth/login`,
+                                  `card-${admin.id}`
+                                )}
                                 className="text-[10px] font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
                               >
-                                {copiedField === `creds-${admin.id}` ? '✓ Copied' : '📋 Copy Creds'}
+                                {copiedField === `card-${admin.id}` ? '✓ Copied' : '📋 Copy Creds'}
                               </button>
                             )}
                             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${admin.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
