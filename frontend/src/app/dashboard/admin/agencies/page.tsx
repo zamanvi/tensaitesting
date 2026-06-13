@@ -125,8 +125,16 @@ export default function AdminAgenciesPage() {
           {lang === 'ja' ? '読み込み中...' : lang === 'bn' ? 'লোড হচ্ছে...' : 'Loading...'}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-slate-400 text-sm">
-          {lang === 'ja' ? 'エージェンシーがありません' : lang === 'bn' ? 'কোনো এজেন্সি নেই' : 'No agencies found'}
+        <div className="text-center py-12">
+          <div className="text-3xl mb-3">🏢</div>
+          <p className="text-slate-500 text-sm font-medium">
+            {selectedFilter === 'all'
+              ? (lang === 'ja' ? 'エージェンシーはまだありません' : lang === 'bn' ? 'এখনো কোনো এজেন্সি নেই' : 'No agencies have registered yet')
+              : (lang === 'ja' ? `「${selectedFilter}」のエージェンシーがありません` : lang === 'bn' ? 'এই ফিল্টারে কোনো এজেন্সি নেই' : `No agencies with status "${selectedFilter.replace('_', ' ')}"`)}
+          </p>
+          <p className="text-slate-400 text-xs mt-1">
+            {lang === 'ja' ? 'フィルターを変更するか、エージェンシーの登録をお待ちください。' : lang === 'bn' ? 'ফিল্টার পরিবর্তন করুন বা নতুন এজেন্সির নিবন্ধনের অপেক্ষা করুন।' : 'Try a different filter or wait for agencies to complete registration.'}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -205,9 +213,12 @@ export default function AdminAgenciesPage() {
               value={rejectReason}
               onChange={e => setRejectReason(e.target.value)}
               rows={4}
-              placeholder={lang === 'ja' ? '却下の理由を入力してください...' : lang === 'bn' ? 'কারণ লিখুন...' : 'Enter reason for rejection...'}
+              placeholder={lang === 'ja' ? '例: 登録番号が無効です。書類を再提出してください。' : lang === 'bn' ? 'যেমন: নিবন্ধন নম্বর অসম্পূর্ণ। সঠিক কাগজপত্র পুনরায় জমা দিন।' : 'e.g. Registration number is invalid. Please resubmit with correct documents.'}
               className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-300 resize-none"
             />
+            <p className="text-[11px] text-slate-400 mt-1.5">
+              {lang === 'ja' ? 'この理由はエージェンシーのダッシュボードに表示されます。' : lang === 'bn' ? 'এই কারণটি এজেন্সির ড্যাশবোর্ডে দেখানো হবে।' : 'This reason will be shown to the agency in their dashboard.'}
+            </p>
             <div className="flex gap-2 mt-4 justify-end">
               <button
                 onClick={() => setRejectId(null)}

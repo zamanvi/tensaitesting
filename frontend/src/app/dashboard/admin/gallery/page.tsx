@@ -194,7 +194,7 @@ export default function AdminGalleryPage() {
               {/* Info + Actions */}
               <div className="p-3">
                 <p className="text-xs font-semibold text-slate-800 truncate">{item.title}</p>
-                <p className="text-[10px] text-slate-400 mt-0.5 capitalize">{item.category} · #{item.sort_order}</p>
+                <p className="text-[10px] text-slate-400 mt-0.5 capitalize">{item.category} · order: {item.sort_order}</p>
                 <div className="flex items-center gap-1 mt-2">
                   <button onClick={() => openEdit(item)}
                     className="flex-1 text-[10px] font-semibold py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
@@ -303,7 +303,7 @@ export default function AdminGalleryPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Sort Order</label>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Sort Order <span className="normal-case font-normal text-slate-400">(lower = shown first)</span></label>
                     <input className={inputCls} type="number" min="0" value={form.sort_order}
                       onChange={e => setForm(f => ({ ...f, sort_order: Number(e.target.value) }))} />
                   </div>

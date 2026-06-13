@@ -343,9 +343,11 @@ export default function DashboardLayout({ children, title }: Props) {
             <span className="text-xs text-slate-400">{t.landing.footer}</span>
           </div>
           <div className="flex items-center gap-5 text-xs text-slate-400">
-            <Link href="/privacy" className="hover:text-slate-600 transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-slate-600 transition-colors">Terms</Link>
-            <a href="mailto:support@tensaiconsultancy.com" className="hover:text-slate-600 transition-colors">Support</a>
+            <Link href="/privacy" className="hover:text-slate-600 transition-colors">{t.landing.privacy}</Link>
+            <Link href="/terms" className="hover:text-slate-600 transition-colors">{t.landing.terms}</Link>
+            <a href="mailto:support@tensaiconsultancy.com" className="hover:text-slate-600 transition-colors">
+              {lang === 'ja' ? 'サポート' : lang === 'bn' ? 'সহায়তা' : 'Support'}
+            </a>
           </div>
         </div>
       </footer>

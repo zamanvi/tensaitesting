@@ -33,7 +33,7 @@ export default function StudentDashboard() {
     },
     {
       label: lang === 'bn' ? 'তথ্য পূরণ' : lang === 'ja' ? '情報入力' : 'Fill-up Info',
-      desc:  lang === 'bn' ? 'ব্যক্তিগত, পরিবার, শিক্ষা ও জাপান সম্পর্কিত তথ্য পূরণ করুন' : lang === 'ja' ? '個人・家族・学歴・日本関連の情報を入力してください' : 'Complete personal, family, education and Japan-related details',
+      desc:  lang === 'bn' ? 'ব্যক্তিগত, পরিবার, শিক্ষা ও গন্তব্য সম্পর্কিত তথ্য পূরণ করুন' : lang === 'ja' ? '個人・家族・学歴・留学先の情報を入力してください' : 'Complete personal, family, education and study-destination details',
       href: '/dashboard/student/profile/info',
       icon: '📝',
     },
