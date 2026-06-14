@@ -9,7 +9,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class RecentLeadsWidget extends BaseWidget
 {
-    protected static ?string $heading = 'Recent Leads';
+    protected static ?string $heading = 'Recent Applicants';
     protected static ?int $sort = 4;
     protected int | string | array $columnSpan = 'full';
 
@@ -23,7 +23,7 @@ class RecentLeadsWidget extends BaseWidget
             )
             ->columns([
                 Tables\Columns\TextColumn::make('lead_code')
-                    ->label('Lead')
+                    ->label('Applicant')
                     ->searchable()
                     ->weight('bold')
                     ->color('primary'),

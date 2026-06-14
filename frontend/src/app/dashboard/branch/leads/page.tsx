@@ -46,13 +46,13 @@ export default function BranchLeadsPage() {
 
   if (!user || !isBranchAdmin) return null;
 
-  const title = ja ? 'リード一覧' : bn ? 'লিডস' : 'Leads';
+  const title = ja ? '申請者一覧' : bn ? 'আবেদনকারী' : 'Applicants';
 
   return (
     <DashboardLayout title={title}>
       <div className="mb-4 flex items-center justify-between">
         <p className="text-xs text-slate-500">
-          {ja ? `${leads.length} 件のリード` : bn ? `${leads.length} টি লিড` : `${leads.length} lead${leads.length !== 1 ? 's' : ''}`}
+          {ja ? `${leads.length} 件の申請者` : bn ? `${leads.length} জন আবেদনকারী` : `${leads.length} applicant${leads.length !== 1 ? 's' : ''}`}
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export default function BranchLeadsPage() {
         <div className="text-center py-16">
           <div className="text-4xl mb-3">📋</div>
           <p className="text-slate-400 text-sm">
-            {ja ? 'まだリードがありません。' : bn ? 'এখনো কোনো লিড নেই।' : 'No leads from this branch yet.'}
+            {ja ? 'まだ申請者がいません。' : bn ? 'এখনো কোনো আবেদনকারী নেই।' : 'No applicants from this branch yet.'}
           </p>
         </div>
       ) : (

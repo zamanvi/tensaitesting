@@ -67,7 +67,7 @@ class ContactPaperResource extends Resource
                     ->disabled(),
 
                 Forms\Components\TextInput::make('lead_id')
-                    ->label('Lead')
+                    ->label('Applicant')
                     ->formatStateUsing(fn ($state) => $state
                         ? (\App\Models\Lead::find($state)?->lead_code ?? "#$state")
                         : '—')
@@ -124,7 +124,7 @@ class ContactPaperResource extends Resource
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('lead.lead_code')
-                    ->label('Lead')
+                    ->label('Applicant')
                     ->searchable()
                     ->placeholder('—'),
 

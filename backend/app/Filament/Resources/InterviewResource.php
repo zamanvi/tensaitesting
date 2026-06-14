@@ -16,7 +16,7 @@ class InterviewResource extends Resource
 {
     protected static ?string $model = Interview::class;
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
-    protected static ?string $navigationGroup = 'Lead Management';
+    protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

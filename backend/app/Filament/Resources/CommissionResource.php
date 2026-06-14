@@ -24,7 +24,7 @@ class CommissionResource extends Resource
         return $form->schema([
             Forms\Components\Section::make('Commission Details')->schema([
                 Forms\Components\Select::make('lead_id')
-                    ->label('Lead')
+                    ->label('Applicant')
                     ->relationship('lead', 'lead_code')
                     ->searchable()->required(),
                 Forms\Components\Select::make('type')
@@ -32,7 +32,7 @@ class CommissionResource extends Resource
                         'platform_service_fee' => 'Platform Service Fee',
                         'institution_commission' => 'Institution Commission',
                         'agency_processing_fee' => 'Agency Processing Fee',
-                        'lead_unlock_fee' => 'Lead Unlock Fee',
+                        'lead_unlock_fee' => 'Applicant Unlock Fee',
                         'b2b_profit_share' => 'B2B Profit Share',
                         'affiliate_associate' => 'Affiliate (Associate)',
                         'affiliate_global_partner' => 'Affiliate (Global Partner)',
@@ -72,7 +72,7 @@ class CommissionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('lead.lead_code')->label('Lead')->searchable(),
+                Tables\Columns\TextColumn::make('lead.lead_code')->label('Applicant')->searchable(),
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
                     ->color(fn (string $state) => match($state) {
@@ -106,7 +106,7 @@ class CommissionResource extends Resource
                         'platform_service_fee' => 'Platform Service Fee',
                         'institution_commission' => 'Institution Commission',
                         'agency_processing_fee' => 'Agency Processing Fee',
-                        'lead_unlock_fee' => 'Lead Unlock Fee',
+                        'lead_unlock_fee' => 'Applicant Unlock Fee',
                         'b2b_profit_share' => 'B2B Profit Share',
                         'affiliate_associate' => 'Affiliate (Associate)',
                         'affiliate_global_partner' => 'Affiliate (Global Partner)',

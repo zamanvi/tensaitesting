@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class PipelineChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Lead Pipeline';
+    protected static ?string $heading = 'Applicant Pipeline';
     protected static ?int $sort = 2;
     protected static ?string $maxHeight = '280px';
     protected int | string | array $columnSpan = 2;
@@ -41,7 +41,7 @@ class PipelineChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label'           => 'Leads',
+                    'label'           => 'Applicants',
                     'data'            => $data,
                     'backgroundColor' => [
                         '#94a3b8', '#60a5fa', '#facc15', '#fb923c',

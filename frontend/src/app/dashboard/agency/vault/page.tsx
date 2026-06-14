@@ -180,7 +180,7 @@ export default function PrivateVault() {
         <div className="bg-white rounded-2xl border border-slate-100 p-10 sm:p-16 text-center text-slate-400">
           <div className="text-4xl mb-3">🔒</div>
           <div className="font-medium text-slate-600">
-            {allLeads.length === 0 ? av.emptyTitle : (ja ? '該当するリードがありません' : bn ? 'কোনো লিড পাওয়া যায়নি' : 'No leads match your filter')}
+            {allLeads.length === 0 ? av.emptyTitle : (ja ? '該当する申請者がいません' : bn ? 'কোনো আবেদনকারী পাওয়া যায়নি' : 'No applicants match your filter')}
           </div>
         </div>
       ) : (

@@ -40,7 +40,7 @@ class TensaiStatsOverview extends BaseWidget
                 ->color('info')
                 ->icon('heroicon-o-academic-cap'),
 
-            Stat::make('Active Leads', Lead::whereNotIn('status', ['closed', 'enrolled'])->count())
+            Stat::make('Active Applicants', Lead::whereNotIn('status', ['closed', 'enrolled'])->count())
                 ->description("+{$newLeadsThisWeek} this week")
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->chart($leadChartData)

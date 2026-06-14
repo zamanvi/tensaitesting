@@ -16,13 +16,13 @@ class LeadResource extends Resource
 {
     protected static ?string $model = Lead::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static ?string $navigationGroup = 'Lead Management';
+    protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Section::make('Lead Info')->schema([
+            Forms\Components\Section::make('Applicant Info')->schema([
                 Forms\Components\TextInput::make('lead_code')->disabled(),
                 Forms\Components\Select::make('student_id')
                     ->label('Student')
@@ -105,7 +105,7 @@ class LeadResource extends Resource
                     ->columnSpanFull(),
             ])->columns(3),
 
-            Forms\Components\Section::make('Lead Sharing')->schema([
+            Forms\Components\Section::make('Applicant Sharing')->schema([
                 Forms\Components\Toggle::make('is_published')->label('Published to Open Pool'),
                 Forms\Components\Toggle::make('is_locked')->label('Locked'),
                 Forms\Components\TextInput::make('unlock_fee')->numeric()->prefix('BDT'),
