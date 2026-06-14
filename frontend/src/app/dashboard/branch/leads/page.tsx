@@ -6,6 +6,20 @@ import { useLang } from '@/context/LanguageContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useCountryData } from '@/hooks/useCountryData';
+
+// Safe date display — avoids UTC-shift for date-only strings from API
+function fmtDate(val: string | null | undefined): string {
+  if (!val) return '—';
+  const [y, m, d] = val.slice(0, 10).split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// Title-case status for display
+function fmtStatus(s: string): string {
+  return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
 
 interface Lead {
   id: number;
@@ -58,6 +72,9 @@ export default function BranchApplicantsPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formErr, setFormErr] = useState('');
 
+  const { data: countryData = {} } = useCountryData();
+  const countryList = Object.keys(countryData);
+
   const { data: leads = [], isLoading } = useQuery<Lead[]>({
     queryKey: ['branch-leads'],
     queryFn: () => api.get('/branch-admin/leads').then(r => r.data),
@@ -86,7 +103,7 @@ export default function BranchApplicantsPage() {
   }
 
   function set(field: keyof typeof EMPTY_FORM) {
-    return (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [field]: e.target.value }));
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm(f => ({ ...f, [field]: e.target.value }));
   }
 
   if (!user || !isBranchAdmin) return null;
@@ -138,17 +155,19 @@ export default function BranchApplicantsPage() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {ja ? '電話番号' : bn ? 'ফোন নম্বর' : 'Phone'} <span className="font-normal text-slate-400">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
+                {ja ? '電話番号 *' : bn ? 'ফোন নম্বর *' : 'Phone *'}
               </label>
               <input className={inputCls} placeholder="+880 1XXX XXXXXX"
-                value={form.student_phone} onChange={set('student_phone')} />
+                value={form.student_phone} onChange={set('student_phone')} required />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
                 {ja ? '渡航先 *' : bn ? 'লক্ষ্য দেশ *' : 'Target Country *'}
               </label>
-              <input className={inputCls} placeholder={ja ? '例：日本' : bn ? 'যেমন: জাপান' : 'e.g. Japan'}
-                value={form.target_country} onChange={set('target_country')} required />
+              <select className={inputCls} value={form.target_country} onChange={set('target_country')} required>
+                <option value="">{ja ? '選択してください' : bn ? 'বেছে নিন' : 'Select country'}</option>
+                {countryList.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
@@ -207,11 +226,17 @@ export default function BranchApplicantsPage() {
                   <th className="text-left px-4 py-3 hidden md:table-cell">{ja ? 'コース' : bn ? 'কোর্স' : 'Course'}</th>
                   <th className="text-left px-4 py-3 hidden lg:table-cell">{ja ? '入学予定日' : bn ? 'ভর্তির তারিখ' : 'Intake'}</th>
                   <th className="text-left px-4 py-3 hidden md:table-cell">{ja ? '登録日' : bn ? 'তারিখ' : 'Added'}</th>
+                  <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {leads.map(lead => (
-                  <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
+                  // Fix: whole row is clickable — much better tap target on mobile
+                  <tr
+                    key={lead.id}
+                    onClick={() => router.push(`/dashboard/branch/applicants/${lead.id}`)}
+                    className="hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer"
+                  >
                     <td className="px-5 py-3">
                       <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{lead.lead_code}</span>
                     </td>
@@ -220,17 +245,24 @@ export default function BranchApplicantsPage() {
                       <p className="text-[11px] text-slate-400">{lead.student?.email ?? ''}</p>
                     </td>
                     <td className="px-4 py-3">
+                      {/* Fix: title-cased status text */}
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[lead.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                        {lead.status.replace(/_/g, ' ')}
+                        {fmtStatus(lead.status)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-500 hidden sm:table-cell">{lead.target_country ?? '—'}</td>
                     <td className="px-4 py-3 text-xs text-slate-500 hidden md:table-cell">{lead.target_course ?? '—'}</td>
                     <td className="px-4 py-3 text-xs text-slate-400 hidden lg:table-cell">
-                      {lead.target_intake ? new Date(lead.target_intake).toLocaleDateString() : '—'}
+                      {/* Fix: safe date display — no UTC shift */}
+                      {fmtDate(lead.target_intake)}
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-400 hidden md:table-cell">
                       {new Date(lead.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-xs font-semibold text-green-700 whitespace-nowrap">
+                        {ja ? '詳細 →' : bn ? 'বিস্তারিত →' : 'View →'}
+                      </span>
                     </td>
                   </tr>
                 ))}

@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\HelpRequestController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\BranchAdminController;
+use App\Http\Controllers\Api\AdminSettingsController;
 use Illuminate\Support\Facades\Route;
 
 // Health check
@@ -39,6 +40,7 @@ Route::get('/settings/public', function () {
         'linkedin_url', 'twitter_url',
         'support_whatsapp', 'support_phone', 'support_email', 'office_address',
         'copyright_en', 'copyright_ja', 'copyright_bn',
+        'target_countries',
     ];
     $settings = \App\Models\Setting::whereIn('key', $keys)->pluck('value', 'key');
     return response()->json($settings);
@@ -148,8 +150,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/settings',    [BranchAdminController::class, 'getSettings']);
         Route::patch('/settings',  [BranchAdminController::class, 'updateSettings']);
 
-        Route::get('/leads',       [BranchAdminController::class, 'leads']);
-        Route::post('/leads',      [BranchAdminController::class, 'storeLead']);
+        Route::get('/leads',           [BranchAdminController::class, 'leads']);
+        Route::post('/leads',          [BranchAdminController::class, 'storeLead']);
+        Route::get('/leads/{id}',      [BranchAdminController::class, 'showLead']);
+        Route::patch('/leads/{id}',    [BranchAdminController::class, 'updateLead']);
 
         Route::get('/team',                    [BranchAdminController::class, 'team']);
         Route::post('/team',                   [BranchAdminController::class, 'storeTeamMember']);
@@ -175,6 +179,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/agencies',                   [AgencyController::class, 'index']);
         Route::post('/agencies/{agency}/approve', [AgencyController::class, 'approve']);
         Route::post('/agencies/{agency}/reject',  [AgencyController::class, 'reject']);
+
+        // Settings
+        Route::get('/settings',    [AdminSettingsController::class, 'index']);
+        Route::patch('/settings',  [AdminSettingsController::class, 'update']);
 
         // Branch management
         Route::get('/branches',                                [BranchController::class, 'adminIndex']);

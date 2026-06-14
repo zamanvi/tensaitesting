@@ -19,6 +19,7 @@ class Lead extends Model
         'unlock_fee', 'is_locked', 'target_country', 'target_course',
         'target_intake', 'admin_notes', 'agency_notes',
         'jlpt_nat_score', 'jlpt_nat_result_date', 'expected_jlpt_nat_exam_date', 'preferred_cities',
+        'city_type', 'preferred_institution',
         'forwarded_from_agency_id', 'referral_fee', 'referral_fee_paid',
     ];
 

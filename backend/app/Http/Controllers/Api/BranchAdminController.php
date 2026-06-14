@@ -71,6 +71,46 @@ class BranchAdminController extends Controller
         return response()->json($leads);
     }
 
+    public function showLead(Request $request, int $id): JsonResponse
+    {
+        $branchId = $request->user()->branch_id;
+        if (!$branchId) abort(403, 'You are not assigned to a branch.');
+
+        $lead = Lead::where('id', $id)
+            ->where('source_branch_id', $branchId)
+            ->with(['student:id,name,email,phone'])
+            ->firstOrFail();
+
+        return response()->json($lead);
+    }
+
+    public function updateLead(Request $request, int $id): JsonResponse
+    {
+        $branchId = $request->user()->branch_id;
+        if (!$branchId) abort(403, 'You are not assigned to a branch.');
+
+        $lead = Lead::where('id', $id)
+            ->where('source_branch_id', $branchId)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'target_country'              => 'sometimes|string|max:100',
+            'target_course'               => 'nullable|string|max:255',
+            'target_intake'               => 'nullable|date',
+            'preferred_cities'            => 'nullable|array',
+            'preferred_cities.*'          => 'string|max:100',
+            'city_type'                   => 'nullable|in:preferred,must',
+            'preferred_institution'       => 'nullable|string|max:255',
+            'jlpt_nat_score'              => 'nullable|string|max:50',
+            'jlpt_nat_result_date'        => 'nullable|date',
+            'expected_jlpt_nat_exam_date' => 'nullable|date',
+        ]);
+
+        $lead->update($validated);
+
+        return response()->json(['message' => 'Applicant updated.', 'lead' => $lead->fresh(['student:id,name,email,phone'])]);
+    }
+
     public function storeLead(Request $request): JsonResponse
     {
         $branchId = $request->user()->branch_id;
@@ -79,7 +119,7 @@ class BranchAdminController extends Controller
         $validated = $request->validate([
             'student_name'   => 'required|string|max:255',
             'student_email'  => 'required|email|max:255',
-            'student_phone'  => 'nullable|string|max:20',
+            'student_phone'  => 'required|string|max:20',
             'target_country' => 'required|string|max:100',
             'target_course'  => 'nullable|string|max:255',
             'target_intake'  => 'nullable|date',
@@ -95,7 +135,7 @@ class BranchAdminController extends Controller
             $student = User::create([
                 'name'           => $validated['student_name'],
                 'email'          => $validated['student_email'],
-                'phone'          => $validated['student_phone'] ?? null,
+                'phone'          => $validated['student_phone'],
                 'password'       => Hash::make(Str::random(16)),
                 'gateway_type'   => 'student',
                 'status'         => 'pending',

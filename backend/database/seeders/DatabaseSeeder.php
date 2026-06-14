@@ -6,6 +6,7 @@ use App\Models\AgencyProfile;
 use App\Models\AffiliateProfile;
 use App\Models\InstitutionProfile;
 use App\Models\StudentProfile;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +17,17 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Default target countries & cities (only seed if not already set)
+        if (!Setting::where('key', 'target_countries')->exists()) {
+            Setting::set('target_countries', json_encode([
+                'Japan' => [
+                    'Tokyo', 'Osaka', 'Kyoto', 'Nagoya', 'Sapporo',
+                    'Fukuoka', 'Hiroshima', 'Sendai', 'Kobe', 'Yokohama',
+                    'Nara', 'Kanazawa', 'Matsuyama', 'Okayama',
+                ],
+            ]));
+        }
+
         // Roles
         $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
         $admin      = Role::firstOrCreate(['name' => 'admin']);
