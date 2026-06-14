@@ -72,6 +72,7 @@ export default function DashboardLayout({ children, title }: Props) {
 
   const NAV_LINKS: Record<string, { label: string; href: string }[]> = useMemo(() => ({
     admin: [
+      { label: lang === 'ja' ? '申請者' : lang === 'bn' ? 'আবেদনকারী' : 'Applicants', href: '/dashboard/admin/applicants' },
       { label: lang === 'ja' ? 'ギャラリー管理' : lang === 'bn' ? 'গ্যালারি ম্যানেজ' : 'Gallery', href: '/dashboard/admin/gallery' },
       { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার ম্যানেজ' : 'Users', href: '/dashboard/admin/users' },
       { label: lang === 'ja' ? 'エージェンシー審査' : lang === 'bn' ? 'এজেন্সি অ্যাপ্রুভাল' : 'Agency Vetting', href: '/dashboard/admin/agencies' },

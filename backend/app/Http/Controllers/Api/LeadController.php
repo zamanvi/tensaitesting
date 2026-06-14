@@ -241,9 +241,30 @@ class LeadController extends Controller
 
     public function adminIndex(Request $request): JsonResponse
     {
-        $leads = Lead::with(['student:id,name', 'sourceAgency:id,name', 'sourceBranch:id,name', 'assignedAgency:id,name', 'assignedInstitution:id,name'])
-            ->when($request->status, fn ($q) => $q->where('status', $request->status))
-            ->when($request->pool_type, fn ($q) => $q->where('pool_type', $request->pool_type))
+        $leads = Lead::with([
+                'student:id,name,email,referred_by',
+                'student.referrer:id,name',
+                'sourceAgency:id,name',
+                'sourceBranch:id,name',
+                'sourceAffiliate:id,name',
+                'assignedAgency:id,name',
+                'assignedInstitution:id,name',
+            ])
+            // Hide agency private-vault leads — those belong to the agency only
+            ->where(function ($q) {
+                $q->whereNull('source_agency_id')
+                  ->orWhere('pool_type', 'open');
+            })
+            ->when($request->status,   fn ($q) => $q->where('status', $request->status))
+            ->when($request->source,   function ($q, $src) {
+                match ($src) {
+                    'branch'    => $q->whereNotNull('source_branch_id'),
+                    'affiliate' => $q->whereNotNull('source_affiliate_id'),
+                    'agency'    => $q->whereNotNull('source_agency_id')->where('pool_type', 'open'),
+                    'admin'     => $q->whereNull('source_branch_id')->whereNull('source_agency_id')->whereNull('source_affiliate_id'),
+                    default     => null,
+                };
+            })
             ->latest()
             ->paginate(20);
 

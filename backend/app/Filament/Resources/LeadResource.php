@@ -121,6 +121,13 @@ class LeadResource extends Resource
         ]);
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->where(function ($q) {
+            $q->whereNull('source_agency_id')->orWhere('pool_type', 'open');
+        });
+    }
+
     public static function table(Table $table): Table
     {
         return $table
