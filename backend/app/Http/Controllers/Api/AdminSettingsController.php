@@ -20,7 +20,7 @@ class AdminSettingsController extends Controller
     public function update(Request $request): JsonResponse
     {
         $request->validate([
-            'target_countries'   => 'required|array',
+            'target_countries'   => 'present|array',
             'target_countries.*' => 'array',
         ]);
 
