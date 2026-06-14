@@ -157,7 +157,7 @@ export default function BranchApplicantsPage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1">
                 {ja ? '電話番号 *' : bn ? 'ফোন নম্বর *' : 'Phone *'}
               </label>
-              <input className={inputCls} placeholder="+880 1XXX XXXXXX"
+              <input className={inputCls} type="tel" placeholder="+880 1XXX XXXXXX"
                 value={form.student_phone} onChange={set('student_phone')} required />
             </div>
             <div>
@@ -181,6 +181,7 @@ export default function BranchApplicantsPage() {
                 {ja ? '入学予定日' : bn ? 'ভর্তির তারিখ' : 'Target Intake'} <span className="font-normal text-slate-400">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
               </label>
               <input className={inputCls} type="date"
+                min={new Date().toISOString().slice(0, 10)}
                 value={form.target_intake} onChange={set('target_intake')} />
             </div>
             <div className="sm:col-span-2 flex gap-2 pt-1">

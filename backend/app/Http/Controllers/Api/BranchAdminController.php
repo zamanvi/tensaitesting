@@ -94,7 +94,7 @@ class BranchAdminController extends Controller
             ->firstOrFail();
 
         $validated = $request->validate([
-            'target_country'              => 'sometimes|string|max:100',
+            'target_country'              => 'sometimes|nullable|string|max:100',
             'target_course'               => 'nullable|string|max:255',
             'target_intake'               => 'nullable|date',
             'preferred_cities'            => 'nullable|array',

@@ -234,7 +234,8 @@ export default function BranchApplicantDetailPage() {
   const hasCity      = (lead.preferred_cities?.length ?? 0) > 0;
   const hasJlpt      = !!lead.jlpt_nat_score;
 
-  const doneCount  = infoComplete ? 1 : 0;
+  const docsStarted = Object.keys(docFiles).length > 0;
+  const doneCount   = (infoComplete ? 1 : 0) + (docsStarted ? 1 : 0);
   const progressPct = doneCount * 50;
 
   // Fix: show summary only when actual application fields are set, not just phone
@@ -314,7 +315,7 @@ export default function BranchApplicantDetailPage() {
             />
           </div>
           <span className="text-xs text-slate-500 whitespace-nowrap font-medium">
-            {doneCount}&nbsp;{ja ? '/ 2 完了' : bn ? '/ ২টি সম্পন্ন' : '/ 2 done'}
+            {ja ? `ステップ ${doneCount} / 2` : bn ? `ধাপ ${doneCount} / ২` : `Step ${doneCount} of 2`}
           </span>
         </div>
 
@@ -446,17 +447,22 @@ export default function BranchApplicantDetailPage() {
 
               {/* Checklist */}
               <div className="space-y-2 mb-4">
-                {docs.map(d => (
-                  <div key={d.key} className="flex items-center gap-2 text-[11px]">
-                    <span className="flex-shrink-0 text-slate-300 font-bold">○</span>
-                    <span className="text-slate-500 break-words">{d.label}</span>
-                    {!d.required && (
-                      <span className="text-slate-400 flex-shrink-0">
-                        ({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})
+                {docs.map(d => {
+                  const filed = !!docFiles[d.key];
+                  return (
+                    <div key={d.key} className="flex items-center gap-2 text-[11px]">
+                      <span className={`flex-shrink-0 font-bold ${filed ? 'text-green-600' : 'text-slate-300'}`}>
+                        {filed ? '✓' : '○'}
                       </span>
-                    )}
-                  </div>
-                ))}
+                      <span className={`break-words ${filed ? 'text-slate-600' : 'text-slate-500'}`}>{d.label}</span>
+                      {!d.required && (
+                        <span className="text-slate-400 flex-shrink-0">
+                          ({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               <button
@@ -474,6 +480,20 @@ export default function BranchApplicantDetailPage() {
               </button>
             </div>
           </div>
+
+          {/* Ready notice — shown when both sections complete */}
+          {infoComplete && docsStarted && (
+            <div className="flex items-start gap-2.5 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-[11px] text-green-700 mb-3">
+              <span className="flex-shrink-0 mt-0.5">✓</span>
+              <span>
+                {ja
+                  ? 'この申請は完了しています。管理者が審査を開始します。'
+                  : bn
+                  ? 'এই আবেদন সম্পন্ন হয়েছে। অ্যাডমিন শীঘ্রই পর্যালোচনা শুরু করবেন।'
+                  : 'Application is complete — admin will begin review shortly.'}
+              </span>
+            </div>
+          )}
 
           {/* Always-visible notice */}
           <div className="flex items-start gap-2.5 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-[11px] text-slate-500 mb-5">
@@ -634,11 +654,12 @@ export default function BranchApplicantDetailPage() {
                 <div>
                   <label htmlFor="jlpt_score" className="block text-xs font-semibold text-slate-500 mb-1">
                     {ja ? 'スコア' : bn ? 'JLPT / NAT স্কোর' : 'JLPT / NAT score'}
+                    <span className="ml-1 font-normal text-slate-400">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
                   </label>
                   <input
                     id="jlpt_score"
                     className={inputCls}
-                    placeholder="e.g. N3 — 85pts"
+                    placeholder={ja ? '例：N3、NAT5級' : bn ? 'যেমন: N3, NAT 5' : 'e.g. N3, NAT 5, N2 — 85pts'}
                     value={infoForm.jlpt_nat_score}
                     onChange={set('jlpt_nat_score')}
                   />
@@ -646,7 +667,7 @@ export default function BranchApplicantDetailPage() {
                 <div>
                   <label htmlFor="jlpt_result" className="block text-xs font-semibold text-slate-500 mb-1">
                     {ja ? '結果発表日' : bn ? 'ফলাফল তারিখ' : 'Result date'}
-                    <span className="ml-1 font-normal text-slate-400">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
+                    <span className="ml-1 font-normal text-slate-400">({ja ? '取得済みの場合' : bn ? 'পরীক্ষা দেওয়া হলে' : 'if already taken'})</span>
                   </label>
                   <input
                     id="jlpt_result"
@@ -659,7 +680,7 @@ export default function BranchApplicantDetailPage() {
                 <div>
                   <label htmlFor="jlpt_exam" className="block text-xs font-semibold text-slate-500 mb-1">
                     {ja ? '受験予定日' : bn ? 'পরীক্ষার প্রত্যাশিত তারিখ' : 'Expected exam date'}
-                    <span className="ml-1 font-normal text-slate-400">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>
+                    <span className="ml-1 font-normal text-slate-400">({ja ? '未受験の場合' : bn ? 'এখনো দেননি হলে' : 'if not yet taken'})</span>
                   </label>
                   <input
                     id="jlpt_exam"
@@ -734,8 +755,9 @@ export default function BranchApplicantDetailPage() {
                         </p>
                       );
                     }
+                    const anyCitySelected = citiesChecked.length > 0 || showOther;
                     return (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex flex-wrap gap-x-5 gap-y-2">
                           {cities.map(city => (
                             <label key={city} className="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
@@ -767,34 +789,32 @@ export default function BranchApplicantDetailPage() {
                             onChange={e => setCitiesOther(e.target.value)}
                           />
                         )}
+                        {/* City type — shown only when a city is selected */}
+                        {anyCitySelected && (
+                          <div className="flex items-center gap-1 pt-1">
+                            <span className="text-[11px] text-slate-400 mr-2">
+                              {ja ? '優先度：' : bn ? 'ধরন:' : 'Type:'}
+                            </span>
+                            {(['preferred', 'must'] as const).map(t => (
+                              <label key={t} className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-600 select-none mr-4">
+                                <input
+                                  type="radio"
+                                  name="city_type_edit"
+                                  value={t}
+                                  checked={infoForm.city_type === t}
+                                  onChange={() => setInfoForm(f => ({ ...f, city_type: t }))}
+                                  className="accent-green-700"
+                                />
+                                {t === 'preferred'
+                                  ? (ja ? '希望（柔軟）' : bn ? 'পছন্দের' : 'Preferred')
+                                  : (ja ? '必須' : bn ? 'আবশ্যক' : 'Must')}
+                              </label>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
-                </div>
-                <div>
-                  <p className="block text-xs font-semibold text-slate-500 mb-1">
-                    {ja ? '都市の優先度' : bn ? 'শহরের ধরন' : 'City type'}
-                  </p>
-                  {/* Fix: removed fixed h-[42px], use min-h to match inputs */}
-                  <div className="flex flex-wrap gap-x-5 gap-y-2 min-h-[42px] items-center">
-                    {(['preferred', 'must'] as const).map(t => (
-                      <label key={t} className="flex items-center gap-2 cursor-pointer text-xs text-slate-600 select-none">
-                        <input
-                          type="radio"
-                          name="city_type_edit"
-                          value={t}
-                          checked={infoForm.city_type === t}
-                          onChange={() => setInfoForm(f => ({ ...f, city_type: t }))}
-                          className="accent-green-700"
-                        />
-                        <span>
-                          {t === 'preferred'
-                            ? (ja ? '希望（柔軟）' : bn ? 'পছন্দের (নমনীয়)' : 'Preferred')
-                            : (ja ? '必須（変更不可）' : bn ? 'আবশ্যক (কঠোর)' : 'Must')}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
                 </div>
                 <div>
                   <label htmlFor="pref_inst" className="block text-xs font-semibold text-slate-500 mb-1">
@@ -818,6 +838,7 @@ export default function BranchApplicantDetailPage() {
                     id="intake"
                     className={inputCls}
                     type="date"
+                    min={new Date().toISOString().slice(0, 10)}
                     value={infoForm.target_intake}
                     onChange={set('target_intake')}
                   />
