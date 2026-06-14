@@ -40,6 +40,7 @@ export default function BranchSettingsPage() {
   const [workingHours, setWorkingHours] = useState<Record<string, string>>({});
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState(false);
+  const [saveErr, setSaveErr] = useState('');
 
   const { data: settings, isLoading } = useQuery<BranchSettings>({
     queryKey: ['branch-settings'],
@@ -67,7 +68,12 @@ export default function BranchSettingsPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['branch-settings'] });
       setSaved(true);
+      setSaveErr('');
       setTimeout(() => setSaved(false), 3000);
+    },
+    onError: (e: unknown) => {
+      const err = e as { response?: { data?: { message?: string } } };
+      setSaveErr(err.response?.data?.message ?? (ja ? '保存に失敗しました。' : bn ? 'সংরক্ষণ ব্যর্থ হয়েছে।' : 'Failed to save settings.'));
     },
   });
 
@@ -109,6 +115,11 @@ export default function BranchSettingsPage() {
           {saved && (
             <div className="p-3 bg-green-50 border border-green-100 rounded-xl text-sm text-green-700 font-medium">
               ✅ {ja ? '設定を保存しました' : bn ? 'সেটিংস সংরক্ষিত হয়েছে' : 'Settings saved successfully'}
+            </div>
+          )}
+          {saveErr && (
+            <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">
+              ⚠️ {saveErr}
             </div>
           )}
 

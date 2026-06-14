@@ -46,7 +46,7 @@ class Branch extends Model
 
     public function admins()
     {
-        return $this->hasMany(User::class)->whereHas('roles', fn ($q) => $q->where('name', 'branch_admin'));
+        return $this->hasMany(User::class)->whereHas('roles', fn ($q) => $q->whereIn('name', ['branch_admin', 'branch_manager']));
     }
 
     public function managers()

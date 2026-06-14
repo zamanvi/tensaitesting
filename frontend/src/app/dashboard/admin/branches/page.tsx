@@ -151,9 +151,9 @@ export default function AdminBranchesPage() {
                   <th className="text-left px-4 py-3">Manager</th>
                   <th className="text-left px-4 py-3">Username</th>
                   <th className="text-left px-4 py-3">Password</th>
-                  <th className="text-left px-4 py-3">Phone</th>
-                  <th className="text-left px-4 py-3">WhatsApp</th>
-                  <th className="text-left px-4 py-3">Access Link</th>
+                  <th className="text-left px-4 py-3 hidden md:table-cell">Phone</th>
+                  <th className="text-left px-4 py-3 hidden lg:table-cell">WhatsApp</th>
+                  <th className="text-left px-4 py-3 hidden sm:table-cell">Access Link</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -215,13 +215,13 @@ export default function AdminBranchesPage() {
                       </td>
 
                       {/* Phone */}
-                      <td className="px-4 py-3 text-xs text-slate-500">{branch.phone || <span className="text-slate-300">—</span>}</td>
+                      <td className="px-4 py-3 text-xs text-slate-500 hidden md:table-cell">{branch.phone || <span className="text-slate-300">—</span>}</td>
 
                       {/* WhatsApp */}
-                      <td className="px-4 py-3 text-xs text-slate-500">{branch.whatsapp || <span className="text-slate-300">—</span>}</td>
+                      <td className="px-4 py-3 text-xs text-slate-500 hidden lg:table-cell">{branch.whatsapp || <span className="text-slate-300">—</span>}</td>
 
                       {/* Access link */}
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden sm:table-cell">
                         {admin ? (
                           <div className="flex items-center gap-1">
                             <a href={loginUrl} target="_blank" rel="noreferrer" className="text-[10px] font-semibold text-green-700 hover:underline">🔗 Login</a>
