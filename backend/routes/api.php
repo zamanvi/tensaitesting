@@ -152,10 +152,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/settings',    [BranchAdminController::class, 'getSettings']);
         Route::patch('/settings',  [BranchAdminController::class, 'updateSettings']);
 
-        Route::get('/leads',           [BranchAdminController::class, 'leads']);
-        Route::post('/leads',          [BranchAdminController::class, 'storeLead']);
-        Route::get('/leads/{id}',      [BranchAdminController::class, 'showLead']);
-        Route::patch('/leads/{id}',    [BranchAdminController::class, 'updateLead']);
+        Route::get('/leads',                    [BranchAdminController::class, 'leads']);
+        Route::post('/leads',                   [BranchAdminController::class, 'storeLead']);
+        Route::get('/leads/{id}',               [BranchAdminController::class, 'showLead']);
+        Route::patch('/leads/{id}',             [BranchAdminController::class, 'updateLead']);
+        Route::post('/leads/{id}/submit',       [BranchAdminController::class, 'submitLead']);
 
         Route::get('/team',                    [BranchAdminController::class, 'team']);
         Route::post('/team',                   [BranchAdminController::class, 'storeTeamMember']);
@@ -172,8 +173,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('admin')->middleware('role:admin|super_admin')->group(function () {
         Route::get('/leads',                      [LeadController::class, 'adminIndex']);
         Route::get('/leads/{lead}',               [LeadController::class, 'adminShow']);
-        Route::put('/leads/{lead}/assign-agency', [LeadController::class, 'assignAgency']);
-        Route::put('/leads/{lead}/status', [LeadController::class, 'updateStatus']);
+        Route::put('/leads/{lead}/assign-agency',       [LeadController::class, 'assignAgency']);
+        Route::put('/leads/{lead}/status',              [LeadController::class, 'updateStatus']);
+        Route::put('/leads/{lead}/accept-submission',   [LeadController::class, 'acceptSubmission']);
+        Route::put('/leads/{lead}/reject-submission',   [LeadController::class, 'rejectSubmission']);
         Route::post('/ocr/{job}/approve', [OcrController::class, 'approve']);
         Route::post('/ocr/{job}/reject', [OcrController::class, 'reject']);
         Route::post('/interviews/{interview}/arrange', [InterviewController::class, 'arrange']);

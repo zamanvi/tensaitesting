@@ -12,6 +12,7 @@ interface Applicant {
   id: number;
   lead_code: string;
   status: string;
+  submission_status: 'draft' | 'submitted' | 'accepted' | 'rejected' | null;
   pool_type: string;
   target_country: string | null;
   target_course: string | null;
@@ -82,7 +83,7 @@ function SourceBadge({ applicant }: { applicant: Applicant }) {
   );
 }
 
-const SOURCE_FILTERS = ['all', 'branch', 'affiliate', 'agency', 'admin'] as const;
+const SOURCE_FILTERS = ['all', 'pending_review', 'branch', 'affiliate', 'agency', 'admin'] as const;
 
 export default function AdminApplicantsPage() {
   const { user } = useAuthStore();
@@ -105,7 +106,9 @@ export default function AdminApplicantsPage() {
       params: {
         page,
         ...(statusFilter ? { status: statusFilter } : {}),
-        ...(sourceFilter !== 'all' ? { source: sourceFilter } : {}),
+        ...(sourceFilter === 'pending_review'
+          ? { source: 'branch', submission_status: 'submitted' }
+          : sourceFilter !== 'all' ? { source: sourceFilter } : {}),
       },
     }).then(r => r.data),
     enabled: !!isAdmin,
@@ -118,9 +121,9 @@ export default function AdminApplicantsPage() {
   const title = ja ? '申請者管理' : bn ? 'আবেদনকারী ম্যানেজ' : 'Applicants';
 
   const sourceLabel = (f: string) => {
-    if (ja) return { all: 'すべて', branch: '支局', affiliate: 'アフィリエイト', agency: 'エージェンシー', admin: '管理者' }[f] ?? f;
-    if (bn) return { all: 'সব', branch: 'শাখা', affiliate: 'অ্যাফিলিয়েট', agency: 'এজেন্সি', admin: 'অ্যাডমিন' }[f] ?? f;
-    return { all: 'All', branch: 'Branch', affiliate: 'Affiliate', agency: 'Agency (Pool)', admin: 'Admin' }[f] ?? f;
+    if (ja) return { all: 'すべて', pending_review: '⏳ 審査待ち', branch: '支局', affiliate: 'アフィリエイト', agency: 'エージェンシー', admin: '管理者' }[f] ?? f;
+    if (bn) return { all: 'সব', pending_review: '⏳ রিভিউ পেন্ডিং', branch: 'শাখা', affiliate: 'অ্যাফিলিয়েট', agency: 'এজেন্সি', admin: 'অ্যাডমিন' }[f] ?? f;
+    return { all: 'All', pending_review: '⏳ Pending Review', branch: 'Branch', affiliate: 'Affiliate', agency: 'Agency (Pool)', admin: 'Admin' }[f] ?? f;
   };
 
   return (
@@ -190,9 +193,16 @@ export default function AdminApplicantsPage() {
                       <SourceBadge applicant={a} />
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[a.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                        {a.status.replace(/_/g, ' ')}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full w-fit ${STATUS_COLORS[a.status] ?? 'bg-slate-100 text-slate-500'}`}>
+                          {a.status.replace(/_/g, ' ')}
+                        </span>
+                        {a.submission_status === 'submitted' && (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 w-fit">
+                            {ja ? '審査待ち' : bn ? 'রিভিউ পেন্ডিং' : 'Pending Review'}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-500 hidden sm:table-cell">{a.target_country ?? '—'}</td>
                     <td className="px-4 py-3 text-xs text-slate-500 hidden md:table-cell">{a.target_course ?? '—'}</td>

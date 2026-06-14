@@ -15,7 +15,7 @@ class Lead extends Model
         'lead_code', 'student_id', 'pool_type', 'source_type',
         'source_agency_id', 'source_branch_id', 'source_affiliate_id',
         'assigned_agency_id', 'assigned_institution_id',
-        'affiliate_id', 'status', 'is_published', 'published_at',
+        'affiliate_id', 'status', 'submission_status', 'is_published', 'published_at',
         'unlock_fee', 'is_locked', 'target_country', 'target_course',
         'target_intake', 'admin_notes', 'agency_notes',
         'jlpt_nat_score', 'jlpt_nat_result_date', 'expected_jlpt_nat_exam_date', 'preferred_cities',

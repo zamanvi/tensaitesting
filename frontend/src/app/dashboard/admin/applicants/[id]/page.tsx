@@ -12,6 +12,7 @@ interface Lead {
   id: number;
   lead_code: string;
   status: string;
+  submission_status: 'draft' | 'submitted' | 'accepted' | 'rejected' | null;
   pool_type: string;
   target_country: string | null;
   target_course: string | null;
@@ -128,6 +129,22 @@ export default function AdminApplicantDetailPage() {
     },
   });
 
+  const acceptSub = useMutation({
+    mutationFn: () => api.put(`/admin/leads/${id}/accept-submission`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-lead', id] });
+      qc.invalidateQueries({ queryKey: ['admin-applicants'] });
+    },
+  });
+
+  const rejectSub = useMutation({
+    mutationFn: () => api.put(`/admin/leads/${id}/reject-submission`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-lead', id] });
+      qc.invalidateQueries({ queryKey: ['admin-applicants'] });
+    },
+  });
+
   if (!user || !isAdmin) return null;
 
   const title = lead
@@ -212,6 +229,21 @@ export default function AdminApplicantDetailPage() {
               <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${STATUS_COLORS[lead.status] ?? 'bg-slate-100 text-slate-500'}`}>
                 {fmtStatus(lead.status)}
               </span>
+              {lead.submission_status === 'submitted' && (
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                  {ja ? '提出済み — 審査待ち' : bn ? 'সাবমিট হয়েছে — রিভিউ পেন্ডিং' : 'Pending Review'}
+                </span>
+              )}
+              {lead.submission_status === 'accepted' && (
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-green-100 text-green-700">
+                  {ja ? '承認済み' : bn ? 'গৃহীত' : 'Accepted'}
+                </span>
+              )}
+              {lead.submission_status === 'rejected' && (
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-100 text-red-600">
+                  {ja ? '却下' : bn ? 'প্রত্যাখ্যাত' : 'Rejected'}
+                </span>
+              )}
               <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500">
                 {sourceLabel()}
               </span>
@@ -222,6 +254,24 @@ export default function AdminApplicantDetailPage() {
               )}
               <span className="text-[10px] text-slate-400 ml-auto font-mono">{lead.lead_code}</span>
             </div>
+
+            {/* Accept / Reject — only when submitted */}
+            {lead.submission_status === 'submitted' && (
+              <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                <button
+                  onClick={() => acceptSub.mutate()}
+                  disabled={acceptSub.isPending || rejectSub.isPending}
+                  className="flex-1 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-colors">
+                  {acceptSub.isPending ? '…' : (ja ? '✓ 承認する' : bn ? '✓ গ্রহণ করুন' : '✓ Accept')}
+                </button>
+                <button
+                  onClick={() => rejectSub.mutate()}
+                  disabled={acceptSub.isPending || rejectSub.isPending}
+                  className="flex-1 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-xl disabled:opacity-50 border border-red-100 transition-colors">
+                  {rejectSub.isPending ? '…' : (ja ? '✕ 却下する' : bn ? '✕ প্রত্যাখ্যান করুন' : '✕ Reject')}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Application info */}

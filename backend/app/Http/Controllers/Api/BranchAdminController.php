@@ -64,9 +64,10 @@ class BranchAdminController extends Controller
 
         $leads = Lead::where('source_branch_id', $branchId)
             ->with(['student:id,name,email'])
+            ->when($request->submission_status, fn ($q, $s) => $q->where('submission_status', $s))
             ->orderByDesc('created_at')
-            ->get(['id', 'lead_code', 'student_id', 'status', 'target_country',
-                   'target_course', 'target_intake', 'is_published', 'created_at']);
+            ->get(['id', 'lead_code', 'student_id', 'status', 'submission_status',
+                   'target_country', 'target_course', 'target_intake', 'created_at']);
 
         return response()->json($leads);
     }
@@ -109,6 +110,24 @@ class BranchAdminController extends Controller
         $lead->update($validated);
 
         return response()->json(['message' => 'Applicant updated.', 'lead' => $lead->fresh(['student:id,name,email,phone'])]);
+    }
+
+    public function submitLead(Request $request, int $id): JsonResponse
+    {
+        $branchId = $request->user()->branch_id;
+        if (!$branchId) abort(403, 'You are not assigned to a branch.');
+
+        $lead = Lead::where('id', $id)
+            ->where('source_branch_id', $branchId)
+            ->firstOrFail();
+
+        if ($lead->submission_status !== 'draft') {
+            return response()->json(['message' => 'Only draft applicants can be submitted.'], 422);
+        }
+
+        $lead->update(['submission_status' => 'submitted']);
+
+        return response()->json(['message' => 'Applicant submitted for admin review.', 'lead' => $lead->fresh()]);
     }
 
     public function storeLead(Request $request): JsonResponse
@@ -154,13 +173,14 @@ class BranchAdminController extends Controller
         }
 
         $lead = Lead::create([
-            'student_id'       => $student->id,
-            'source_branch_id' => $branchId,
-            'pool_type'        => 'private',
-            'status'           => 'new',
-            'target_country'   => $validated['target_country'],
-            'target_course'    => $validated['target_course'] ?? null,
-            'target_intake'    => $validated['target_intake'] ?? null,
+            'student_id'        => $student->id,
+            'source_branch_id'  => $branchId,
+            'pool_type'         => 'private',
+            'status'            => 'new',
+            'submission_status' => 'draft',
+            'target_country'    => $validated['target_country'],
+            'target_course'     => $validated['target_course'] ?? null,
+            'target_intake'     => $validated['target_intake'] ?? null,
         ]);
 
         return response()->json([

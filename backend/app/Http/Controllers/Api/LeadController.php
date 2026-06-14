@@ -255,7 +255,15 @@ class LeadController extends Controller
                 $q->whereNull('source_agency_id')
                   ->orWhere('pool_type', 'open');
             })
-            ->when($request->status,   fn ($q) => $q->where('status', $request->status))
+            // Hide branch drafts and rejected — only show submitted/accepted/null (non-branch)
+            ->when(!$request->submission_status, function ($q) {
+                $q->where(function ($q2) {
+                    $q2->whereNull('submission_status')
+                       ->orWhereIn('submission_status', ['submitted', 'accepted']);
+                });
+            })
+            ->when($request->status,            fn ($q) => $q->where('status', $request->status))
+            ->when($request->submission_status, fn ($q) => $q->where('submission_status', $request->submission_status))
             ->when($request->source,   function ($q, $src) {
                 match ($src) {
                     'branch'    => $q->whereNotNull('source_branch_id'),
@@ -321,6 +329,24 @@ class LeadController extends Controller
         $validated = $request->validate(['agency_id' => 'required|exists:users,id']);
         $lead->update(['assigned_agency_id' => $validated['agency_id']]);
         return response()->json(['message' => 'Agency assigned.', 'lead' => $lead]);
+    }
+
+    public function acceptSubmission(Request $request, Lead $lead): JsonResponse
+    {
+        if ($lead->submission_status !== 'submitted') {
+            return response()->json(['message' => 'Applicant is not in submitted state.'], 422);
+        }
+        $lead->update(['submission_status' => 'accepted']);
+        return response()->json(['message' => 'Applicant accepted.', 'lead' => $lead]);
+    }
+
+    public function rejectSubmission(Request $request, Lead $lead): JsonResponse
+    {
+        if ($lead->submission_status !== 'submitted') {
+            return response()->json(['message' => 'Applicant is not in submitted state.'], 422);
+        }
+        $lead->update(['submission_status' => 'rejected']);
+        return response()->json(['message' => 'Applicant rejected.', 'lead' => $lead]);
     }
 
     public function updateStatus(Request $request, Lead $lead): JsonResponse

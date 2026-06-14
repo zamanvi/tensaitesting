@@ -13,6 +13,7 @@ interface Lead {
   id: number;
   lead_code: string;
   status: string;
+  submission_status: 'draft' | 'submitted' | 'accepted' | 'rejected' | null;
   pool_type: string;
   target_country: string | null;
   target_course: string | null;
@@ -83,6 +84,25 @@ const EMPTY_INFO: InfoForm = {
 };
 
 type DocKey = 'passport' | 'certs' | 'lang' | 'trans';
+
+function SubmitButton({ id, qc, ja, bn }: { id: number; qc: ReturnType<typeof useQueryClient>; ja: boolean; bn: boolean }) {
+  const submit = useMutation({
+    mutationFn: () => api.post(`/branch-admin/leads/${id}/submit`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['branch-lead', String(id)] });
+      qc.invalidateQueries({ queryKey: ['branch-leads'] });
+    },
+  });
+  return (
+    <button
+      onClick={() => submit.mutate()}
+      disabled={submit.isPending}
+      className="text-[10px] font-semibold px-3 py-1 rounded-full bg-green-700 text-white hover:bg-green-800 disabled:opacity-50 transition-colors">
+      {submit.isPending ? '…' : (ja ? '提出する' : bn ? 'সাবমিট করুন' : 'Submit to Admin')}
+    </button>
+  );
+}
+
 
 export default function BranchApplicantDetailPage() {
   const { user } = useAuthStore();
@@ -296,13 +316,24 @@ export default function BranchApplicantDetailPage() {
               <p className="text-xs text-slate-400 mt-0.5">{lead.student.phone}</p>
             )}
           </div>
-          {/* Right: status + code */}
-          <div className="flex-shrink-0 text-right">
-            {/* Fix: title-cased status */}
+          {/* Right: status + submission + code */}
+          <div className="flex-shrink-0 text-right flex flex-col items-end gap-1">
             <span className={`inline-block text-[11px] font-bold px-3 py-1 rounded-full ${STATUS_COLORS[lead.status] ?? 'bg-slate-100 text-slate-500'}`}>
               {fmtStatus(lead.status)}
             </span>
-            <p className="text-[11px] text-slate-400 mt-1 font-mono">{lead.lead_code}</p>
+            {lead.submission_status && lead.submission_status !== 'draft' && (
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${{
+                submitted: 'bg-amber-100 text-amber-700',
+                accepted:  'bg-green-100 text-green-700',
+                rejected:  'bg-red-100 text-red-600',
+              }[lead.submission_status] ?? 'bg-slate-100 text-slate-500'}`}>
+                {fmtStatus(lead.submission_status)}
+              </span>
+            )}
+            {lead.submission_status === 'draft' && (
+              <SubmitButton id={lead.id} qc={qc} ja={ja} bn={bn} />
+            )}
+            <p className="text-[11px] text-slate-400 font-mono">{lead.lead_code}</p>
           </div>
         </div>
 
