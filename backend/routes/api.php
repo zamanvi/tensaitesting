@@ -149,6 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/settings',  [BranchAdminController::class, 'updateSettings']);
 
         Route::get('/leads',       [BranchAdminController::class, 'leads']);
+        Route::post('/leads',      [BranchAdminController::class, 'storeLead']);
 
         Route::get('/team',                    [BranchAdminController::class, 'team']);
         Route::post('/team',                   [BranchAdminController::class, 'storeTeamMember']);
