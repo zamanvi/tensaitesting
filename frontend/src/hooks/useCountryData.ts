@@ -14,6 +14,5 @@ export function useCountryData() {
         return raw ? (JSON.parse(raw) as CountryData) : FALLBACK;
       }),
     staleTime: 1000 * 60 * 10,
-    placeholderData: FALLBACK,
   });
 }

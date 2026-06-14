@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useCountryData } from '@/hooks/useCountryData';
 
@@ -100,6 +100,8 @@ export default function BranchApplicantDetailPage() {
 
   const { data: countryData = {} } = useCountryData();
 
+  const initializedLeadId = useRef<number | null>(null);
+
   const [activeSection, setActiveSection] = useState<'overview' | 'info' | 'docs'>('overview');
   const [infoForm, setInfoForm] = useState<InfoForm>(EMPTY_INFO);
   const [citiesChecked, setCitiesChecked] = useState<string[]>([]);
@@ -122,25 +124,27 @@ export default function BranchApplicantDetailPage() {
   });
 
   useEffect(() => {
-    if (lead) {
-      const knownCities = countryData[lead.target_country ?? ''] ?? [];
-      const savedCities = lead.preferred_cities ?? [];
-      const checked = savedCities.filter(c => knownCities.includes(c));
-      const other   = savedCities.filter(c => !knownCities.includes(c));
-      setCitiesChecked(checked);
-      setCitiesOther(other.join(', '));
-      setShowOther(other.length > 0);
-      setInfoForm({
-        target_country:              lead.target_country ?? '',
-        target_course:               lead.target_course ?? '',
-        target_intake:               toDateInput(lead.target_intake),
-        city_type:                   lead.city_type ?? 'preferred',
-        preferred_institution:       lead.preferred_institution ?? '',
-        jlpt_nat_score:              lead.jlpt_nat_score ?? '',
-        jlpt_nat_result_date:        toDateInput(lead.jlpt_nat_result_date),
-        expected_jlpt_nat_exam_date: toDateInput(lead.expected_jlpt_nat_exam_date),
-      });
-    }
+    // Wait until both lead and real countryData are loaded before initializing
+    if (!lead || Object.keys(countryData).length === 0) return;
+    // Guard: don't re-initialize same lead when countryData cache refreshes mid-edit
+    if (initializedLeadId.current === lead.id) return;
+
+    const knownCities = countryData[lead.target_country ?? ''] ?? [];
+    const savedCities = lead.preferred_cities ?? [];
+    setCitiesChecked(savedCities.filter(c => knownCities.includes(c)));
+    setCitiesOther(savedCities.filter(c => !knownCities.includes(c)).join(', '));
+    setShowOther(savedCities.some(c => !knownCities.includes(c)));
+    setInfoForm({
+      target_country:              lead.target_country ?? '',
+      target_course:               lead.target_course ?? '',
+      target_intake:               toDateInput(lead.target_intake),
+      city_type:                   lead.city_type ?? 'preferred',
+      preferred_institution:       lead.preferred_institution ?? '',
+      jlpt_nat_score:              lead.jlpt_nat_score ?? '',
+      jlpt_nat_result_date:        toDateInput(lead.jlpt_nat_result_date),
+      expected_jlpt_nat_exam_date: toDateInput(lead.expected_jlpt_nat_exam_date),
+    });
+    initializedLeadId.current = lead.id;
   }, [lead, countryData]);
 
   const set = (field: keyof InfoForm) =>
@@ -180,6 +184,7 @@ export default function BranchApplicantDetailPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['branch-lead', id] });
       qc.invalidateQueries({ queryKey: ['branch-leads'] });
+      initializedLeadId.current = null; // allow re-init from fresh lead data after refetch
       setInfoSuccess(true);
       setTimeout(() => setInfoSuccess(false), 3500);
       setInfoErr('');
