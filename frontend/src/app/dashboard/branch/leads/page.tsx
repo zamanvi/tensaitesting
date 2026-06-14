@@ -80,6 +80,7 @@ export default function BranchApplicantsPage() {
   const [formErr, setFormErr] = useState('');
   const [subFilter, setSubFilter] = useState<SubFilter>('');
   const [submittingId, setSubmittingId] = useState<number | null>(null);
+  const [submitErr, setSubmitErr] = useState('');
 
   const { data: countryData = {} } = useCountryData();
   const countryList = Object.keys(countryData);
@@ -111,6 +112,12 @@ export default function BranchApplicantsPage() {
     mutationFn: (id: number) => api.post(`/branch-admin/leads/${id}/submit`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['branch-leads'] });
+      setSubmittingId(null);
+      setSubmitErr('');
+    },
+    onError: (e: unknown) => {
+      const err = e as { response?: { data?: { message?: string } } };
+      setSubmitErr(err.response?.data?.message ?? 'Failed to submit.');
       setSubmittingId(null);
     },
     onSettled: () => setSubmittingId(null),
@@ -155,6 +162,14 @@ export default function BranchApplicantsPage() {
           {showForm ? (ja ? '✕ 閉じる' : bn ? '✕ বন্ধ করুন' : '✕ Close') : addLabel}
         </button>
       </div>
+
+      {/* Submit error */}
+      {submitErr && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600 flex items-center justify-between">
+          <span>⚠️ {submitErr}</span>
+          <button onClick={() => setSubmitErr('')} className="text-red-400 hover:text-red-600 ml-2">✕</button>
+        </div>
+      )}
 
       {/* Filter tabs */}
       <div className="flex gap-2 flex-wrap mb-5">

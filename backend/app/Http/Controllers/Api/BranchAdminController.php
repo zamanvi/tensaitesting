@@ -94,6 +94,10 @@ class BranchAdminController extends Controller
             ->where('source_branch_id', $branchId)
             ->firstOrFail();
 
+        if ($lead->submission_status === 'accepted') {
+            return response()->json(['message' => 'Cannot edit an accepted applicant.'], 422);
+        }
+
         $validated = $request->validate([
             'target_country'              => 'sometimes|nullable|string|max:100',
             'target_course'               => 'nullable|string|max:255',

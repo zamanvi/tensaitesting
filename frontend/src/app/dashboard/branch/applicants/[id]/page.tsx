@@ -622,6 +622,13 @@ export default function BranchApplicantDetailPage() {
       {activeSection === 'info' && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-5">
 
+          {/* Locked notice when accepted */}
+          {lead.submission_status === 'accepted' && (
+            <div className="px-5 py-3 bg-green-50 border-b border-green-100 text-xs text-green-700 font-semibold">
+              🔒 {ja ? 'この申請は承認済みのため編集できません。' : bn ? 'এই আবেদন গৃহীত হয়েছে, সম্পাদনা করা যাবে না।' : 'This applicant has been accepted and cannot be edited.'}
+            </div>
+          )}
+
           {/* Form header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <h2 className="font-bold text-slate-900 text-sm">
@@ -880,7 +887,7 @@ export default function BranchApplicantDetailPage() {
             <div className="flex flex-col sm:flex-row gap-2 pt-1">
               <button
                 onClick={() => updateInfo.mutate()}
-                disabled={updateInfo.isPending || !infoForm.target_country}
+                disabled={updateInfo.isPending || !infoForm.target_country || lead.submission_status === 'accepted'}
                 className="flex-1 py-3 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white rounded-xl text-sm font-bold disabled:opacity-50 transition-colors"
               >
                 {updateInfo.isPending
