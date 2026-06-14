@@ -98,7 +98,7 @@ export default function BranchApplicantDetailPage() {
     if (user && !isBranchAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isBranchAdmin, router]);
 
-  const { data: countryData = {} } = useCountryData();
+  const { data: countryData = {}, isSuccess: countriesLoaded } = useCountryData();
 
   const initializedLeadId = useRef<number | null>(null);
 
@@ -124,8 +124,8 @@ export default function BranchApplicantDetailPage() {
   });
 
   useEffect(() => {
-    // Wait until both lead and real countryData are loaded before initializing
-    if (!lead || Object.keys(countryData).length === 0) return;
+    // Wait until both lead and countryData fetch are complete before initializing
+    if (!lead || !countriesLoaded) return;
     // Guard: don't re-initialize same lead when countryData cache refreshes mid-edit
     if (initializedLeadId.current === lead.id) return;
 
@@ -145,7 +145,7 @@ export default function BranchApplicantDetailPage() {
       expected_jlpt_nat_exam_date: toDateInput(lead.expected_jlpt_nat_exam_date),
     });
     initializedLeadId.current = lead.id;
-  }, [lead, countryData]);
+  }, [lead, countryData, countriesLoaded]);
 
   const set = (field: keyof InfoForm) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -838,7 +838,6 @@ export default function BranchApplicantDetailPage() {
                     id="intake"
                     className={inputCls}
                     type="date"
-                    min={new Date().toISOString().slice(0, 10)}
                     value={infoForm.target_intake}
                     onChange={set('target_intake')}
                   />
