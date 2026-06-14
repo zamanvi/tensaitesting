@@ -271,6 +271,51 @@ class LeadController extends Controller
         return response()->json($leads);
     }
 
+    public function adminShow(Request $request, Lead $lead): JsonResponse
+    {
+        $lead->load([
+            'student:id,name,email,phone',
+            'sourceBranch:id,name',
+            'sourceAgency:id,name',
+            'sourceAffiliate:id,name',
+            'assignedAgency:id,name',
+            'assignedInstitution:id,name',
+        ]);
+        return response()->json($lead);
+    }
+
+    public function studentShow(Request $request, int $id): JsonResponse
+    {
+        $lead = Lead::where('id', $id)
+            ->where('student_id', $request->user()->id)
+            ->with(['assignedAgency:id,name', 'assignedInstitution:id,name'])
+            ->firstOrFail();
+        return response()->json($lead);
+    }
+
+    public function studentUpdate(Request $request, int $id): JsonResponse
+    {
+        $lead = Lead::where('id', $id)
+            ->where('student_id', $request->user()->id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'target_country'              => 'sometimes|nullable|string|max:100',
+            'target_course'               => 'nullable|string|max:255',
+            'target_intake'               => 'nullable|date',
+            'preferred_cities'            => 'nullable|array',
+            'preferred_cities.*'          => 'string|max:100',
+            'city_type'                   => 'nullable|in:preferred,must',
+            'preferred_institution'       => 'nullable|string|max:255',
+            'jlpt_nat_score'              => 'nullable|string|max:50',
+            'jlpt_nat_result_date'        => 'nullable|date',
+            'expected_jlpt_nat_exam_date' => 'nullable|date',
+        ]);
+
+        $lead->update($validated);
+        return response()->json(['message' => 'Updated.', 'lead' => $lead->fresh()]);
+    }
+
     public function assignAgency(Request $request, Lead $lead): JsonResponse
     {
         $validated = $request->validate(['agency_id' => 'required|exists:users,id']);

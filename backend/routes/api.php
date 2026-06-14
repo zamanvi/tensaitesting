@@ -83,7 +83,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/ocr/review-request', [OcrController::class, 'requestReview']);
         Route::post('/help-request', [HelpRequestController::class, 'store']);
         Route::get('/help-requests', [HelpRequestController::class, 'myRequests']);
-        Route::get('/leads', [LeadController::class, 'myLeads']);
+        Route::get('/leads',        [LeadController::class, 'myLeads']);
+        Route::get('/leads/{id}',   [LeadController::class, 'studentShow']);
+        Route::patch('/leads/{id}', [LeadController::class, 'studentUpdate']);
         Route::get('/interviews', [InterviewController::class, 'myInterviews']);
     });
 
@@ -168,7 +170,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin only
     Route::prefix('admin')->middleware('role:admin|super_admin')->group(function () {
-        Route::get('/leads', [LeadController::class, 'adminIndex']);
+        Route::get('/leads',                      [LeadController::class, 'adminIndex']);
+        Route::get('/leads/{lead}',               [LeadController::class, 'adminShow']);
         Route::put('/leads/{lead}/assign-agency', [LeadController::class, 'assignAgency']);
         Route::put('/leads/{lead}/status', [LeadController::class, 'updateStatus']);
         Route::post('/ocr/{job}/approve', [OcrController::class, 'approve']);

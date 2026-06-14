@@ -4,6 +4,7 @@ import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { STATUS_COLORS } from '@/lib/constants';
 
 interface Lead {
@@ -46,6 +47,7 @@ function progressLabel(status: string, lang: string): string {
 }
 
 export default function StudentLeads() {
+  const router = useRouter();
   const { t, lang } = useLang();
   const sl = t.studentLeads;
   const statuses = t.statuses;
@@ -142,7 +144,9 @@ export default function StudentLeads() {
             const isTerminal = TERMINAL_STAGES.includes(lead.status);
             const statusLabel = statuses[lead.status as keyof typeof statuses] ?? progressLabel(lead.status, lang);
             return (
-              <div key={lead.id} className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5">
+              <div key={lead.id}
+                onClick={() => router.push(`/dashboard/student/leads/${lead.id}`)}
+                className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 cursor-pointer hover:border-green-200 active:bg-slate-50 transition-colors">
 
                 {/* Top row */}
                 <div className="flex flex-wrap items-center gap-2 mb-2">

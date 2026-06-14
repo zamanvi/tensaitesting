@@ -48,7 +48,8 @@ const STATUS_COLORS: Record<string, string> = {
 function SourceBadge({ applicant }: { applicant: Applicant }) {
   if (applicant.sourceBranch) {
     return (
-      <Link href={`/dashboard/admin/branches`} className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
+      <Link href={`/dashboard/admin/branches`} onClick={e => e.stopPropagation()}
+        className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
         🏢 {applicant.sourceBranch.name}
       </Link>
     );
@@ -175,7 +176,9 @@ export default function AdminApplicantsPage() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {applicants.map(a => (
-                  <tr key={a.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={a.id}
+                    onClick={() => router.push(`/dashboard/admin/applicants/${a.id}`)}
+                    className="hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer">
                     <td className="px-5 py-3">
                       <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{a.lead_code}</span>
                     </td>
