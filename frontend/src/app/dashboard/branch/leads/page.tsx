@@ -136,15 +136,15 @@ export default function BranchApplicantsPage() {
 
   if (!user || !isBranchAdmin) return null;
 
-  const title = ja ? '申請者一覧' : bn ? 'আবেদনকারী' : 'Applicants';
-  const addLabel = ja ? '+ 新規申請者' : bn ? '+ নতুন আবেদনকারী' : '+ New Applicant';
+  const title = ja ? '申請管理' : bn ? 'আবেদন' : 'Applications';
+  const addLabel = ja ? '+ 新規申請' : bn ? '+ নতুন আবেদন' : '+ New Application';
 
   const TABS: { key: SubFilter; label: string }[] = [
-    { key: '',          label: ja ? 'すべて'      : bn ? 'সব'          : 'All'       },
-    { key: 'draft',     label: ja ? '下書き'      : bn ? 'ড্রাফট'      : 'Draft'     },
-    { key: 'submitted', label: ja ? '提出済み'    : bn ? 'সাবমিট হয়েছে' : 'Submitted' },
-    { key: 'accepted',  label: ja ? '承認済み'    : bn ? 'গৃহীত'       : 'Accepted'  },
-    { key: 'rejected',  label: ja ? '却下'        : bn ? 'প্রত্যাখ্যাত' : 'Rejected'  },
+    { key: '',          label: ja ? 'すべて'    : bn ? 'সব'          : 'All'        },
+    { key: 'draft',     label: ja ? '処理中'    : bn ? 'প্রসেসিং'    : 'Processing' },
+    { key: 'submitted', label: ja ? '保留中'    : bn ? 'পেন্ডিং'     : 'Pending'    },
+    { key: 'accepted',  label: ja ? 'アクティブ' : bn ? 'অ্যাক্টিভ'  : 'Active'     },
+    { key: 'rejected',  label: ja ? '却下'      : bn ? 'প্রত্যাখ্যাত' : 'Rejected'   },
   ];
 
   return (
@@ -185,7 +185,7 @@ export default function BranchApplicantsPage() {
       {showForm && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-5">
           <h2 className="font-bold text-slate-900 text-sm mb-4">
-            {ja ? '新しい申請者を追加' : bn ? 'নতুন আবেদনকারী যোগ করুন' : 'Add New Applicant'}
+            {ja ? '新規申請を作成' : bn ? 'নতুন আবেদন তৈরি করুন' : 'New Application'}
           </h2>
           {formErr && (
             <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {formErr}</div>
@@ -227,7 +227,7 @@ export default function BranchApplicantsPage() {
             <div className="sm:col-span-2 flex gap-2 pt-1">
               <button type="submit" disabled={add.isPending}
                 className="flex-1 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-bold disabled:opacity-50 transition-colors">
-                {add.isPending ? '…' : (ja ? '申請者を追加' : bn ? 'যোগ করুন' : 'Add Applicant')}
+                {add.isPending ? '…' : (ja ? '申請を作成' : bn ? 'আবেদন তৈরি করুন' : 'Create Application')}
               </button>
               <button type="button" onClick={() => { setShowForm(false); setForm(EMPTY_FORM); setFormErr(''); }}
                 className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors">
@@ -244,7 +244,7 @@ export default function BranchApplicantsPage() {
       ) : applicants.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-4xl mb-3">📋</div>
-          <p className="text-slate-400 text-sm">{ja ? 'まだ申請者がいません。' : bn ? 'কোনো আবেদনকারী নেই।' : 'No applicants yet.'}</p>
+          <p className="text-slate-400 text-sm">{ja ? 'まだ申請がありません。' : bn ? 'এখনো কোনো আবেদন নেই।' : 'No applications yet.'}</p>
           {subFilter === '' && (
             <button onClick={() => setShowForm(true)}
               className="mt-4 px-5 py-2 bg-green-700 text-white text-sm font-semibold rounded-xl hover:bg-green-800">
@@ -283,7 +283,11 @@ export default function BranchApplicantsPage() {
                       <div className="flex flex-col gap-1">
                         {a.submission_status && (
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full w-fit ${SUB_COLORS[a.submission_status] ?? 'bg-slate-100 text-slate-500'}`}>
-                            {fmtStatus(a.submission_status)}
+                            {{ draft: ja ? '処理中' : bn ? 'প্রসেসিং' : 'Processing',
+                               submitted: ja ? '保留中' : bn ? 'পেন্ডিং' : 'Pending',
+                               accepted:  ja ? 'アクティブ' : bn ? 'অ্যাক্টিভ' : 'Active',
+                               rejected:  ja ? '却下' : bn ? 'প্রত্যাখ্যাত' : 'Rejected',
+                            }[a.submission_status] ?? a.submission_status}
                           </span>
                         )}
                         {a.submission_status === 'draft' && (
@@ -291,7 +295,7 @@ export default function BranchApplicantsPage() {
                             onClick={e => { e.stopPropagation(); setSubmittingId(a.id); submit.mutate(a.id); }}
                             disabled={submit.isPending && submittingId === a.id}
                             className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-700 text-white hover:bg-green-800 disabled:opacity-50 w-fit transition-colors">
-                            {submit.isPending && submittingId === a.id ? '…' : (ja ? '提出する' : bn ? 'সাবমিট করুন' : 'Submit')}
+                            {submit.isPending && submittingId === a.id ? '…' : (ja ? '送信する' : bn ? 'পাঠান' : 'Send to Admin')}
                           </button>
                         )}
                       </div>

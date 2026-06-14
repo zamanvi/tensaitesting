@@ -101,7 +101,7 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
     branch_admin: [
       { label: lang === 'ja' ? 'ダッシュボード' : lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard',     href: '/dashboard/branch' },
-      { label: lang === 'ja' ? '申請者'         : lang === 'bn' ? 'আবেদনকারী'    : 'Applicants',    href: '/dashboard/branch/leads' },
+      { label: lang === 'ja' ? '申請'            : lang === 'bn' ? 'আবেদন'        : 'Applications',  href: '/dashboard/branch/leads' },
       { label: lang === 'ja' ? 'チーム'         : lang === 'bn' ? 'টিম'           : 'Team',          href: '/dashboard/branch/team' },
       { label: lang === 'ja' ? 'ギャラリー'     : lang === 'bn' ? 'গ্যালারি'      : 'Gallery',       href: '/dashboard/branch/gallery' },
       { label: lang === 'ja' ? '設定'           : lang === 'bn' ? 'সেটিংস'        : 'Settings',      href: '/dashboard/branch/settings' },
