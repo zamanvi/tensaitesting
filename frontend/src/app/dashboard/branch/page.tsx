@@ -33,6 +33,7 @@ export default function BranchAdminDashboard() {
   const [form, setForm] = useState({ phone: '', whatsapp: '', address: '' });
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveErr, setSaveErr] = useState('');
 
   useEffect(() => {
     if (user && !isBranchAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
@@ -58,9 +59,14 @@ export default function BranchAdminDashboard() {
     mutationFn: (data: typeof form) => api.patch('/branch-admin/contact', data),
     onSuccess: () => {
       setSaved(true);
+      setSaveErr('');
       setEditing(false);
       queryClient.invalidateQueries({ queryKey: ['my-branch'] });
       setTimeout(() => setSaved(false), 3000);
+    },
+    onError: (e: unknown) => {
+      const err = e as { response?: { data?: { message?: string } } };
+      setSaveErr(err.response?.data?.message ?? 'Failed to save.');
     },
   });
 
@@ -117,6 +123,11 @@ export default function BranchAdminDashboard() {
           {saved && (
             <div className="mb-4 p-3 bg-green-50 border border-green-100 rounded-xl text-xs text-green-700 font-medium">
               ✅ {ja ? '連絡先情報を保存しました' : bn ? 'যোগাযোগের তথ্য সংরক্ষিত হয়েছে' : 'Contact info saved successfully'}
+            </div>
+          )}
+          {saveErr && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
+              ⚠️ {saveErr}
             </div>
           )}
 

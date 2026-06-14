@@ -144,8 +144,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/upgrade-request',[AffiliateController::class, 'upgradeRequest']);
     });
 
-    // Branch admin gateway (branch_admin role only)
-    Route::prefix('branch-admin')->middleware('role:branch_admin')->group(function () {
+    // Branch admin gateway (branch_admin and branch_manager)
+    Route::prefix('branch-admin')->middleware('role:branch_admin|branch_manager')->group(function () {
         Route::get('/my-branch',   [BranchController::class, 'myBranch']);
         Route::patch('/contact',   [BranchController::class, 'updateContact']);
 

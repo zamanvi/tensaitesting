@@ -29,7 +29,7 @@ export default function BranchSettingsPage() {
   const { lang } = useLang();
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
-  const isBranchAdmin = user?.roles?.includes('branch_admin');
+  const isBranchAdmin = user?.roles?.some(r => r === 'branch_admin' || r === 'branch_manager');
   useEffect(() => {
     if (user && !isBranchAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isBranchAdmin, router]);
