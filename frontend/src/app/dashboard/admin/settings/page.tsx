@@ -185,15 +185,17 @@ export default function AdminSettingsPage() {
             {/* Add country */}
             <div className="flex gap-2 pt-1">
               <input
-                className={inputCls + ' flex-1'}
+                className={inputCls + ' flex-1 disabled:opacity-40'}
                 placeholder={ja ? '新しい国名 (例: South Korea)' : bn ? 'নতুন দেশের নাম' : 'New country name (e.g. South Korea)'}
                 value={newCountry}
                 onChange={e => setNewCountry(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCountry())}
+                disabled={isLoading}
               />
               <button
                 onClick={addCountry}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-colors whitespace-nowrap"
+                disabled={isLoading}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-colors whitespace-nowrap disabled:opacity-40"
               >
                 {ja ? '+ 国を追加' : bn ? '+ দেশ যোগ' : '+ Add country'}
               </button>
