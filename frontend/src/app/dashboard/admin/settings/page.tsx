@@ -60,6 +60,8 @@ export default function AdminSettingsPage() {
   }
 
   function removeCountry(name: string) {
+    const label = ja ? `「${name}」を削除しますか？` : bn ? `"${name}" মুছে ফেলবেন?` : `Remove "${name}" and all its cities?`;
+    if (!window.confirm(label)) return;
     setCountries(c => { const n = { ...c }; delete n[name]; return n; });
     if (expanded === name) setExpanded(null);
   }
@@ -202,7 +204,7 @@ export default function AdminSettingsPage() {
           <div className="px-5 py-4 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
             <button
               onClick={() => save.mutate()}
-              disabled={save.isPending}
+              disabled={save.isPending || isLoading}
               className="px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-xl disabled:opacity-50 transition-colors"
             >
               {save.isPending
