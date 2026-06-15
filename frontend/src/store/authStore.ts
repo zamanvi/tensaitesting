@@ -7,6 +7,7 @@ interface User {
   name: string;
   email: string;
   phone?: string;
+  avatar_url?: string | null;
   gateway_type: 'student' | 'agency' | 'institution' | 'affiliate' | string;
   status: 'pending' | 'active' | 'suspended';
   affiliate_code?: string;

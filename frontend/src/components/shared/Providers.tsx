@@ -2,18 +2,24 @@
 import { LanguageProvider } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function AuthHydrator() {
-  useEffect(() => {
-    useAuthStore.persist.rehydrate();
-  }, []);
+  // Rehydrate synchronously so the store is ready before first paint
+  useState(() => { useAuthStore.persist.rehydrate(); });
   return null;
 }
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        staleTime: 60_000,
+        gcTime: 5 * 60_000,
+        refetchOnWindowFocus: false,
+      },
+    },
   }));
 
   return (

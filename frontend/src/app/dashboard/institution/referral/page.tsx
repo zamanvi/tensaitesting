@@ -6,11 +6,12 @@ import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
-interface Referral {
+interface InstReferral {
   id: number;
   name: string;
   email: string;
   target_country: string | null;
+  visa_category: string | null;
   status: 'pending' | 'enrolled' | 'processing' | string;
   created_at: string;
 }
@@ -21,7 +22,14 @@ const STATUS_BADGE: Record<string, string> = {
   pending:    'bg-slate-100 text-slate-600',
 };
 
-export default function StudentReferralPage() {
+const VISA_LABELS: Record<string, { en: string; ja: string; bn: string }> = {
+  student_visa:  { en: 'Student Visa',  ja: '学生ビザ',     bn: 'স্টুডেন্ট ভিসা' },
+  work_visa:     { en: 'Work Visa',     ja: '就労ビザ',     bn: 'ওয়ার্ক ভিসা' },
+  business_visa: { en: 'Business Visa', ja: 'ビジネスビザ', bn: 'বিজনেস ভিসা' },
+  visitor_visa:  { en: 'Visitor Visa',  ja: '観光ビザ',     bn: 'ভিজিটর ভিসা' },
+};
+
+export default function InstitutionReferralPage() {
   const { lang } = useLang();
   const { user } = useAuthStore();
   const ja = lang === 'ja'; const bn = lang === 'bn';
@@ -30,7 +38,9 @@ export default function StudentReferralPage() {
   const [copied, setCopied] = useState(false);
 
   const code = user?.affiliate_code ?? '';
-  const referralLink = code ? `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/register?ref=${code}` : '';
+  const referralLink = code
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/register?ref=${code}`
+    : '';
 
   function copyLink() {
     if (!referralLink) return;
@@ -40,37 +50,37 @@ export default function StudentReferralPage() {
     });
   }
 
-  // Fetch referrals list
-  const { data: referralsData, isLoading: referralsLoading } = useQuery({
-    queryKey: ['student-referrals'],
-    queryFn: () => api.get('/student/referrals').then(r => r.data),
+  const { data: referralsData, isLoading } = useQuery({
+    queryKey: ['institution-referrals'],
+    queryFn: () => api.get('/institution/referrals').then(r => r.data),
     staleTime: 60_000,
   });
 
-  // Fetch public settings for fee schedule
   const { data: settingsData } = useQuery({
     queryKey: ['public-settings'],
     queryFn: () => api.get('/public/settings').then(r => r.data),
     staleTime: 5 * 60_000,
   });
 
-  const referrals: Referral[] = referralsData?.data ?? [];
-  const fees: Record<string, number> = settingsData?.referral_fees ?? {};
+  const referrals: InstReferral[] = referralsData?.data ?? [];
+  // institution_referral_fees: { Japan: { student_visa: 30000, work_visa: 40000 } }
+  const fees: Record<string, Record<string, number>> = settingsData?.institution_referral_fees ?? {};
 
-  // Earnings summary
-  const earned = referrals
-    .filter(r => r.status === 'enrolled')
-    .reduce((sum, r) => sum + (r.target_country ? (fees[r.target_country] ?? 0) : 0), 0);
+  function getFee(country: string | null, visa: string | null): number {
+    if (!country || !visa) return 0;
+    return fees[country]?.[visa] ?? 0;
+  }
 
-  const pending = referrals
-    .filter(r => r.status !== 'enrolled')
-    .reduce((sum, r) => sum + (r.target_country ? (fees[r.target_country] ?? 0) : 0), 0);
+  function fmtFee(country: string | null, visa: string | null): string {
+    const f = getFee(country, visa);
+    return f > 0 ? `৳${f.toLocaleString()}` : '—';
+  }
 
-  function fmtFee(country: string | null) {
-    if (!country) return '—';
-    const f = fees[country];
-    if (!f) return '—';
-    return `৳${f.toLocaleString()}`;
+  function visaLabel(key: string | null): string {
+    if (!key) return '—';
+    const v = VISA_LABELS[key];
+    if (!v) return key;
+    return ja ? v.ja : bn ? v.bn : v.en;
   }
 
   function statusLabel(status: string) {
@@ -79,8 +89,24 @@ export default function StudentReferralPage() {
     return ja ? '待機中' : bn ? 'অপেক্ষায়' : 'Pending';
   }
 
+  const earned = referrals
+    .filter(r => r.status === 'enrolled')
+    .reduce((sum, r) => sum + getFee(r.target_country, r.visa_category), 0);
+
+  const pending = referrals
+    .filter(r => r.status !== 'enrolled')
+    .reduce((sum, r) => sum + getFee(r.target_country, r.visa_category), 0);
+
+  // Build fee schedule rows: all non-empty country+visa combos
+  const feeSchedule: { country: string; visa: string; amount: number }[] = [];
+  for (const [country, visas] of Object.entries(fees)) {
+    for (const [visa, amount] of Object.entries(visas)) {
+      if (amount > 0) feeSchedule.push({ country, visa, amount });
+    }
+  }
+  feeSchedule.sort((a, b) => a.country.localeCompare(b.country) || a.visa.localeCompare(b.visa));
+
   const title = ja ? '紹介' : bn ? 'রেফারেল' : 'Referral';
-  const hasFees = Object.keys(fees).length > 0;
 
   return (
     <DashboardLayout title={title}>
@@ -88,16 +114,16 @@ export default function StudentReferralPage() {
 
         {/* ── Referral link card ── */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
-          <div className="text-3xl mb-3">🤝</div>
+          <div className="text-3xl mb-3">🏫</div>
           <h2 className="font-bold text-slate-900 text-base mb-2">
-            {ja ? 'Tensai紹介プログラム' : bn ? 'Tensai রেফারেল প্রোগ্রাম' : 'Tensai Referral Program'}
+            {ja ? '機関紹介プログラム' : bn ? 'ইনস্টিটিউশন রেফারেল প্রোগ্রাম' : 'Institution Referral Program'}
           </h2>
           <p className="text-sm text-slate-600 leading-relaxed mb-4">
             {ja
-              ? '友人や知人をTensaiに紹介して、留学が完了したときにコミッションを獲得しましょう。'
+              ? '貴機関で紹介した学生が入学・就労ビザを取得した際に、国別・ビザ種別に応じた紹介手数料が支払われます。'
               : bn
-              ? 'আপনার পরিচিতদের Tensai-এ রেফার করুন এবং তাদের পড়াশোনা সম্পন্ন হলে কমিশন পান।'
-              : 'Refer friends to Tensai and earn a commission when they successfully complete their study abroad journey.'}
+              ? 'আপনার ইনস্টিটিউশন থেকে রেফার করা শিক্ষার্থীরা ভর্তি বা ভিসা পেলে, দেশ ও ভিসা ক্যাটাগরি অনুযায়ী কমিশন পাবেন।'
+              : 'Earn referral commissions when students you refer successfully obtain their visa and enroll. Rates vary by destination country and visa category.'}
           </p>
 
           {/* Earnings summary */}
@@ -139,7 +165,7 @@ export default function StudentReferralPage() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">
-                  {ja ? 'あなたのコード' : bn ? 'আপনার কোড' : 'Your code'}
+                  {ja ? 'あなたの紹介コード' : bn ? 'আপনার কোড' : 'Your referral code'}
                 </label>
                 <div className="font-mono text-sm font-bold text-green-800 bg-green-50 border border-green-100 rounded-xl px-4 py-2.5">
                   {code || '—'}
@@ -167,10 +193,10 @@ export default function StudentReferralPage() {
               </div>
               <p className="text-xs text-slate-400">
                 {ja
-                  ? 'このリンクを友人にシェアしてください。登録時に自動的にあなたの紹介として記録されます。'
+                  ? 'このリンクを通じて登録した学生は自動的に貴機関の紹介として記録されます。'
                   : bn
-                  ? 'এই লিংকটি বন্ধুদের সাথে শেয়ার করুন। নিবন্ধনের সময় স্বয়ংক্রিয়ভাবে আপনার রেফারেল হিসেবে রেকর্ড হবে।'
-                  : 'Share this link with friends. When they register, it is automatically recorded as your referral.'}
+                  ? 'এই লিংকের মাধ্যমে নিবন্ধিত শিক্ষার্থীরা স্বয়ংক্রিয়ভাবে আপনার রেফারেল হিসেবে রেকর্ড হবে।'
+                  : 'Students who register via this link are automatically recorded as your institution\'s referrals.'}
               </p>
             </div>
           )}
@@ -180,14 +206,14 @@ export default function StudentReferralPage() {
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
             <h3 className="font-bold text-slate-900 text-sm">
-              {ja ? '私の紹介一覧' : bn ? 'আমার রেফারেলসমূহ' : 'My Referrals'}
+              {ja ? '紹介一覧' : bn ? 'রেফারেল তালিকা' : 'My Referrals'}
             </h3>
             <span className="text-xs font-semibold text-slate-400">
               {referrals.length} {ja ? '件' : bn ? 'জন' : 'total'}
             </span>
           </div>
 
-          {referralsLoading ? (
+          {isLoading ? (
             <div className="text-center py-10 text-slate-400 text-sm">
               {ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}
             </div>
@@ -198,7 +224,7 @@ export default function StudentReferralPage() {
                 {ja ? 'まだ紹介がありません' : bn ? 'এখনো কোনো রেফারেল নেই' : 'No referrals yet'}
               </div>
               <div className="text-xs mt-1">
-                {ja ? 'あなたの紹介リンクを友人にシェアしましょう。' : bn ? 'আপনার রেফারেল লিংক শেয়ার করুন।' : 'Share your referral link to get started.'}
+                {ja ? '紹介リンクを使って学生を紹介しましょう。' : bn ? 'রেফারেল লিংক শেয়ার করে শিক্ষার্থী রেফার করুন।' : 'Share your referral link to refer students.'}
               </div>
             </div>
           ) : (
@@ -211,6 +237,9 @@ export default function StudentReferralPage() {
                     </th>
                     <th className="px-3 py-3 text-xs font-semibold text-slate-500">
                       {ja ? '国' : bn ? 'দেশ' : 'Country'}
+                    </th>
+                    <th className="px-3 py-3 text-xs font-semibold text-slate-500">
+                      {ja ? 'ビザ種別' : bn ? 'ভিসা ক্যাটাগরি' : 'Visa Type'}
                     </th>
                     <th className="px-3 py-3 text-xs font-semibold text-slate-500">
                       {ja ? 'ステータス' : bn ? 'স্ট্যাটাস' : 'Status'}
@@ -231,6 +260,7 @@ export default function StudentReferralPage() {
                         <div className="text-xs text-slate-400 truncate max-w-[140px]">{r.email}</div>
                       </td>
                       <td className="px-3 py-3 text-sm text-slate-600">{r.target_country ?? '—'}</td>
+                      <td className="px-3 py-3 text-sm text-slate-600">{visaLabel(r.visa_category)}</td>
                       <td className="px-3 py-3">
                         <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[r.status] ?? STATUS_BADGE.pending}`}>
                           {statusLabel(r.status)}
@@ -238,9 +268,9 @@ export default function StudentReferralPage() {
                       </td>
                       <td className="px-3 py-3 text-right font-semibold text-sm">
                         {r.status === 'enrolled' ? (
-                          <span className="text-green-700">{fmtFee(r.target_country)}</span>
+                          <span className="text-green-700">{fmtFee(r.target_country, r.visa_category)}</span>
                         ) : (
-                          <span className="text-slate-400">{fmtFee(r.target_country)}</span>
+                          <span className="text-slate-400">{fmtFee(r.target_country, r.visa_category)}</span>
                         )}
                       </td>
                       <td className="px-5 py-3 text-right text-xs text-slate-400">
@@ -249,14 +279,14 @@ export default function StudentReferralPage() {
                     </tr>
                   ))}
                 </tbody>
-                {referrals.length > 0 && (
+                {earned > 0 && (
                   <tfoot>
                     <tr className="border-t border-slate-100 bg-slate-50">
-                      <td colSpan={3} className="px-5 py-3 text-xs font-semibold text-slate-500">
+                      <td colSpan={4} className="px-5 py-3 text-xs font-semibold text-slate-500">
                         {ja ? '合計獲得済み' : bn ? 'মোট অর্জিত' : 'Total earned'}
                       </td>
                       <td className="px-3 py-3 text-right font-bold text-green-700">
-                        {earned > 0 ? `৳${earned.toLocaleString()}` : '—'}
+                        ৳{earned.toLocaleString()}
                       </td>
                       <td />
                     </tr>
@@ -267,67 +297,47 @@ export default function StudentReferralPage() {
           )}
         </div>
 
-        {/* ── Fee schedule ── */}
-        {hasFees && (
+        {/* ── Fee schedule matrix ── */}
+        {feeSchedule.length > 0 && (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 text-sm">
-                {ja ? '国別コミッション一覧' : bn ? 'দেশ অনুযায়ী কমিশন' : 'Commission by Country'}
+                {ja ? '国別・ビザ種別コミッション一覧' : bn ? 'দেশ ও ভিসা অনুযায়ী কমিশন' : 'Commission Schedule'}
               </h3>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                {ja
-                  ? '入学完了時に支払われる金額です。'
-                  : bn
-                  ? 'ভর্তি সম্পন্ন হলে এই পরিমাণ কমিশন পাবেন।'
-                  : 'Amount paid on enrollment completion.'}
+                {ja ? '入学・ビザ取得完了時に支払われる金額です。' : bn ? 'ভর্তি বা ভিসা সম্পন্ন হলে পাবেন।' : 'Paid on successful visa approval and enrollment.'}
               </p>
             </div>
-            <div className="divide-y divide-slate-50">
-              {Object.entries(fees).map(([country, fee]) => (
-                <div key={country} className="flex items-center justify-between px-5 py-3">
-                  <span className="text-sm font-medium text-slate-700">{country}</span>
-                  <span className="text-sm font-bold text-green-700">৳{fee.toLocaleString()}</span>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="px-5 py-3 text-left text-xs font-semibold text-slate-500">
+                      {ja ? '国' : bn ? 'দেশ' : 'Country'}
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-semibold text-slate-500">
+                      {ja ? 'ビザ種別' : bn ? 'ভিসা ক্যাটাগরি' : 'Visa Type'}
+                    </th>
+                    <th className="px-5 py-3 text-right text-xs font-semibold text-slate-500">
+                      {ja ? 'コミッション' : bn ? 'কমিশন' : 'Commission'}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {feeSchedule.map(({ country, visa, amount }) => (
+                    <tr key={`${country}-${visa}`} className="hover:bg-slate-50">
+                      <td className="px-5 py-3 font-medium text-slate-700">{country}</td>
+                      <td className="px-3 py-3 text-slate-600">{visaLabel(visa)}</td>
+                      <td className="px-5 py-3 text-right font-bold text-green-700">
+                        ৳{amount.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
-
-        {/* ── How it works ── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
-          <h3 className="font-bold text-slate-900 text-sm mb-4">
-            {ja ? 'どのように機能するか' : bn ? 'কীভাবে কাজ করে' : 'How it works'}
-          </h3>
-          <div className="space-y-4">
-            {[
-              {
-                num: '01',
-                title: ja ? 'リンクをシェア' : bn ? 'লিংক শেয়ার করুন' : 'Share your link',
-                desc: ja ? '友人にあなたの紹介リンクを送る' : bn ? 'বন্ধুকে আপনার রেফারেল লিংক পাঠান' : 'Send your referral link to a friend',
-              },
-              {
-                num: '02',
-                title: ja ? '友人が登録' : bn ? 'বন্ধু নিবন্ধন করেন' : 'Friend registers',
-                desc: ja ? '友人がTensaiに登録し、エージェンシーとマッチング' : bn ? 'বন্ধু Tensai-এ নিবন্ধিত হন ও এজেন্সির সাথে মিলিত হন' : 'Your friend signs up and gets matched with an agency',
-              },
-              {
-                num: '03',
-                title: ja ? 'コミッション獲得' : bn ? 'কমিশন পান' : 'You earn commission',
-                desc: ja ? '友人の入学完了後、コミッションが支払われます' : bn ? 'বন্ধুর ভর্তি সম্পন্ন হলে কমিশন পাবেন' : 'After enrollment completes, your commission is paid out',
-              },
-            ].map(step => (
-              <div key={step.num} className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-green-100 text-green-800 font-bold text-xs flex items-center justify-center shrink-0">
-                  {step.num}
-                </div>
-                <div>
-                  <div className="font-semibold text-sm text-slate-900">{step.title}</div>
-                  <div className="text-xs text-slate-500 mt-0.5">{step.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
       </div>
     </DashboardLayout>

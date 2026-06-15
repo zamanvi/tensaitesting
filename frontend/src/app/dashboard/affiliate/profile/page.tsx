@@ -91,7 +91,7 @@ export default function AffiliateProfilePage() {
           {profile.affiliate_type === 'global' ? '🌐' : '🎓'}
           {profile.affiliate_type === 'global'
             ? (ja ? 'インスティテューションアフィリエイト' : bn ? 'ইনস্টিটিউশনস অ্যাফিলিয়েট' : 'Institutions Affiliate')
-            : (ja ? 'リードアフィリエイト' : bn ? 'লিডস অ্যাফিলিয়েট' : 'Leads Affiliate')}
+            : (ja ? 'スチューデントアフィリエイト' : bn ? 'স্টুডেন্ট অ্যাফিলিয়েট' : 'Student Affiliate')}
           {profile.performance_level && (
             <span className="opacity-70 capitalize">· {profile.performance_level}</span>
           )}

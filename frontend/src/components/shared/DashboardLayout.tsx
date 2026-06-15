@@ -42,8 +42,8 @@ export default function DashboardLayout({ children, title }: Props) {
   const { data: notifData } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => api.get('/notifications').then(r => r.data),
-    staleTime: 30_000,
-    refetchInterval: 60_000,
+    staleTime: 120_000,
+    refetchInterval: 120_000,
     enabled: !!mounted,
   });
   const notifications: Notification[] = notifData?.notifications ?? [];
@@ -76,6 +76,8 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: lang === 'ja' ? 'ギャラリー管理' : lang === 'bn' ? 'গ্যালারি ম্যানেজ' : 'Gallery', href: '/dashboard/admin/gallery' },
       { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার ম্যানেজ' : 'Users', href: '/dashboard/admin/users' },
       { label: lang === 'ja' ? 'エージェンシー審査' : lang === 'bn' ? 'এজেন্সি অ্যাপ্রুভাল' : 'Agency Vetting', href: '/dashboard/admin/agencies' },
+      { label: lang === 'ja' ? '機関管理' : lang === 'bn' ? 'ইনস্টিটিউশন' : 'Institutions', href: '/dashboard/admin/institutions' },
+      { label: lang === 'ja' ? 'アフィリエイト' : lang === 'bn' ? 'অ্যাফিলিয়েট' : 'Affiliates', href: '/dashboard/admin/affiliates' },
       { label: lang === 'ja' ? '支局管理' : lang === 'bn' ? 'শাখা ম্যানেজ' : 'Branches', href: '/dashboard/admin/branches' },
       { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/admin/settings' },
     ],
@@ -90,11 +92,11 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: t.nav.privateVault, href: '/dashboard/agency/vault' },
     ],
     institution: [
-      { label: t.nav.overview, href: '/dashboard/institution' },
-      { label: lang === 'ja' ? '応募一覧' : lang === 'bn' ? 'আবেদন তালিকা' : 'Applications', href: '/dashboard/institution/leads' },
-      { label: t.nav.browseStudents, href: '/dashboard/institution/browse' },
-      { label: t.nav.interviews, href: '/dashboard/institution/interviews' },
       { label: t.nav.institutionProfile, href: '/dashboard/institution/profile' },
+      { label: lang === 'ja' ? '申請一覧' : lang === 'bn' ? 'আবেদন তালিকা' : 'Applications', href: '/dashboard/institution/applications' },
+      { label: lang === 'ja' ? '選択済み' : lang === 'bn' ? 'নির্বাচিত' : 'Selected', href: '/dashboard/institution/selected' },
+      { label: lang === 'ja' ? 'アカウントマネージャー' : lang === 'bn' ? 'অ্যাকাউন্ট ম্যানেজার' : 'Account Managers', href: '/dashboard/institution/account-managers' },
+      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/institution/settings' },
     ],
     branch_admin: [
       { label: lang === 'ja' ? 'ダッシュボード' : lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard',     href: '/dashboard/branch' },
@@ -108,10 +110,11 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile & Payout', href: '/dashboard/affiliate/profile' },
       // Local-only
       ...(affiliateType === 'local' ? [
-        { label: lang === 'ja' ? '紹介学生' : lang === 'bn' ? 'স্টুডেন্টস' : 'Students', href: '/dashboard/affiliate/students' },
+        { label: lang === 'ja' ? '紹介した学生' : lang === 'bn' ? 'রেফার্ড শিক্ষার্থী' : 'Referred Students', href: '/dashboard/affiliate/students' },
       ] : []),
       // Global-only
       ...(affiliateType === 'global' ? [
+        { label: lang === 'ja' ? '紹介' : lang === 'bn' ? 'রেফারেল' : 'Referral', href: '/dashboard/affiliate/referral' },
         { label: lang === 'ja' ? '機関管理' : lang === 'bn' ? 'প্রতিষ্ঠান' : 'Institutions', href: '/dashboard/affiliate/institutions' },
         { label: lang === 'ja' ? '従業員管理' : lang === 'bn' ? 'কর্মী' : 'Employees', href: '/dashboard/affiliate/employees' },
       ] : []),
@@ -124,7 +127,29 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
   }), [lang, t, affiliateType]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!mounted || !user) return null;
+  if (!mounted || !user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        <nav className="bg-white border-b border-slate-100 sticky top-0 z-20 shadow-sm h-14 flex items-center px-4 sm:px-6 gap-4">
+          <div className="w-7 h-7 rounded-full bg-slate-200 animate-pulse shrink-0" />
+          <div className="h-4 w-16 bg-slate-200 rounded animate-pulse" />
+          <div className="flex-1 hidden md:flex gap-4">
+            {[80, 96, 72, 88].map((w, i) => (
+              <div key={i} className="h-3 bg-slate-100 rounded animate-pulse" style={{ width: w }} />
+            ))}
+          </div>
+        </nav>
+        <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8">
+          <div className="h-6 w-40 bg-slate-200 rounded animate-pulse mb-6" />
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-24 bg-white rounded-2xl border border-slate-100 animate-pulse" />
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const userInitial = user.name?.charAt(0).toUpperCase() ?? '?';
   const isAdmin = user.roles?.some(r => r === 'admin' || r === 'super_admin') ?? false;

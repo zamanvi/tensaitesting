@@ -9,40 +9,38 @@ import { useRouter } from 'next/navigation';
 
 const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500';
 
-export default function StudentSettingsPage() {
+export default function InstitutionSettingsPage() {
   const { lang } = useLang();
   const { user, fetchMe } = useAuthStore();
   const router = useRouter();
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
-  // Guard: only students
   useEffect(() => {
-    if (user && user.gateway_type !== 'student') router.replace('/dashboard');
+    if (user && user.gateway_type !== 'institution') router.replace('/dashboard');
   }, [user, router]);
 
-  // Avatar state
+  // Avatar
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarErr, setAvatarErr] = useState('');
   const [avatarSaved, setAvatarSaved] = useState(false);
 
-  // Phone state — synced from user store
+  // Phone
   const [phone, setPhone] = useState('');
   useEffect(() => { setPhone(user?.phone ?? ''); }, [user?.phone]);
   const [contactSaved, setContactSaved] = useState(false);
   const [contactErr, setContactErr] = useState('');
 
-  // Password state
+  // Password
   const [pw, setPw] = useState({ current_password: '', password: '', password_confirmation: '' });
   const [pwSaved, setPwSaved] = useState(false);
   const [pwErr, setPwErr] = useState('');
 
-  // Avatar upload
   const uploadAvatar = useMutation({
     mutationFn: (file: File) => {
       const fd = new FormData();
       fd.append('avatar', file);
-      return api.post('/student/account/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      return api.post('/institution/account/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
     },
     onSuccess: () => {
       fetchMe().catch(() => {});
@@ -69,7 +67,7 @@ export default function StudentSettingsPage() {
   }
 
   const saveContact = useMutation({
-    mutationFn: () => api.patch('/student/account', { phone }),
+    mutationFn: () => api.patch('/institution/account', { phone }),
     onSuccess: () => {
       fetchMe().catch(() => {});
       setContactSaved(true);
@@ -83,7 +81,7 @@ export default function StudentSettingsPage() {
   });
 
   const savePassword = useMutation({
-    mutationFn: () => api.patch('/student/account', pw),
+    mutationFn: () => api.patch('/institution/account', pw),
     onSuccess: () => {
       setPwSaved(true);
       setPwErr('');
@@ -124,12 +122,11 @@ export default function StudentSettingsPage() {
             {ja ? 'プロフィール写真' : bn ? 'প্রোফাইল ছবি' : 'Profile Picture'}
           </h2>
           <div className="flex items-center gap-5">
-            {/* Avatar circle */}
             <div className="shrink-0 relative">
               {avatarSrc ? (
                 <img src={avatarSrc} alt="avatar" className="w-20 h-20 rounded-full object-cover border-2 border-slate-100" />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-green-700 flex items-center justify-center text-white text-2xl font-bold select-none">
+                <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold select-none">
                   {initials}
                 </div>
               )}
@@ -180,7 +177,7 @@ export default function StudentSettingsPage() {
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
-                {ja ? '氏名' : bn ? 'নাম' : 'Name'}
+                {ja ? '機関名' : bn ? 'প্রতিষ্ঠানের নাম' : 'Institution Name'}
               </label>
               <div className="px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm text-slate-600">
                 {user?.name ?? '—'}
@@ -251,25 +248,15 @@ export default function StudentSettingsPage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1">
                 {ja ? '現在のパスワード' : bn ? 'বর্তমান পাসওয়ার্ড' : 'Current Password'}
               </label>
-              <input
-                type="password"
-                className={inputCls}
-                value={pw.current_password}
-                onChange={e => setPw(p => ({ ...p, current_password: e.target.value }))}
-                required
-              />
+              <input type="password" className={inputCls} value={pw.current_password}
+                onChange={e => setPw(p => ({ ...p, current_password: e.target.value }))} required />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
                 {ja ? '新しいパスワード' : bn ? 'নতুন পাসওয়ার্ড' : 'New Password'}
               </label>
-              <input
-                type="password"
-                className={inputCls}
-                value={pw.password}
-                onChange={e => setPw(p => ({ ...p, password: e.target.value }))}
-                required
-              />
+              <input type="password" className={inputCls} value={pw.password}
+                onChange={e => setPw(p => ({ ...p, password: e.target.value }))} required />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1">
@@ -279,8 +266,7 @@ export default function StudentSettingsPage() {
                 type="password"
                 className={`${inputCls} ${pw.password_confirmation && pw.password !== pw.password_confirmation ? 'border-red-300 focus:ring-red-400' : ''}`}
                 value={pw.password_confirmation}
-                onChange={e => setPw(p => ({ ...p, password_confirmation: e.target.value }))}
-                required
+                onChange={e => setPw(p => ({ ...p, password_confirmation: e.target.value }))} required
               />
               {pw.password_confirmation && pw.password !== pw.password_confirmation && (
                 <p className="text-[11px] text-red-500 mt-1">
