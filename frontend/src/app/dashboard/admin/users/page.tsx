@@ -47,14 +47,14 @@ export default function AdminUsersPage() {
     if (user && !isAdmin) router.replace('/dashboard/' + user.gateway_type);
   }, [user, isAdmin, router]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<UserRow[] | { data: UserRow[] }>({
     queryKey: ['admin-users'],
     queryFn: () => api.get('/admin/users').then(r => r.data),
     enabled: !!isAdmin,
     staleTime: 30_000,
   });
 
-  const users: UserRow[] = data?.data ?? data ?? [];
+  const users: UserRow[] = Array.isArray(data) ? data : (data as { data: UserRow[] })?.data ?? [];
 
   const filtered = users.filter(u => {
     if (filterType !== 'all' && u.gateway_type !== filterType) return false;

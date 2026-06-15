@@ -54,14 +54,14 @@ export default function AdminInstitutionsPage() {
   const [actionOk, setActionOk] = useState<number | null>(null);
   const [actionErr, setActionErr] = useState('');
 
-  const { data, isLoading } = useQuery<{ data: Institution[] }>({
+  const { data, isLoading } = useQuery<Institution[] | { data: Institution[] }>({
     queryKey: ['admin-institutions'],
     queryFn: () => api.get('/admin/institutions').then(r => r.data),
     enabled: !!isAdmin,
     staleTime: 30_000,
   });
 
-  const institutions: Institution[] = data?.data ?? data ?? [];
+  const institutions: Institution[] = Array.isArray(data) ? data : (data as { data: Institution[] })?.data ?? [];
 
   const filtered = institutions.filter(i => {
     if (statusFilter !== 'all' && i.status !== statusFilter) return false;
