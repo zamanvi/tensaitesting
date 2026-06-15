@@ -25,11 +25,10 @@ interface LocalDash extends DashBase {
 }
 interface GlobalDash extends DashBase {
   managed_institutions_count: number;
-  managed_employees_count: number;
   total_enrollments: number;
+  visa_approved_count: number;
   commission_percent: number;
-  recent_institutions: { id: number; name: string; country: string; status: string; total_enrollments: number }[];
-  recent_employees: { id: number; name: string; country: string; designation: string; status: string }[];
+  recent_institutions: { id: number; name: string; country: string; status: string; students_count: number; visa_approved_count: number }[];
 }
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -276,9 +275,9 @@ export default function AffiliateDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-        <Stat icon="🏫" label={ja ? '管理機関数' : bn ? 'প্রতিষ্ঠান' : 'Institutions'} value={String(d?.managed_institutions_count ?? 0)} color="amber" />
-        <Stat icon="👤" label={ja ? '従業員数' : bn ? 'কর্মী' : 'Employees'} value={String(d?.managed_employees_count ?? 0)} color="indigo" />
-        <Stat icon="🎓" label={ja ? '総入学数' : bn ? 'মোট ভর্তি' : 'Total Enroll.'} value={String(d?.total_enrollments ?? 0)} color="emerald" />
+        <Stat icon="🏫" label={ja ? '紹介機関数' : bn ? 'রেফার্ড প্রতিষ্ঠান' : 'Referred Institutions'} value={String(d?.managed_institutions_count ?? 0)} color="amber" />
+        <Stat icon="🎓" label={ja ? '登録学生数' : bn ? 'মোট শিক্ষার্থী' : 'Total Students'} value={String(d?.total_enrollments ?? 0)} color="indigo" />
+        <Stat icon="✅" label={ja ? 'ビザ承認数' : bn ? 'ভিসা অনুমোদিত' : 'Visa Approved'} value={String((d as GlobalDash)?.visa_approved_count ?? 0)} color="emerald" />
         <Stat icon="৳" label={ja ? '総収益' : bn ? 'মোট আয়' : 'Total Earned'} value={`৳${Number(d?.total_earned ?? 0).toLocaleString()}`} color="purple" />
       </div>
 
@@ -301,19 +300,18 @@ export default function AffiliateDashboard() {
       </div>
 
       {/* Quick links */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-        <QuickLink href="/dashboard/affiliate/institutions" icon="🏫" label={ja ? '機関管理' : bn ? 'প্রতিষ্ঠান' : 'Institutions'} color="amber" />
-        <QuickLink href="/dashboard/affiliate/employees" icon="👤" label={ja ? '従業員管理' : bn ? 'কর্মী' : 'Employees'} color="indigo" />
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <QuickLink href="/dashboard/affiliate/referral" icon="🔗" label={ja ? '紹介リンク' : bn ? 'রেফারেল লিংক' : 'My Referrals'} color="amber" />
         <QuickLink href="/dashboard/affiliate/commissions" icon="💳" label={ja ? '収益' : bn ? 'আয়' : 'Commissions'} color="emerald" />
         <QuickLink href="/dashboard/affiliate/profile" icon="⚙️" label={ja ? 'プロフィール' : bn ? 'প্রোফাইল' : 'Profile'} color="slate" />
       </div>
 
-      {/* Recent institutions */}
+      {/* Recent referred institutions */}
       {(d?.recent_institutions?.length ?? 0) > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 mb-4">
+        <div className="bg-white rounded-2xl border border-slate-100 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-900 text-sm">🏫 {ja ? '管理中の機関' : bn ? 'ম্যানেজড প্রতিষ্ঠান' : 'Managed Institutions'}</h2>
-            <Link href="/dashboard/affiliate/institutions" className="text-xs text-amber-600 hover:underline">{ja ? 'すべて' : bn ? 'সব দেখুন' : 'View all'} →</Link>
+            <h2 className="font-bold text-slate-900 text-sm">🏫 {ja ? '紹介した機関' : bn ? 'রেফার্ড প্রতিষ্ঠান' : 'Referred Institutions'}</h2>
+            <Link href="/dashboard/affiliate/referral" className="text-xs text-amber-600 hover:underline">{ja ? 'すべて見る' : bn ? 'সব দেখুন' : 'View all'} →</Link>
           </div>
           <div className="space-y-2">
             {d.recent_institutions.map(inst => (
@@ -321,7 +319,10 @@ export default function AffiliateDashboard() {
                 <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-lg shrink-0">🏫</div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm text-slate-900 truncate">{inst.name}</p>
-                  <p className="text-xs text-slate-400">{inst.country} · {inst.total_enrollments} {ja ? '人入学' : bn ? 'জন ভর্তি' : 'enrolled'}</p>
+                  <p className="text-xs text-slate-400">
+                    {inst.country} · {inst.students_count} {ja ? '名学生' : bn ? 'জন শিক্ষার্থী' : 'students'}
+                    {inst.visa_approved_count > 0 && ` · ${inst.visa_approved_count} ${ja ? 'ビザ承認' : bn ? 'ভিসা অনুমোদিত' : 'visa approved'}`}
+                  </p>
                 </div>
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${inst.status === 'active' ? 'bg-emerald-100 text-emerald-700' : inst.status === 'prospect' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>
                   {inst.status}
@@ -332,50 +333,19 @@ export default function AffiliateDashboard() {
         </div>
       )}
 
-      {/* Recent employees */}
-      {(d?.recent_employees?.length ?? 0) > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-100 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-slate-900 text-sm">👤 {ja ? '従業員' : bn ? 'কর্মী' : 'Employees'}</h2>
-            <Link href="/dashboard/affiliate/employees" className="text-xs text-indigo-600 hover:underline">{ja ? 'すべて' : bn ? 'সব দেখুন' : 'View all'} →</Link>
-          </div>
-          <div className="space-y-2">
-            {d.recent_employees.map(emp => (
-              <div key={emp.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold shrink-0">
-                  {emp.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-slate-900 truncate">{emp.name}</p>
-                  <p className="text-xs text-slate-400">{emp.designation} · {emp.country}</p>
-                </div>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${emp.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                  {emp.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Empty state for global with no entities */}
-      {(d?.managed_institutions_count === 0 && d?.managed_employees_count === 0) && (
+      {/* Empty state */}
+      {d?.managed_institutions_count === 0 && (
         <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-10 text-center">
-          <div className="text-4xl mb-3">🌐</div>
+          <div className="text-4xl mb-3">🔗</div>
           <p className="font-semibold text-slate-700 mb-1">
-            {ja ? '機関・従業員を追加しましょう' : bn ? 'প্রতিষ্ঠান বা কর্মী যোগ করুন' : 'Add your first institution or employee'}
+            {ja ? '機関にリンクを共有しましょう' : bn ? 'প্রতিষ্ঠানে আপনার লিংক শেয়ার করুন' : 'Share your referral link with institutions'}
           </p>
           <p className="text-xs text-slate-400 mb-4">
-            {ja ? '管理する学校または従業員を追加してコミッションを受け取り始めましょう。' : bn ? 'আপনার ম্যানেজ করা স্কুল বা কর্মী যোগ করুন এবং কমিশন অর্জন শুরু করুন।' : 'Add schools or employees you manage and start earning commissions.'}
+            {ja ? '学校がリンクから登録すると、自動的に紹介として記録されます。' : bn ? 'স্কুল আপনার লিংক দিয়ে নিবন্ধিত হলে স্বয়ংক্রিয়ভাবে রেকর্ড হবে।' : 'When schools register via your link, they are automatically recorded as your referral.'}
           </p>
-          <div className="flex justify-center gap-3">
-            <Link href="/dashboard/affiliate/institutions" className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-colors">
-              + {ja ? '機関を追加' : bn ? 'প্রতিষ্ঠান যোগ করুন' : 'Add Institution'}
-            </Link>
-            <Link href="/dashboard/affiliate/employees" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors">
-              + {ja ? '従業員を追加' : bn ? 'কর্মী যোগ করুন' : 'Add Employee'}
-            </Link>
-          </div>
+          <Link href="/dashboard/affiliate/referral" className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl transition-colors">
+            {ja ? '紹介リンクを取得' : bn ? 'রেফারেল লিংক পান' : 'Get My Referral Link'}
+          </Link>
         </div>
       )}
     </DashboardLayout>

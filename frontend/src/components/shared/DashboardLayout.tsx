@@ -115,8 +115,6 @@ export default function DashboardLayout({ children, title }: Props) {
       // Global-only
       ...(affiliateType === 'global' ? [
         { label: lang === 'ja' ? '紹介' : lang === 'bn' ? 'রেফারেল' : 'Referral', href: '/dashboard/affiliate/referral' },
-        { label: lang === 'ja' ? '機関管理' : lang === 'bn' ? 'প্রতিষ্ঠান' : 'Institutions', href: '/dashboard/affiliate/institutions' },
-        { label: lang === 'ja' ? '従業員管理' : lang === 'bn' ? 'কর্মী' : 'Employees', href: '/dashboard/affiliate/employees' },
       ] : []),
       // Both
       { label: lang === 'ja' ? 'コミッション' : lang === 'bn' ? 'কমিশন' : 'Commissions', href: '/dashboard/affiliate/commissions' },
