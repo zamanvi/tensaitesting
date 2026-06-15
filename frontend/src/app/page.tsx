@@ -355,12 +355,6 @@ export default function HomePage() {
                     >
                       {l.ctaInstitution}
                     </Link>
-                    <Link
-                      href="/auth/register?type=affiliate"
-                      className="flex-1 text-center glass-card text-white/75 hover:text-white px-4 py-3 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-amber-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-                    >
-                      {ja ? 'アフィリエイト' : bn ? 'অ্যাফিলিয়েট' : 'Affiliate'}
-                    </Link>
                   </div>
                 </div>
 
