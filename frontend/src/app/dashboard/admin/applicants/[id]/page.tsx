@@ -255,24 +255,41 @@ export default function AdminApplicantDetailPage() {
               <span className="text-[10px] text-slate-400 ml-auto font-mono">{lead.lead_code}</span>
             </div>
 
-            {/* Accept / Reject — only when submitted */}
+            {/* Accept / Reject — only when submission_status = submitted */}
             {lead.submission_status === 'submitted' && (
-              <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
-                <button
-                  onClick={() => acceptSub.mutate()}
-                  disabled={acceptSub.isPending || rejectSub.isPending}
-                  className="flex-1 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-colors">
-                  {acceptSub.isPending ? '…' : (ja ? '✓ 承認する' : bn ? '✓ গ্রহণ করুন' : '✓ Accept')}
-                </button>
-                <button
-                  onClick={() => rejectSub.mutate()}
-                  disabled={acceptSub.isPending || rejectSub.isPending}
-                  className="flex-1 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-xl disabled:opacity-50 border border-red-100 transition-colors">
-                  {rejectSub.isPending ? '…' : (ja ? '✕ 却下する' : bn ? '✕ প্রত্যাখ্যান করুন' : '✕ Reject')}
-                </button>
+              <div className="mt-4 pt-4 border-t border-slate-100">
+                <p className="text-[10px] text-slate-400 mb-2">
+                  {ja ? '承認すると学生のステータスが「進行中」になります。' : bn ? 'গ্রহণ করলে শিক্ষার্থীর স্ট্যাটাস "চলমান" হবে।' : 'Accepting marks the application as On Going for the student.'}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => acceptSub.mutate()}
+                    disabled={acceptSub.isPending || rejectSub.isPending}
+                    className="flex-1 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-colors">
+                    {acceptSub.isPending ? '…' : (ja ? '✓ 承認する' : bn ? '✓ গ্রহণ করুন' : '✓ Accept — On Going')}
+                  </button>
+                  <button
+                    onClick={() => rejectSub.mutate()}
+                    disabled={acceptSub.isPending || rejectSub.isPending}
+                    className="flex-1 py-2 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-xl disabled:opacity-50 border border-red-100 transition-colors">
+                    {rejectSub.isPending ? '…' : (ja ? '✕ 却下する' : bn ? '✕ প্রত্যাখ্যান করুন' : '✕ Reject')}
+                  </button>
+                </div>
               </div>
             )}
           </div>
+
+          {/* Submission status note */}
+          {lead.submission_status === 'submitted' && (
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-xs text-amber-800">
+              <span className="shrink-0 mt-0.5">📋</span>
+              <span>
+                {ja ? 'この申請は学生から提出されました。内容を確認して承認または却下してください。'
+                  : bn ? 'এই আবেদন শিক্ষার্থী জমা দিয়েছেন। বিষয়বস্তু যাচাই করে গ্রহণ বা প্রত্যাখ্যান করুন।'
+                  : 'Student submitted this application for review. Verify details then accept or reject.'}
+              </span>
+            </div>
+          )}
 
           {/* Application info */}
           {infoRows.length > 0 ? (

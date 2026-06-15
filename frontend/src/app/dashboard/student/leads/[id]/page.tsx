@@ -13,6 +13,7 @@ interface Lead {
   id: number;
   lead_code: string;
   status: string;
+  submission_status: 'draft' | 'submitted' | 'accepted' | 'rejected' | null;
   target_country: string | null;
   target_course: string | null;
   target_intake: string | null;
@@ -234,21 +235,23 @@ export default function StudentLeadDetailPage() {
   }
 
   const infoComplete  = !!lead.target_country;
-  const isSubmittable = lead.status === 'new';
-  const isOnGoing     = lead.status === 'accepted';
-  const isUnderReview = lead.status === 'under_review' || lead.status === 'profile_complete';
+  // State machine based on submission_status (set by backend on submit/accept/reject)
+  const isSubmittable = !lead.submission_status || lead.submission_status === 'draft';
+  const isUnderReview = lead.submission_status === 'submitted';
+  const isOnGoing     = lead.submission_status === 'accepted';
+  const isRejected    = lead.submission_status === 'rejected';
   const isSubmitted   = !isSubmittable;
-  // Docs editable when new (filling) or ongoing (accepted)
+  // Docs editable when filling (draft) or on going (accepted)
   const docsEditable  = isSubmittable || isOnGoing;
   const docsLocked    = !infoComplete || !docsEditable;
   const hasCity       = (lead.preferred_cities?.length ?? 0) > 0;
   const hasJlpt       = !!lead.jlpt_nat_score;
   const docsStarted   = Object.keys(docFiles).length > 0;
-  // 50% gate: info filled (25%) + at least one doc selected (25%)
+  // 50% gate = info complete (docs shown as checklist prep, not a server-side gate yet)
   const progressPct   = isSubmittable
-    ? (infoComplete ? 25 : 0) + (docsStarted ? 25 : 0)
+    ? (infoComplete ? 50 : 0)
     : 50;
-  const canSubmit     = isSubmittable && progressPct >= 50;
+  const canSubmit     = isSubmittable && infoComplete;
   const anythingFilled = !!(lead.target_country || lead.target_course || lead.target_intake || hasCity || lead.preferred_institution || lead.jlpt_nat_score);
 
   const docs: { key: DocKey; label: string; hint: string; required: boolean }[] = [
@@ -321,6 +324,22 @@ export default function StudentLeadDetailPage() {
             </div>
           )}
 
+          {isRejected && (
+            <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-2xl px-4 py-4 mb-5">
+              <span className="text-xl shrink-0">✕</span>
+              <div>
+                <p className="font-bold text-red-800 text-sm mb-0.5">
+                  {ja ? '申請が却下されました' : bn ? 'আবেদন প্রত্যাখ্যাত হয়েছে' : 'Application Rejected'}
+                </p>
+                <p className="text-xs text-red-700">
+                  {ja ? '詳しくはご担当者にお問い合わせください。'
+                    : bn ? 'বিস্তারিত জানতে আমাদের সাথে যোগাযোগ করুন।'
+                    : 'Please contact our team for more information.'}
+                </p>
+              </div>
+            </div>
+          )}
+
           {isOnGoing && (
             <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-2xl px-4 py-4 mb-5">
               <span className="text-xl shrink-0">🚀</span>
@@ -380,22 +399,20 @@ export default function StudentLeadDetailPage() {
                   </button>
                 </div>
 
-                {/* Docs row */}
+                {/* Docs row — visual prep checklist, not a submit gate */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${docsStarted ? 'bg-green-100 text-green-700' : infoComplete ? 'bg-slate-100 text-slate-400' : 'bg-slate-100 text-slate-300'}`}>
-                      {docsStarted ? '✓' : '2'}
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${docsStarted ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>
+                      {docsStarted ? '✓' : '📁'}
                     </span>
                     <div>
-                      <p className={`text-xs font-semibold ${infoComplete ? 'text-slate-700' : 'text-slate-400'}`}>
-                        {ja ? '書類アップロード' : bn ? 'ডকুমেন্ট আপলোড' : 'Upload documents'}
+                      <p className="text-xs font-semibold text-slate-700">
+                        {ja ? '書類を準備する' : bn ? 'ডকুমেন্ট প্রস্তুত করুন' : 'Prepare documents'}
                       </p>
                       <p className="text-[10px] text-slate-400">
-                        {!infoComplete
-                          ? (ja ? '先に情報を入力してください' : bn ? 'আগে তথ্য পূরণ করুন' : 'Fill info first')
-                          : docsStarted
-                            ? (ja ? `${Object.keys(docFiles).length}件のファイルを選択済み` : bn ? `${Object.keys(docFiles).length}টি ফাইল বেছে নেওয়া হয়েছে` : `${Object.keys(docFiles).length} file(s) selected`)
-                            : (ja ? 'パスポート・証明書など' : bn ? 'পাসপোর্ট, সার্টিফিকেট ইত্যাদি' : 'Passport, certificates, etc.')}
+                        {docsStarted
+                          ? (ja ? `${Object.keys(docFiles).length}件のファイルを選択済み` : bn ? `${Object.keys(docFiles).length}টি ফাইল বেছে নেওয়া হয়েছে` : `${Object.keys(docFiles).length} file(s) selected`)
+                          : (ja ? 'パスポート・証明書など（任意）' : bn ? 'পাসপোর্ট, সার্টিফিকেট ইত্যাদি (ঐচ্ছিক)' : 'Passport, certificates, etc. (optional now)')}
                       </p>
                     </div>
                   </div>
@@ -404,7 +421,7 @@ export default function StudentLeadDetailPage() {
                     disabled={!infoComplete}
                     className={`text-xs font-semibold shrink-0 ml-3 ${infoComplete ? 'text-green-700 hover:text-green-800' : 'text-slate-300 cursor-not-allowed'}`}
                   >
-                    {docsStarted ? (ja ? '更新' : bn ? 'আপডেট' : 'Update') : (ja ? 'アップロード' : bn ? 'আপলোড' : 'Upload')}
+                    {docsStarted ? (ja ? '更新' : bn ? 'আপডেট' : 'Update') : (ja ? '選択する' : bn ? 'বেছে নিন' : 'Select')}
                   </button>
                 </div>
               </div>
