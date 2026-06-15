@@ -172,7 +172,7 @@ export default function AdminInstitutionsPage() {
                   <div className="flex items-center gap-4 text-xs text-slate-500 shrink-0">
                     <div className="text-center hidden sm:block">
                       <div className="font-bold text-slate-700">{inst.leads_count ?? 0}</div>
-                      <div>{ja ? '紹介' : bn ? 'লিড' : 'Leads'}</div>
+                      <div>{ja ? '申請' : bn ? 'আবেদন' : 'Applications'}</div>
                     </div>
                     <div className="text-center hidden sm:block">
                       <div className="font-bold text-slate-700">{inst.referrals_count ?? 0}</div>

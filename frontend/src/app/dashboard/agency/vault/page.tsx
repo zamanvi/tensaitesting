@@ -151,7 +151,7 @@ export default function PrivateVault() {
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder={ja ? '学生名またはリードコードで検索…' : bn ? 'নাম বা লিড কোড দিয়ে খুঁজুন…' : 'Search by student name or lead code…'}
+          placeholder={ja ? '学生名または申請コードで検索…' : bn ? 'নাম বা আবেদন কোড দিয়ে খুঁজুন…' : 'Search by student name or application code…'}
           className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
         />
         <div className="flex gap-2 overflow-x-auto pb-1">
