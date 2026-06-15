@@ -75,14 +75,14 @@ export default function AdminAffiliatesPage() {
   const [actionOk, setActionOk] = useState('');
   const [actionErr, setActionErr] = useState('');
 
-  const { data, isLoading } = useQuery<{ data: AffiliateUser[] }>({
+  const { data, isLoading } = useQuery<AffiliateUser[] | { data: AffiliateUser[] }>({
     queryKey: ['admin-affiliates'],
     queryFn: () => api.get('/admin/affiliates').then(r => r.data),
     enabled: !!isAdmin,
     staleTime: 30_000,
   });
 
-  const affiliates: AffiliateUser[] = data?.data ?? data ?? [];
+  const affiliates: AffiliateUser[] = Array.isArray(data) ? data : (data as { data: AffiliateUser[] })?.data ?? [];
 
   const filtered = affiliates.filter(a => {
     if (statusFilter !== 'all' && a.status !== statusFilter) return false;
