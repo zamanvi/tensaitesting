@@ -270,22 +270,31 @@ export default function InstitutionApplicationsPage() {
               {selectingId === app.id && (
                 <div className="border-t border-indigo-100 bg-indigo-50/40 p-4 sm:p-5">
                   <p className="font-bold text-slate-800 text-sm mb-1">
-                    {ja ? '担当者の連絡先を入力してください' : bn ? 'যোগাযোগকারীর তথ্য দিন' : 'Provide your contact details'}
+                    {ja ? '担当者の連絡先を入力してください' : bn ? 'দায়িত্বশীল ব্যক্তির তথ্য দিন' : 'Who should Tensai contact?'}
                   </p>
-                  <p className="text-xs text-slate-500 mb-4">
-                    {ja
-                      ? 'Tensaiのマネージャーがこの連絡先に24時間以内にご連絡いたします。選択を確定するには以下の情報が必要です。'
-                      : bn
-                      ? 'Tensai ম্যানেজার ২৪ ঘণ্টার মধ্যে এই যোগাযোগে ফোন দেবেন। নির্বাচন নিশ্চিত করতে নিচের তথ্য আবশ্যক।'
-                      : 'A Tensai manager will contact you within 24 hours. These details are required to confirm your selection.'}
-                  </p>
+                  <div className="text-xs text-slate-500 mb-4 space-y-1">
+                    <p>
+                      {ja
+                        ? '学校内の複数のスタッフの中から、このアプリケーションを直接担当する方の情報をご入力ください。'
+                        : bn
+                        ? 'আপনার প্রতিষ্ঠানে অনেক কর্মী থাকতে পারেন — তাই যিনি এই নির্দিষ্ট আবেদনটি সরাসরি দেখাশোনা করবেন, শুধুমাত্র তাঁর তথ্য দিন।'
+                        : 'Your school may have many staff members — please provide the details of the specific person who will be directly responsible for this applicant.'}
+                    </p>
+                    <p className="text-indigo-600 font-semibold">
+                      {ja
+                        ? '⏰ Tensaiのマネージャーがこの方に24時間以内に直接ご連絡いたします。'
+                        : bn
+                        ? '⏰ Tensai ম্যানেজার এই ব্যক্তির সাথে ২৪ ঘণ্টার মধ্যে সরাসরি যোগাযোগ করবেন।'
+                        : '⏰ A Tensai manager will contact this person directly within 24 hours.'}
+                    </p>
+                  </div>
                   <form onSubmit={handleSelect} className="space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                          {ja ? '担当者名 *' : bn ? 'যোগাযোগকারীর নাম *' : 'Contact Person *'}
+                          {ja ? '担当者氏名 *' : bn ? 'দায়িত্বশীল ব্যক্তির নাম *' : 'Responsible Person Name *'}
                         </label>
-                        <input className={inputCls} placeholder={ja ? '例: 山田 太郎' : bn ? 'যেমন: রহিম উদ্দিন' : 'e.g. John Smith'}
+                        <input className={inputCls} placeholder={ja ? '例: 山田 太郎（入学担当）' : bn ? 'যেমন: রহিম উদ্দিন (অ্যাডমিশন অফিসার)' : 'e.g. John Smith (Admission Officer)'}
                           value={contact.name} onChange={e => setC('name', e.target.value)} />
                       </div>
                       <div>
