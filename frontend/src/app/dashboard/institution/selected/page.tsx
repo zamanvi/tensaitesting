@@ -49,6 +49,7 @@ export default function InstitutionSelectedPage() {
   const [form, setForm] = useState<ConnectForm>({ name: '', email: '', whatsapp: '', phone: '' });
   const [formError, setFormError] = useState('');
   const [doneId, setDoneId] = useState<number | null>(null);
+  const [unselectingId, setUnselectingId] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-selected'],
@@ -57,6 +58,14 @@ export default function InstitutionSelectedPage() {
   });
 
   const selected: SelectedApplication[] = data?.data ?? [];
+
+  const unselect = useMutation({
+    mutationFn: (id: number) => api.post(`/institution/unselect-application/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['institution-selected'] });
+      setUnselectingId(null);
+    },
+  });
 
   const connect = useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: ConnectForm }) =>
@@ -170,6 +179,38 @@ export default function InstitutionSelectedPage() {
                     {app.connect_phone && <InfoRow label={ja ? '電話' : bn ? 'ফোন' : 'Phone'} value={app.connect_phone} />}
                   </div>
                 )}
+
+                {/* Unselect */}
+                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                  <p className="text-[11px] text-slate-400">
+                    {ja
+                      ? '選択解除すると、この申請はプールに戻ります。'
+                      : bn
+                      ? 'আনসিলেক্ট করলে এই আবেদন পুলে ফিরে যাবে।'
+                      : 'Unselecting returns this application to the pool.'}
+                  </p>
+                  {unselectingId === app.id ? (
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => unselect.mutate(app.id)}
+                        disabled={unselect.isPending}
+                        className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        {unselect.isPending ? '...' : (ja ? '確認' : bn ? 'নিশ্চিত' : 'Confirm')}
+                      </button>
+                      <button onClick={() => setUnselectingId(null)} className="px-3 py-1.5 text-xs text-slate-500 border border-slate-200 rounded-lg hover:border-slate-300">
+                        {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setUnselectingId(app.id)}
+                      className="shrink-0 px-3 py-1.5 text-xs font-bold text-red-400 hover:text-red-600 border border-red-100 hover:border-red-200 rounded-lg transition-colors"
+                    >
+                      {ja ? '選択解除' : bn ? 'আনসিলেক্ট' : 'Unselect'}
+                    </button>
+                  )}
+                </div>
 
                 {/* Success message */}
                 {doneId === app.id && (
