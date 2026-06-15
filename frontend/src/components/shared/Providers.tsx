@@ -5,8 +5,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
 function AuthHydrator() {
-  // Rehydrate synchronously so the store is ready before first paint
-  useState(() => { useAuthStore.persist.rehydrate(); });
+  // Rehydrate synchronously so the store is ready before first paint.
+  // Guard against SSR where persist may be undefined.
+  useState(() => { useAuthStore.persist?.rehydrate?.(); });
   return null;
 }
 
