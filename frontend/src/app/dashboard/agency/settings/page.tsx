@@ -11,7 +11,7 @@ const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm 
 
 export default function AgencySettingsPage() {
   const { lang } = useLang();
-  const { user, setUser } = useAuthStore();
+  const { user, fetchMe } = useAuthStore();
   const router = useRouter();
   const qc = useQueryClient();
   const ja = lang === 'ja'; const bn = lang === 'bn';
@@ -27,7 +27,7 @@ export default function AgencySettingsPage() {
   const [avatarErr, setAvatarErr]         = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const currentAvatar = user?.avatar ?? null;
+  const currentAvatar = user?.avatar_url ?? null;
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -50,7 +50,7 @@ export default function AgencySettingsPage() {
     onSuccess: (res) => {
       setAvatarOk(true); setAvatarErr('');
       setAvatarFile(null);
-      if (res.data?.avatar_url && user) setUser({ ...user, avatar: res.data.avatar_url });
+      fetchMe();
       qc.invalidateQueries({ queryKey: ['agency-profile'] });
       setTimeout(() => setAvatarOk(false), 3000);
     },
