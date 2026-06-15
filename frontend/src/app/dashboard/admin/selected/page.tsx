@@ -17,7 +17,11 @@ interface SelectedApp {
   last_education: string | null;
   gpa: string | null;
   selected_at: string;
-  connected: boolean;
+  status: 'selected' | 'accepted' | 'cancelled';
+  connect_name: string | null;
+  connect_email: string | null;
+  connect_whatsapp: string | null;
+  connect_phone: string | null;
   institution: {
     id: number;
     name: string;
@@ -39,7 +43,7 @@ export default function AdminSelectedPage() {
   }, [user, isAdmin, router]);
 
   const [search, setSearch] = useState('');
-  const [connectedFilter, setConnectedFilter] = useState<'all' | 'connected' | 'pending'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'selected' | 'accepted' | 'cancelled'>('all');
   const [unselectingId, setUnselectingId] = useState<number | null>(null);
   const [actionOk, setActionOk] = useState('');
   const [actionErr, setActionErr] = useState('');
@@ -54,8 +58,7 @@ export default function AdminSelectedPage() {
   const apps: SelectedApp[] = Array.isArray(data) ? data : data?.data ?? [];
 
   const filtered = apps.filter(a => {
-    if (connectedFilter === 'connected' && !a.connected) return false;
-    if (connectedFilter === 'pending' && a.connected) return false;
+    if (statusFilter !== 'all' && a.status !== statusFilter) return false;
     if (search) {
       const s = search.toLowerCase();
       return (
@@ -101,14 +104,15 @@ export default function AdminSelectedPage() {
         />
         <div className="flex gap-2 flex-wrap">
           {[
-            { k: 'all',       label: ja ? 'すべて'    : bn ? 'সব'          : 'All' },
-            { k: 'pending',   label: ja ? '未接続'    : bn ? 'পেন্ডিং'    : 'Pending Connect' },
-            { k: 'connected', label: ja ? '接続済み'  : bn ? 'কানেক্টেড'  : 'Connected' },
+            { k: 'all',      label: ja ? 'すべて'    : bn ? 'সব'         : 'All' },
+            { k: 'selected', label: ja ? '選択済み'  : bn ? 'নির্বাচিত' : 'Selected' },
+            { k: 'accepted', label: ja ? '承認済み'  : bn ? 'গৃহীত'      : 'Accepted' },
+            { k: 'cancelled',label: ja ? 'キャンセル': bn ? 'বাতিল'      : 'Cancelled' },
           ].map(({ k, label }) => (
             <button key={k}
-              onClick={() => setConnectedFilter(k as typeof connectedFilter)}
+              onClick={() => setStatusFilter(k as typeof statusFilter)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                connectedFilter === k ? 'bg-green-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                statusFilter === k ? 'bg-green-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {label}
@@ -150,89 +154,107 @@ export default function AdminSelectedPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(app => (
-            <div key={app.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${app.connected ? 'border-emerald-200' : 'border-slate-100'}`}>
-              <div className="p-4 sm:p-5">
-                <div className="flex flex-wrap items-start gap-4">
+          {filtered.map(app => {
+            const isAccepted  = app.status === 'accepted';
+            const isCancelled = app.status === 'cancelled';
+            return (
+              <div key={app.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${
+                isAccepted ? 'border-emerald-200' : isCancelled ? 'border-slate-200 opacity-70' : 'border-indigo-100'
+              }`}>
 
-                  {/* Application info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{app.lead_code}</span>
-                      {app.connected ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
-                          ✓ {ja ? '接続済み' : bn ? 'কানেক্টেড' : 'Connected'}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                          {ja ? '未接続' : bn ? 'কানেক্ট বাকি' : 'Pending Connect'}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs mb-3">
-                      <InfoRow label={ja ? '国' : bn ? 'দেশ' : 'Country'} value={app.target_country} />
-                      {app.target_city && <InfoRow label={ja ? '都市' : bn ? 'শহর' : 'City'} value={app.target_city} />}
-                      {app.target_course && <InfoRow label={ja ? 'コース' : bn ? 'কোর্স' : 'Course'} value={app.target_course} />}
-                      {app.last_education && <InfoRow label={ja ? '学歴' : bn ? 'শিক্ষা' : 'Education'} value={app.last_education} />}
-                      {app.gpa && <InfoRow label="GPA" value={app.gpa} />}
-                      {app.target_intake && <InfoRow label={ja ? 'インテーク' : bn ? 'ইনটেক' : 'Intake'} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
-                    </div>
-
-                    <p className="text-[10px] text-slate-400">
-                      {ja ? '選択日：' : bn ? 'নির্বাচন: ' : 'Selected: '}
-                      {new Date(app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                    </p>
-                  </div>
-
-                  {/* Institution info */}
-                  <div className="shrink-0 min-w-[160px] bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs">
-                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">
-                      {ja ? '選択した機関' : bn ? 'নির্বাচনকারী প্রতিষ্ঠান' : 'Selected by'}
-                    </p>
-                    <p className="font-bold text-slate-800 truncate">{app.institution.name}</p>
-                    {app.institution.country && <p className="text-slate-500 mt-0.5">{app.institution.country}</p>}
-                    <p className="text-slate-400 truncate mt-0.5">{app.institution.email}</p>
-                  </div>
+                {/* Status bar */}
+                <div className={`px-5 py-2 flex items-center gap-2 text-xs font-semibold ${
+                  isAccepted ? 'bg-emerald-50 text-emerald-700' : isCancelled ? 'bg-slate-50 text-slate-400' : 'bg-indigo-50 text-indigo-700'
+                }`}>
+                  {isAccepted
+                    ? <>✓ {ja ? '機関が承認済み' : bn ? 'প্রতিষ্ঠান গ্রহণ করেছে' : 'Accepted by institution'}</>
+                    : isCancelled
+                    ? <>{ja ? 'キャンセル済み' : bn ? 'বাতিল করা হয়েছে' : 'Cancelled'}</>
+                    : <>{ja ? '選択済み — 承認待ち' : bn ? 'নির্বাচিত — প্রতিষ্ঠানের গ্রহণ বাকি' : 'Selected — awaiting institution acceptance'}</>
+                  }
                 </div>
 
-                {/* Unselect action */}
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                  <p className="text-[11px] text-slate-400">
-                    {ja
-                      ? '選択解除すると、この申請はプールに戻り他の機関が選択できるようになります。'
-                      : bn
-                      ? 'আনসিলেক্ট করলে এই আবেদন পুনরায় পুলে ফিরে যাবে এবং অন্য প্রতিষ্ঠান নির্বাচন করতে পারবে।'
-                      : 'Unselecting returns this application to the pool so other institutions can select it.'}
-                  </p>
-                  {unselectingId === app.id ? (
-                    <div className="flex gap-2 shrink-0">
-                      <button
-                        onClick={() => unselect.mutate(app.id)}
-                        disabled={unselect.isPending}
-                        className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
-                      >
-                        {unselect.isPending ? '...' : (ja ? '確認' : bn ? 'নিশ্চিত' : 'Confirm')}
-                      </button>
-                      <button
-                        onClick={() => setUnselectingId(null)}
-                        className="px-3 py-1.5 text-xs font-semibold text-slate-500 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
-                      >
-                        {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
-                      </button>
+                <div className="p-4 sm:p-5">
+                  <div className="flex flex-wrap items-start gap-4">
+
+                    {/* Application info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{app.lead_code}</span>
+                        <span className="text-[10px] text-slate-400">
+                          {ja ? '選択日: ' : bn ? 'নির্বাচন: ' : 'Selected: '}
+                          {new Date(app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs mb-3">
+                        <InfoRow label={ja ? '国' : bn ? 'দেশ' : 'Country'} value={app.target_country} />
+                        {app.target_city && <InfoRow label={ja ? '都市' : bn ? 'শহর' : 'City'} value={app.target_city} />}
+                        {app.target_course && <InfoRow label={ja ? 'コース' : bn ? 'কোর্স' : 'Course'} value={app.target_course} />}
+                        {app.last_education && <InfoRow label={ja ? '学歴' : bn ? 'শিক্ষা' : 'Education'} value={app.last_education} />}
+                        {app.gpa && <InfoRow label="GPA" value={app.gpa} />}
+                        {app.target_intake && <InfoRow label={ja ? 'インテーク' : bn ? 'ইনটেক' : 'Intake'} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
+                      </div>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => setUnselectingId(app.id)}
-                      className="shrink-0 px-3 py-1.5 text-xs font-bold text-red-500 hover:text-red-700 border border-red-200 hover:border-red-300 rounded-lg transition-colors"
-                    >
-                      {ja ? '選択解除' : bn ? 'আনসিলেক্ট' : 'Unselect'}
-                    </button>
+
+                    {/* Right column: institution + contact */}
+                    <div className="shrink-0 space-y-2 min-w-[180px]">
+                      {/* Institution */}
+                      <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs">
+                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">
+                          {ja ? '選択した機関' : bn ? 'নির্বাচনকারী প্রতিষ্ঠান' : 'Selected by'}
+                        </p>
+                        <p className="font-bold text-slate-800 truncate">{app.institution.name}</p>
+                        {app.institution.country && <p className="text-slate-500 mt-0.5">{app.institution.country}</p>}
+                        <p className="text-slate-400 truncate mt-0.5">{app.institution.email}</p>
+                      </div>
+                      {/* Contact info */}
+                      {(app.connect_name || app.connect_email) && (
+                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs space-y-1">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
+                            {ja ? '担当者' : bn ? 'যোগাযোগ' : 'Their Contact'}
+                          </p>
+                          {app.connect_name && <div className="flex gap-1.5"><span>👤</span><span className="text-slate-600 truncate">{app.connect_name}</span></div>}
+                          {app.connect_email && <div className="flex gap-1.5"><span>✉️</span><span className="text-slate-600 truncate">{app.connect_email}</span></div>}
+                          {app.connect_whatsapp && <div className="flex gap-1.5"><span>💬</span><span className="text-slate-600 truncate">{app.connect_whatsapp}</span></div>}
+                          {app.connect_phone && <div className="flex gap-1.5"><span>📞</span><span className="text-slate-600 truncate">{app.connect_phone}</span></div>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Admin unselect action */}
+                  {!isCancelled && (
+                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <p className="text-[11px] text-slate-400">
+                        {ja
+                          ? '選択解除すると申請はプールに戻り、他の機関が選択できます。'
+                          : bn
+                          ? 'আনসিলেক্ট করলে আবেদন পুলে ফিরে যাবে, অন্য প্রতিষ্ঠান নিতে পারবে।'
+                          : 'Unselecting returns this to the pool so other institutions can select it.'}
+                      </p>
+                      {unselectingId === app.id ? (
+                        <div className="flex gap-2 shrink-0">
+                          <button onClick={() => unselect.mutate(app.id)} disabled={unselect.isPending}
+                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
+                            {unselect.isPending ? '...' : (ja ? '確認' : bn ? 'নিশ্চিত' : 'Confirm')}
+                          </button>
+                          <button onClick={() => setUnselectingId(null)}
+                            className="px-3 py-1.5 text-xs font-semibold text-slate-500 border border-slate-200 rounded-lg">
+                            {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
+                          </button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setUnselectingId(app.id)}
+                          className="shrink-0 px-3 py-1.5 text-xs font-bold text-red-400 hover:text-red-600 border border-red-100 hover:border-red-200 rounded-lg transition-colors">
+                          {ja ? '選択解除' : bn ? 'আনসিলেক্ট' : 'Unselect'}
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </DashboardLayout>
