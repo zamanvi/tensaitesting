@@ -235,13 +235,20 @@ export default function StudentLeadDetailPage() {
 
   const infoComplete  = !!lead.target_country;
   const isSubmittable = lead.status === 'new';
+  const isOnGoing     = lead.status === 'accepted';
+  const isUnderReview = lead.status === 'under_review' || lead.status === 'profile_complete';
   const isSubmitted   = !isSubmittable;
-  const docsLocked    = !infoComplete;
+  // Docs editable when new (filling) or ongoing (accepted)
+  const docsEditable  = isSubmittable || isOnGoing;
+  const docsLocked    = !infoComplete || !docsEditable;
   const hasCity       = (lead.preferred_cities?.length ?? 0) > 0;
   const hasJlpt       = !!lead.jlpt_nat_score;
   const docsStarted   = Object.keys(docFiles).length > 0;
-  const doneCount     = (infoComplete ? 1 : 0) + (docsStarted ? 1 : 0);
-  const progressPct   = isSubmitted ? 100 : doneCount * 50;
+  // 50% gate: info filled (25%) + at least one doc selected (25%)
+  const progressPct   = isSubmittable
+    ? (infoComplete ? 25 : 0) + (docsStarted ? 25 : 0)
+    : 50;
+  const canSubmit     = isSubmittable && progressPct >= 50;
   const anythingFilled = !!(lead.target_country || lead.target_course || lead.target_intake || hasCity || lead.preferred_institution || lead.jlpt_nat_score);
 
   const docs: { key: DocKey; label: string; hint: string; required: boolean }[] = [
@@ -286,18 +293,6 @@ export default function StudentLeadDetailPage() {
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div className="mt-4 flex items-center gap-3">
-          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-green-600 rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
-          </div>
-          <span className="text-xs text-slate-500 whitespace-nowrap font-medium">
-            {isSubmitted
-              ? (ja ? '✓ 提出済み' : bn ? '✓ জমা দেওয়া হয়েছে' : '✓ Submitted')
-              : (ja ? `ステップ ${doneCount} / 2` : bn ? `ধাপ ${doneCount} / ২` : `Step ${doneCount} of 2`)}
-          </span>
-        </div>
-
         {infoSuccess && (
           <div className="mt-3 flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-100 rounded-xl px-3 py-2">
             <span>✓</span>
@@ -309,122 +304,182 @@ export default function StudentLeadDetailPage() {
       {/* ── OVERVIEW ── */}
       {activeSection === 'overview' && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-8 pt-3 mb-5">
-
-            {/* Card 1: Fill up info */}
-            <div className={`bg-white rounded-2xl border shadow-sm p-5 relative ${infoComplete ? 'border-green-200' : 'border-slate-100'}`}>
-              <div className={`absolute -top-3 left-4 text-[10px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${infoComplete ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                {infoComplete ? (ja ? '✓ 完了' : bn ? '✓ সম্পন্ন' : '✓ Complete') : (ja ? '未記入' : bn ? 'অসম্পন্ন' : 'Pending')}
+          {/* ── Status banners ── */}
+          {isUnderReview && (
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-4 mb-5">
+              <span className="text-xl shrink-0">🔍</span>
+              <div>
+                <p className="font-bold text-amber-800 text-sm mb-0.5">
+                  {ja ? '申請を受け付けました' : bn ? 'আবেদন পর্যালোচনাধীন' : 'Application under review'}
+                </p>
+                <p className="text-xs text-amber-700">
+                  {ja ? '担当者が内容を確認しています。追加情報が必要な場合は電話でご連絡します。'
+                    : bn ? 'আমাদের টিম আপনার আবেদন যাচাই করছে। প্রয়োজনে ফোনে যোগাযোগ করা হবে।'
+                    : 'Our team is reviewing your application. If anything is needed, we will contact you by phone.'}
+                </p>
               </div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-lg ${infoComplete ? 'bg-green-100' : 'bg-slate-100'}`}>📋</div>
-                <div>
-                  <p className="text-sm font-bold text-slate-800">{ja ? '情報入力' : bn ? 'তথ্য পূরণ করুন' : 'Fill up info'}</p>
-                  <p className="text-[11px] text-slate-400">{ja ? '学歴・渡航先' : bn ? 'একাডেমিক ও গন্তব্য' : 'Academic & destination'}</p>
-                </div>
-              </div>
-              <div className="space-y-2 mb-4">
-                <div className="flex items-start gap-2 text-[11px]">
-                  <span className={`flex-shrink-0 mt-0.5 font-bold ${hasJlpt ? 'text-green-600' : 'text-slate-300'}`}>{hasJlpt ? '✓' : '○'}</span>
-                  <div className="min-w-0 break-words">
-                    <span className="text-slate-500 font-semibold">{ja ? 'JLPT / NAT' : bn ? 'একাডেমিক / JLPT' : 'Academic / JLPT'}</span>
-                    <span className="text-slate-400 ml-1">— {lead.jlpt_nat_score ?? (ja ? '未入力' : bn ? 'নেই' : 'not set')}</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2 text-[11px]">
-                  <span className={`flex-shrink-0 mt-0.5 font-bold ${infoComplete ? 'text-green-600' : 'text-slate-300'}`}>{infoComplete ? '✓' : '○'}</span>
-                  <div className="min-w-0 break-words">
-                    <span className="text-slate-500 font-semibold">{ja ? '渡航先' : bn ? 'গন্তব্য' : 'Destination'}</span>
-                    <span className="text-slate-400 ml-1">
-                      — {lead.target_country
-                        ? [lead.target_country, lead.target_course, hasCity ? lead.preferred_cities!.join(', ') : null].filter(Boolean).join(' · ')
-                        : (ja ? '未入力' : bn ? 'নেই' : 'not set')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => goToSection('info')}
-                disabled={isSubmitted}
-                className={`w-full py-2.5 text-xs font-bold rounded-xl transition-colors ${isSubmitted ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-green-700 hover:bg-green-800 active:bg-green-900 text-white'}`}
-              >
-                {isSubmitted
-                  ? (ja ? '🔒 提出済み — 編集不可' : bn ? '🔒 জমা দেওয়া হয়েছে — সম্পাদনা বন্ধ' : '🔒 Submitted — editing locked')
-                  : infoComplete
-                    ? (ja ? '✎ 編集する' : bn ? '✎ সম্পাদনা করুন' : '✎ Edit info')
-                    : (ja ? '+ 入力を開始する' : bn ? '+ তথ্য পূরণ শুরু করুন' : '+ Start filling info')}
-              </button>
             </div>
+          )}
 
-            {/* Card 2: Upload docs */}
-            <div className={`bg-white rounded-2xl border shadow-sm p-5 relative ${docsLocked ? 'opacity-50 border-slate-100' : 'border-slate-100'}`}>
-              <div className={`absolute -top-3 left-4 text-[10px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${docsLocked ? 'bg-slate-100 text-slate-500 border-slate-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                {docsLocked ? (ja ? 'ロック中' : bn ? 'লক' : 'Locked') : (ja ? '未完了' : bn ? 'অসম্পন্ন' : 'Pending')}
+          {isOnGoing && (
+            <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-2xl px-4 py-4 mb-5">
+              <span className="text-xl shrink-0">🚀</span>
+              <div>
+                <p className="font-bold text-green-800 text-sm mb-0.5">
+                  {ja ? 'おめでとうございます！申請が進行中です' : bn ? 'অভিনন্দন! আবেদন চলমান রয়েছে' : 'Congratulations! Your application is On Going'}
+                </p>
+                <p className="text-xs text-green-700">
+                  {ja ? '書類を随時追加・更新できます。最新の状態を保ってください。'
+                    : bn ? 'আপনি যেকোনো সময় ডকুমেন্ট আপডেট বা যোগ করতে পারবেন। সব কিছু আপডেট রাখুন।'
+                    : 'You can still add or update documents at any time. Keep everything up to date.'}
+                </p>
               </div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-slate-100 text-lg">📁</div>
-                <div>
-                  <p className="text-sm font-bold text-slate-800">{ja ? '書類アップロード' : bn ? 'ডকুমেন্ট আপলোড' : 'Upload documents'}</p>
-                  <p className="text-[11px] text-slate-400">{ja ? 'パスポート、証明書など' : bn ? 'পাসপোর্ট, সার্টিফিকেট ইত্যাদি' : 'Passport, certs & transcripts'}</p>
+            </div>
+          )}
+
+          {/* ── Progress checklist (only when new/filling) ── */}
+          {isSubmittable && (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {ja ? '申請の準備' : bn ? 'আবেদনের প্রস্তুতি' : 'Application Checklist'}
+                </p>
+                <span className={`text-sm font-bold ${progressPct >= 50 ? 'text-green-700' : 'text-slate-400'}`}>
+                  {progressPct}%
+                </span>
+              </div>
+              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${progressPct >= 50 ? 'bg-green-500' : 'bg-amber-400'}`}
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+              <div className="space-y-3">
+                {/* Info row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${infoComplete ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-400'}`}>
+                      {infoComplete ? '✓' : '1'}
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-700">
+                        {ja ? '学歴・渡航先情報' : bn ? 'একাডেমিক ও গন্তব্য তথ্য' : 'Academic & destination info'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {infoComplete
+                          ? [lead.target_country, lead.target_course].filter(Boolean).join(' — ')
+                          : (ja ? '未入力' : bn ? 'পূরণ করা হয়নি' : 'Not filled yet')}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => goToSection('info')}
+                    className="text-xs font-semibold text-green-700 hover:text-green-800 shrink-0 ml-3"
+                  >
+                    {infoComplete ? (ja ? '編集' : bn ? 'সম্পাদনা' : 'Edit') : (ja ? '入力する' : bn ? 'পূরণ করুন' : 'Fill in')}
+                  </button>
+                </div>
+
+                {/* Docs row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${docsStarted ? 'bg-green-100 text-green-700' : infoComplete ? 'bg-slate-100 text-slate-400' : 'bg-slate-100 text-slate-300'}`}>
+                      {docsStarted ? '✓' : '2'}
+                    </span>
+                    <div>
+                      <p className={`text-xs font-semibold ${infoComplete ? 'text-slate-700' : 'text-slate-400'}`}>
+                        {ja ? '書類アップロード' : bn ? 'ডকুমেন্ট আপলোড' : 'Upload documents'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {!infoComplete
+                          ? (ja ? '先に情報を入力してください' : bn ? 'আগে তথ্য পূরণ করুন' : 'Fill info first')
+                          : docsStarted
+                            ? (ja ? `${Object.keys(docFiles).length}件のファイルを選択済み` : bn ? `${Object.keys(docFiles).length}টি ফাইল বেছে নেওয়া হয়েছে` : `${Object.keys(docFiles).length} file(s) selected`)
+                            : (ja ? 'パスポート・証明書など' : bn ? 'পাসপোর্ট, সার্টিফিকেট ইত্যাদি' : 'Passport, certificates, etc.')}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => goToSection('docs')}
+                    disabled={!infoComplete}
+                    className={`text-xs font-semibold shrink-0 ml-3 ${infoComplete ? 'text-green-700 hover:text-green-800' : 'text-slate-300 cursor-not-allowed'}`}
+                  >
+                    {docsStarted ? (ja ? '更新' : bn ? 'আপডেট' : 'Update') : (ja ? 'アップロード' : bn ? 'আপলোড' : 'Upload')}
+                  </button>
                 </div>
               </div>
-              <div className="space-y-2 mb-4">
+
+              {/* Submit button */}
+              <div className="mt-5 pt-4 border-t border-slate-100">
+                {submitErr && (
+                  <div className="mb-3 flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
+                    <span className="shrink-0">⚠️</span><span>{submitErr}</span>
+                  </div>
+                )}
+                <button
+                  onClick={() => canSubmit && submitApp.mutate()}
+                  disabled={!canSubmit || submitApp.isPending}
+                  className={`w-full py-3 rounded-xl text-sm font-bold transition-colors ${
+                    canSubmit
+                      ? 'bg-green-700 hover:bg-green-800 text-white'
+                      : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  }`}
+                >
+                  {submitApp.isPending
+                    ? (ja ? '送信中…' : bn ? 'জমা দেওয়া হচ্ছে…' : 'Submitting…')
+                    : canSubmit
+                      ? (ja ? '申請を提出する →' : bn ? 'আবেদন জমা দিন →' : 'Submit Application →')
+                      : (ja ? '50%完了後に提出できます' : bn ? '৫০% সম্পন্ন হলে জমা দিতে পারবেন' : 'Complete 50% to submit')}
+                </button>
+                {canSubmit && (
+                  <p className="text-[11px] text-slate-400 text-center mt-2">
+                    {ja ? '提出後は情報を編集できません。' : bn ? 'জমা দেওয়ার পর তথ্য পরিবর্তন করা যাবে না।' : 'Info cannot be edited after submitting.'}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Docs update section for On Going */}
+          {isOnGoing && (
+            <div className="bg-white rounded-2xl border border-green-100 shadow-sm p-5 mb-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-slate-900 text-sm">
+                  {ja ? '書類の更新' : bn ? 'ডকুমেন্ট আপডেট' : 'Update Documents'}
+                </h3>
+                <button onClick={() => goToSection('docs')} className="text-xs font-semibold text-green-700 hover:text-green-800">
+                  {ja ? '+ 追加 / 変更' : bn ? '+ যোগ / পরিবর্তন' : '+ Add / Change'}
+                </button>
+              </div>
+              <div className="space-y-2">
                 {docs.map(d => {
                   const filed = !!docFiles[d.key];
                   return (
                     <div key={d.key} className="flex items-center gap-2 text-[11px]">
-                      <span className={`flex-shrink-0 font-bold ${filed ? 'text-green-600' : 'text-slate-300'}`}>{filed ? '✓' : '○'}</span>
-                      <span className={`break-words ${filed ? 'text-slate-600' : 'text-slate-500'}`}>{d.label}</span>
-                      {!d.required && <span className="text-slate-400 flex-shrink-0">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>}
+                      <span className={`shrink-0 font-bold ${filed ? 'text-green-600' : 'text-slate-300'}`}>{filed ? '✓' : '○'}</span>
+                      <span className={filed ? 'text-slate-700' : 'text-slate-400'}>{d.label}</span>
+                      {!d.required && <span className="text-slate-400">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>}
                     </div>
                   );
                 })}
               </div>
-              <button disabled={docsLocked} onClick={() => goToSection('docs')}
-                className={`w-full py-2.5 text-xs font-bold rounded-xl transition-colors ${docsLocked ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-green-700 hover:bg-green-800 active:bg-green-900 text-white'}`}>
-                {docsLocked ? (ja ? '🔒 ステップ1を先に完了してください' : bn ? '🔒 প্রথমে ধাপ ১ সম্পন্ন করুন' : '🔒 Complete step 1 first') : (ja ? '+ 書類をアップロード' : bn ? '+ ডকুমেন্ট আপলোড করুন' : '+ Upload documents')}
-              </button>
             </div>
-          </div>
+          )}
 
-          {isSubmitted ? (
-            <div className="flex items-start gap-2.5 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-[11px] text-green-700 mb-3">
-              <span className="flex-shrink-0 mt-0.5">✓</span>
-              <span>{ja ? '申請を提出しました。管理者が審査を開始します。' : bn ? 'আবেদন জমা দেওয়া হয়েছে। অ্যাডমিন শীঘ্রই পর্যালোচনা শুরু করবেন।' : 'Application submitted — admin will begin review shortly.'}</span>
+          {/* Info note for other submitted states */}
+          {isSubmitted && !isOnGoing && !isUnderReview && (
+            <div className="flex items-start gap-2.5 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-[11px] text-slate-500 mb-5">
+              <span className="shrink-0">ℹ️</span>
+              <span>{ja ? '申請は処理中です。' : bn ? 'আবেদন প্রক্রিয়াধীন রয়েছে।' : 'Your application is being processed.'}</span>
             </div>
-          ) : infoComplete ? (
-            <div className="mb-3 space-y-2">
-              {submitErr && (
-                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
-                  <span className="shrink-0">⚠️</span><span>{submitErr}</span>
-                </div>
-              )}
-              <button
-                onClick={() => submitApp.mutate()}
-                disabled={submitApp.isPending}
-                className="w-full py-3 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
-              >
-                {submitApp.isPending
-                  ? (ja ? '送信中…' : bn ? 'জমা দেওয়া হচ্ছে…' : 'Submitting…')
-                  : (ja ? '申請を提出する →' : bn ? 'আবেদন জমা দিন →' : 'Submit Application →')}
-              </button>
-              <p className="text-[11px] text-slate-400 text-center">
-                {ja ? '提出後は情報を編集できません。' : bn ? 'জমা দেওয়ার পর তথ্য পরিবর্তন করা যাবে না।' : 'You cannot edit info after submitting.'}
-              </p>
-            </div>
-          ) : null}
-
-          <div className="flex items-start gap-2.5 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-[11px] text-slate-500 mb-5">
-            <span className="flex-shrink-0 mt-0.5">ℹ️</span>
-            <span>{ja ? '両方のセクションを完了しないと審査が開始されません。' : bn ? 'উভয় সেকশন সম্পন্ন না হলে আবেদন পর্যালোচনা শুরু হবে না।' : 'Both sections must be complete before your application can be reviewed.'}</span>
-          </div>
+          )}
 
           {/* Application summary */}
           {anythingFilled && (
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">{ja ? '申請概要' : bn ? 'আবেদনের সারসংক্ষেপ' : 'Application summary'}</p>
-                <button onClick={() => goToSection('info')} className="text-xs text-green-700 font-semibold hover:underline">{ja ? '編集' : bn ? 'সম্পাদনা' : 'Edit'}</button>
+                {isSubmittable && <button onClick={() => goToSection('info')} className="text-xs text-green-700 font-semibold hover:underline">{ja ? '編集' : bn ? 'সম্পাদনা' : 'Edit'}</button>}
               </div>
               <div className="p-5 grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-4 text-xs">
                 {([
