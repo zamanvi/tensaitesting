@@ -83,7 +83,6 @@ export default function HomePage() {
     },
     { type: 'agency',      icon: '🏢', title: l.gateways.agencyTitle,      desc: l.gateways.agencyDesc,      tag: null, featured: false },
     { type: 'institution', icon: '🏫', title: l.gateways.institutionTitle, desc: l.gateways.institutionDesc, tag: null, featured: false },
-    { type: 'affiliate',   icon: '💼', title: l.gateways.affiliateTitle,   desc: l.gateways.affiliateDesc,   tag: null, featured: false },
   ];
 
   const FEATURES = [
@@ -476,7 +475,7 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {GATEWAYS.map((g) => (
               <Link
                 key={g.type}
@@ -993,6 +992,7 @@ export default function HomePage() {
                 <Link href="/team"     className="hover:text-white/65 transition-colors">{navTeam}</Link>
                 <Link href="/gallery"  className="hover:text-white/65 transition-colors">{l.gallery}</Link>
                 <Link href="/branches" className="hover:text-white/65 transition-colors">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+                <Link href="/auth/register?type=affiliate" className="hover:text-white/65 transition-colors">{l.gateways.affiliateTitle}</Link>
                 <Link href="/terms"    className="hover:text-white/65 transition-colors">{termsText}</Link>
                 <Link href="/privacy"  className="hover:text-white/65 transition-colors">{privText}</Link>
               </div>

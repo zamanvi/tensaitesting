@@ -80,12 +80,9 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/admin/settings' },
     ],
     student: [
-      { label: t.nav.overview, href: '/dashboard/student' },
-      { label: t.nav.profile, href: '/dashboard/student/profile' },
-      { label: t.nav.applications, href: '/dashboard/student/leads' },
-      { label: t.nav.documents, href: '/dashboard/student/profile/documents' },
-      { label: lang === 'ja' ? '情報入力' : lang === 'bn' ? 'তথ্য পূরণ' : 'Fill-up Info', href: '/dashboard/student/profile/info' },
-      { label: t.nav.interviews, href: '/dashboard/student/interviews' },
+      { label: lang === 'ja' ? '申請' : lang === 'bn' ? 'আবেদন' : 'Application', href: '/dashboard/student' },
+      { label: lang === 'ja' ? '紹介' : lang === 'bn' ? 'রেফারেল' : 'Referral', href: '/dashboard/student/referral' },
+      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/student/settings' },
     ],
     agency: [
       { label: t.nav.overview, href: '/dashboard/agency' },
@@ -101,7 +98,7 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
     branch_admin: [
       { label: lang === 'ja' ? 'ダッシュボード' : lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard',     href: '/dashboard/branch' },
-      { label: lang === 'ja' ? '申請'            : lang === 'bn' ? 'আবেদন'        : 'Applications',  href: '/dashboard/branch/leads' },
+      { label: lang === 'ja' ? '申請'            : lang === 'bn' ? 'আবেদন'        : 'Applications',  href: '/dashboard/branch/applicants' },
       { label: lang === 'ja' ? 'チーム'         : lang === 'bn' ? 'টিম'           : 'Team',          href: '/dashboard/branch/team' },
       { label: lang === 'ja' ? 'ギャラリー'     : lang === 'bn' ? 'গ্যালারি'      : 'Gallery',       href: '/dashboard/branch/gallery' },
       { label: lang === 'ja' ? '設定'           : lang === 'bn' ? 'সেটিংস'        : 'Settings',      href: '/dashboard/branch/settings' },
@@ -177,7 +174,7 @@ export default function DashboardLayout({ children, title }: Props) {
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
 
-            {/* Notification bell */}
+            {/* Notification bell — desktop only; mobile uses hamburger menu bell */}
             <div className="relative hidden sm:block" ref={notifRef}>
               <button
                 onClick={() => { setNotifOpen(o => !o); if (!notifOpen && unreadCount > 0) markAllRead.mutate(); }}
@@ -321,6 +318,20 @@ export default function DashboardLayout({ children, title }: Props) {
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => { setMenuOpen(false); setNotifOpen(o => !o); if (unreadCount > 0) markAllRead.mutate(); }}
+                  className="relative p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+                  aria-label={lang === 'ja' ? '通知' : lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
+                >
+                  <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 bg-green-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
                 <Link href="/" className="text-sm text-slate-500 font-medium hover:text-green-700 transition-colors">
                   {lang === 'bn' ? 'হোম' : lang === 'ja' ? 'ホーム' : 'Home'}
                 </Link>
@@ -331,6 +342,42 @@ export default function DashboardLayout({ children, title }: Props) {
                   {t.common.logout}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile notification panel — renders below drawer when triggered from mobile bell */}
+        {notifOpen && (
+          <div className="sm:hidden border-t border-slate-100 bg-white" ref={notifRef}>
+            <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+              <span className="text-sm font-semibold text-slate-900">
+                {lang === 'ja' ? '通知' : lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
+              </span>
+              <button onClick={() => setNotifOpen(false)} className="text-slate-400 hover:text-slate-600 text-lg leading-none">×</button>
+            </div>
+            <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+              {notifications.length === 0 ? (
+                <div className="px-4 py-8 text-center text-slate-400 text-sm">
+                  {lang === 'ja' ? '通知はありません' : lang === 'bn' ? 'কোনো বিজ্ঞপ্তি নেই' : 'No notifications yet'}
+                </div>
+              ) : notifications.map((n) => (
+                <div key={n.id} className={`px-4 py-3 ${!n.is_read ? 'bg-green-50/50' : ''}`}>
+                  {n.action_url ? (
+                    <Link href={n.action_url} onClick={() => setNotifOpen(false)} className="block">
+                      <div className="text-xs font-semibold text-slate-800">{n.title}</div>
+                      <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{n.body}</div>
+                      <div className="text-[10px] text-slate-400 mt-1">{new Date(n.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}</div>
+                    </Link>
+                  ) : (
+                    <>
+                      <div className="text-xs font-semibold text-slate-800">{n.title}</div>
+                      <div className="text-xs text-slate-500 mt-0.5 leading-relaxed">{n.body}</div>
+                      <div className="text-[10px] text-slate-400 mt-1">{new Date(n.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}</div>
+                    </>
+                  )}
+                  {!n.is_read && <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full mt-1" />}
+                </div>
+              ))}
             </div>
           </div>
         )}

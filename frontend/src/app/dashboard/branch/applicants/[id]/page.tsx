@@ -86,20 +86,29 @@ const EMPTY_INFO: InfoForm = {
 type DocKey = 'passport' | 'certs' | 'lang' | 'trans';
 
 function SubmitButton({ id, qc, ja, bn }: { id: number; qc: ReturnType<typeof useQueryClient>; ja: boolean; bn: boolean }) {
+  const [submitBtnErr, setSubmitBtnErr] = useState('');
   const submit = useMutation({
     mutationFn: () => api.post(`/branch-admin/leads/${id}/submit`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['branch-lead', String(id)] });
       qc.invalidateQueries({ queryKey: ['branch-leads'] });
+      setSubmitBtnErr('');
+    },
+    onError: (e: unknown) => {
+      const ex = e as { response?: { data?: { message?: string } } };
+      setSubmitBtnErr(ex.response?.data?.message ?? 'Failed.');
     },
   });
   return (
-    <button
-      onClick={() => submit.mutate()}
-      disabled={submit.isPending}
-      className="text-[10px] font-semibold px-3 py-1 rounded-full bg-green-700 text-white hover:bg-green-800 disabled:opacity-50 transition-colors">
-      {submit.isPending ? '…' : (ja ? '提出する' : bn ? 'সাবমিট করুন' : 'Submit to Admin')}
-    </button>
+    <div className="flex flex-col items-end gap-1">
+      <button
+        onClick={() => submit.mutate()}
+        disabled={submit.isPending}
+        className="text-[10px] font-semibold px-3 py-1 rounded-full bg-green-700 text-white hover:bg-green-800 disabled:opacity-50 transition-colors">
+        {submit.isPending ? '…' : (ja ? '提出する' : bn ? 'সাবমিট করুন' : 'Submit to Admin')}
+      </button>
+      {submitBtnErr && <p className="text-[10px] text-red-500">{submitBtnErr}</p>}
+    </div>
   );
 }
 
@@ -240,7 +249,7 @@ export default function BranchApplicantDetailPage() {
         <div className="text-center py-16">
           <p className="text-4xl mb-3">🔍</p>
           <p className="text-slate-400 text-sm mb-4">{ja ? '申請が見つかりません。' : bn ? 'আবেদন পাওয়া যায়নি।' : 'Application not found.'}</p>
-          <Link href="/dashboard/branch/leads"
+          <Link href="/dashboard/branch/applicants"
             className="inline-block text-sm font-semibold text-green-700 underline underline-offset-2">
             {ja ? '← 一覧に戻る' : bn ? '← তালিকায় ফিরুন' : '← Back to list'}
           </Link>
@@ -296,8 +305,8 @@ export default function BranchApplicantDetailPage() {
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-5 flex-wrap">
-        <Link href="/dashboard/branch/leads" className="hover:text-green-700 transition-colors">
-          {ja ? '申請者一覧' : bn ? 'আবেদনকারী' : 'Applicants'}
+        <Link href="/dashboard/branch/applicants" className="hover:text-green-700 transition-colors">
+          {ja ? '申請一覧' : bn ? 'আবেদন' : 'Applications'}
         </Link>
         <span>/</span>
         <span className="font-mono text-slate-600 truncate max-w-[160px]">{lead.lead_code}</span>

@@ -28,7 +28,7 @@ export default function BranchAdminDashboard() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const isBranchAdmin = user?.roles?.includes('branch_admin') || user?.roles?.includes('branch_manager');
+  const isBranchAdmin = user?.roles?.some(r => r === 'branch_admin' || r === 'branch_manager');
 
   const [form, setForm] = useState({ phone: '', whatsapp: '', address: '' });
   const [editing, setEditing] = useState(false);
@@ -62,6 +62,7 @@ export default function BranchAdminDashboard() {
       setSaveErr('');
       setEditing(false);
       queryClient.invalidateQueries({ queryKey: ['my-branch'] });
+      queryClient.invalidateQueries({ queryKey: ['branch-settings'] });
       setTimeout(() => setSaved(false), 3000);
     },
     onError: (e: unknown) => {

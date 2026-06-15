@@ -322,7 +322,7 @@ export default function AdminBranchesPage() {
               )}
 
               <form onSubmit={e => { e.preventDefault(); setEditErr(''); editMutation.mutate(editForm); }} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">Branch Name <span className="text-red-400">*</span></label>
                     <input className={inputCls} required value={editForm.branch_name}
@@ -335,7 +335,7 @@ export default function AdminBranchesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">Username</label>
                     <input className={`${inputCls} font-mono`} type="email" placeholder="Keep existing" value={editForm.username}
@@ -348,7 +348,7 @@ export default function AdminBranchesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">Phone</label>
                     <input className={inputCls} placeholder="+880 1XXX XXXXXX" value={editForm.phone}

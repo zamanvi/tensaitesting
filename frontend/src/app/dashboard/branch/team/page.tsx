@@ -143,7 +143,7 @@ export default function BranchTeamPage() {
               {err && <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {err}</div>}
 
               <form onSubmit={e => { e.preventDefault(); save.mutate(form); }} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">{ja ? '名前' : bn ? 'নাম' : 'Name'} <span className="text-red-400">*</span></label>
                     <input className={inputCls} required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Rahim Uddin" />
@@ -157,7 +157,7 @@ export default function BranchTeamPage() {
                   <label className="block text-xs font-semibold text-slate-500 mb-1">{ja ? '自己紹介' : bn ? 'পরিচয়' : 'Bio'}</label>
                   <textarea className={`${inputCls} resize-none`} rows={2} value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder={ja ? '短い紹介文...' : bn ? 'সংক্ষিপ্ত পরিচয়...' : 'Short bio...'} />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 mb-1">{ja ? 'メール' : bn ? 'ইমেইল' : 'Email'}</label>
                     <input className={inputCls} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />

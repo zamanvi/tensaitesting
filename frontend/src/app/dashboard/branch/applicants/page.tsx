@@ -294,7 +294,7 @@ export default function BranchApplicantsPage() {
                           <button
                             onClick={e => { e.stopPropagation(); setSubmittingId(a.id); submit.mutate(a.id); }}
                             disabled={submit.isPending && submittingId === a.id}
-                            className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-700 text-white hover:bg-green-800 disabled:opacity-50 w-fit transition-colors">
+                            className="text-[10px] font-semibold px-2 py-1 rounded-full bg-green-700 text-white hover:bg-green-800 disabled:opacity-50 w-fit transition-colors">
                             {submit.isPending && submittingId === a.id ? '…' : (ja ? '送信する' : bn ? 'পাঠান' : 'Send to Admin')}
                           </button>
                         )}

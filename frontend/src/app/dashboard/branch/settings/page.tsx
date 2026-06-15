@@ -67,6 +67,7 @@ export default function BranchSettingsPage() {
     mutationFn: () => api.patch('/branch-admin/settings', { ...form, working_hours: workingHours, social_links: socialLinks }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['branch-settings'] });
+      qc.invalidateQueries({ queryKey: ['my-branch'] });
       setSaved(true);
       setSaveErr('');
       setTimeout(() => setSaved(false), 3000);
@@ -174,9 +175,9 @@ export default function BranchSettingsPage() {
             </div>
             <div className="space-y-2">
               {Object.entries(workingHours).map(([day, hours]) => (
-                <div key={day} className="flex gap-2 items-center">
-                  <input className={`${inputCls} flex-1`} value={day} placeholder="Day / Period" onChange={e => updateHourKey(day, e.target.value)} />
-                  <input className={`${inputCls} flex-1`} value={hours} placeholder="Hours" onChange={e => updateHourVal(day, e.target.value)} />
+                <div key={day} className="flex gap-2 items-center min-w-0">
+                  <input className={`${inputCls} flex-1 min-w-0`} value={day} placeholder="Day / Period" onChange={e => updateHourKey(day, e.target.value)} />
+                  <input className={`${inputCls} flex-1 min-w-0`} value={hours} placeholder="Hours" onChange={e => updateHourVal(day, e.target.value)} />
                   <button type="button" onClick={() => removeHourRow(day)} className="text-slate-300 hover:text-red-400 text-lg leading-none shrink-0">×</button>
                 </div>
               ))}
@@ -191,9 +192,9 @@ export default function BranchSettingsPage() {
             </div>
             <div className="space-y-2">
               {Object.entries(socialLinks).map(([platform, url]) => (
-                <div key={platform} className="flex gap-2 items-center">
-                  <input className={`${inputCls} w-32`} value={platform} placeholder="Platform" onChange={e => updateSocialKey(platform, e.target.value)} />
-                  <input className={`${inputCls} flex-1`} value={url} placeholder="https://..." onChange={e => updateSocialVal(platform, e.target.value)} />
+                <div key={platform} className="flex gap-2 items-center min-w-0">
+                  <input className={`${inputCls} w-28 min-w-0`} value={platform} placeholder="Platform" onChange={e => updateSocialKey(platform, e.target.value)} />
+                  <input className={`${inputCls} flex-1 min-w-0`} value={url} placeholder="https://..." onChange={e => updateSocialVal(platform, e.target.value)} />
                   <button type="button" onClick={() => removeSocialRow(platform)} className="text-slate-300 hover:text-red-400 text-lg leading-none shrink-0">×</button>
                 </div>
               ))}
