@@ -20,16 +20,18 @@ interface Lead {
 }
 
 const PIPELINE_STAGES = [
-  { key: 'new',                 en: 'New',             ja: '新規',         bn: 'নতুন' },
-  { key: 'contacted',           en: 'Contacted',       ja: '連絡済み',     bn: 'যোগাযোগ হয়েছে' },
-  { key: 'shortlisted',         en: 'Shortlisted',     ja: '選考中',       bn: 'শর্টলিস্টেড' },
-  { key: 'applied',             en: 'Applied',         ja: '申請済み',     bn: 'আবেদন হয়েছে' },
-  { key: 'interview',           en: 'Interview',       ja: '面接',         bn: 'ইন্টারভিউ' },
-  { key: 'enrolled',            en: 'Enrolled',        ja: '入学済み',     bn: 'ভর্তি হয়েছে' },
+  { key: 'new',          en: 'New',         ja: '新規',       bn: 'নতুন' },
+  { key: 'under_review', en: 'Processing',  ja: '審査中',     bn: 'প্রক্রিয়াধীন' },
+  { key: 'shortlisted',  en: 'Shortlisted', ja: '選考中',     bn: 'শর্টলিস্টেড' },
+  { key: 'applied',      en: 'Applied',     ja: '申請済み',   bn: 'আবেদন হয়েছে' },
+  { key: 'interview',    en: 'Interview',   ja: '面接',       bn: 'ইন্টারভিউ' },
+  { key: 'enrolled',     en: 'Enrolled',    ja: '入学済み',   bn: 'ভর্তি হয়েছে' },
 ];
 const PROGRESS_KEYS = PIPELINE_STAGES.map(s => s.key);
 const PROGRESS_INDEX: Record<string, number> = {
-  new: 0, contacted: 1, shortlisted: 2, applied: 3,
+  new: 0,
+  under_review: 1, profile_complete: 1,
+  shortlisted: 2, applied: 3,
   interview: 4, interview_scheduled: 4, interviewed: 4,
   offer_received: 5, visa_processing: 5, visa_approved: 5, enrolled: 5,
 };
@@ -40,7 +42,7 @@ const COUNTRIES = ['Japan', 'Canada', 'Australia', 'UK', 'Germany', 'South Korea
 const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500';
 
 export default function StudentApplicationPage() {
-  const { lang } = useLang();
+  const { t, lang } = useLang();
   const { user } = useAuthStore();
   const qc = useQueryClient();
   const router = useRouter();
@@ -155,7 +157,7 @@ export default function StudentApplicationPage() {
                   {ja ? '入学希望時期' : bn ? 'ভর্তির সময়' : 'Intake / Start Date'}
                 </label>
                 <input
-                  type="month"
+                  type="date"
                   className={inputCls}
                   value={form.target_intake}
                   onChange={e => setForm(f => ({ ...f, target_intake: e.target.value }))}
@@ -252,9 +254,8 @@ export default function StudentApplicationPage() {
           {displayed.map(lead => {
             const progIdx = PROGRESS_INDEX[lead.status] ?? -1;
             const isTerminal = TERMINAL_set.has(lead.status);
-            const statusLabel = STATUS_COLORS[lead.status as keyof typeof STATUS_COLORS]
-              ? (PIPELINE_STAGES.find(s => s.key === lead.status)?.[ja ? 'ja' : bn ? 'bn' : 'en'] ?? lead.status.replace(/_/g, ' '))
-              : lead.status.replace(/_/g, ' ');
+            const statuses = t.statuses as Record<string, string>;
+            const statusLabel = statuses[lead.status] ?? lead.status.replace(/_/g, ' ');
             return (
               <div
                 key={lead.id}

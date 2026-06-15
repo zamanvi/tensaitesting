@@ -339,7 +339,7 @@ const translations = {
     statuses: {
       new: 'New',
       profile_complete: 'Profile Complete',
-      under_review: 'Under Review',
+      under_review: 'Processing',
       shortlisted: 'Shortlisted',
       interview_scheduled: 'Interview Scheduled',
       interviewed: 'Interviewed',
@@ -777,7 +777,7 @@ const translations = {
     statuses: {
       new: '新規',
       profile_complete: 'プロフィール完成',
-      under_review: '審査中',
+      under_review: '処理中',
       shortlisted: 'ショートリスト済み',
       interview_scheduled: '面接予定',
       interviewed: '面接済み',
@@ -1215,7 +1215,7 @@ const translations = {
     statuses: {
       new: 'নতুন',
       profile_complete: 'প্রোফাইল সম্পূর্ণ',
-      under_review: 'পর্যালোচনাধীন',
+      under_review: 'প্রক্রিয়াধীন',
       shortlisted: 'শর্টলিস্টেড',
       interview_scheduled: 'ইন্টারভিউ নির্ধারিত',
       interviewed: 'ইন্টারভিউ হয়েছে',

@@ -90,13 +90,15 @@ export default function StudentLeadDetailPage() {
   const { lang } = useLang();
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
-  const isStudent = user?.roles?.includes('student');
+  const isStudent = user?.gateway_type === 'student';
   useEffect(() => {
     if (user && !isStudent) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isStudent, router]);
 
   const { data: countryData = {}, isSuccess: countriesLoaded } = useCountryData();
   const initializedLeadId = useRef<number | null>(null);
+
+  const [submitErr, setSubmitErr] = useState('');
 
   const [activeSection, setActiveSection] = useState<'overview' | 'info' | 'docs'>('overview');
   const [infoForm, setInfoForm] = useState<InfoForm>(EMPTY_INFO);
@@ -185,6 +187,19 @@ export default function StudentLeadDetailPage() {
     },
   });
 
+  const submitApp = useMutation({
+    mutationFn: () => api.post(`/student/leads/${id}/submit`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['student-lead', id] });
+      qc.invalidateQueries({ queryKey: ['student-leads'] });
+      setSubmitErr('');
+    },
+    onError: (e: unknown) => {
+      const err = e as { response?: { data?: { message?: string } } };
+      setSubmitErr(err.response?.data?.message ?? (ja ? '送信に失敗しました。' : bn ? 'জমা দিতে ব্যর্থ হয়েছে।' : 'Failed to submit.'));
+    },
+  });
+
   if (!user || !isStudent) return null;
 
   const title = lead
@@ -218,13 +233,15 @@ export default function StudentLeadDetailPage() {
     );
   }
 
-  const infoComplete = !!lead.target_country;
-  const docsLocked   = !infoComplete;
-  const hasCity      = (lead.preferred_cities?.length ?? 0) > 0;
-  const hasJlpt      = !!lead.jlpt_nat_score;
-  const docsStarted  = Object.keys(docFiles).length > 0;
-  const doneCount    = (infoComplete ? 1 : 0) + (docsStarted ? 1 : 0);
-  const progressPct  = doneCount * 50;
+  const infoComplete  = !!lead.target_country;
+  const isSubmittable = lead.status === 'new';
+  const isSubmitted   = !isSubmittable;
+  const docsLocked    = !infoComplete;
+  const hasCity       = (lead.preferred_cities?.length ?? 0) > 0;
+  const hasJlpt       = !!lead.jlpt_nat_score;
+  const docsStarted   = Object.keys(docFiles).length > 0;
+  const doneCount     = (infoComplete ? 1 : 0) + (docsStarted ? 1 : 0);
+  const progressPct   = isSubmitted ? 100 : doneCount * 50;
   const anythingFilled = !!(lead.target_country || lead.target_course || lead.target_intake || hasCity || lead.preferred_institution || lead.jlpt_nat_score);
 
   const docs: { key: DocKey; label: string; hint: string; required: boolean }[] = [
@@ -239,7 +256,7 @@ export default function StudentLeadDetailPage() {
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-5 flex-wrap">
-        <Link href="/dashboard/student/leads" className="hover:text-green-700 transition-colors">
+        <Link href="/dashboard/student" className="hover:text-green-700 transition-colors">
           {ja ? '申請一覧' : bn ? 'আবেদন' : 'Applications'}
         </Link>
         <span>/</span>
@@ -275,7 +292,9 @@ export default function StudentLeadDetailPage() {
             <div className="h-full bg-green-600 rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
           </div>
           <span className="text-xs text-slate-500 whitespace-nowrap font-medium">
-            {ja ? `ステップ ${doneCount} / 2` : bn ? `ধাপ ${doneCount} / ২` : `Step ${doneCount} of 2`}
+            {isSubmitted
+              ? (ja ? '✓ 提出済み' : bn ? '✓ জমা দেওয়া হয়েছে' : '✓ Submitted')
+              : (ja ? `ステップ ${doneCount} / 2` : bn ? `ধাপ ${doneCount} / ২` : `Step ${doneCount} of 2`)}
           </span>
         </div>
 
@@ -324,9 +343,16 @@ export default function StudentLeadDetailPage() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => goToSection('info')}
-                className="w-full py-2.5 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white text-xs font-bold rounded-xl transition-colors">
-                {infoComplete ? (ja ? '✎ 編集する' : bn ? '✎ সম্পাদনা করুন' : '✎ Edit info') : (ja ? '+ 入力を開始する' : bn ? '+ তথ্য পূরণ শুরু করুন' : '+ Start filling info')}
+              <button
+                onClick={() => goToSection('info')}
+                disabled={isSubmitted}
+                className={`w-full py-2.5 text-xs font-bold rounded-xl transition-colors ${isSubmitted ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-green-700 hover:bg-green-800 active:bg-green-900 text-white'}`}
+              >
+                {isSubmitted
+                  ? (ja ? '🔒 提出済み — 編集不可' : bn ? '🔒 জমা দেওয়া হয়েছে — সম্পাদনা বন্ধ' : '🔒 Submitted — editing locked')
+                  : infoComplete
+                    ? (ja ? '✎ 編集する' : bn ? '✎ সম্পাদনা করুন' : '✎ Edit info')
+                    : (ja ? '+ 入力を開始する' : bn ? '+ তথ্য পূরণ শুরু করুন' : '+ Start filling info')}
               </button>
             </div>
 
@@ -361,12 +387,32 @@ export default function StudentLeadDetailPage() {
             </div>
           </div>
 
-          {infoComplete && docsStarted && (
+          {isSubmitted ? (
             <div className="flex items-start gap-2.5 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-[11px] text-green-700 mb-3">
               <span className="flex-shrink-0 mt-0.5">✓</span>
-              <span>{ja ? 'この申請は完了しています。管理者が審査を開始します。' : bn ? 'এই আবেদন সম্পন্ন হয়েছে। অ্যাডমিন শীঘ্রই পর্যালোচনা শুরু করবেন।' : 'Application is complete — admin will begin review shortly.'}</span>
+              <span>{ja ? '申請を提出しました。管理者が審査を開始します。' : bn ? 'আবেদন জমা দেওয়া হয়েছে। অ্যাডমিন শীঘ্রই পর্যালোচনা শুরু করবেন।' : 'Application submitted — admin will begin review shortly.'}</span>
             </div>
-          )}
+          ) : infoComplete ? (
+            <div className="mb-3 space-y-2">
+              {submitErr && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">
+                  <span className="shrink-0">⚠️</span><span>{submitErr}</span>
+                </div>
+              )}
+              <button
+                onClick={() => submitApp.mutate()}
+                disabled={submitApp.isPending}
+                className="w-full py-3 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-50"
+              >
+                {submitApp.isPending
+                  ? (ja ? '送信中…' : bn ? 'জমা দেওয়া হচ্ছে…' : 'Submitting…')
+                  : (ja ? '申請を提出する →' : bn ? 'আবেদন জমা দিন →' : 'Submit Application →')}
+              </button>
+              <p className="text-[11px] text-slate-400 text-center">
+                {ja ? '提出後は情報を編集できません。' : bn ? 'জমা দেওয়ার পর তথ্য পরিবর্তন করা যাবে না।' : 'You cannot edit info after submitting.'}
+              </p>
+            </div>
+          ) : null}
 
           <div className="flex items-start gap-2.5 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-[11px] text-slate-500 mb-5">
             <span className="flex-shrink-0 mt-0.5">ℹ️</span>
@@ -407,7 +453,7 @@ export default function StudentLeadDetailPage() {
       )}
 
       {/* ── FILL UP INFO FORM ── */}
-      {activeSection === 'info' && (
+      {activeSection === 'info' && !isSubmitted && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-5">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <h2 className="font-bold text-slate-900 text-sm">{ja ? '情報入力' : bn ? 'তথ্য পূরণ করুন' : 'Fill up info'}</h2>
