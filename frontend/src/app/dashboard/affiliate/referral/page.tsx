@@ -4,7 +4,8 @@ import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface InstitutionReferral {
   id: number;
@@ -27,6 +28,7 @@ const STATUS_BADGE: Record<string, string> = {
 export default function AffiliateReferralPage() {
   const { lang } = useLang();
   const { user } = useAuthStore();
+  const router = useRouter();
   const qc = useQueryClient();
   const ja = lang === 'ja'; const bn = lang === 'bn';
 
@@ -34,7 +36,13 @@ export default function AffiliateReferralPage() {
   const [revealed, setRevealed] = useState(false);
 
   // Pull affiliate_code from authStore or from cached dashboard data
-  const dashCache = qc.getQueryData<{ affiliate_code?: string; affiliate_link?: string }>(['affiliate-dashboard']);
+  const dashCache = qc.getQueryData<{ affiliate_code?: string; affiliate_link?: string; affiliate_type?: string }>(['affiliate-dashboard']);
+  // Global-only — redirect local affiliates
+  useEffect(() => {
+    if (dashCache?.affiliate_type === 'local') router.replace('/dashboard/affiliate');
+    else if (user && user.gateway_type !== 'affiliate') router.replace(`/dashboard/${user.gateway_type}`);
+  }, [dashCache?.affiliate_type, user, router]);
+
   const code = dashCache?.affiliate_code ?? user?.affiliate_code ?? '';
   const referralLink = code
     ? `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/register?type=affiliate&ref=${code}`

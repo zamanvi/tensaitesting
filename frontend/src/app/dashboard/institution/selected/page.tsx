@@ -1,9 +1,11 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface SelectedApplication {
   id: number;
@@ -34,8 +36,14 @@ const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm 
 
 export default function InstitutionSelectedPage() {
   const { lang } = useLang();
+  const { user } = useAuthStore();
+  const router = useRouter();
   const qc = useQueryClient();
   const ja = lang === 'ja'; const bn = lang === 'bn';
+
+  useEffect(() => {
+    if (user && user.gateway_type !== 'institution') router.replace(`/dashboard/${user.gateway_type}`);
+  }, [user, router]);
 
   const [connectingId, setConnectingId] = useState<number | null>(null);
   const [form, setForm] = useState<ConnectForm>({ name: '', email: '', whatsapp: '', phone: '' });

@@ -7,7 +7,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500';
+const inputCls = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
 export default function InstitutionSettingsPage() {
   const { lang } = useLang();
@@ -221,7 +221,7 @@ export default function InstitutionSettingsPage() {
             <button
               type="submit"
               disabled={saveContact.isPending}
-              className="w-full py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+              className="w-full py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
             >
               {saveContact.isPending
                 ? (ja ? '保存中…' : bn ? 'সেভ হচ্ছে…' : 'Saving…')
@@ -277,7 +277,7 @@ export default function InstitutionSettingsPage() {
             <button
               type="submit"
               disabled={savePassword.isPending || !pw.current_password || !pw.password || !pw.password_confirmation || pw.password !== pw.password_confirmation}
-              className="w-full py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
+              className="w-full py-2.5 bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-50"
             >
               {savePassword.isPending
                 ? (ja ? '更新中…' : bn ? 'আপডেট হচ্ছে…' : 'Updating…')

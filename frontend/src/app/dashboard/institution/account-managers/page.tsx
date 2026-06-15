@@ -1,9 +1,11 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Manager {
   id: number;
@@ -29,8 +31,14 @@ const ROLES = ['HR Manager', 'Admission Officer', 'Admission Director', 'Coordin
 
 export default function AccountManagersPage() {
   const { lang } = useLang();
+  const { user } = useAuthStore();
+  const router = useRouter();
   const qc = useQueryClient();
   const ja = lang === 'ja'; const bn = lang === 'bn';
+
+  useEffect(() => {
+    if (user && user.gateway_type !== 'institution') router.replace(`/dashboard/${user.gateway_type}`);
+  }, [user, router]);
 
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);

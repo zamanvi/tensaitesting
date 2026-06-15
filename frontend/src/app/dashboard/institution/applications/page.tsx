@@ -1,9 +1,11 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import { useLang } from '@/context/LanguageContext';
+import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Anonymized — no student name/contact
 interface AnonApplication {
@@ -30,8 +32,14 @@ const selectCls = 'border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ou
 
 export default function InstitutionApplicationsPage() {
   const { lang } = useLang();
+  const { user } = useAuthStore();
+  const router = useRouter();
   const qc = useQueryClient();
   const ja = lang === 'ja'; const bn = lang === 'bn';
+
+  useEffect(() => {
+    if (user && user.gateway_type !== 'institution') router.replace(`/dashboard/${user.gateway_type}`);
+  }, [user, router]);
 
   const [filters, setFilters] = useState({
     education: '',
@@ -84,6 +92,21 @@ export default function InstitutionApplicationsPage() {
 
   return (
     <DashboardLayout title={title}>
+
+      {/* No profile / no country warning */}
+      {!isLoading && !institutionCountry && (
+        <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+          <span className="text-xl shrink-0">⚠️</span>
+          <div>
+            <p className="font-bold text-sm text-slate-900">
+              {ja ? '国情報が未設定です' : bn ? 'দেশের তথ্য নেই' : 'Country not set in your profile'}
+            </p>
+            <p className="text-xs text-slate-600 mt-0.5">
+              {ja ? 'プロフィールで国を設定してください。国が一致する申請のみ表示されます。' : bn ? 'প্রোফাইলে আপনার দেশ সেট করুন। শুধুমাত্র ম্যাচিং দেশের আবেদন দেখা যাবে।' : 'Set your country in Profile first. Only applications matching your country will be shown.'}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Match info banner */}
       {(institutionCountry || institutionCity) && (
