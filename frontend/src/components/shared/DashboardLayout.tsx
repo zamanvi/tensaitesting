@@ -89,8 +89,10 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
     agency: [
       { label: t.nav.overview, href: '/dashboard/agency' },
+      { label: lang === 'ja' ? '申請を追加' : lang === 'bn' ? 'আবেদন যোগ করুন' : 'Add Application', href: '/dashboard/agency/add-application' },
+      { label: lang === 'ja' ? 'マイアプリケーション' : lang === 'bn' ? 'আমার আবেদন' : 'My Applications', href: '/dashboard/agency/vault' },
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Agency Profile', href: '/dashboard/agency/profile' },
-      { label: t.nav.privateVault, href: '/dashboard/agency/vault' },
+      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/agency/settings' },
     ],
     institution: [
       { label: t.nav.institutionProfile, href: '/dashboard/institution/profile' },
