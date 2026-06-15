@@ -25,9 +25,8 @@ interface LocalDash extends DashBase {
 }
 interface GlobalDash extends DashBase {
   managed_institutions_count: number;
-  total_enrollments: number;
+  selected_students_count: number;
   visa_approved_count: number;
-  commission_percent: number;
   recent_institutions: { id: number; name: string; country: string; status: string; students_count: number; visa_approved_count: number }[];
 }
 
@@ -276,8 +275,8 @@ export default function AffiliateDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         <Stat icon="🏫" label={ja ? '紹介機関数' : bn ? 'রেফার্ড প্রতিষ্ঠান' : 'Referred Institutions'} value={String(d?.managed_institutions_count ?? 0)} color="amber" />
-        <Stat icon="🎓" label={ja ? '登録学生数' : bn ? 'মোট শিক্ষার্থী' : 'Total Students'} value={String(d?.total_enrollments ?? 0)} color="indigo" />
-        <Stat icon="✅" label={ja ? 'ビザ承認数' : bn ? 'ভিসা অনুমোদিত' : 'Visa Approved'} value={String((d as GlobalDash)?.visa_approved_count ?? 0)} color="emerald" />
+        <Stat icon="🎓" label={ja ? '選択された学生' : bn ? 'সিলেক্টেড শিক্ষার্থী' : 'Selected Students'} value={String(d?.selected_students_count ?? 0)} color="indigo" />
+        <Stat icon="✅" label={ja ? 'ビザ承認数' : bn ? 'ভিসা অনুমোদিত' : 'Visa Approved'} value={String(d?.visa_approved_count ?? 0)} color="emerald" />
         <Stat icon="৳" label={ja ? '総収益' : bn ? 'মোট আয়' : 'Total Earned'} value={`৳${Number(d?.total_earned ?? 0).toLocaleString()}`} color="purple" />
       </div>
 
@@ -286,15 +285,15 @@ export default function AffiliateDashboard() {
         <ReferralHero affiliateCode={d.affiliate_code} affiliateLink={d.affiliate_link} pendingPayout={d.pending_payout} copied={copied} onCopy={copyLink} lang={lang} />
       )}
 
-      {/* Commission info */}
+      {/* Commission info — read-only, rates are set by admin per country/visa/intake */}
       <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-5 flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl shrink-0">💰</div>
         <div>
           <p className="font-bold text-sm text-slate-900">
-            {ja ? `入学1件につき ${d?.commission_percent ?? 0}%コミッション` : bn ? `প্রতি ভর্তিতে ${d?.commission_percent ?? 0}% কমিশন` : `${d?.commission_percent ?? 0}% commission per enrollment`}
+            {ja ? 'コミッションはAdminが設定します' : bn ? 'কমিশন অ্যাডমিন কর্তৃক নির্ধারিত' : 'Commission rates set by admin'}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">
-            {ja ? '管理する機関への学生入学ごとに収益を得ます。' : bn ? 'আপনার ম্যানেজ করা প্রতিষ্ঠানে শিক্ষার্থী ভর্তি হলে কমিশন পাবেন।' : 'Earned each time a student enrolls at one of your managed institutions.'}
+            {ja ? '国・ビザ種別・期ごとに設定された料金で、ビザ承認ごとにコミッションが発生します。' : bn ? 'দেশ, ভিসা ক্যাটাগরি ও ইনটেক অনুযায়ী নির্ধারিত হারে ভিসা অনুমোদন হলে কমিশন পাবেন।' : 'Rates are configured per country, visa type, and intake period. You earn commission each time a referred student gets visa approved.'}
           </p>
         </div>
       </div>

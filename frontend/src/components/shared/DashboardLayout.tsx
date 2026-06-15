@@ -118,6 +118,7 @@ export default function DashboardLayout({ children, title }: Props) {
       ] : []),
       // Both
       { label: lang === 'ja' ? 'コミッション' : lang === 'bn' ? 'কমিশন' : 'Commissions', href: '/dashboard/affiliate/commissions' },
+      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/affiliate/settings' },
       // Local upgrade link
       ...(affiliateType === 'local' ? [
         { label: lang === 'ja' ? 'グローバルへ' : lang === 'bn' ? 'আপগ্রেড' : 'Upgrade', href: '/dashboard/affiliate/upgrade' },
