@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class BranchResource extends Resource
@@ -192,7 +193,10 @@ class BranchResource extends Resource
 
                 Tables\Columns\TextColumn::make('manager_name')
                     ->label('Manager (Login Username)')
-                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('name'))
+                    ->getStateUsing(fn (Branch $r) => DB::table('users')
+                        ->where('branch_id', $r->id)
+                        ->where('gateway_type', 'branch')
+                        ->value('name'))
                     ->placeholder('⚠ No manager')
                     ->badge()
                     ->color('success')
@@ -201,7 +205,10 @@ class BranchResource extends Resource
 
                 Tables\Columns\TextColumn::make('manager_password')
                     ->label('Password')
-                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('manager_plain_password'))
+                    ->getStateUsing(fn (Branch $r) => DB::table('users')
+                        ->where('branch_id', $r->id)
+                        ->where('gateway_type', 'branch')
+                        ->value('manager_plain_password'))
                     ->placeholder('—')
                     ->copyable()
                     ->copyMessage('Password copied!')
@@ -211,14 +218,20 @@ class BranchResource extends Resource
 
                 Tables\Columns\TextColumn::make('manager_phone')
                     ->label('Phone')
-                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('phone'))
+                    ->getStateUsing(fn (Branch $r) => DB::table('users')
+                        ->where('branch_id', $r->id)
+                        ->where('gateway_type', 'branch')
+                        ->value('phone'))
                     ->placeholder('—')
                     ->copyable()
                     ->icon('heroicon-o-phone'),
 
                 Tables\Columns\TextColumn::make('manager_whatsapp')
                     ->label('WhatsApp')
-                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('whatsapp'))
+                    ->getStateUsing(fn (Branch $r) => DB::table('users')
+                        ->where('branch_id', $r->id)
+                        ->where('gateway_type', 'branch')
+                        ->value('whatsapp'))
                     ->placeholder('—')
                     ->copyable()
                     ->icon('heroicon-o-chat-bubble-left-ellipsis'),

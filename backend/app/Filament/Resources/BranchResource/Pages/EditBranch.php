@@ -27,7 +27,7 @@ class EditBranch extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return 'Branch saved successfully';
+        return 'Branch updated successfully';
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
