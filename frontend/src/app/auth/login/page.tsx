@@ -160,9 +160,9 @@ export default function LoginPage() {
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">{a.email}</label>
                 <input
-                  type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                  type="text" value={email} onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
-                  placeholder="you@example.com" required
+                  placeholder="Email or manager name" required
                 />
               </div>
               <div>

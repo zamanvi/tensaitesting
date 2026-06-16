@@ -64,17 +64,11 @@ class BranchResource extends Resource
                 ->description('Manager will log in with their email and password.')
                 ->schema([
                     Forms\Components\TextInput::make('manager_name')
-                        ->label('Manager Name')
+                        ->label('Manager Name (Login Username)')
                         ->required()
                         ->maxLength(255)
-                        ->helperText('This name will be used as the manager\'s display name on the system.')
-                        ->dehydrated(false),
-
-                    Forms\Components\TextInput::make('manager_email')
-                        ->label('Manager Email (Login Username)')
-                        ->email()
-                        ->required()
-                        ->unique('users', 'email')
+                        ->helperText('Manager logs in with this name + password. Must be unique.')
+                        ->unique('users', 'name')
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_password')
@@ -187,15 +181,6 @@ class BranchResource extends Resource
                         ->afterStateHydrated(function ($component, $record) {
                             $admin = $record?->admins()->first();
                             $component->state($admin?->name ?? '');
-                        }),
-
-                    Forms\Components\TextInput::make('manager_email_edit')
-                        ->label('Manager Email (Login Username)')
-                        ->email()
-                        ->dehydrated(false)
-                        ->afterStateHydrated(function ($component, $record) {
-                            $admin = $record?->admins()->first();
-                            $component->state($admin?->email ?? '');
                         }),
 
                     Forms\Components\TextInput::make('manager_password_edit')
