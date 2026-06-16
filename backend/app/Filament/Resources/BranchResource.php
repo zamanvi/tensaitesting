@@ -142,35 +142,46 @@ class BranchResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->description(fn (Branch $r) => $r->city . ', ' . $r->country),
+                    ->description(fn (Branch $r) => trim($r->city . ', ' . $r->country, ', ')),
 
-                Tables\Columns\TextColumn::make('phone')->placeholder('—'),
-                Tables\Columns\TextColumn::make('email')->placeholder('—'),
+                Tables\Columns\TextColumn::make('admins.name')
+                    ->label('Manager')
+                    ->placeholder('⚠ No manager')
+                    ->badge()
+                    ->color('success')
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('phone')
+                    ->placeholder('—')
+                    ->copyable()
+                    ->icon('heroicon-o-phone'),
+
+                Tables\Columns\TextColumn::make('email')
+                    ->placeholder('—')
+                    ->copyable()
+                    ->icon('heroicon-o-envelope'),
+
+                Tables\Columns\TextColumn::make('whatsapp')
+                    ->label('WhatsApp')
+                    ->placeholder('—')
+                    ->copyable()
+                    ->icon('heroicon-o-chat-bubble-left-ellipsis'),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean(),
 
                 Tables\Columns\TextColumn::make('access_link')
-                    ->label('Access Link')
+                    ->label('Login Link')
                     ->getStateUsing(fn () => rtrim(config('app.frontend_url', config('app.url')), '/') . '/auth/login')
                     ->copyable()
                     ->copyMessage('Login URL copied!')
                     ->color('primary')
                     ->icon('heroicon-o-link'),
 
-                Tables\Columns\TextColumn::make('admins_count')
-                    ->label('Admins')
-                    ->counts('admins')
-                    ->badge()
-                    ->color(fn (int $state) => $state === 0 ? 'danger' : 'success'),
-
-                Tables\Columns\TextColumn::make('sort_order')
-                    ->label('Order')
-                    ->sortable(),
-
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Created')
+                    ->dateTime('d M Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
