@@ -270,9 +270,7 @@ class BranchResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            \App\Filament\Resources\BranchResource\RelationManagers\AdminsRelationManager::class,
-        ];
+        return [];
     }
 
     public static function getPages(): array
