@@ -138,7 +138,7 @@ class BranchResource extends Resource
                         ->helperText('Manager logs in with this name + password.')
                         ->dehydrated(false)
                         ->afterStateHydrated(function ($component, $record) {
-                            $admin = $record?->admins()->first();
+                            $admin = $record?->admins()->where('gateway_type', 'branch')->first();
                             $component->state($admin?->name ?? '');
                         }),
 
@@ -169,7 +169,7 @@ class BranchResource extends Resource
                         ->placeholder('+880 1XXX-XXXXXX')
                         ->dehydrated(false)
                         ->afterStateHydrated(function ($component, $record) {
-                            $admin = $record?->admins()->first();
+                            $admin = $record?->admins()->where('gateway_type', 'branch')->first();
                             $component->state($admin?->phone ?? '');
                         }),
 
@@ -178,7 +178,7 @@ class BranchResource extends Resource
                         ->placeholder('8801XXXXXXXXX')
                         ->dehydrated(false)
                         ->afterStateHydrated(function ($component, $record) {
-                            $admin = $record?->admins()->first();
+                            $admin = $record?->admins()->where('gateway_type', 'branch')->first();
                             $component->state($admin?->whatsapp ?? '');
                         }),
                 ])

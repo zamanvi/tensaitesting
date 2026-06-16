@@ -18,7 +18,7 @@ class CreateBranch extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $data = $this->data;
+        $data = $this->form->getState();
         $branch = $this->record;
 
         if (empty($data['manager_name']) || empty($data['manager_password'])) {
