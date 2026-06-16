@@ -144,12 +144,6 @@ class BranchResource extends Resource
                     ->weight('bold')
                     ->description(fn (Branch $r) => $r->city . ', ' . $r->country),
 
-                Tables\Columns\TextColumn::make('slug')
-                    ->label('URL Slug')
-                    ->prefix('/branches/')
-                    ->copyable()
-                    ->color('gray'),
-
                 Tables\Columns\TextColumn::make('phone')->placeholder('—'),
                 Tables\Columns\TextColumn::make('email')->placeholder('—'),
 
