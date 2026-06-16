@@ -238,18 +238,13 @@ class BranchResource extends Resource
                     ->description(fn (Branch $r) => trim($r->city . ', ' . $r->country, ', ')),
 
                 Tables\Columns\TextColumn::make('admins.name')
-                    ->label('Manager')
+                    ->label('Manager (Login Username)')
                     ->placeholder('⚠ No manager')
                     ->badge()
                     ->color('success')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('admins.email')
-                    ->label('Login Email')
-                    ->placeholder('—')
                     ->copyable()
-                    ->copyMessage('Email copied!')
-                    ->icon('heroicon-o-envelope'),
+                    ->copyMessage('Username copied!')
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('admins.manager_plain_password')
                     ->label('Password')
