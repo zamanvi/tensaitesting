@@ -136,11 +136,7 @@ class BranchResource extends Resource
                     Forms\Components\TextInput::make('manager_name_edit')
                         ->label('Manager Name (Login Username)')
                         ->helperText('Manager logs in with this name + password.')
-                        ->dehydrated(false)
-                        ->afterStateHydrated(function ($component, $record) {
-                            $admin = $record?->admins()->where('gateway_type', 'branch')->first();
-                            $component->state($admin?->name ?? '');
-                        }),
+                        ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_password_edit')
                         ->label('Password')
@@ -167,20 +163,12 @@ class BranchResource extends Resource
                     Forms\Components\TextInput::make('manager_phone_edit')
                         ->label('Phone')
                         ->placeholder('+880 1XXX-XXXXXX')
-                        ->dehydrated(false)
-                        ->afterStateHydrated(function ($component, $record) {
-                            $admin = $record?->admins()->where('gateway_type', 'branch')->first();
-                            $component->state($admin?->phone ?? '');
-                        }),
+                        ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_whatsapp_edit')
                         ->label('WhatsApp')
                         ->placeholder('8801XXXXXXXXX')
-                        ->dehydrated(false)
-                        ->afterStateHydrated(function ($component, $record) {
-                            $admin = $record?->admins()->where('gateway_type', 'branch')->first();
-                            $component->state($admin?->whatsapp ?? '');
-                        }),
+                        ->dehydrated(false),
                 ])
                 ->columns(2)
                 ->visibleOn('edit'),

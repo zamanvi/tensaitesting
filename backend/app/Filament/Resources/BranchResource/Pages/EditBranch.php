@@ -18,6 +18,17 @@ class EditBranch extends EditRecord
         return [Actions\DeleteAction::make()];
     }
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $admin = $this->record->admins()->where('gateway_type', 'branch')->first();
+        if ($admin) {
+            $data['manager_name_edit']     = $admin->name;
+            $data['manager_phone_edit']    = $admin->phone ?? '';
+            $data['manager_whatsapp_edit'] = $admin->whatsapp ?? '';
+        }
+        return $data;
+    }
+
     protected function afterSave(): void
     {
         $data = $this->form->getState();
