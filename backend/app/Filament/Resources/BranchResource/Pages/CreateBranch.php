@@ -10,6 +10,11 @@ class CreateBranch extends CreateRecord
 {
     protected static string $resource = BranchResource::class;
 
+    protected function getCreateAnotherFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCreateAnotherFormAction()->hidden();
+    }
+
     protected function afterCreate(): void
     {
         $data = $this->data;

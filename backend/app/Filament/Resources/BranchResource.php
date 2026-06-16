@@ -67,7 +67,7 @@ class BranchResource extends Resource
                         ->label('Manager Name')
                         ->required()
                         ->maxLength(255)
-                        ->helperText('This name will appear in the branches table.')
+                        ->helperText('This name will be used as the manager\'s display name on the system.')
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_email')
