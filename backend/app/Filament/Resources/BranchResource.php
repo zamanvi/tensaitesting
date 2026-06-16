@@ -143,16 +143,14 @@ class BranchResource extends Resource
                     Forms\Components\TextInput::make('manager_name_edit')
                         ->label('Manager Name (Login Username)')
                         ->helperText('Manager logs in with this name + password.')
-                        ->autocomplete('off')
-                        ->dehydrated(false),
+                        ->autocomplete('off'),
 
                     Forms\Components\TextInput::make('manager_password_edit')
                         ->label('Password')
                         ->password()
                         ->revealable()
                         ->helperText('Leave blank to keep current password.')
-                        ->autocomplete('new-password')
-                        ->dehydrated(false),
+                        ->autocomplete('new-password'),
 
                     Forms\Components\TextInput::make('manager_password_edit_confirmation')
                         ->label('Confirm Password')
@@ -160,7 +158,6 @@ class BranchResource extends Resource
                         ->revealable()
                         ->helperText('Must match new password if changing.')
                         ->autocomplete('new-password')
-                        ->dehydrated(false)
                         ->rules([
                             fn (\Filament\Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
                                 $newPass = $get('manager_password_edit');
@@ -172,13 +169,11 @@ class BranchResource extends Resource
 
                     Forms\Components\TextInput::make('manager_phone_edit')
                         ->label('Phone')
-                        ->placeholder('+880 1XXX-XXXXXX')
-                        ->dehydrated(false),
+                        ->placeholder('+880 1XXX-XXXXXX'),
 
                     Forms\Components\TextInput::make('manager_whatsapp_edit')
                         ->label('WhatsApp')
-                        ->placeholder('8801XXXXXXXXX')
-                        ->dehydrated(false),
+                        ->placeholder('8801XXXXXXXXX'),
                 ])
                 ->columns(2)
                 ->visibleOn('edit'),

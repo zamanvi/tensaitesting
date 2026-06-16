@@ -13,6 +13,8 @@ class EditBranch extends EditRecord
 {
     protected static string $resource = BranchResource::class;
 
+    private array $managerData = [];
+
     protected function getHeaderActions(): array
     {
         return [Actions\DeleteAction::make()];
@@ -39,34 +41,54 @@ class EditBranch extends EditRecord
         return $data;
     }
 
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Capture manager fields before they reach the Branch model
+        $this->managerData = [
+            'name'     => $data['manager_name_edit'] ?? null,
+            'password' => $data['manager_password_edit'] ?? null,
+            'phone'    => $data['manager_phone_edit'] ?? null,
+            'whatsapp' => $data['manager_whatsapp_edit'] ?? null,
+        ];
+
+        // Strip manager fields — Branch model has no these columns
+        unset(
+            $data['manager_name_edit'],
+            $data['manager_password_edit'],
+            $data['manager_password_edit_confirmation'],
+            $data['manager_phone_edit'],
+            $data['manager_whatsapp_edit'],
+        );
+
+        return $data;
+    }
+
     protected function afterSave(): void
     {
-        $data = $this->form->getState();
         $branch = $this->record;
+        $data   = $this->managerData;
 
         $admin = $branch->admins()->where('id', '!=', auth()->id())->first();
 
         if (!$admin) {
-            // No manager yet — create one if name + password provided
-            if (!empty($data['manager_name_edit']) && !empty($data['manager_password_edit'])) {
-                $baseEmail = Str::slug($data['manager_name_edit']) . '@branch.tensai.jp';
+            if (!empty($data['name']) && !empty($data['password'])) {
+                $baseEmail = Str::slug($data['name']) . '@branch.tensai.jp';
                 $email = $baseEmail;
                 $i = 1;
                 while (User::where('email', $email)->exists()) {
-                    $email = Str::slug($data['manager_name_edit']) . $i . '@branch.tensai.jp';
+                    $email = Str::slug($data['name']) . $i . '@branch.tensai.jp';
                     $i++;
                 }
-
                 $user = User::create([
-                    'name'                   => $data['manager_name_edit'],
+                    'name'                   => $data['name'],
                     'email'                  => $email,
-                    'password'               => Hash::make($data['manager_password_edit']),
+                    'password'               => Hash::make($data['password']),
                     'gateway_type'           => 'branch',
                     'status'                 => 'active',
                     'branch_id'              => $branch->id,
-                    'phone'                  => $data['manager_phone_edit'] ?? null,
-                    'whatsapp'               => $data['manager_whatsapp_edit'] ?? null,
-                    'manager_plain_password' => $data['manager_password_edit'],
+                    'phone'                  => $data['phone'] ?? null,
+                    'whatsapp'               => $data['whatsapp'] ?? null,
+                    'manager_plain_password' => $data['password'],
                     'email_verified_at'      => now(),
                 ]);
                 $user->assignRole('branch_admin');
@@ -74,16 +96,14 @@ class EditBranch extends EditRecord
             return;
         }
 
-        // Update existing manager
         $updates = [];
+        if (!empty($data['name']))     $updates['name']     = $data['name'];
+        if (!empty($data['phone']))    $updates['phone']    = $data['phone'];
+        if (!empty($data['whatsapp'])) $updates['whatsapp'] = $data['whatsapp'];
 
-        if (!empty($data['manager_name_edit']))    $updates['name']     = $data['manager_name_edit'];
-        if (!empty($data['manager_phone_edit']))   $updates['phone']    = $data['manager_phone_edit'];
-        if (!empty($data['manager_whatsapp_edit'])) $updates['whatsapp'] = $data['manager_whatsapp_edit'];
-
-        if (!empty($data['manager_password_edit'])) {
-            $updates['password']               = Hash::make($data['manager_password_edit']);
-            $updates['manager_plain_password'] = $data['manager_password_edit'];
+        if (!empty($data['password'])) {
+            $updates['password']               = Hash::make($data['password']);
+            $updates['manager_plain_password'] = $data['password'];
         }
 
         if (!empty($updates)) {
