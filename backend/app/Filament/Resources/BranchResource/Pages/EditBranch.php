@@ -7,6 +7,7 @@ use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class EditBranch extends EditRecord
 {
@@ -25,11 +26,19 @@ class EditBranch extends EditRecord
         $admin = $branch->admins()->first();
 
         if (!$admin) {
-            // No manager yet — create one if name+email+password provided
-            if (!empty($data['manager_name_edit']) && !empty($data['manager_email_edit']) && !empty($data['manager_password_edit'])) {
+            // No manager yet — create one if name + password provided
+            if (!empty($data['manager_name_edit']) && !empty($data['manager_password_edit'])) {
+                $baseEmail = Str::slug($data['manager_name_edit']) . '@branch.tensai.jp';
+                $email = $baseEmail;
+                $i = 1;
+                while (User::where('email', $email)->exists()) {
+                    $email = Str::slug($data['manager_name_edit']) . $i . '@branch.tensai.jp';
+                    $i++;
+                }
+
                 $user = User::create([
                     'name'                   => $data['manager_name_edit'],
-                    'email'                  => $data['manager_email_edit'],
+                    'email'                  => $email,
                     'password'               => Hash::make($data['manager_password_edit']),
                     'gateway_type'           => 'branch',
                     'status'                 => 'active',
@@ -48,7 +57,6 @@ class EditBranch extends EditRecord
         $updates = [];
 
         if (!empty($data['manager_name_edit']))    $updates['name']     = $data['manager_name_edit'];
-        if (!empty($data['manager_email_edit']))   $updates['email']    = $data['manager_email_edit'];
         if (!empty($data['manager_phone_edit']))   $updates['phone']    = $data['manager_phone_edit'];
         if (!empty($data['manager_whatsapp_edit'])) $updates['whatsapp'] = $data['manager_whatsapp_edit'];
 
