@@ -108,91 +108,37 @@ class BranchResource extends Resource
                 ->columns(2)
                 ->visibleOn('create'),
 
-            // ── EDIT: full detail form ──────────────────────────────────────
-            Forms\Components\Section::make('Branch Identity')->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) =>
-                        $set('slug', Str::slug($state))),
+            // ── EDIT: same clean 2-section layout as create ────────────────
+            Forms\Components\Section::make('Branch Info')
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->label('Branch Name')
+                        ->required()
+                        ->maxLength(255)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn ($state, callable $set) =>
+                            $set('slug', Str::slug($state))),
 
-                Forms\Components\TextInput::make('slug')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->helperText('Auto-generated. Used in URL: /branches/dhaka'),
+                    Forms\Components\Hidden::make('slug')
+                        ->dehydrateStateUsing(fn ($state, $get) => $state ?: Str::slug($get('name'))),
 
-                Forms\Components\TextInput::make('tagline')
-                    ->placeholder('e.g. Your gateway to Japan from Dhaka')
-                    ->maxLength(255),
+                    Forms\Components\TextInput::make('city')
+                        ->required()
+                        ->placeholder('e.g. Dhaka'),
 
-                Forms\Components\Textarea::make('description')
-                    ->rows(4)
-                    ->columnSpanFull(),
+                    Forms\Components\TextInput::make('country')
+                        ->required()
+                        ->default('Bangladesh'),
+                ])
+                ->columns(2)
+                ->visibleOn('edit'),
 
-                Forms\Components\TextInput::make('city')->required()->placeholder('e.g. Dhaka'),
-                Forms\Components\TextInput::make('country')->default('Bangladesh'),
-            ])->columns(2)->visibleOn('edit'),
-
-            Forms\Components\Section::make('Contact Information')->schema([
-                Forms\Components\TextInput::make('address')->columnSpanFull(),
-                Forms\Components\TextInput::make('phone')->placeholder('+880 1XXX-XXXXXX'),
-                Forms\Components\TextInput::make('email')->email()->placeholder('branch@tensai.jp'),
-                Forms\Components\TextInput::make('whatsapp')->label('WhatsApp')->placeholder('8801XXXXXXXXX'),
-                Forms\Components\TextInput::make('google_maps_url')->label('Google Maps URL')->url(),
-            ])->columns(2)->visibleOn('edit'),
-
-            Forms\Components\Section::make('Branding')->schema([
-                Forms\Components\FileUpload::make('logo')
-                    ->image()
-                    ->disk(app()->environment('production') ? 'r2' : 'public')
-                    ->directory('branches/logos')
-                    ->visibility('public')
-                    ->maxSize(2048)
-                    ->label('Branch Logo')
-                    ->helperText('Recommended: 400×400px, PNG/JPG, max 2 MB'),
-
-                Forms\Components\FileUpload::make('cover_image')
-                    ->image()
-                    ->disk(app()->environment('production') ? 'r2' : 'public')
-                    ->directory('branches/covers')
-                    ->visibility('public')
-                    ->maxSize(5120)
-                    ->label('Cover Image')
-                    ->helperText('Recommended: 1200×400px, JPG, max 5 MB'),
-            ])->columns(2)->visibleOn('edit'),
-
-            Forms\Components\Section::make('Working Hours')->schema([
-                Forms\Components\KeyValue::make('working_hours')
-                    ->keyLabel('Day / Period')->valueLabel('Hours')
-                    ->default(['Mon - Fri' => '9:00 AM – 6:00 PM', 'Saturday' => '10:00 AM – 2:00 PM', 'Sunday' => 'Closed'])
-                    ->columnSpanFull(),
-            ])->visibleOn('edit'),
-
-            Forms\Components\Section::make('Social Links')->schema([
-                Forms\Components\KeyValue::make('social_links')
-                    ->keyLabel('Platform')->valueLabel('URL')
-                    ->columnSpanFull(),
-            ])->visibleOn('edit'),
-
-            Forms\Components\Section::make('Branch Stats')->schema([
-                Forms\Components\KeyValue::make('stats')
-                    ->keyLabel('Label')->valueLabel('Value')
-                    ->default(['Students Placed' => '0', 'Years Active' => '1', 'Visa Success Rate' => '95%'])
-                    ->columnSpanFull(),
-            ])->visibleOn('edit'),
-
-            Forms\Components\Section::make('Status')->schema([
-                Forms\Components\Toggle::make('is_active')->label('Active (visible on website)')->default(true),
-                Forms\Components\TextInput::make('sort_order')->numeric()->default(0)->label('Sort Order'),
-            ])->columns(2)->visibleOn('edit'),
-
-            Forms\Components\Section::make('Branch Manager')
+            Forms\Components\Section::make('Manager Account')
                 ->description('Update manager credentials. Leave password blank to keep existing.')
                 ->schema([
                     Forms\Components\TextInput::make('manager_name_edit')
-                        ->label('Manager Name')
-                        ->helperText('This name will be used as the manager\'s display name on the system.')
+                        ->label('Manager Name (Login Username)')
+                        ->helperText('Manager logs in with this name + password.')
                         ->dehydrated(false)
                         ->afterStateHydrated(function ($component, $record) {
                             $admin = $record?->admins()->first();
@@ -200,14 +146,30 @@ class BranchResource extends Resource
                         }),
 
                     Forms\Components\TextInput::make('manager_password_edit')
-                        ->label('New Password')
+                        ->label('Password')
                         ->password()
                         ->revealable()
                         ->helperText('Leave blank to keep current password.')
                         ->dehydrated(false),
 
+                    Forms\Components\TextInput::make('manager_password_edit_confirmation')
+                        ->label('Confirm Password')
+                        ->password()
+                        ->revealable()
+                        ->helperText('Must match new password if changing.')
+                        ->dehydrated(false)
+                        ->rules([
+                            fn (\Filament\Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                $newPass = $get('manager_password_edit');
+                                if ($newPass && $value !== $newPass) {
+                                    $fail('Passwords do not match.');
+                                }
+                            },
+                        ]),
+
                     Forms\Components\TextInput::make('manager_phone_edit')
                         ->label('Phone')
+                        ->placeholder('+880 1XXX-XXXXXX')
                         ->dehydrated(false)
                         ->afterStateHydrated(function ($component, $record) {
                             $admin = $record?->admins()->first();
@@ -216,6 +178,7 @@ class BranchResource extends Resource
 
                     Forms\Components\TextInput::make('manager_whatsapp_edit')
                         ->label('WhatsApp')
+                        ->placeholder('8801XXXXXXXXX')
                         ->dehydrated(false)
                         ->afterStateHydrated(function ($component, $record) {
                             $admin = $record?->admins()->first();
