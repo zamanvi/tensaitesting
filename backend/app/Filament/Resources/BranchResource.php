@@ -66,6 +66,7 @@ class BranchResource extends Resource
                         ->maxLength(255)
                         ->helperText('Manager logs in with this name + password. Must be unique.')
                         ->unique('users', 'name')
+                        ->autocomplete('off')
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_password')
@@ -75,6 +76,7 @@ class BranchResource extends Resource
                         ->required()
                         ->minLength(6)
                         ->helperText('Copy and send to manager manually.')
+                        ->autocomplete('new-password')
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_password_confirmation')
@@ -83,6 +85,7 @@ class BranchResource extends Resource
                         ->revealable()
                         ->required()
                         ->minLength(6)
+                        ->autocomplete('new-password')
                         ->dehydrated(false)
                         ->rules([
                             fn (\Filament\Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
@@ -136,6 +139,7 @@ class BranchResource extends Resource
                     Forms\Components\TextInput::make('manager_name_edit')
                         ->label('Manager Name (Login Username)')
                         ->helperText('Manager logs in with this name + password.')
+                        ->autocomplete('off')
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_password_edit')
@@ -143,6 +147,7 @@ class BranchResource extends Resource
                         ->password()
                         ->revealable()
                         ->helperText('Leave blank to keep current password.')
+                        ->autocomplete('new-password')
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_password_edit_confirmation')
@@ -150,6 +155,7 @@ class BranchResource extends Resource
                         ->password()
                         ->revealable()
                         ->helperText('Must match new password if changing.')
+                        ->autocomplete('new-password')
                         ->dehydrated(false)
                         ->rules([
                             fn (\Filament\Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
@@ -185,17 +191,18 @@ class BranchResource extends Resource
                     ->weight('bold')
                     ->description(fn (Branch $r) => trim($r->city . ', ' . $r->country, ', ')),
 
-                Tables\Columns\TextColumn::make('admins.name')
+                Tables\Columns\TextColumn::make('manager_name')
                     ->label('Manager (Login Username)')
+                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('name'))
                     ->placeholder('⚠ No manager')
                     ->badge()
                     ->color('success')
                     ->copyable()
-                    ->copyMessage('Username copied!')
-                    ->searchable(),
+                    ->copyMessage('Username copied!'),
 
-                Tables\Columns\TextColumn::make('admins.manager_plain_password')
+                Tables\Columns\TextColumn::make('manager_password')
                     ->label('Password')
+                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('manager_plain_password'))
                     ->placeholder('—')
                     ->copyable()
                     ->copyMessage('Password copied!')
@@ -203,14 +210,16 @@ class BranchResource extends Resource
                     ->formatStateUsing(fn ($state) => $state ? '••••••' : '—')
                     ->tooltip(fn ($state) => $state),
 
-                Tables\Columns\TextColumn::make('admins.phone')
+                Tables\Columns\TextColumn::make('manager_phone')
                     ->label('Phone')
+                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('phone'))
                     ->placeholder('—')
                     ->copyable()
                     ->icon('heroicon-o-phone'),
 
-                Tables\Columns\TextColumn::make('admins.whatsapp')
+                Tables\Columns\TextColumn::make('manager_whatsapp')
                     ->label('WhatsApp')
+                    ->getStateUsing(fn (Branch $r) => $r->admins()->value('whatsapp'))
                     ->placeholder('—')
                     ->copyable()
                     ->icon('heroicon-o-chat-bubble-left-ellipsis'),
