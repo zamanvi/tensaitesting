@@ -71,7 +71,8 @@ class EditBranch extends EditRecord
                 $updates['manager_plain_password'] = $managerPassword;
             }
             if (!empty($updates)) {
-                User::where('id', $admin->id)->update($updates);
+                $updates['updated_at'] = now();
+                DB::table('users')->where('id', $admin->id)->update($updates);
             }
         } elseif (!empty($managerName) && !empty($managerPassword)) {
             $baseEmail = Str::slug($managerName) . '@branch.tensai.jp';
