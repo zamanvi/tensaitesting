@@ -178,18 +178,49 @@ class BranchResource extends Resource
             ])->columns(2)->visibleOn('edit'),
 
             Forms\Components\Section::make('Branch Manager')
-                ->description('Manager account assigned to this branch.')
+                ->description('Update manager credentials. Leave password blank to keep existing.')
                 ->schema([
-                    Forms\Components\Placeholder::make('admin_info')
-                        ->label('Assigned Manager')
-                        ->content(function ($record) {
-                            if (!$record) return 'Save the branch first.';
-                            $admin = $record->admins()->first();
-                            if (!$admin) return '⚠️ No manager assigned yet.';
-                            return "✅ {$admin->name} ({$admin->email}) — Status: {$admin->status}";
-                        })
-                        ->columnSpanFull(),
+                    Forms\Components\TextInput::make('manager_name_edit')
+                        ->label('Manager Name')
+                        ->helperText('This name will be used as the manager\'s display name on the system.')
+                        ->dehydrated(false)
+                        ->afterStateHydrated(function ($component, $record) {
+                            $admin = $record?->admins()->first();
+                            $component->state($admin?->name ?? '');
+                        }),
+
+                    Forms\Components\TextInput::make('manager_email_edit')
+                        ->label('Manager Email (Login Username)')
+                        ->email()
+                        ->dehydrated(false)
+                        ->afterStateHydrated(function ($component, $record) {
+                            $admin = $record?->admins()->first();
+                            $component->state($admin?->email ?? '');
+                        }),
+
+                    Forms\Components\TextInput::make('manager_password_edit')
+                        ->label('New Password')
+                        ->password()
+                        ->helperText('Leave blank to keep current password.')
+                        ->dehydrated(false),
+
+                    Forms\Components\TextInput::make('manager_phone_edit')
+                        ->label('Phone')
+                        ->dehydrated(false)
+                        ->afterStateHydrated(function ($component, $record) {
+                            $admin = $record?->admins()->first();
+                            $component->state($admin?->phone ?? '');
+                        }),
+
+                    Forms\Components\TextInput::make('manager_whatsapp_edit')
+                        ->label('WhatsApp')
+                        ->dehydrated(false)
+                        ->afterStateHydrated(function ($component, $record) {
+                            $admin = $record?->admins()->first();
+                            $component->state($admin?->whatsapp ?? '');
+                        }),
                 ])
+                ->columns(2)
                 ->visibleOn('edit'),
         ]);
     }
