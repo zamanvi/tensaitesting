@@ -78,7 +78,6 @@ class BranchResource extends Resource
                         ->required()
                         ->minLength(6)
                         ->helperText('Copy and send to manager manually.')
-                        ->same('manager_password_confirmation')
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_password_confirmation')
@@ -87,7 +86,14 @@ class BranchResource extends Resource
                         ->revealable()
                         ->required()
                         ->minLength(6)
-                        ->dehydrated(false),
+                        ->dehydrated(false)
+                        ->rules([
+                            fn (\Filament\Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                if ($value !== $get('manager_password')) {
+                                    $fail('Passwords do not match.');
+                                }
+                            },
+                        ]),
 
                     Forms\Components\TextInput::make('manager_phone')
                         ->label('Phone')
