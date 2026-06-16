@@ -20,7 +20,7 @@ class EditBranch extends EditRecord
 
     protected function afterSave(): void
     {
-        $data = $this->data;
+        $data = $this->form->getState();
         $branch = $this->record;
 
         $admin = $branch->admins()->first();
