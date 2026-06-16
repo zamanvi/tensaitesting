@@ -61,7 +61,7 @@ class BranchResource extends Resource
                 ->visibleOn('create'),
 
             Forms\Components\Section::make('Manager Account')
-                ->description('Manager will log in with their email and password.')
+                ->description('Manager will log in with their name and password.')
                 ->schema([
                     Forms\Components\TextInput::make('manager_name')
                         ->label('Manager Name (Login Username)')
@@ -74,9 +74,19 @@ class BranchResource extends Resource
                     Forms\Components\TextInput::make('manager_password')
                         ->label('Password')
                         ->password()
+                        ->revealable()
                         ->required()
                         ->minLength(6)
                         ->helperText('Copy and send to manager manually.')
+                        ->same('manager_password_confirmation')
+                        ->dehydrated(false),
+
+                    Forms\Components\TextInput::make('manager_password_confirmation')
+                        ->label('Confirm Password')
+                        ->password()
+                        ->revealable()
+                        ->required()
+                        ->minLength(6)
                         ->dehydrated(false),
 
                     Forms\Components\TextInput::make('manager_phone')
@@ -186,6 +196,7 @@ class BranchResource extends Resource
                     Forms\Components\TextInput::make('manager_password_edit')
                         ->label('New Password')
                         ->password()
+                        ->revealable()
                         ->helperText('Leave blank to keep current password.')
                         ->dehydrated(false),
 
