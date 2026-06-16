@@ -23,7 +23,7 @@ class EditBranch extends EditRecord
         $data = $this->form->getState();
         $branch = $this->record;
 
-        $admin = $branch->admins()->first();
+        $admin = $branch->admins()->where('gateway_type', 'branch')->first();
 
         if (!$admin) {
             // No manager yet — create one if name + password provided
