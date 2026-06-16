@@ -16,6 +16,16 @@ class CreateBranch extends CreateRecord
         return parent::getCreateAnotherFormAction()->hidden();
     }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Branch created successfully';
+    }
+
     protected function afterCreate(): void
     {
         $data = $this->form->getState();

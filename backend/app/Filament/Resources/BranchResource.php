@@ -34,6 +34,7 @@ class BranchResource extends Resource
 
             // ── CREATE: simple 2-section form ──────────────────────────────
             Forms\Components\Section::make('Branch Info')
+                ->key('branch-info-create')
                 ->schema([
                     Forms\Components\TextInput::make('name')
                         ->label('Branch Name')
@@ -58,6 +59,7 @@ class BranchResource extends Resource
                 ->visibleOn('create'),
 
             Forms\Components\Section::make('Manager Account')
+                ->key('manager-account-create')
                 ->description('Manager will log in with their name and password.')
                 ->schema([
                     Forms\Components\TextInput::make('manager_name')
@@ -110,6 +112,7 @@ class BranchResource extends Resource
 
             // ── EDIT: same clean 2-section layout as create ────────────────
             Forms\Components\Section::make('Branch Info')
+                ->key('branch-info-edit')
                 ->schema([
                     Forms\Components\TextInput::make('name')
                         ->label('Branch Name')
@@ -134,6 +137,7 @@ class BranchResource extends Resource
                 ->visibleOn('edit'),
 
             Forms\Components\Section::make('Manager Account')
+                ->key('manager-account-edit')
                 ->description('Update manager credentials. Leave password blank to keep existing.')
                 ->schema([
                     Forms\Components\TextInput::make('manager_name_edit')
