@@ -47,15 +47,13 @@ class Branch extends Model
     public function admins()
     {
         return $this->hasMany(User::class)
-            ->where('gateway_type', 'branch')
-            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['branch_admin', 'branch_manager']));
+            ->where('gateway_type', 'branch');
     }
 
     public function managers()
     {
         return $this->hasMany(User::class)
-            ->where('gateway_type', 'branch')
-            ->whereHas('roles', fn ($q) => $q->where('name', 'branch_manager'));
+            ->where('gateway_type', 'branch');
     }
 
     // ── Computed URLs ──────────────────────────────────────────────────────────

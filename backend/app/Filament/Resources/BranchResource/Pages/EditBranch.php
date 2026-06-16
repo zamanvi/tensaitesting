@@ -20,7 +20,7 @@ class EditBranch extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $admin = $this->record->admins()->where('gateway_type', 'branch')->first();
+        $admin = $this->record->admins()->first();
         if ($admin) {
             $data['manager_name_edit']     = $admin->name;
             $data['manager_phone_edit']    = $admin->phone ?? '';
@@ -34,7 +34,7 @@ class EditBranch extends EditRecord
         $data = $this->form->getState();
         $branch = $this->record;
 
-        $admin = $branch->admins()->where('gateway_type', 'branch')->first();
+        $admin = $branch->admins()->first();
 
         if (!$admin) {
             // No manager yet — create one if name + password provided
