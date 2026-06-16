@@ -31,8 +31,74 @@ class BranchResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $isCreate = $form->getOperation() === 'create';
+
         return $form->schema([
 
+            // ── CREATE: simple 2-section form ──────────────────────────────
+            Forms\Components\Section::make('Branch Info')
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->label('Branch Name')
+                        ->required()
+                        ->maxLength(255)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn ($state, callable $set) =>
+                            $set('slug', Str::slug($state))),
+
+                    Forms\Components\Hidden::make('slug')
+                        ->dehydrateStateUsing(fn ($state, $get) => $state ?: Str::slug($get('name'))),
+
+                    Forms\Components\TextInput::make('city')
+                        ->required()
+                        ->placeholder('e.g. Dhaka'),
+
+                    Forms\Components\TextInput::make('country')
+                        ->required()
+                        ->default('Bangladesh'),
+                ])
+                ->columns(2)
+                ->visibleOn('create'),
+
+            Forms\Components\Section::make('Manager Account')
+                ->description('Manager will log in with their email and password.')
+                ->schema([
+                    Forms\Components\TextInput::make('manager_name')
+                        ->label('Manager Name')
+                        ->required()
+                        ->maxLength(255)
+                        ->helperText('This name will appear in the branches table.')
+                        ->dehydrated(false),
+
+                    Forms\Components\TextInput::make('manager_email')
+                        ->label('Manager Email (Login Username)')
+                        ->email()
+                        ->required()
+                        ->unique('users', 'email')
+                        ->dehydrated(false),
+
+                    Forms\Components\TextInput::make('manager_password')
+                        ->label('Password')
+                        ->password()
+                        ->required()
+                        ->minLength(6)
+                        ->helperText('Copy and send to manager manually.')
+                        ->dehydrated(false),
+
+                    Forms\Components\TextInput::make('manager_phone')
+                        ->label('Phone')
+                        ->placeholder('+880 1XXX-XXXXXX')
+                        ->dehydrated(false),
+
+                    Forms\Components\TextInput::make('manager_whatsapp')
+                        ->label('WhatsApp')
+                        ->placeholder('8801XXXXXXXXX')
+                        ->dehydrated(false),
+                ])
+                ->columns(2)
+                ->visibleOn('create'),
+
+            // ── EDIT: full detail form ──────────────────────────────────────
             Forms\Components\Section::make('Branch Identity')->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
@@ -55,16 +121,16 @@ class BranchResource extends Resource
                     ->columnSpanFull(),
 
                 Forms\Components\TextInput::make('city')->required()->placeholder('e.g. Dhaka'),
-                Forms\Components\TextInput::make('country')->default('Bangladesh')->placeholder('e.g. Bangladesh'),
-            ])->columns(2),
+                Forms\Components\TextInput::make('country')->default('Bangladesh'),
+            ])->columns(2)->visibleOn('edit'),
 
             Forms\Components\Section::make('Contact Information')->schema([
                 Forms\Components\TextInput::make('address')->columnSpanFull(),
                 Forms\Components\TextInput::make('phone')->placeholder('+880 1XXX-XXXXXX'),
                 Forms\Components\TextInput::make('email')->email()->placeholder('branch@tensai.jp'),
-                Forms\Components\TextInput::make('whatsapp')->label('WhatsApp Number')->placeholder('8801XXXXXXXXX')->helperText('International format without +'),
-                Forms\Components\TextInput::make('google_maps_url')->label('Google Maps URL')->url()->placeholder('https://maps.google.com/...'),
-            ])->columns(2),
+                Forms\Components\TextInput::make('whatsapp')->label('WhatsApp')->placeholder('8801XXXXXXXXX'),
+                Forms\Components\TextInput::make('google_maps_url')->label('Google Maps URL')->url(),
+            ])->columns(2)->visibleOn('edit'),
 
             Forms\Components\Section::make('Branding')->schema([
                 Forms\Components\FileUpload::make('logo')
@@ -84,48 +150,42 @@ class BranchResource extends Resource
                     ->maxSize(5120)
                     ->label('Cover Image')
                     ->helperText('Recommended: 1200×400px, JPG, max 5 MB'),
-            ])->columns(2),
+            ])->columns(2)->visibleOn('edit'),
 
             Forms\Components\Section::make('Working Hours')->schema([
                 Forms\Components\KeyValue::make('working_hours')
-                    ->label('Working Hours')
-                    ->keyLabel('Day / Period')
-                    ->valueLabel('Hours')
+                    ->keyLabel('Day / Period')->valueLabel('Hours')
                     ->default(['Mon - Fri' => '9:00 AM – 6:00 PM', 'Saturday' => '10:00 AM – 2:00 PM', 'Sunday' => 'Closed'])
                     ->columnSpanFull(),
-            ]),
+            ])->visibleOn('edit'),
 
             Forms\Components\Section::make('Social Links')->schema([
                 Forms\Components\KeyValue::make('social_links')
-                    ->label('Social Media Links')
-                    ->keyLabel('Platform')
-                    ->valueLabel('URL')
+                    ->keyLabel('Platform')->valueLabel('URL')
                     ->columnSpanFull(),
-            ]),
+            ])->visibleOn('edit'),
 
             Forms\Components\Section::make('Branch Stats')->schema([
                 Forms\Components\KeyValue::make('stats')
-                    ->label('Stats (shown on landing page)')
-                    ->keyLabel('Label')
-                    ->valueLabel('Value')
+                    ->keyLabel('Label')->valueLabel('Value')
                     ->default(['Students Placed' => '0', 'Years Active' => '1', 'Visa Success Rate' => '95%'])
                     ->columnSpanFull(),
-            ]),
+            ])->visibleOn('edit'),
 
             Forms\Components\Section::make('Status')->schema([
                 Forms\Components\Toggle::make('is_active')->label('Active (visible on website)')->default(true),
-                Forms\Components\TextInput::make('sort_order')->numeric()->default(0)->label('Sort Order')->helperText('Lower number = appears first'),
-            ])->columns(2),
+                Forms\Components\TextInput::make('sort_order')->numeric()->default(0)->label('Sort Order'),
+            ])->columns(2)->visibleOn('edit'),
 
-            Forms\Components\Section::make('Branch Admin')
-                ->description('Current admin account assigned to this branch.')
+            Forms\Components\Section::make('Branch Manager')
+                ->description('Manager account assigned to this branch.')
                 ->schema([
                     Forms\Components\Placeholder::make('admin_info')
-                        ->label('Assigned Admin')
+                        ->label('Assigned Manager')
                         ->content(function ($record) {
-                            if (!$record) return 'Save the branch first, then assign an admin from the list view.';
+                            if (!$record) return 'Save the branch first.';
                             $admin = $record->admins()->first();
-                            if (!$admin) return '⚠️ No admin assigned yet. Use the "Assign Admin" button on the branch list.';
+                            if (!$admin) return '⚠️ No manager assigned yet.';
                             return "✅ {$admin->name} ({$admin->email}) — Status: {$admin->status}";
                         })
                         ->columnSpanFull(),
@@ -151,17 +211,29 @@ class BranchResource extends Resource
                     ->color('success')
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('phone')
+                Tables\Columns\TextColumn::make('admins.email')
+                    ->label('Login Email')
+                    ->placeholder('—')
+                    ->copyable()
+                    ->copyMessage('Email copied!')
+                    ->icon('heroicon-o-envelope'),
+
+                Tables\Columns\TextColumn::make('admins.manager_plain_password')
+                    ->label('Password')
+                    ->placeholder('—')
+                    ->copyable()
+                    ->copyMessage('Password copied!')
+                    ->icon('heroicon-o-key')
+                    ->formatStateUsing(fn ($state) => $state ? '••••••' : '—')
+                    ->tooltip(fn ($state) => $state),
+
+                Tables\Columns\TextColumn::make('admins.phone')
+                    ->label('Phone')
                     ->placeholder('—')
                     ->copyable()
                     ->icon('heroicon-o-phone'),
 
-                Tables\Columns\TextColumn::make('email')
-                    ->placeholder('—')
-                    ->copyable()
-                    ->icon('heroicon-o-envelope'),
-
-                Tables\Columns\TextColumn::make('whatsapp')
+                Tables\Columns\TextColumn::make('admins.whatsapp')
                     ->label('WhatsApp')
                     ->placeholder('—')
                     ->copyable()
