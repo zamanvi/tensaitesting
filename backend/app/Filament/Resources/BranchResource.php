@@ -282,7 +282,12 @@ class BranchResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array { return []; }
+    public static function getRelations(): array
+    {
+        return [
+            \App\Filament\Resources\BranchResource\RelationManagers\AdminsRelationManager::class,
+        ];
+    }
 
     public static function getPages(): array
     {

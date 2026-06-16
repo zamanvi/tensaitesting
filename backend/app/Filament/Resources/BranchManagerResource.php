@@ -21,6 +21,7 @@ class BranchManagerResource extends Resource
     protected static ?string $navigationGroup = 'Branches';
     protected static ?string $navigationLabel = 'Branch Managers';
     protected static ?int    $navigationSort  = 6;
+    protected static bool    $shouldRegisterNavigation = false;
 
     // Only branch_admin (and super admins) can access this
     public static function canAccess(): bool
