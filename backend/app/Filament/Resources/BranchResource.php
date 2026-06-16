@@ -377,6 +377,26 @@ class BranchResource extends Resource
                             ->send();
                     }),
 
+                Tables\Actions\Action::make('remove_manager')
+                    ->label('Remove Manager')
+                    ->icon('heroicon-o-user-minus')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Remove Manager Account')
+                    ->modalDescription('This will permanently delete the manager user account. All branch data (applications, gallery, team) stays intact. You can assign a new manager from the Edit page.')
+                    ->visible(fn (Branch $record) => $record->admins()->exists())
+                    ->action(function (Branch $record) {
+                        $record->admins()->each(function ($admin) {
+                            $admin->tokens()->delete();
+                            $admin->delete();
+                        });
+                        \Filament\Notifications\Notification::make()
+                            ->title('Manager removed')
+                            ->body('Branch data is intact. Assign a new manager from Edit.')
+                            ->success()
+                            ->send();
+                    }),
+
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
