@@ -14,8 +14,6 @@ class EditBranch extends EditRecord
 {
     protected static string $resource = BranchResource::class;
 
-    private array $managerData = [];
-
     protected function getHeaderActions(): array
     {
         return [Actions\DeleteAction::make()];
@@ -44,20 +42,60 @@ class EditBranch extends EditRecord
             $data['manager_phone_edit']    = $admin->phone ?? '';
             $data['manager_whatsapp_edit'] = $admin->whatsapp ?? '';
         }
+
         return $data;
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Capture manager fields before they reach the Branch model
-        $this->managerData = [
-            'name'     => $data['manager_name_edit'] ?? null,
-            'password' => $data['manager_password_edit'] ?? null,
-            'phone'    => $data['manager_phone_edit'] ?? null,
-            'whatsapp' => $data['manager_whatsapp_edit'] ?? null,
-        ];
+        $branch = $this->record;
 
-        // Strip manager fields — Branch model has no these columns
+        $managerName     = $data['manager_name_edit'] ?? null;
+        $managerPassword = $data['manager_password_edit'] ?? null;
+        $managerPhone    = $data['manager_phone_edit'] ?? null;
+        $managerWhatsapp = $data['manager_whatsapp_edit'] ?? null;
+
+        $admin = DB::table('users')
+            ->where('branch_id', $branch->id)
+            ->where('gateway_type', 'branch')
+            ->where('id', '!=', auth()->id())
+            ->first();
+
+        if ($admin) {
+            $updates = [];
+            if (!empty($managerName))     $updates['name']     = $managerName;
+            if (!empty($managerPhone))    $updates['phone']    = $managerPhone;
+            if (isset($managerWhatsapp))  $updates['whatsapp'] = $managerWhatsapp ?: null;
+            if (!empty($managerPassword)) {
+                $updates['password']               = Hash::make($managerPassword);
+                $updates['manager_plain_password'] = $managerPassword;
+            }
+            if (!empty($updates)) {
+                User::where('id', $admin->id)->update($updates);
+            }
+        } elseif (!empty($managerName) && !empty($managerPassword)) {
+            $baseEmail = Str::slug($managerName) . '@branch.tensai.jp';
+            $email = $baseEmail;
+            $i = 1;
+            while (User::where('email', $email)->exists()) {
+                $email = Str::slug($managerName) . $i . '@branch.tensai.jp';
+                $i++;
+            }
+            $user = User::create([
+                'name'                   => $managerName,
+                'email'                  => $email,
+                'password'               => Hash::make($managerPassword),
+                'gateway_type'           => 'branch',
+                'status'                 => 'active',
+                'branch_id'              => $branch->id,
+                'phone'                  => $managerPhone ?? null,
+                'whatsapp'               => $managerWhatsapp ?? null,
+                'manager_plain_password' => $managerPassword,
+                'email_verified_at'      => now(),
+            ]);
+            $user->assignRole('branch_admin');
+        }
+
         unset(
             $data['manager_name_edit'],
             $data['manager_password_edit'],
@@ -67,57 +105,5 @@ class EditBranch extends EditRecord
         );
 
         return $data;
-    }
-
-    protected function afterSave(): void
-    {
-        $branch = $this->record;
-        $data   = $this->managerData;
-
-        $admin = DB::table('users')
-            ->where('branch_id', $branch->id)
-            ->where('gateway_type', 'branch')
-            ->where('id', '!=', auth()->id())
-            ->first();
-
-        if (!$admin) {
-            if (!empty($data['name']) && !empty($data['password'])) {
-                $baseEmail = Str::slug($data['name']) . '@branch.tensai.jp';
-                $email = $baseEmail;
-                $i = 1;
-                while (User::where('email', $email)->exists()) {
-                    $email = Str::slug($data['name']) . $i . '@branch.tensai.jp';
-                    $i++;
-                }
-                $user = User::create([
-                    'name'                   => $data['name'],
-                    'email'                  => $email,
-                    'password'               => Hash::make($data['password']),
-                    'gateway_type'           => 'branch',
-                    'status'                 => 'active',
-                    'branch_id'              => $branch->id,
-                    'phone'                  => $data['phone'] ?? null,
-                    'whatsapp'               => $data['whatsapp'] ?? null,
-                    'manager_plain_password' => $data['password'],
-                    'email_verified_at'      => now(),
-                ]);
-                $user->assignRole('branch_admin');
-            }
-            return;
-        }
-
-        $updates = [];
-        if (!empty($data['name']))     $updates['name']     = $data['name'];
-        if (!empty($data['phone']))    $updates['phone']    = $data['phone'];
-        if (!empty($data['whatsapp'])) $updates['whatsapp'] = $data['whatsapp'];
-
-        if (!empty($data['password'])) {
-            $updates['password']               = Hash::make($data['password']);
-            $updates['manager_plain_password'] = $data['password'];
-        }
-
-        if (!empty($updates)) {
-            User::where('id', $admin->id)->update($updates);
-        }
     }
 }
