@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BranchResource\Pages;
-use App\Mail\BranchAdminCredentialsMail;
 use App\Models\Branch;
-use App\Models\TensaiNotification;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,7 +11,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class BranchResource extends Resource
@@ -253,93 +250,6 @@ class BranchResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active')->label('Active status'),
             ])
             ->actions([
-                Tables\Actions\Action::make('assign_admin')
-                    ->label('Assign Admin')
-                    ->icon('heroicon-o-user-plus')
-                    ->color('primary')
-                    ->modalHeading(fn (Branch $record) => "Assign Admin — {$record->name}")
-                    ->modalDescription(fn (Branch $record) => $record->admins()->exists()
-                        ? '⚠️ This branch already has an admin. Creating another will add a second admin account.'
-                        : null)
-                    ->form([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->label('Admin Name')
-                            ->placeholder('e.g. Rahim Uddin'),
-                        Forms\Components\TextInput::make('email')
-                            ->email()
-                            ->label('Login Email')
-                            ->helperText('Leave blank to use the branch email.')
-                            ->rules(['nullable', 'email', 'unique:users,email']),
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->required()
-                            ->minLength(8)
-                            ->label('Temporary Password')
-                            ->helperText('Will be emailed to the admin.'),
-                    ])
-                    ->action(function (Branch $record, array $data) {
-                        // Use branch email if no custom email provided
-                        $email = $data['email'] ?: $record->email;
-
-                        if (!$email) {
-                            Notification::make()
-                                ->title('Email required')
-                                ->body('This branch has no email set. Either add an email to the branch or enter one here.')
-                                ->danger()
-                                ->send();
-                            return;
-                        }
-
-                        if ($record->admins()->where('email', $email)->exists()) {
-                            Notification::make()
-                                ->title('Admin already exists')
-                                ->body("An admin with email {$email} is already assigned to this branch.")
-                                ->danger()
-                                ->send();
-                            return;
-                        }
-
-                        $user = User::create([
-                            'name'                   => $data['name'],
-                            'email'                  => $email,
-                            'password'               => bcrypt($data['password']),
-                            'gateway_type'           => 'branch',
-                            'status'                 => 'active',
-                            'branch_id'              => $record->id,
-                            'manager_plain_password' => $data['password'],
-                            'email_verified_at'      => now(),
-                        ]);
-                        $user->assignRole('branch_admin');
-
-                        $loginUrl = rtrim(config('app.frontend_url', config('app.url')), '/') . '/auth/login';
-                        try {
-                            Mail::to($email)->send(new BranchAdminCredentialsMail(
-                                adminName:     $data['name'],
-                                branchName:    $record->name,
-                                email:         $email,
-                                plainPassword: $data['password'],
-                                loginUrl:      $loginUrl,
-                            ));
-                        } catch (\Throwable) {
-                            // Mail failure should not block account creation
-                        }
-
-                        TensaiNotification::create([
-                            'user_id'    => $user->id,
-                            'type'       => 'info',
-                            'title'      => 'Branch Admin Access Ready',
-                            'body'       => "You have been assigned as admin for {$record->name}. Log in at {$loginUrl}.",
-                            'action_url' => $loginUrl,
-                        ]);
-
-                        Notification::make()
-                            ->title("Admin created for {$record->name}")
-                            ->body("Credentials sent to {$email}")
-                            ->success()
-                            ->send();
-                    }),
-
                 Tables\Actions\Action::make('remove_manager')
                     ->label('Remove Manager')
                     ->icon('heroicon-o-user-minus')
