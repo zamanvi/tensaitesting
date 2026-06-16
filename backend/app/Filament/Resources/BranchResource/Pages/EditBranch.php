@@ -6,6 +6,7 @@ use App\Filament\Resources\BranchResource;
 use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -32,7 +33,12 @@ class EditBranch extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $admin = $this->record->admins()->where('id', '!=', auth()->id())->first();
+        $admin = DB::table('users')
+            ->where('branch_id', $this->record->id)
+            ->where('gateway_type', 'branch')
+            ->where('id', '!=', auth()->id())
+            ->first();
+
         if ($admin) {
             $data['manager_name_edit']     = $admin->name;
             $data['manager_phone_edit']    = $admin->phone ?? '';
@@ -68,7 +74,11 @@ class EditBranch extends EditRecord
         $branch = $this->record;
         $data   = $this->managerData;
 
-        $admin = $branch->admins()->where('id', '!=', auth()->id())->first();
+        $admin = DB::table('users')
+            ->where('branch_id', $branch->id)
+            ->where('gateway_type', 'branch')
+            ->where('id', '!=', auth()->id())
+            ->first();
 
         if (!$admin) {
             if (!empty($data['name']) && !empty($data['password'])) {
@@ -107,7 +117,7 @@ class EditBranch extends EditRecord
         }
 
         if (!empty($updates)) {
-            $admin->update($updates);
+            User::where('id', $admin->id)->update($updates);
         }
     }
 }
