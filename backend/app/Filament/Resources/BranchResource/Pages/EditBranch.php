@@ -34,6 +34,7 @@ class EditBranch extends EditRecord
         $admin = DB::table('users')
             ->where('branch_id', $this->record->id)
             ->where('gateway_type', 'branch')
+            ->whereNull('deleted_at')
             ->where('id', '!=', auth()->id())
             ->first();
 
@@ -58,6 +59,7 @@ class EditBranch extends EditRecord
         $admin = DB::table('users')
             ->where('branch_id', $branch->id)
             ->where('gateway_type', 'branch')
+            ->whereNull('deleted_at')
             ->where('id', '!=', auth()->id())
             ->first();
 
