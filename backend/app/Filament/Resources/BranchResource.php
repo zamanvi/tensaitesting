@@ -191,8 +191,9 @@ class BranchResource extends Resource
                     ->weight('bold')
                     ->description(fn (Branch $r) => trim($r->city . ', ' . $r->country, ', ')),
 
+                // Manager: username badge + copyable password dots — stacked in one column
                 Tables\Columns\TextColumn::make('manager_name')
-                    ->label('Manager (Login Username)')
+                    ->label('Manager')
                     ->getStateUsing(fn (Branch $r) => DB::table('users')
                         ->where('branch_id', $r->id)
                         ->where('gateway_type', 'branch')
@@ -202,8 +203,19 @@ class BranchResource extends Resource
                     ->badge()
                     ->color('success')
                     ->copyable()
-                    ->copyMessage('Username copied!'),
+                    ->copyMessage('Username copied!')
+                    ->description(fn (Branch $r): string => DB::table('users')
+                        ->where('branch_id', $r->id)
+                        ->where('gateway_type', 'branch')
+                        ->whereNull('deleted_at')
+                        ->value('manager_plain_password') ? '••••••' : '—')
+                    ->tooltip(fn (Branch $r): ?string => DB::table('users')
+                        ->where('branch_id', $r->id)
+                        ->where('gateway_type', 'branch')
+                        ->whereNull('deleted_at')
+                        ->value('manager_plain_password')),
 
+                // Password: separate copyable column (copies the actual password)
                 Tables\Columns\TextColumn::make('manager_password')
                     ->label('Password')
                     ->getStateUsing(fn (Branch $r) => DB::table('users')
@@ -211,15 +223,17 @@ class BranchResource extends Resource
                         ->where('gateway_type', 'branch')
                         ->whereNull('deleted_at')
                         ->value('manager_plain_password'))
-                    ->placeholder('—')
+                    ->formatStateUsing(fn ($state) => $state ? '••••••' : '—')
+                    ->tooltip(fn ($state) => $state)
                     ->copyable()
+                    ->copyStateUsing(fn ($state) => $state)
                     ->copyMessage('Password copied!')
                     ->icon('heroicon-o-key')
-                    ->formatStateUsing(fn ($state) => $state ? '••••••' : '—')
-                    ->tooltip(fn ($state) => $state),
+                    ->placeholder('—'),
 
+                // Contact: phone + whatsapp stacked
                 Tables\Columns\TextColumn::make('manager_phone')
-                    ->label('Phone')
+                    ->label('Contact')
                     ->getStateUsing(fn (Branch $r) => DB::table('users')
                         ->where('branch_id', $r->id)
                         ->where('gateway_type', 'branch')
@@ -227,18 +241,12 @@ class BranchResource extends Resource
                         ->value('phone'))
                     ->placeholder('—')
                     ->copyable()
-                    ->icon('heroicon-o-phone'),
-
-                Tables\Columns\TextColumn::make('manager_whatsapp')
-                    ->label('WhatsApp')
-                    ->getStateUsing(fn (Branch $r) => DB::table('users')
+                    ->icon('heroicon-o-phone')
+                    ->description(fn (Branch $r): string => DB::table('users')
                         ->where('branch_id', $r->id)
                         ->where('gateway_type', 'branch')
                         ->whereNull('deleted_at')
-                        ->value('whatsapp'))
-                    ->placeholder('—')
-                    ->copyable()
-                    ->icon('heroicon-o-chat-bubble-left-ellipsis'),
+                        ->value('whatsapp') ?? '—'),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
@@ -250,7 +258,8 @@ class BranchResource extends Resource
                     ->copyable()
                     ->copyMessage('Login URL copied!')
                     ->color('primary')
-                    ->icon('heroicon-o-link'),
+                    ->icon('heroicon-o-link')
+                    ->formatStateUsing(fn () => 'Copy link'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
@@ -263,26 +272,6 @@ class BranchResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active')->label('Active status'),
             ])
             ->actions([
-                Tables\Actions\Action::make('remove_manager')
-                    ->label('Remove Manager')
-                    ->icon('heroicon-o-user-minus')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->modalHeading('Remove Manager Account')
-                    ->modalDescription('This will permanently delete the manager user account. All branch data (applications, gallery, team) stays intact. You can assign a new manager from the Edit page.')
-                    ->visible(fn (Branch $record) => $record->admins()->exists())
-                    ->action(function (Branch $record) {
-                        $record->admins()->each(function ($admin) {
-                            $admin->tokens()->delete();
-                            $admin->delete();
-                        });
-                        \Filament\Notifications\Notification::make()
-                            ->title('Manager removed')
-                            ->body('Branch data is intact. Assign a new manager from Edit.')
-                            ->success()
-                            ->send();
-                    }),
-
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
