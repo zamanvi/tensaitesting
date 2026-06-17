@@ -238,7 +238,7 @@ class BranchResource extends Resource
 
                 Tables\Columns\TextColumn::make('access_link')
                     ->label('Login Link')
-                    ->getStateUsing(fn () => rtrim(config('app.frontend_url', config('app.url')), '/') . '/auth/login')
+                    ->getStateUsing(fn (Branch $r) => rtrim(config('app.frontend_url', config('app.url')), '/') . '/auth/branch-login?branch=' . urlencode($r->name))
                     ->copyable()
                     ->copyMessage('Login URL copied!')
                     ->color('primary')

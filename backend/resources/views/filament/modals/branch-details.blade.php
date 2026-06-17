@@ -76,7 +76,7 @@
             <div class="col-span-2 bg-green-50 rounded-xl p-3">
                 <p class="text-xs text-gray-400 mb-0.5">Login Link</p>
                 <p class="text-sm font-mono text-blue-700 break-all">
-                    {{ rtrim(config('app.frontend_url', config('app.url')), '/') }}/auth/login
+                    {{ rtrim(config('app.frontend_url', config('app.url')), '/') }}/auth/branch-login?branch={{ urlencode($branch->name) }}
                 </p>
             </div>
         </div>
