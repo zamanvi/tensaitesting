@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import BranchLayout from '@/components/shared/BranchLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
@@ -75,7 +75,7 @@ export default function BranchTeamPage() {
   const title = ja ? 'チーム管理' : bn ? 'টিম ম্যানেজমেন্ট' : 'Team';
 
   return (
-    <DashboardLayout title={title}>
+    <BranchLayout title={title}>
       <div className="flex items-center justify-between mb-5">
         <p className="text-xs text-slate-500">{members.length} {ja ? '名' : bn ? 'জন সদস্য' : `member${members.length !== 1 ? 's' : ''}`}</p>
         <button onClick={openAdd} className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
@@ -190,6 +190,6 @@ export default function BranchTeamPage() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </BranchLayout>
   );
 }

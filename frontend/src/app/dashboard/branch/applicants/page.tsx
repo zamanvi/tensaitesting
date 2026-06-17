@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import BranchLayout from '@/components/shared/BranchLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
@@ -148,7 +148,7 @@ export default function BranchApplicantsPage() {
   ];
 
   return (
-    <DashboardLayout title={title}>
+    <BranchLayout title={title}>
 
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
@@ -316,6 +316,6 @@ export default function BranchApplicantsPage() {
         </div>
       )}
 
-    </DashboardLayout>
+    </BranchLayout>
   );
 }

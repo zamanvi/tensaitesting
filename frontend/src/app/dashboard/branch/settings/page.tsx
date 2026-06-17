@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import BranchLayout from '@/components/shared/BranchLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
@@ -107,7 +107,7 @@ export default function BranchSettingsPage() {
   const title = ja ? '支局設定' : bn ? 'শাখা সেটিংস' : 'Branch Settings';
 
   return (
-    <DashboardLayout title={title}>
+    <BranchLayout title={title}>
       {isLoading ? (
         <div className="text-center py-12 text-slate-400 text-sm">{ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}</div>
       ) : (
@@ -210,6 +210,6 @@ export default function BranchSettingsPage() {
 
         </form>
       )}
-    </DashboardLayout>
+    </BranchLayout>
   );
 }

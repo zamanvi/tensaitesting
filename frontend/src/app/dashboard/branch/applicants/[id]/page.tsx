@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import BranchLayout from '@/components/shared/BranchLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
@@ -235,17 +235,17 @@ export default function BranchApplicantDetailPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout title={title}>
+      <BranchLayout title={title}>
         <div className="text-center py-16 text-slate-400 text-sm">
           {ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}
         </div>
-      </DashboardLayout>
+      </BranchLayout>
     );
   }
 
   if (!lead) {
     return (
-      <DashboardLayout title={title}>
+      <BranchLayout title={title}>
         <div className="text-center py-16">
           <p className="text-4xl mb-3">🔍</p>
           <p className="text-slate-400 text-sm mb-4">{ja ? '申請が見つかりません。' : bn ? 'আবেদন পাওয়া যায়নি।' : 'Application not found.'}</p>
@@ -254,7 +254,7 @@ export default function BranchApplicantDetailPage() {
             {ja ? '← 一覧に戻る' : bn ? '← তালিকায় ফিরুন' : '← Back to list'}
           </Link>
         </div>
-      </DashboardLayout>
+      </BranchLayout>
     );
   }
 
@@ -301,7 +301,7 @@ export default function BranchApplicantDetailPage() {
   ];
 
   return (
-    <DashboardLayout title={title}>
+    <BranchLayout title={title}>
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-5 flex-wrap">
@@ -989,6 +989,6 @@ export default function BranchApplicantDetailPage() {
         </div>
       )}
 
-    </DashboardLayout>
+    </BranchLayout>
   );
 }

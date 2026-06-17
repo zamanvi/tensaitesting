@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import BranchLayout from '@/components/shared/BranchLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -108,7 +108,7 @@ export default function BranchAdminDashboard() {
   ];
 
   return (
-    <DashboardLayout>
+    <BranchLayout>
       <div className="max-w-4xl space-y-6">
 
         {/* ── Header ── */}
@@ -249,6 +249,6 @@ export default function BranchAdminDashboard() {
         </p>
 
       </div>
-    </DashboardLayout>
+    </BranchLayout>
   );
 }
