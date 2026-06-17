@@ -415,6 +415,15 @@ export default function BranchApplicantsPage() {
   const [saveMsg,    setSaveMsg]    = useState('');
   const [saveErr,    setSaveErr]    = useState('');
 
+  // ── Queries ──
+  const { data: forms = [], isLoading: formsLoading } = useQuery<AppForm[]>({
+    queryKey: ['application-forms'],
+    queryFn: () => api.get('/branch-admin/application-forms').then(r => r.data),
+    enabled: !!isBranchAdmin,
+  });
+
+  const activeForm = forms.find(f => f.id === activeFormId) ?? null;
+
   // ── Template query (depends on active form's country) ──
   const activeCountry = activeForm?.target_country ?? '';
   const { data: template } = useQuery<FormTemplate | null>({
@@ -425,15 +434,6 @@ export default function BranchApplicantsPage() {
     enabled: !!activeCountry,
     staleTime: 300_000,
   });
-
-  // ── Queries ──
-  const { data: forms = [], isLoading: formsLoading } = useQuery<AppForm[]>({
-    queryKey: ['application-forms'],
-    queryFn: () => api.get('/branch-admin/application-forms').then(r => r.data),
-    enabled: !!isBranchAdmin,
-  });
-
-  const activeForm = forms.find(f => f.id === activeFormId) ?? null;
 
   // Load active form fields when switching
   useEffect(() => {
