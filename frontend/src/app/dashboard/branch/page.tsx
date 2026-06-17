@@ -96,7 +96,7 @@ export default function BranchAdminDashboard() {
   const stats = [
     { label: ja ? '合計' : bn ? 'মোট' : 'Total',         value: total,     color: 'bg-slate-100 text-slate-700',   icon: '👥' },
     { label: ja ? '下書き' : bn ? 'ড্রাফট' : 'Draft',     value: draft,     color: 'bg-amber-50 text-amber-700',    icon: '📝' },
-    { label: ja ? '提出済' : bn ? 'জমা' : 'Submitted',    value: submitted, color: 'bg-blue-50 text-blue-700',      icon: '📤' },
+    { label: ja ? '選択済' : bn ? 'নির্বাচিত' : 'Selected',  value: submitted, color: 'bg-blue-50 text-blue-700',      icon: '📌' },
     { label: ja ? '承認済' : bn ? 'অনুমোদিত' : 'Accepted', value: accepted,  color: 'bg-green-50 text-green-700',    icon: '✅' },
   ];
 
