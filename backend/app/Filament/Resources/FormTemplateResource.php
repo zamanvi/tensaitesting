@@ -172,7 +172,7 @@ class FormTemplateResource extends Resource
                                     ]),
 
                                     // ── Conditional visibility ────────────────
-                                    Forms\Components\Fieldset::make('Conditional Visibility (optional)')
+                                    Forms\Components\Section::make('Conditional Visibility (optional)')
                                         ->schema([
                                             Forms\Components\Grid::make(3)->schema([
                                                 Forms\Components\TextInput::make('conditional_field_key')
@@ -194,7 +194,7 @@ class FormTemplateResource extends Resource
                                             ]),
                                         ])
                                         ->collapsible()
-                                        ->collapsed(),
+                                        ->collapsed(true),
                                 ]),
                         ]),
                 ]),
