@@ -19,14 +19,24 @@ interface AppDoc {
 interface TemplateField {
   id: number; field_key: string; label: string; section: string;
   field_type: 'text' | 'number' | 'date' | 'select' | 'textarea' | 'file';
+  box_size: 'small' | 'middle' | 'full';
   is_required: boolean; requires_document: boolean;
   options: string[]; placeholder: string; helper_text: string;
+  conditional_field_key?: string;
+  conditional_operator?: 'is' | 'is_not' | 'is_empty' | 'is_not_empty';
+  conditional_value?: string;
+}
+
+interface TemplateGroup {
+  id: number; label: string; hint?: string;
+  fields: TemplateField[];
 }
 
 interface FormTemplate {
   id: number; country: string; name: string;
   intake_options: string[];
-  fields: TemplateField[];
+  groups: TemplateGroup[];
+  fields: TemplateField[]; // ungrouped / legacy
 }
 
 interface AppForm {
@@ -356,26 +366,6 @@ function DynamicField({
     </div>
   );
 }
-
-// ── Template section ──────────────────────────────────────────────────────────
-
-const SECTION_LABELS: Record<string, string> = {
-  personal:  'Personal Information',
-  academic:  'Academic Background',
-  language:  'Language Proficiency',
-  study:     'Study Goals & Intake',
-  sponsor:   'Sponsor & Financial',
-  documents: 'Documents Upload',
-};
-
-const SECTION_SUBTITLES: Record<string, string> = {
-  personal:  'Country-specific personal details required',
-  academic:  'Academic requirements for this country',
-  language:  'Language test requirements',
-  study:     'Target program and intake details',
-  sponsor:   'Financial sponsorship details',
-  documents: 'Additional documents required for this country',
-};
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 
@@ -826,74 +816,105 @@ export default function BranchApplicantsPage() {
               </div>
             </section>
 
-            {/* ── Dynamic Template Sections ── */}
-            {template && template.fields.length > 0 && (() => {
-              // Group fields by section, exclude sections we already render above
-              const STANDARD_SECTIONS = new Set(['personal', 'academic', 'language', 'study', 'sponsor']);
-              const allSections = [...new Set(template.fields.map(f => f.section))];
+            {/* ── Dynamic Template Groups ── */}
+            {template && template.groups.length > 0 && template.groups.map((group, gi) => {
+              // Evaluate conditional visibility for a field
+              function isVisible(field: TemplateField): boolean {
+                if (!field.conditional_field_key || !field.conditional_operator) return true;
+                const current = customData[field.conditional_field_key]
+                  ?? (fields as Record<string, string>)[field.conditional_field_key]
+                  ?? '';
+                switch (field.conditional_operator) {
+                  case 'is':           return current === (field.conditional_value ?? '');
+                  case 'is_not':       return current !== (field.conditional_value ?? '');
+                  case 'is_empty':     return !current;
+                  case 'is_not_empty': return !!current;
+                  default:             return true;
+                }
+              }
 
-              return allSections.map((section, si) => {
-                const sectionFields = template.fields.filter(f => f.section === section);
-                const isStandard = STANDARD_SECTIONS.has(section);
+              const visibleFields = group.fields.filter(isVisible);
+              if (visibleFields.length === 0) return null;
 
-                // For standard sections, only show fields not already in the static form
-                const STANDARD_KEYS = new Set([
-                  'date_of_birth','gender','nationality','address','passport_number','passport_expiry',
-                  'last_qualification','institution_name','board_university','gpa_grade','passing_year',
-                  'jlpt_level','jlpt_score','jlpt_exam_date','english_proficiency','english_score',
-                  'target_country','target_course','target_intake','preferred_institution',
-                  'sponsor_name','sponsor_relationship','sponsor_occupation','sponsor_monthly_income',
-                ]);
+              // box_size → col-span on a 6-column grid
+              function colSpan(size: TemplateField['box_size']) {
+                if (size === 'small')  return 'col-span-6 sm:col-span-2';
+                if (size === 'full')   return 'col-span-6';
+                return 'col-span-6 sm:col-span-3'; // middle = half
+              }
 
-                const extraFields = isStandard
-                  ? sectionFields.filter(f => !STANDARD_KEYS.has(f.field_key))
-                  : sectionFields;
-
-                if (extraFields.length === 0) return null;
-
-                return (
-                  <div key={section}>
-                    <div className="border-t border-slate-100 mb-8" />
-                    <section>
-                      <div className="flex items-start gap-3 mb-5">
-                        <div className="px-2.5 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold shrink-0">
-                          {activeCountry}
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-slate-800">
-                            {SECTION_LABELS[section] ?? section} — {activeCountry} specific
-                          </h3>
-                          <p className="text-xs text-slate-400 mt-0.5">
-                            {SECTION_SUBTITLES[section] ?? 'Additional requirements for this country'}
-                          </p>
-                        </div>
+              return (
+                <div key={group.id}>
+                  <div className="border-t border-slate-100 mb-6" />
+                  <section>
+                    <div className="flex items-start gap-3 mb-5">
+                      <div className="w-8 h-8 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                        {gi + 7}
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {extraFields.map(field => (
-                          <div key={field.field_key} className={field.field_type === 'textarea' || field.requires_document ? 'sm:col-span-2' : ''}>
-                            <DynamicField
-                              field={field}
-                              formId={activeFormId!}
-                              value={customData[field.field_key] ?? (fields as Record<string, string>)[field.field_key] ?? ''}
-                              existingDoc={docs.find(d => d.doc_type === field.field_key)}
-                              onDocUploaded={handleDocUploaded}
-                              onDocDeleted={handleDocDeleted}
-                              onChange={val => {
-                                if (field.field_key.startsWith('custom_')) {
-                                  setCustomData(p => ({ ...p, [field.field_key]: val }));
-                                } else {
-                                  setFields(p => ({ ...p, [field.field_key]: val } as Partial<AppForm>));
-                                }
-                              }}
-                            />
-                          </div>
-                        ))}
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-800">{group.label}</h3>
+                        {group.hint && <p className="text-xs text-slate-400 mt-0.5">{group.hint}</p>}
                       </div>
-                    </section>
+                    </div>
+                    <div className="grid grid-cols-6 gap-4">
+                      {visibleFields.map(field => (
+                        <div key={field.field_key} className={colSpan(field.box_size ?? 'middle')}>
+                          <DynamicField
+                            field={field}
+                            formId={activeFormId!}
+                            value={customData[field.field_key] ?? (fields as Record<string, string>)[field.field_key] ?? ''}
+                            existingDoc={docs.find(d => d.doc_type === field.field_key)}
+                            onDocUploaded={handleDocUploaded}
+                            onDocDeleted={handleDocDeleted}
+                            onChange={val => {
+                              if (field.field_key.startsWith('custom_')) {
+                                setCustomData(p => ({ ...p, [field.field_key]: val }));
+                              } else {
+                                setFields(p => ({ ...p, [field.field_key]: val } as Partial<AppForm>));
+                              }
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
+              );
+            })}
+
+            {/* Ungrouped legacy fields (fallback when no groups) */}
+            {template && template.groups.length === 0 && template.fields.length > 0 && (
+              <div>
+                <div className="border-t border-slate-100 mb-6" />
+                <section>
+                  <div className="flex items-start gap-3 mb-5">
+                    <div className="px-2.5 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold shrink-0">{activeCountry}</div>
+                    <h3 className="text-sm font-bold text-slate-800">{activeCountry} — Additional Fields</h3>
                   </div>
-                );
-              });
-            })()}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {template.fields.map(field => (
+                      <div key={field.field_key} className={field.field_type === 'textarea' || field.requires_document ? 'sm:col-span-2' : ''}>
+                        <DynamicField
+                          field={field}
+                          formId={activeFormId!}
+                          value={customData[field.field_key] ?? (fields as Record<string, string>)[field.field_key] ?? ''}
+                          existingDoc={docs.find(d => d.doc_type === field.field_key)}
+                          onDocUploaded={handleDocUploaded}
+                          onDocDeleted={handleDocDeleted}
+                          onChange={val => {
+                            if (field.field_key.startsWith('custom_')) {
+                              setCustomData(p => ({ ...p, [field.field_key]: val }));
+                            } else {
+                              setFields(p => ({ ...p, [field.field_key]: val } as Partial<AppForm>));
+                            }
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
 
             {/* intake options from template */}
             {template && template.intake_options?.length > 0 && !fields.target_intake && (

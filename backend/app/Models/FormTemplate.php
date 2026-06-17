@@ -16,6 +16,18 @@ class FormTemplate extends Model
         'is_active'      => 'boolean',
     ];
 
+    public function fieldGroups(): HasMany
+    {
+        return $this->hasMany(FormFieldGroup::class)->orderBy('sort_order');
+    }
+
+    public function activeFieldGroups(): HasMany
+    {
+        return $this->hasMany(FormFieldGroup::class)
+            ->where('is_active', true)
+            ->orderBy('sort_order');
+    }
+
     public function fields(): HasMany
     {
         return $this->hasMany(FormTemplateField::class)->orderBy('sort_order');
