@@ -206,7 +206,7 @@ class ApplicationFormController extends Controller
         $form = ApplicationForm::where('branch_id', $this->branchId($request))->findOrFail($id);
 
         $request->validate([
-            'doc_type' => 'required|in:photo,passport,certificate,transcript,language_cert,nid,bank_statement,sponsor',
+            'doc_type' => 'required|string|max:100|regex:/^[a-z0-9_]+$/',
             'label'    => 'required|string|max:100',
             'file'     => 'required|file|max:4096|mimes:jpeg,jpg,png,webp,pdf',
         ]);

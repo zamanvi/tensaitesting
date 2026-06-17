@@ -15,9 +15,10 @@ use Filament\Tables\Filters\SelectFilter;
 class LeadResource extends Resource
 {
     protected static ?string $model = Lead::class;
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationIcon  = 'heroicon-o-document-duplicate';
+    protected static ?string $navigationLabel = 'All Applications';
     protected static ?string $navigationGroup = 'Applicant Management';
-    protected static ?int $navigationSort = 1;
+    protected static ?int    $navigationSort  = 1;
 
     public static function form(Form $form): Form
     {
