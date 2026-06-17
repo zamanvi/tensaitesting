@@ -12,6 +12,18 @@ interface Props {
   title?: string;
 }
 
+interface BranchInfo {
+  name: string;
+  city: string | null;
+  country: string | null;
+  address: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  google_maps_url: string | null;
+  working_hours: Record<string, string> | null;
+  social_links: Record<string, string> | null;
+}
+
 const NAV = [
   { label: 'Dashboard',    href: '/dashboard/branch',            icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
   { label: 'Applications', href: '/dashboard/branch/applicants', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
@@ -29,6 +41,13 @@ export default function BranchLayout({ children, title }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const { data: branchInfo } = useQuery<BranchInfo>({
+    queryKey: ['branch-settings'],
+    queryFn: () => api.get('/branch-admin/settings').then(r => r.data),
+    staleTime: 300_000,
+    enabled: !!mounted,
+  });
 
   const { data: notifData } = useQuery({
     queryKey: ['notifications'],
@@ -218,8 +237,83 @@ export default function BranchLayout({ children, title }: Props) {
           {children}
         </main>
 
-        <footer className="border-t border-slate-100 bg-white px-6 py-3">
-          <p className="text-[11px] text-slate-400 text-center">© 2026 Tensai. All rights reserved.</p>
+        <footer className="border-t border-slate-100 bg-white mt-auto">
+          {branchInfo && (
+            <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-6 border-b border-slate-50">
+
+              {/* Branch identity */}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-green-700 flex items-center justify-center text-white text-[10px] font-bold shrink-0">T</div>
+                  <span className="text-sm font-bold text-slate-800">{branchInfo.name}</span>
+                </div>
+                {(branchInfo.city || branchInfo.country) && (
+                  <p className="text-xs text-slate-400 flex items-center gap-1 mb-1">
+                    <span>📍</span>{[branchInfo.city, branchInfo.country].filter(Boolean).join(', ')}
+                  </p>
+                )}
+                {branchInfo.address && (
+                  <p className="text-xs text-slate-400 leading-relaxed">{branchInfo.address}</p>
+                )}
+              </div>
+
+              {/* Contact */}
+              <div>
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Contact</p>
+                <div className="space-y-1.5">
+                  {branchInfo.phone && (
+                    <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                      <span className="text-slate-400">📞</span>{branchInfo.phone}
+                    </p>
+                  )}
+                  {branchInfo.whatsapp && (
+                    <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                      <span className="text-slate-400">💬</span>{branchInfo.whatsapp}
+                    </p>
+                  )}
+                  {branchInfo.google_maps_url && (
+                    <a href={branchInfo.google_maps_url} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-green-700 hover:underline flex items-center gap-1.5">
+                      <span>🗺️</span>View on Google Maps
+                    </a>
+                  )}
+                  {!branchInfo.phone && !branchInfo.whatsapp && !branchInfo.google_maps_url && (
+                    <p className="text-xs text-slate-300">No contact info set.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Working hours + social */}
+              <div>
+                {branchInfo.working_hours && Object.keys(branchInfo.working_hours).length > 0 && (
+                  <>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Working Hours</p>
+                    <div className="space-y-1 mb-3">
+                      {Object.entries(branchInfo.working_hours).map(([day, hrs]) => (
+                        <div key={day} className="flex justify-between text-xs text-slate-600">
+                          <span className="text-slate-400">{day}</span>
+                          <span>{hrs}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {branchInfo.social_links && Object.keys(branchInfo.social_links).length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(branchInfo.social_links).map(([platform, url]) => (
+                      <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
+                        className="text-[10px] font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors">
+                        {platform}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <div className="px-6 py-3">
+            <p className="text-[11px] text-slate-400 text-center">© 2026 Tensai. All rights reserved.</p>
+          </div>
         </footer>
       </div>
     </div>
