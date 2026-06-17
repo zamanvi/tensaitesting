@@ -191,7 +191,6 @@ class BranchResource extends Resource
                     ->weight('bold')
                     ->description(fn (Branch $r) => trim($r->city . ', ' . $r->country, ', ')),
 
-                // Manager: username badge + copyable password dots — stacked in one column
                 Tables\Columns\TextColumn::make('manager_name')
                     ->label('Manager')
                     ->getStateUsing(fn (Branch $r) => DB::table('users')
@@ -203,19 +202,8 @@ class BranchResource extends Resource
                     ->badge()
                     ->color('success')
                     ->copyable()
-                    ->copyMessage('Username copied!')
-                    ->description(fn (Branch $r): string => DB::table('users')
-                        ->where('branch_id', $r->id)
-                        ->where('gateway_type', 'branch')
-                        ->whereNull('deleted_at')
-                        ->value('manager_plain_password') ? '••••••' : '—')
-                    ->tooltip(fn (Branch $r): ?string => DB::table('users')
-                        ->where('branch_id', $r->id)
-                        ->where('gateway_type', 'branch')
-                        ->whereNull('deleted_at')
-                        ->value('manager_plain_password')),
+                    ->copyMessage('Username copied!'),
 
-                // Password: separate copyable column (copies the actual password)
                 Tables\Columns\TextColumn::make('manager_password')
                     ->label('Password')
                     ->getStateUsing(fn (Branch $r) => DB::table('users')
@@ -226,14 +214,12 @@ class BranchResource extends Resource
                     ->formatStateUsing(fn ($state) => $state ? '••••••' : '—')
                     ->tooltip(fn ($state) => $state)
                     ->copyable()
-                    ->copyStateUsing(fn ($state) => $state)
                     ->copyMessage('Password copied!')
                     ->icon('heroicon-o-key')
                     ->placeholder('—'),
 
-                // Contact: phone + whatsapp stacked
                 Tables\Columns\TextColumn::make('manager_phone')
-                    ->label('Contact')
+                    ->label('Phone')
                     ->getStateUsing(fn (Branch $r) => DB::table('users')
                         ->where('branch_id', $r->id)
                         ->where('gateway_type', 'branch')
@@ -241,12 +227,7 @@ class BranchResource extends Resource
                         ->value('phone'))
                     ->placeholder('—')
                     ->copyable()
-                    ->icon('heroicon-o-phone')
-                    ->description(fn (Branch $r): string => DB::table('users')
-                        ->where('branch_id', $r->id)
-                        ->where('gateway_type', 'branch')
-                        ->whereNull('deleted_at')
-                        ->value('whatsapp') ?? '—'),
+                    ->icon('heroicon-o-phone'),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
