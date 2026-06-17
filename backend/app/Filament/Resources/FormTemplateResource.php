@@ -15,7 +15,7 @@ class FormTemplateResource extends Resource
     protected static ?string $model = FormTemplate::class;
     protected static ?string $navigationIcon  = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Settings';
-    protected static ?string $navigationLabel = 'Form Templates';
+    protected static ?string $navigationLabel = 'Application Form Builder';
     protected static ?int    $navigationSort  = 3;
 
     public static function canAccess(): bool
