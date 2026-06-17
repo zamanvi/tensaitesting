@@ -91,9 +91,9 @@ class FormTemplateResource extends Resource
             ])->columnSpan(['lg' => 1]),
 
             // ── Full width: Field Groups ──────────────────────────────────────
-            Forms\Components\Section::make('Form Field Groups')
+            Forms\Components\Section::make('Form Sections')
                 ->icon('heroicon-o-rectangle-stack')
-                ->description('Each group becomes a section in the branch admin application form. Drag to reorder.')
+                ->description('Each section contains fields shown in the branch application form. Add a new section at the bottom, then add fields inside it.')
                 ->columnSpanFull()
                 ->schema([
                     Forms\Components\Repeater::make('fieldGroups')
@@ -101,10 +101,10 @@ class FormTemplateResource extends Resource
                         ->orderColumn('sort_order')
                         ->collapsible()
                         ->cloneable()
-                        ->addActionLabel('＋ Add Group')
+                        ->addActionLabel('＋ Add New Section')
                         ->itemLabel(fn (array $state): string =>
-                            ($state['label'] ?? 'Untitled Group') .
-                            (isset($state['fields']) ? '  (' . count($state['fields']) . ' fields)' : '')
+                            '📂  ' . ($state['label'] ?? 'Untitled Section') .
+                            (isset($state['fields']) ? '  — ' . count($state['fields']) . ' fields' : '')
                         )
                         ->schema([
 
@@ -135,11 +135,12 @@ class FormTemplateResource extends Resource
                                 ->orderColumn('sort_order')
                                 ->collapsible()
                                 ->cloneable()
-                                ->addActionLabel('＋ Add Field')
+                                ->addActionLabel('＋ Add Field to this Section')
                                 ->itemLabel(fn (array $state): string =>
-                                    ($state['label'] ?? 'New Field') .
-                                    '  [' . strtoupper($state['box_size'] ?? 'middle') . ']' .
-                                    (!empty($state['is_required']) ? '  *' : '') .
+                                    (!empty($state['label'])
+                                        ? '▸  ' . $state['label'] . '  [' . strtoupper($state['box_size'] ?? 'middle') . ']'
+                                        : '▸  New Field — enter label below') .
+                                    (!empty($state['is_required']) ? '  *required' : '') .
                                     (!empty($state['requires_document']) ? '  📎' : '')
                                 )
                                 ->schema([
