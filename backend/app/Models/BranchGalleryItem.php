@@ -9,7 +9,7 @@ class BranchGalleryItem extends Model
 {
     protected $fillable = [
         'branch_id', 'image_path', 'image_url',
-        'caption', 'is_active', 'sort_order',
+        'title', 'description', 'caption', 'is_active', 'sort_order',
     ];
 
     protected $casts = ['is_active' => 'boolean'];

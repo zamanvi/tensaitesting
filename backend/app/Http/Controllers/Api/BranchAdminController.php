@@ -262,11 +262,13 @@ class BranchAdminController extends Controller
     public function storeGallery(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'caption'    => 'nullable|string|max:255',
-            'image'      => 'nullable|image|max:8192',
-            'image_url'  => 'nullable|url',
-            'sort_order' => 'nullable|integer',
-            'is_active'  => 'boolean',
+            'title'       => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'caption'     => 'nullable|string|max:255',
+            'image'       => 'nullable|image|max:8192',
+            'image_url'   => 'nullable|url',
+            'sort_order'  => 'nullable|integer',
+            'is_active'   => 'boolean',
         ]);
 
         $imagePath = null;
@@ -276,12 +278,14 @@ class BranchAdminController extends Controller
         }
 
         $item = BranchGalleryItem::create([
-            'branch_id'  => $request->user()->branch_id,
-            'caption'    => $validated['caption'] ?? null,
-            'image_path' => $imagePath,
-            'image_url'  => !$imagePath ? ($validated['image_url'] ?? null) : null,
-            'sort_order' => $validated['sort_order'] ?? 0,
-            'is_active'  => $validated['is_active'] ?? true,
+            'branch_id'   => $request->user()->branch_id,
+            'title'       => $validated['title'] ?? null,
+            'description' => $validated['description'] ?? null,
+            'caption'     => $validated['caption'] ?? null,
+            'image_path'  => $imagePath,
+            'image_url'   => !$imagePath ? ($validated['image_url'] ?? null) : null,
+            'sort_order'  => $validated['sort_order'] ?? 0,
+            'is_active'   => $validated['is_active'] ?? true,
         ]);
 
         return response()->json($item->fresh(), 201);
@@ -293,11 +297,13 @@ class BranchAdminController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'caption'    => 'nullable|string|max:255',
-            'image'      => 'nullable|image|max:8192',
-            'image_url'  => 'nullable|url',
-            'sort_order' => 'nullable|integer',
-            'is_active'  => 'boolean',
+            'title'       => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'caption'     => 'nullable|string|max:255',
+            'image'       => 'nullable|image|max:8192',
+            'image_url'   => 'nullable|url',
+            'sort_order'  => 'nullable|integer',
+            'is_active'   => 'boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -310,7 +316,7 @@ class BranchAdminController extends Controller
             $item->image_path = null;
         }
 
-        $item->fill(array_intersect_key($validated, array_flip(['caption', 'sort_order', 'is_active'])));
+        $item->fill(array_intersect_key($validated, array_flip(['title', 'description', 'caption', 'sort_order', 'is_active'])));
         $item->save();
 
         return response()->json($item->fresh());
