@@ -144,14 +144,16 @@ class BranchResource extends Resource
                     Forms\Components\TextInput::make('manager_name_edit')
                         ->label('Manager Name (Login Username)')
                         ->helperText('Manager logs in with this name + password.')
-                        ->autocomplete('off'),
+                        ->autocomplete('off')
+                        ->extraInputAttributes(['autocomplete' => 'off', 'data-form-type' => 'other', 'data-lpignore' => 'true']),
 
                     Forms\Components\TextInput::make('manager_password_edit')
                         ->label('Password')
                         ->password()
                         ->revealable()
                         ->helperText('Leave blank to keep current password.')
-                        ->autocomplete('new-password'),
+                        ->autocomplete('new-password')
+                        ->extraInputAttributes(['autocomplete' => 'new-password', 'data-form-type' => 'other', 'data-lpignore' => 'true']),
 
                     Forms\Components\TextInput::make('manager_password_edit_confirmation')
                         ->label('Confirm Password')
@@ -159,6 +161,7 @@ class BranchResource extends Resource
                         ->revealable()
                         ->helperText('Must match new password if changing.')
                         ->autocomplete('new-password')
+                        ->extraInputAttributes(['autocomplete' => 'new-password', 'data-form-type' => 'other', 'data-lpignore' => 'true'])
                         ->rules([
                             fn (\Filament\Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
                                 $newPass = $get('manager_password_edit');
