@@ -20,8 +20,16 @@ use App\Http\Controllers\Api\HelpRequestController;
 use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\BranchAdminController;
+use App\Http\Controllers\Api\ApplicationFormController;
+use App\Http\Controllers\Api\FormTemplateController;
 use App\Http\Controllers\Api\AdminSettingsController;
 use Illuminate\Support\Facades\Route;
+
+// Form Templates (authenticated — any logged-in user)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/form-templates',           [FormTemplateController::class, 'index']);
+    Route::get('/form-templates/{country}', [FormTemplateController::class, 'show']);
+});
 
 // Health check
 Route::get('/health', function () {
@@ -167,6 +175,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/gallery',                [BranchAdminController::class, 'storeGallery']);
         Route::post('/gallery/{id}',           [BranchAdminController::class, 'updateGallery']);
         Route::delete('/gallery/{id}',         [BranchAdminController::class, 'deleteGallery']);
+
+        // Application Forms
+        Route::get('/application-forms',                              [ApplicationFormController::class, 'index']);
+        Route::post('/application-forms',                             [ApplicationFormController::class, 'store']);
+        Route::get('/application-forms/{id}',                        [ApplicationFormController::class, 'show']);
+        Route::patch('/application-forms/{id}',                      [ApplicationFormController::class, 'update']);
+        Route::post('/application-forms/{id}/submit',                [ApplicationFormController::class, 'submit']);
+        Route::post('/application-forms/{id}/documents',             [ApplicationFormController::class, 'uploadDocument']);
+        Route::delete('/application-forms/{id}/documents/{docId}',   [ApplicationFormController::class, 'deleteDocument']);
     });
 
     // Admin only

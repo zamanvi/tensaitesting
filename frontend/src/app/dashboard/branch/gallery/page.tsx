@@ -178,44 +178,49 @@ export default function BranchGalleryPage() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-white rounded-2xl w-full max-w-md max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 sm:px-4">
+          <div className="bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] overflow-y-auto shadow-2xl">
 
-            {/* Modal header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h3 className="text-base font-bold text-slate-900">
-                {modal === 'add' ? 'Add Image' : 'Edit Image'}
-              </h3>
-              <button onClick={closeModal} className="w-7 h-7 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors text-xl leading-none">×</button>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 sticky top-0 bg-white z-10">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {modal === 'add' ? 'Add Image' : 'Edit Image'}
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">Fill in the details below and upload a photo</p>
+              </div>
+              <button onClick={closeModal}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors text-2xl leading-none">×</button>
             </div>
 
-            <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            <form onSubmit={handleSubmit} className="px-6 py-6 space-y-5">
               {err && (
-                <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-xs text-red-600">⚠️ {err}</div>
+                <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">⚠️ {err}</div>
               )}
 
-              {/* Image upload area */}
+              {/* Upload zone — full width, taller */}
               <div
                 onClick={() => fileRef.current?.click()}
-                className="relative w-full aspect-video rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 hover:border-green-400 hover:bg-green-50/50 transition-all cursor-pointer flex items-center justify-center overflow-hidden"
+                className="relative w-full rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 hover:border-green-400 hover:bg-green-50/40 transition-all cursor-pointer flex items-center justify-center overflow-hidden"
+                style={{ minHeight: '220px' }}
               >
                 {preview
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={preview} alt="preview" className="w-full h-full object-cover" />
+                  ? <img src={preview} alt="preview" className="w-full h-full object-cover absolute inset-0" style={{ minHeight: '220px' }} />
                   : (
-                    <div className="text-center p-4">
-                      <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center mx-auto mb-2">
-                        <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <div className="text-center py-10 px-6">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-200 flex items-center justify-center mx-auto mb-3">
+                        <svg className="w-7 h-7 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                       </div>
-                      <p className="text-xs font-medium text-slate-500">Click to upload image</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">JPG, PNG, WebP — max 8MB</p>
+                      <p className="text-sm font-semibold text-slate-600 mb-1">Click to upload image</p>
+                      <p className="text-xs text-slate-400">JPG, PNG, WebP — max 8MB</p>
                     </div>
                   )}
                 {preview && (
-                  <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <p className="text-white text-xs font-semibold bg-black/40 px-3 py-1.5 rounded-full">Click to change</p>
+                  <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-all flex items-center justify-center">
+                    <p className="text-white text-sm font-semibold opacity-0 hover:opacity-100 bg-black/50 px-4 py-2 rounded-full transition-opacity">Click to change</p>
                   </div>
                 )}
               </div>
@@ -223,49 +228,52 @@ export default function BranchGalleryPage() {
 
               {!file && (
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Or paste image URL</label>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">Or paste image URL</label>
                   <input className={inp} type="url" placeholder="https://…" value={imageUrl}
                     onChange={e => { setImageUrl(e.target.value); if (e.target.value) setPreview(e.target.value); }} />
                 </div>
               )}
 
-              {/* Title */}
-              <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Title</label>
-                <input className={inp} placeholder="e.g. Our Dhaka Office" value={title}
-                  onChange={e => setTitle(e.target.value)} />
+              {/* Title + Description side by side on sm+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">Title</label>
+                  <input className={inp} placeholder="e.g. Our Dhaka Office" value={title}
+                    onChange={e => setTitle(e.target.value)} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">
+                    Description <span className="font-normal text-slate-300">optional</span>
+                  </label>
+                  <input className={inp} placeholder="Short description…" value={desc}
+                    onChange={e => setDesc(e.target.value)} />
+                </div>
               </div>
 
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Description <span className="text-slate-300">(optional)</span></label>
-                <textarea className={`${inp} resize-none`} rows={2}
-                  placeholder="Short description of this image…"
-                  value={desc} onChange={e => setDesc(e.target.value)} />
-              </div>
-
-              {/* Sort + Active */}
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Sort Order <span className="text-slate-300">(lower = first)</span></label>
+              {/* Sort order + Visible */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 items-end">
+                <div className="col-span-1">
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">
+                    Sort Order <span className="font-normal text-slate-300">lower = first</span>
+                  </label>
                   <input className={inp} type="number" min="0" value={sortOrder}
                     onChange={e => setSortOrder(Number(e.target.value))} />
                 </div>
-                <label className="flex items-center gap-2 cursor-pointer mt-4">
+                <label className="flex items-center gap-2.5 cursor-pointer pb-2">
                   <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)}
                     className="w-4 h-4 accent-green-600" />
-                  <span className="text-sm text-slate-700">Visible</span>
+                  <span className="text-sm font-medium text-slate-700">Visible to public</span>
                 </label>
               </div>
 
               {/* Actions */}
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={save.isPending}
-                  className="flex-1 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition-colors">
+                  className="flex-1 py-3 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-bold disabled:opacity-50 transition-colors">
                   {save.isPending ? 'Saving…' : modal === 'add' ? 'Upload & Save' : 'Save Changes'}
                 </button>
                 <button type="button" onClick={closeModal}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold transition-colors">
+                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors">
                   Cancel
                 </button>
               </div>
