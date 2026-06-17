@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -18,6 +19,11 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?int $navigationSort = 1;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
 
     public static function form(Form $form): Form
     {
@@ -36,17 +42,25 @@ class UserResource extends Resource
             Forms\Components\Section::make('Profile')->schema([
                 Forms\Components\Select::make('gateway_type')
                     ->options([
-                        'student' => 'Student',
-                        'agency' => 'Agency',
+                        'student'     => 'Student',
+                        'agency'      => 'Agency',
                         'institution' => 'Institution',
-                        'affiliate' => 'Affiliate',
+                        'affiliate'   => 'Affiliate',
+                        'admin'       => 'Admin',
                     ])->required(),
                 Forms\Components\Select::make('status')
                     ->options([
-                        'active' => 'Active',
-                        'pending' => 'Pending',
+                        'active'    => 'Active',
+                        'pending'   => 'Pending',
                         'suspended' => 'Suspended',
                     ])->required(),
+                Forms\Components\Select::make('roles')
+                    ->label('Role')
+                    ->relationship('roles', 'name')
+                    ->options(Role::whereIn('name', ['admin', 'super_admin', 'student', 'agency', 'institution', 'affiliate', 'manager'])->pluck('name', 'id'))
+                    ->preload()
+                    ->searchable()
+                    ->helperText('Assign admin or super_admin to grant panel access.'),
                 Forms\Components\TextInput::make('affiliate_code')->disabled(),
                 Forms\Components\DateTimePicker::make('email_verified_at')
                     ->label('Email Verified At')
@@ -65,6 +79,15 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Role')
+                    ->badge()
+                    ->color(fn (string $state) => match($state) {
+                        'super_admin' => 'danger',
+                        'admin'       => 'warning',
+                        default       => 'gray',
+                    })
+                    ->separator(','),
                 Tables\Columns\TextColumn::make('email')->searchable(),
                 Tables\Columns\TextColumn::make('phone'),
                 Tables\Columns\TextColumn::make('gateway_type')
@@ -98,10 +121,11 @@ class UserResource extends Resource
             ->filters([
                 SelectFilter::make('gateway_type')
                     ->options([
-                        'student' => 'Student',
-                        'agency' => 'Agency',
+                        'student'     => 'Student',
+                        'agency'      => 'Agency',
                         'institution' => 'Institution',
-                        'affiliate' => 'Affiliate',
+                        'affiliate'   => 'Affiliate',
+                        'admin'       => 'Admin',
                     ]),
                 SelectFilter::make('status')
                     ->options(['active' => 'Active', 'pending' => 'Pending', 'suspended' => 'Suspended']),
