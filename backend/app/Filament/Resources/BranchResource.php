@@ -272,6 +272,22 @@ class BranchResource extends Resource
                 Tables\Filters\TernaryFilter::make('is_active')->label('Active status'),
             ])
             ->actions([
+                Tables\Actions\Action::make('details')
+                    ->label('Details')
+                    ->icon('heroicon-o-eye')
+                    ->color('info')
+                    ->modalHeading(fn (Branch $record) => $record->name . ' — Branch Details')
+                    ->modalContent(fn (Branch $record) => view('filament.modals.branch-details', [
+                        'branch'  => $record,
+                        'manager' => DB::table('users')
+                            ->where('branch_id', $record->id)
+                            ->where('gateway_type', 'branch')
+                            ->whereNull('deleted_at')
+                            ->first(),
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close'),
+
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
