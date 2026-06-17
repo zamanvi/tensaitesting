@@ -15,9 +15,10 @@ use Filament\Tables\Table;
 class InterviewResource extends Resource
 {
     protected static ?string $model = Interview::class;
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+    protected static ?string $navigationIcon  = 'heroicon-o-check-badge';
+    protected static ?string $navigationLabel = 'Selected';
     protected static ?string $navigationGroup = 'Applicant Management';
-    protected static ?int $navigationSort = 2;
+    protected static ?int    $navigationSort  = 2;
 
     public static function form(Form $form): Form
     {
