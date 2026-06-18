@@ -9,6 +9,14 @@ class CreateFormTemplate extends CreateRecord
 {
     protected static string $resource = FormTemplateResource::class;
 
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getCreateFormAction()->label('Save'),
+            $this->getCancelFormAction(),
+        ];
+    }
+
     protected function afterCreate(): void
     {
         $structure = json_decode($this->data['form_structure'] ?? '[]', true);
