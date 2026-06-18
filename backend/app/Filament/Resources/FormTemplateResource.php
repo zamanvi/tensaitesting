@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Forms\Components\FormBuilderField;
+use App\Filament\Forms\Components\SavedStructureField;
 use App\Filament\Resources\FormTemplateResource\Pages;
 use App\Models\FormFieldBox;
 use App\Models\FormFieldGroup;
@@ -76,6 +77,16 @@ class FormTemplateResource extends Resource
                             ->columnSpanFull(),
                     ]),
             ])->columnSpanFull(),
+
+            // ── Full width: Saved field groups ────────────────────────────────
+            Forms\Components\Section::make('For Save Data')
+                ->icon('heroicon-o-archive-box')
+                ->columnSpanFull()
+                ->schema([
+                    SavedStructureField::make('saved_structure')
+                        ->label('')
+                        ->columnSpanFull(),
+                ]),
 
             // ── Full width: Custom Form Builder ───────────────────────────────
             Forms\Components\Section::make('Add Data and Document')
