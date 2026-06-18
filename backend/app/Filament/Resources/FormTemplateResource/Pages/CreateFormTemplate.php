@@ -20,8 +20,12 @@ class CreateFormTemplate extends CreateRecord
             ->extraAttributes(['style' => 'display:none']);
     }
 
+    public ?int $createdRecordId = null;
+
     protected function afterCreate(): void
     {
+        $this->createdRecordId = $this->getRecord()->id;
+
         $structure = json_decode($this->data['form_structure'] ?? '[]', true);
         if (! empty($structure)) {
             FormTemplateResource::syncStructure($this->getRecord(), $structure);
@@ -30,6 +34,6 @@ class CreateFormTemplate extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('index');
+        return $this->getResource()::getUrl('edit', ['record' => $this->createdRecordId]);
     }
 }
