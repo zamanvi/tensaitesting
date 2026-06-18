@@ -110,7 +110,7 @@ class FormTemplateResource extends Resource
         $keepFieldIds = [];
 
         foreach ($structure as $gi => $gData) {
-            // Upsert group
+            // Upsert FormFieldGroup (Field Title)
             $groupAttrs = [
                 'form_template_id' => $template->id,
                 'label'      => $gData['label'] ?? '',
@@ -124,49 +124,50 @@ class FormTemplateResource extends Resource
             }
             $keepGroupIds[] = $group->id;
 
-            // Each group gets one default container box
-            $box = $group->boxes()->first();
-            if (! $box) {
-                $box = FormFieldBox::create([
+            // Each box = one "Add Data and Document" section (FormFieldBox)
+            foreach ($gData['boxes'] ?? [] as $si => $sData) {
+                $boxAttrs = [
                     'form_field_group_id' => $group->id,
-                    'name'       => $gData['label'] ?: 'Default',
-                    'is_active'  => true,
-                    'sort_order' => 0,
-                ]);
-            } else {
-                $box->update(['name' => $gData['label'] ?: 'Default']);
-            }
-            $keepBoxIds[] = $box->id;
-
-            // Each "box" in the UI is a FormTemplateField (flat, no nested fields[])
-            foreach ($gData['boxes'] ?? [] as $bi => $bData) {
-                $fieldAttrs = [
-                    'form_template_id'      => $template->id,
-                    'form_field_group_id'   => $group->id,
-                    'form_field_box_id'     => $box->id,
-                    'label'                 => $bData['label'] ?? '',
-                    'field_key'             => $bData['field_key'] ?? '',
-                    'field_type'            => $bData['field_type'] ?? 'text',
-                    'box_size'              => $bData['box_size'] ?? 'middle',
-                    'is_required'           => $bData['is_required'] ?? false,
-                    'is_active'             => $bData['is_active'] ?? true,
-                    'placeholder'           => $bData['placeholder'] ?: null,
-                    'helper_text'           => $bData['helper_text'] ?: null,
-                    'options'               => $bData['options'] ?: null,
-                    'sort_order'            => $bi,
-                    'conditional_field_key' => $bData['conditional_field_key'] ?: null,
-                    'conditional_operator'  => $bData['conditional_operator'] ?: null,
-                    'conditional_value'     => $bData['conditional_value'] ?: null,
+                    'name'               => $sData['name'] ?? ('Section ' . ($si + 1)),
+                    'is_active'          => $sData['is_active'] ?? true,
+                    'requires_document'  => $sData['requires_document'] ?? false,
+                    'sort_order'         => $si,
                 ];
-
-                // field_id is the FormTemplateField id (box._box_id is the FormFieldBox id)
-                $fieldId = $bData['field_id'] ?? null;
-                if (! empty($fieldId) && $field = FormTemplateField::find($fieldId)) {
-                    $field->update($fieldAttrs);
+                if (! empty($sData['id']) && $box = FormFieldBox::find($sData['id'])) {
+                    $box->update($boxAttrs);
                 } else {
-                    $field = FormTemplateField::create($fieldAttrs);
+                    $box = FormFieldBox::create($boxAttrs);
                 }
-                $keepFieldIds[] = $field->id;
+                $keepBoxIds[] = $box->id;
+
+                // Each field = one Q/½/↔ input (FormTemplateField)
+                foreach ($sData['fields'] ?? [] as $fi => $fData) {
+                    $fieldAttrs = [
+                        'form_template_id'      => $template->id,
+                        'form_field_group_id'   => $group->id,
+                        'form_field_box_id'     => $box->id,
+                        'label'                 => $fData['label'] ?? '',
+                        'field_key'             => $fData['field_key'] ?? '',
+                        'field_type'            => $fData['field_type'] ?? 'text',
+                        'box_size'              => $fData['box_size'] ?? 'middle',
+                        'is_required'           => $fData['is_required'] ?? false,
+                        'is_active'             => $fData['is_active'] ?? true,
+                        'placeholder'           => $fData['placeholder'] ?: null,
+                        'helper_text'           => $fData['helper_text'] ?: null,
+                        'options'               => $fData['options'] ?: null,
+                        'sort_order'            => $fi,
+                        'conditional_field_key' => $fData['conditional_field_key'] ?: null,
+                        'conditional_operator'  => $fData['conditional_operator'] ?: null,
+                        'conditional_value'     => $fData['conditional_value'] ?: null,
+                    ];
+                    $fieldId = $fData['field_id'] ?? null;
+                    if (! empty($fieldId) && $field = FormTemplateField::find($fieldId)) {
+                        $field->update($fieldAttrs);
+                    } else {
+                        $field = FormTemplateField::create($fieldAttrs);
+                    }
+                    $keepFieldIds[] = $field->id;
+                }
             }
         }
 
