@@ -10,7 +10,7 @@ class FormTemplateField extends Model
 {
     protected $fillable = [
         'form_template_id', 'form_field_group_id', 'form_field_box_id', 'field_key', 'label', 'section',
-        'field_type', 'is_required', 'is_active', 'requires_document',
+        'field_type', 'is_required', 'is_active', 'requires_document', 'document_required',
         'options', 'placeholder', 'helper_text', 'sort_order',
         'box_size', 'conditional_field_key', 'conditional_operator', 'conditional_value',
     ];
@@ -35,7 +35,8 @@ class FormTemplateField extends Model
         'options'     => 'array',
         'is_required'        => 'boolean',
         'is_active'          => 'boolean',
-        'requires_document'  => 'boolean',
+        'requires_document'   => 'boolean',
+        'document_required'   => 'boolean',
     ];
 
     public function template(): BelongsTo
