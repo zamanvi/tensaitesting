@@ -34,13 +34,15 @@ class FormTemplateController extends Controller
 
     private function findTemplate(string $country): ?FormTemplate
     {
-        $template = FormTemplate::with(['activeFieldGroups.activeFields'])
+        $with = ['activeFieldGroups.activeBoxes.activeFields'];
+
+        $template = FormTemplate::with($with)
             ->where('is_active', true)
             ->where('country', $country)
             ->first();
 
         if (!$template) {
-            $template = FormTemplate::with(['activeFieldGroups.activeFields'])
+            $template = FormTemplate::with($with)
                 ->where('is_active', true)
                 ->where('country', 'Global')
                 ->first();
@@ -52,19 +54,16 @@ class FormTemplateController extends Controller
     private function formatTemplate(FormTemplate $template): array
     {
         $groups = $template->activeFieldGroups->map(fn ($group) => [
-            'id'     => $group->id,
-            'label'  => $group->label,
-            'hint'   => $group->hint,
-            'fields' => $group->activeFields->map(fn ($f) => $this->formatField($f))->values(),
+            'id'    => $group->id,
+            'label' => $group->label,
+            'hint'  => $group->hint,
+            'boxes' => $group->activeBoxes->map(fn ($box) => [
+                'id'                 => $box->id,
+                'name'               => $box->name,
+                'requires_document'  => $box->requires_document,
+                'fields'             => $box->activeFields->map(fn ($f) => $this->formatField($f))->values(),
+            ])->values(),
         ])->values();
-
-        // Ungrouped fields (form_field_group_id is null) — keep backwards compat
-        $ungrouped = $template->activeFields()
-            ->whereNull('form_field_group_id')
-            ->orderBy('sort_order')
-            ->get()
-            ->map(fn ($f) => $this->formatField($f))
-            ->values();
 
         return [
             'id'             => $template->id,
@@ -72,7 +71,6 @@ class FormTemplateController extends Controller
             'name'           => $template->name,
             'intake_options' => $template->intake_options ?? [],
             'groups'         => $groups,
-            'fields'         => $ungrouped, // legacy / ungrouped fields
         ];
     }
 
