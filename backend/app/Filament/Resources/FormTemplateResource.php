@@ -95,28 +95,11 @@ class FormTemplateResource extends Resource
                             ->default(true),
                     ]),
 
-                Forms\Components\Section::make('Quick Guide')
-                    ->icon('heroicon-o-light-bulb')
-                    ->collapsible()
-                    ->collapsed(true)
-                    ->schema([
-                        Forms\Components\Placeholder::make('')
-                            ->content(
-                                "1. Fill Country, Visa Type, Form Name\n" .
-                                "2. Add Fields (top-level sections e.g. Academic Background)\n" .
-                                "3. Inside each Field, create Boxes (e.g. HSC Result)\n" .
-                                "4. Inside each Box, add sub-inputs (¼ Quarter / ½ Half / ↔ Full)\n" .
-                                "5. Toggle 📎 on a Box if a document upload is required\n" .
-                                "6. Save as Draft while building — Publish when ready"
-                            ),
-                    ]),
-
             ])->columnSpan(['lg' => 1]),
 
             // ── Full width: Field Builder ──────────────────────────────────────
             Forms\Components\Section::make('Form Fields')
                 ->icon('heroicon-o-rectangle-stack')
-                ->description('Build your form. Each Field is a section (e.g. Academic Background). Inside each Field, add Boxes (e.g. HSC Result). Each Box holds sub-inputs.')
                 ->columnSpanFull()
                 ->schema([
                     Forms\Components\Repeater::make('fieldGroups')
