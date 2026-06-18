@@ -21,11 +21,12 @@ use App\Http\Controllers\Api\AdminUserController;
 use App\Http\Controllers\Api\BranchController;
 use App\Http\Controllers\Api\BranchAdminController;
 use App\Http\Controllers\Api\ApplicationFormController;
+use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\FormTemplateController;
 use App\Http\Controllers\Api\AdminSettingsController;
 use Illuminate\Support\Facades\Route;
 
-// Form Templates (authenticated — any logged-in user)
+// Form Templates (authenticated)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/form-templates',           [FormTemplateController::class, 'index']);
     Route::get('/form-templates/{country}', [FormTemplateController::class, 'show']);
@@ -41,7 +42,7 @@ Route::get('/health', function () {
     }
 });
 
-// Public settings (contact info, social links, copyright)
+// Public settings
 Route::get('/settings/public', function () {
     $keys = [
         'facebook_url', 'youtube_url', 'instagram_url', 'tiktok_url',
@@ -56,14 +57,14 @@ Route::get('/settings/public', function () {
 
 // Branches (public)
 Route::get('/branches', [BranchController::class, 'index']);
-Route::get('/branches/file', [BranchController::class, 'serveFile']); // R2 proxy
+Route::get('/branches/file', [BranchController::class, 'serveFile']);
 Route::get('/branches/{slug}', [BranchController::class, 'show']);
 
 Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/gallery/featured', [GalleryController::class, 'featured']);
-Route::get('/gallery/image/{gallery}', [GalleryController::class, 'serveImage']); // R2 proxy for private buckets
+Route::get('/gallery/image/{gallery}', [GalleryController::class, 'serveImage']);
 
-// Public auth endpoints — rate-limited to prevent brute-force attacks
+// Public auth
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/auth/register',             [AuthController::class, 'register']);
     Route::post('/auth/login',                [AuthController::class, 'login']);
@@ -78,10 +79,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/me', [AuthController::class, 'me']);
 
-    // Notifications (all authenticated users)
+    // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
+
+    // ── New Application system (all authenticated roles) ──────────────────────
+    Route::get('/applications',                                  [ApplicationController::class, 'index']);
+    Route::post('/applications',                                 [ApplicationController::class, 'store']);
+    Route::get('/applications/{id}',                            [ApplicationController::class, 'show']);
+    Route::patch('/applications/{id}',                          [ApplicationController::class, 'update']);
+    Route::post('/applications/{id}/submit',                    [ApplicationController::class, 'submit']);
+    Route::post('/applications/{id}/documents',                 [ApplicationController::class, 'uploadDocument']);
+    Route::delete('/applications/{id}/documents/{docId}',       [ApplicationController::class, 'deleteDocument']);
 
     // Student gateway
     Route::prefix('student')->middleware('role:student')->group(function () {
@@ -115,7 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Institution gateway
     Route::prefix('institution')->middleware('role:institution')->group(function () {
         Route::get('/profile', [InstitutionController::class, 'profile']);
-        Route::post('/profile', [InstitutionController::class, 'updateProfile']); // POST for multipart/form-data (logo upload)
+        Route::post('/profile', [InstitutionController::class, 'updateProfile']);
         Route::get('/leads', [InstitutionController::class, 'myLeads']);
         Route::get('/students', [StudentProfileController::class, 'institutionBrowse']);
         Route::post('/contact-request/{lead}', [InstitutionController::class, 'contactRequest']);
@@ -126,57 +136,39 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Affiliate gateway
     Route::prefix('affiliate')->middleware('role:affiliate')->group(function () {
-        // Onboarding
         Route::post('/set-type',       [AffiliateController::class, 'setType']);
-
-        // Profile
         Route::get('/profile',         [AffiliateController::class, 'showProfile']);
         Route::post('/profile',        [AffiliateController::class, 'updateProfile']);
-
-        // Dashboard (type-aware: local or global)
         Route::get('/dashboard',       [AffiliateController::class, 'dashboard']);
-
-        // Local affiliate: referred students
         Route::get('/referrals',       [AffiliateController::class, 'referredStudents']);
-
-        // Global affiliate: managed entities (institutions + employees)
         Route::get('/entities',        [AffiliateController::class, 'entities']);
         Route::post('/entities',       [AffiliateController::class, 'storeEntity']);
         Route::put('/entities/{id}',   [AffiliateController::class, 'updateEntity']);
         Route::delete('/entities/{id}',[AffiliateController::class, 'deleteEntity']);
-
-        // Commissions / earnings (both types)
         Route::get('/commissions',     [AffiliateController::class, 'commissions']);
-
-        // Upgrade local → global
         Route::post('/upgrade-request',[AffiliateController::class, 'upgradeRequest']);
     });
 
-    // Branch admin gateway (branch_admin and branch_manager)
+    // Branch admin gateway
     Route::prefix('branch-admin')->middleware('role:branch_admin|branch_manager')->group(function () {
         Route::get('/my-branch',   [BranchController::class, 'myBranch']);
         Route::patch('/contact',   [BranchController::class, 'updateContact']);
-
         Route::get('/settings',    [BranchAdminController::class, 'getSettings']);
         Route::patch('/settings',  [BranchAdminController::class, 'updateSettings']);
-
         Route::get('/leads',                    [BranchAdminController::class, 'leads']);
         Route::post('/leads',                   [BranchAdminController::class, 'storeLead']);
         Route::get('/leads/{id}',               [BranchAdminController::class, 'showLead']);
         Route::patch('/leads/{id}',             [BranchAdminController::class, 'updateLead']);
         Route::post('/leads/{id}/submit',       [BranchAdminController::class, 'submitLead']);
-
         Route::get('/team',                    [BranchAdminController::class, 'team']);
         Route::post('/team',                   [BranchAdminController::class, 'storeTeamMember']);
         Route::patch('/team/{id}',             [BranchAdminController::class, 'updateTeamMember']);
         Route::delete('/team/{id}',            [BranchAdminController::class, 'deleteTeamMember']);
-
         Route::get('/gallery',                 [BranchAdminController::class, 'gallery']);
         Route::post('/gallery',                [BranchAdminController::class, 'storeGallery']);
         Route::post('/gallery/{id}',           [BranchAdminController::class, 'updateGallery']);
         Route::delete('/gallery/{id}',         [BranchAdminController::class, 'deleteGallery']);
-
-        // Application Forms
+        // Legacy application forms (keep for old data)
         Route::get('/application-forms',                              [ApplicationFormController::class, 'index']);
         Route::post('/application-forms',                             [ApplicationFormController::class, 'store']);
         Route::get('/application-forms/{id}',                        [ApplicationFormController::class, 'show']);
@@ -202,23 +194,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/agencies',                   [AgencyController::class, 'index']);
         Route::post('/agencies/{agency}/approve', [AgencyController::class, 'approve']);
         Route::post('/agencies/{agency}/reject',  [AgencyController::class, 'reject']);
-
-        // Settings
         Route::get('/settings',    [AdminSettingsController::class, 'index']);
         Route::patch('/settings',  [AdminSettingsController::class, 'update']);
-
-        // Branch management
         Route::get('/branches',                                [BranchController::class, 'adminIndex']);
         Route::post('/branches',                               [BranchController::class, 'store']);
         Route::patch('/branches/{branch}',                     [BranchController::class, 'update']);
         Route::post('/branches/{branch}/create-admin',         [BranchController::class, 'createAdmin']);
-
-
-        // Gallery management
         Route::get('/gallery',                          [AdminGalleryController::class, 'index']);
         Route::post('/gallery',                         [AdminGalleryController::class, 'store']);
-        Route::post('/gallery/{gallery}',               [AdminGalleryController::class, 'update']); // POST for multipart/form-data
+        Route::post('/gallery/{gallery}',               [AdminGalleryController::class, 'update']);
         Route::post('/gallery/{gallery}/toggle',        [AdminGalleryController::class, 'toggle']);
         Route::delete('/gallery/{gallery}',             [AdminGalleryController::class, 'destroy']);
+        // Admin applications (full list + PATCH status)
+        Route::patch('/applications/{id}/status',       [ApplicationController::class, 'updateStatus']);
     });
 });
