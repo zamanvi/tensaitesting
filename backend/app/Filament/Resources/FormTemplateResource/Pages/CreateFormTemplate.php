@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FormTemplateResource\Pages;
 
 use App\Filament\Resources\FormTemplateResource;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateFormTemplate extends CreateRecord
@@ -22,13 +23,26 @@ class CreateFormTemplate extends CreateRecord
 
     public ?int $createdRecordId = null;
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        unset($data['form_structure'], $data['saved_structure']);
+        return $data;
+    }
+
     protected function afterCreate(): void
     {
         $this->createdRecordId = $this->getRecord()->id;
 
-        $structure = json_decode($this->data['form_structure'] ?? '[]', true);
-        if (! empty($structure)) {
-            FormTemplateResource::syncStructure($this->getRecord(), $structure);
+        try {
+            $structure = json_decode($this->data['form_structure'] ?? '[]', true);
+            if (! empty($structure)) {
+                FormTemplateResource::syncStructure($this->getRecord(), $structure);
+            }
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Fields could not be saved: ' . $e->getMessage())
+                ->danger()
+                ->send();
         }
     }
 
