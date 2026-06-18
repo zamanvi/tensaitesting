@@ -77,7 +77,7 @@ class FormTemplateResource extends Resource
                     ]),
             ])->columnSpan(['lg' => 2]),
 
-            // ── Right: Status + Form Builder ─────────────────────────────────
+            // ── Right: Status ─────────────────────────────────────────────────
             Forms\Components\Group::make()->schema([
                 Forms\Components\Section::make('Status')
                     ->icon('heroicon-o-check-circle')
@@ -97,15 +97,72 @@ class FormTemplateResource extends Resource
                             ->helperText('Unpublish temporarily without deleting.')
                             ->default(true),
                     ]),
-
-                Forms\Components\Section::make('Add new field')
-                    ->icon('heroicon-o-rectangle-stack')
-                    ->schema([
-                        FormBuilderField::make('form_structure')
-                            ->label('')
-                            ->columnSpanFull(),
-                    ]),
             ])->columnSpan(['lg' => 1]),
+
+            // ── Full width: Saved Fields display ─────────────────────────────
+            Forms\Components\Section::make('Saved Fields')
+                ->icon('heroicon-o-clipboard-document-list')
+                ->columnSpanFull()
+                ->schema([
+                    Forms\Components\Placeholder::make('saved_fields_display')
+                        ->label('')
+                        ->content(function ($record) {
+                            if (! $record) {
+                                return new \Illuminate\Support\HtmlString(
+                                    '<p class="text-sm text-gray-400 italic">No fields saved yet. Add fields below and save.</p>'
+                                );
+                            }
+
+                            $groups = FormFieldGroup::where('form_template_id', $record->id)
+                                ->orderBy('sort_order')->get();
+
+                            if ($groups->isEmpty()) {
+                                return new \Illuminate\Support\HtmlString(
+                                    '<p class="text-sm text-gray-400 italic">No fields saved yet. Add fields below and save.</p>'
+                                );
+                            }
+
+                            $html = '<div class="space-y-3">';
+                            foreach ($groups as $group) {
+                                $fields = FormTemplateField::where('form_field_group_id', $group->id)
+                                    ->orderBy('sort_order')->get();
+
+                                $html .= '<div class="p-3 bg-gray-50 rounded-xl border border-gray-200">';
+                                $html .= '<p class="font-semibold text-sm text-gray-700 mb-2">'
+                                    . e($group->label ?: 'Untitled field') . '</p>';
+                                $html .= '<div class="flex flex-wrap gap-2">';
+
+                                foreach ($fields as $field) {
+                                    $size = $field->box_size === 'small' ? 'Q' : ($field->box_size === 'full' ? '↔' : '½');
+                                    $width = $field->box_size === 'full' ? 'w-full' : ($field->box_size === 'small' ? 'w-auto' : 'w-auto');
+                                    $html .= '<span class="inline-flex items-center gap-1.5 text-xs border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white text-gray-600 ' . $width . '">';
+                                    $html .= '<span class="font-bold text-gray-400 text-xs">' . $size . '</span>';
+                                    $html .= '<span>' . e($field->label ?: 'Untitled') . '</span>';
+                                    if ($field->is_required) $html .= '<span class="text-red-400 font-bold">*</span>';
+                                    $html .= '</span>';
+                                }
+
+                                if ($fields->isEmpty()) {
+                                    $html .= '<span class="text-xs text-gray-400 italic">No boxes in this field</span>';
+                                }
+
+                                $html .= '</div></div>';
+                            }
+                            $html .= '</div>';
+
+                            return new \Illuminate\Support\HtmlString($html);
+                        }),
+                ]),
+
+            // ── Full width: Custom Form Builder ───────────────────────────────
+            Forms\Components\Section::make('Add new field')
+                ->icon('heroicon-o-rectangle-stack')
+                ->columnSpanFull()
+                ->schema([
+                    FormBuilderField::make('form_structure')
+                        ->label('')
+                        ->columnSpanFull(),
+                ]),
 
         ])->columns(3);
     }
