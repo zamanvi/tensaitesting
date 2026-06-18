@@ -13,7 +13,10 @@ class CreateFormTemplate extends CreateRecord
     {
         return [
             $this->getCreateFormAction()->label('Save'),
-            $this->getCancelFormAction(),
+            \Filament\Actions\Action::make('cancel')
+                ->label('Cancel')
+                ->url($this->getResource()::getUrl('index'))
+                ->color('gray'),
         ];
     }
 
