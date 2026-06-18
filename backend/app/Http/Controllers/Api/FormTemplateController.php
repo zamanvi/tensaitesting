@@ -24,7 +24,6 @@ class FormTemplateController extends Controller
     public function index(): JsonResponse
     {
         $templates = FormTemplate::where('is_active', true)
-            ->where('status', 'published')
             ->orderBy('country')
             ->get(['id', 'country', 'name', 'intake_options']);
 
@@ -39,14 +38,12 @@ class FormTemplateController extends Controller
 
         $template = FormTemplate::with($with)
             ->where('is_active', true)
-            ->where('status', 'published')
             ->where('country', $country)
             ->first();
 
         if (!$template) {
             $template = FormTemplate::with($with)
                 ->where('is_active', true)
-                ->where('status', 'published')
                 ->where('country', 'Global')
                 ->first();
         }
