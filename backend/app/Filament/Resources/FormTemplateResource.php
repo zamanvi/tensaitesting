@@ -77,7 +77,7 @@ class FormTemplateResource extends Resource
                     ]),
             ])->columnSpan(['lg' => 2]),
 
-            // ── Right: Status ─────────────────────────────────────────────────
+            // ── Right: Status + Form Builder ─────────────────────────────────
             Forms\Components\Group::make()->schema([
                 Forms\Components\Section::make('Status')
                     ->icon('heroicon-o-check-circle')
@@ -97,17 +97,15 @@ class FormTemplateResource extends Resource
                             ->helperText('Unpublish temporarily without deleting.')
                             ->default(true),
                     ]),
-            ])->columnSpan(['lg' => 1]),
 
-            // ── Full width: Custom Form Builder ───────────────────────────────
-            Forms\Components\Section::make('Add new field')
-                ->icon('heroicon-o-rectangle-stack')
-                ->columnSpanFull()
-                ->schema([
-                    FormBuilderField::make('form_structure')
-                        ->label('')
-                        ->columnSpanFull(),
-                ]),
+                Forms\Components\Section::make('Add new field')
+                    ->icon('heroicon-o-rectangle-stack')
+                    ->schema([
+                        FormBuilderField::make('form_structure')
+                            ->label('')
+                            ->columnSpanFull(),
+                    ]),
+            ])->columnSpan(['lg' => 1]),
 
         ])->columns(3);
     }
