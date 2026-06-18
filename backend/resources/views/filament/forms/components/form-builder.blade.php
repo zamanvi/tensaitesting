@@ -18,8 +18,12 @@
             <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 cursor-pointer select-none"
                 @click="group.collapsed = !group.collapsed">
                 <span class="text-gray-300 cursor-grab text-sm">⠿⠿</span>
-                <span class="font-semibold text-sm text-gray-800 flex-1"
-                    x-text="group.label || 'Untitled field'"></span>
+                <input type="text"
+                    x-model="group.label"
+                    @input="sync()"
+                    @click.stop
+                    placeholder="Field title..."
+                    class="flex-1 font-semibold text-sm text-gray-800 bg-transparent border-none outline-none placeholder-gray-400"/>
                 <span class="text-xs bg-white border border-gray-200 text-gray-500 px-2 py-0.5 rounded-full"
                     x-text="group.boxes.length + (group.boxes.length === 1 ? ' box' : ' boxes')"></span>
                 <button type="button" @click.stop="removeGroup(gi)"
@@ -41,18 +45,6 @@
             {{-- Field body --}}
             <div x-show="!group.collapsed" x-collapse>
                 <div class="p-4 space-y-4">
-
-                    {{-- Field title input --}}
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 mb-1 block">
-                            Field title <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text"
-                            x-model="group.label"
-                            @input="sync()"
-                            placeholder="e.g. Academic Background"
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"/>
-                    </div>
 
                     {{-- Boxes displayed in a flex-wrap grid showing actual widths --}}
                     <div class="flex flex-wrap gap-2">
