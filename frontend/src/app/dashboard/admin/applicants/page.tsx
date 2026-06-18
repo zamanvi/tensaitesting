@@ -2,235 +2,294 @@
 import DashboardLayout from '@/components/shared/DashboardLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
-import { useLang } from '@/context/LanguageContext';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import {
+  Application, AppDoc, FormTemplateData,
+} from '@/components/applications/ApplicationFormShared';
+import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 
-interface Applicant {
-  id: number;
-  lead_code: string;
-  status: string;
-  submission_status: 'draft' | 'submitted' | 'accepted' | 'rejected' | null;
-  pool_type: string;
-  target_country: string | null;
-  target_course: string | null;
-  target_intake: string | null;
-  created_at: string;
-  source_branch_id: number | null;
-  source_agency_id: number | null;
-  source_affiliate_id: number | null;
-  student: { id: number; name: string; email: string; referred_by: number | null; referrer: { id: number; name: string } | null } | null;
-  sourceBranch: { id: number; name: string } | null;
-  sourceAgency: { id: number; name: string } | null;
-  sourceAffiliate: { id: number; name: string } | null;
-}
+const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
+const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide';
 
-interface Paginated { data: Applicant[]; total: number; last_page: number; current_page: number }
-
-const STATUS_COLORS: Record<string, string> = {
-  new:                 'bg-blue-100 text-blue-700',
-  profile_complete:    'bg-sky-100 text-sky-700',
-  under_review:        'bg-amber-100 text-amber-700',
-  shortlisted:         'bg-orange-100 text-orange-700',
-  interview_scheduled: 'bg-purple-100 text-purple-700',
-  interviewed:         'bg-indigo-100 text-indigo-700',
-  offer_received:      'bg-teal-100 text-teal-700',
-  accepted:            'bg-emerald-100 text-emerald-700',
-  visa_processing:     'bg-cyan-100 text-cyan-700',
-  visa_approved:       'bg-green-100 text-green-700',
-  visa_rejected:       'bg-red-100 text-red-700',
-  enrolled:            'bg-green-200 text-green-800',
-  closed:              'bg-slate-100 text-slate-500',
-  on_hold:             'bg-yellow-100 text-yellow-700',
+const STATUS_COLOR: Record<string, string> = {
+  draft:     'bg-slate-100 text-slate-500',
+  submitted: 'bg-amber-100 text-amber-700',
+  accepted:  'bg-emerald-100 text-emerald-700',
+  rejected:  'bg-rose-100 text-rose-600',
 };
 
-function SourceBadge({ applicant }: { applicant: Applicant }) {
-  if (applicant.sourceBranch) {
-    return (
-      <Link href={`/dashboard/admin/branches`} onClick={e => e.stopPropagation()}
-        className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
-        🏢 {applicant.sourceBranch.name}
-      </Link>
-    );
-  }
-  if (applicant.sourceAgency) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-        🏪 {applicant.sourceAgency.name}
-      </span>
-    );
-  }
-  if (applicant.sourceAffiliate) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-        🔗 {applicant.sourceAffiliate.name}
-      </span>
-    );
-  }
-  if (applicant.student?.referrer) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-        🔗 {applicant.student.referrer.name}
-      </span>
-    );
-  }
-  return (
-    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
-      Admin
-    </span>
-  );
-}
+const ROLE_BADGE: Record<string, string> = {
+  admin:        'bg-purple-100 text-purple-700',
+  branch_admin: 'bg-blue-100 text-blue-700',
+  agency:       'bg-amber-100 text-amber-700',
+  student:      'bg-teal-100 text-teal-700',
+};
 
-const SOURCE_FILTERS = ['all', 'pending_review', 'branch', 'affiliate', 'agency', 'admin'] as const;
+const ROLE_LABEL: Record<string, string> = {
+  admin:        '🏛 Admin',
+  branch_admin: '🏢 Branch',
+  agency:       '🏪 Agency',
+  student:      '👤 Student',
+};
+
+const EMPTY = { name: '', email: '', phone: '', templateId: '' };
 
 export default function AdminApplicantsPage() {
   const { user } = useAuthStore();
   const router = useRouter();
-  const { lang } = useLang();
-  const ja = lang === 'ja'; const bn = lang === 'bn';
+  const qc = useQueryClient();
 
   const isAdmin = user?.roles?.some(r => ['admin', 'super_admin'].includes(r));
   useEffect(() => {
     if (user && !isAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isAdmin, router]);
 
-  const [page, setPage] = useState(1);
+  const [activeAppId, setActiveAppId] = useState<number | null>(null);
+  const [showCreate,  setShowCreate]  = useState(false);
+  const [createForm,  setCreateForm]  = useState(EMPTY);
+  const [createErr,   setCreateErr]   = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [sourceFilter, setSourceFilter] = useState('all');
 
-  const { data, isLoading } = useQuery<Paginated>({
-    queryKey: ['admin-applicants', page, statusFilter, sourceFilter],
-    queryFn: () => api.get('/admin/leads', {
-      params: {
-        page,
-        ...(statusFilter ? { status: statusFilter } : {}),
-        ...(sourceFilter === 'pending_review'
-          ? { source: 'branch', submission_status: 'submitted' }
-          : sourceFilter !== 'all' ? { source: sourceFilter } : {}),
-      },
-    }).then(r => r.data),
+  const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
+    queryKey: ['admin-applications', statusFilter],
+    queryFn: () => api.get('/applications', { params: statusFilter ? { status: statusFilter } : {} }).then(r => r.data),
+    enabled: !!isAdmin,
+  });
+  const apps = appsData?.data ?? [];
+
+  const activeApp = apps.find(a => a.id === activeAppId) ?? null;
+
+  const { data: template } = useQuery<FormTemplateData | null>({
+    queryKey: ['form-template', activeApp?.form_template?.country],
+    queryFn: () => activeApp?.form_template?.country
+      ? api.get(`/form-templates/${encodeURIComponent(activeApp.form_template!.country)}`).then(r => r.data)
+      : Promise.resolve(null),
+    enabled: !!activeApp?.form_template?.country,
+    staleTime: 300_000,
+  });
+
+  const { data: templates = [] } = useQuery<{ id: number; name: string; country: string }[]>({
+    queryKey: ['form-templates-list'],
+    queryFn: () => api.get('/form-templates').then(r => r.data),
     enabled: !!isAdmin,
   });
 
-  const applicants = data?.data ?? [];
+  const createMut = useMutation({
+    mutationFn: () => api.post('/applications', {
+      form_template_id: parseInt(createForm.templateId),
+      student_name:     createForm.name,
+      student_email:    createForm.email || undefined,
+      student_phone:    createForm.phone || undefined,
+    }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['admin-applications'] });
+      setActiveAppId(res.data.application.id);
+      setShowCreate(false);
+      setCreateForm(EMPTY);
+    },
+    onError: (e: unknown) => {
+      const ax = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+      setCreateErr(ax.response?.data?.message ?? 'Failed.');
+    },
+  });
+
+  function updateApps(updated: Application) {
+    qc.setQueryData(['admin-applications', statusFilter], (old: { data: Application[] } | undefined) => ({
+      ...old,
+      data: (old?.data ?? []).map(a => a.id === updated.id ? { ...a, ...updated } : a),
+    }));
+  }
+
+  function handleDocUploaded(doc: AppDoc, progress: number) {
+    qc.setQueryData(['admin-applications', statusFilter], (old: { data: Application[] } | undefined) => ({
+      ...old,
+      data: (old?.data ?? []).map(a =>
+        a.id === activeAppId
+          ? { ...a, progress, documents: [...a.documents.filter(d => d.doc_type !== doc.doc_type), doc] }
+          : a
+      ),
+    }));
+  }
+
+  function handleDocDeleted(docId: number, progress: number) {
+    qc.setQueryData(['admin-applications', statusFilter], (old: { data: Application[] } | undefined) => ({
+      ...old,
+      data: (old?.data ?? []).map(a =>
+        a.id === activeAppId
+          ? { ...a, progress, documents: a.documents.filter(d => d.id !== docId) }
+          : a
+      ),
+    }));
+  }
+
+  async function handleStatusChange(appId: number, status: string) {
+    try {
+      const res = await api.patch(`/admin/applications/${appId}/status`, { status });
+      updateApps(res.data);
+    } catch { /* noop */ }
+  }
 
   if (!user || !isAdmin) return null;
 
-  const title = ja ? '申請者管理' : bn ? 'আবেদনকারী ম্যানেজ' : 'Applicants';
-
-  const sourceLabel = (f: string) => {
-    if (ja) return { all: 'すべて', pending_review: '⏳ 審査待ち', branch: '支局', affiliate: 'アフィリエイト', agency: 'エージェンシー', admin: '管理者' }[f] ?? f;
-    if (bn) return { all: 'সব', pending_review: '⏳ রিভিউ পেন্ডিং', branch: 'শাখা', affiliate: 'অ্যাফিলিয়েট', agency: 'এজেন্সি', admin: 'অ্যাডমিন' }[f] ?? f;
-    return { all: 'All', pending_review: '⏳ Pending Review', branch: 'Branch', affiliate: 'Affiliate', agency: 'Agency (Pool)', admin: 'Admin' }[f] ?? f;
-  };
-
   return (
-    <DashboardLayout title={title}>
+    <DashboardLayout title="All Applications">
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        {SOURCE_FILTERS.map(f => (
-          <button key={f}
-            onClick={() => { setSourceFilter(f); setPage(1); }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${sourceFilter === f ? 'bg-green-700 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-green-400'}`}>
-            {sourceLabel(f)}
-          </button>
-        ))}
-        <select
-          value={statusFilter}
-          onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
-          className="ml-auto px-3 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-green-500">
-          <option value="">{ja ? 'すべてのステータス' : bn ? 'সব স্ট্যাটাস' : 'All Statuses'}</option>
-          {['new','profile_complete','under_review','shortlisted','interview_scheduled','interviewed',
-            'offer_received','accepted','visa_processing','visa_approved','visa_rejected','enrolled','closed','on_hold']
-            .map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
-        </select>
-      </div>
+      {activeAppId === null ? (
+        <>
+          {/* Create button + filter bar */}
+          <div className="flex flex-wrap items-center gap-3 mb-5">
+            <button onClick={() => setShowCreate(s => !s)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-sm ${showCreate ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-green-700 text-white hover:bg-green-800'}`}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={showCreate ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'} />
+              </svg>
+              {showCreate ? 'Cancel' : 'Create Application'}
+            </button>
 
-      {/* Summary */}
-      <p className="text-xs text-slate-500 mb-3">
-        {isLoading ? '…' : `${data?.total ?? 0} ${ja ? '件' : bn ? 'টি' : 'total'}`}
-      </p>
+            {(['', 'draft', 'submitted', 'accepted', 'rejected'] as const).map(s => (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${statusFilter === s ? 'bg-green-700 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:border-green-400'}`}>
+                {s === '' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
 
-      {/* Table */}
-      {isLoading ? (
-        <div className="text-center py-16 text-slate-400 text-sm">{ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}</div>
-      ) : applicants.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="text-4xl mb-3">📋</div>
-          <p className="text-slate-400 text-sm">{ja ? '申請者が見つかりません。' : bn ? 'কোনো আবেদনকারী নেই।' : 'No applicants found.'}</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500">
-                  <th className="text-left px-5 py-3">{ja ? 'コード' : bn ? 'কোড' : 'Code'}</th>
-                  <th className="text-left px-4 py-3">{ja ? '学生' : bn ? 'শিক্ষার্থী' : 'Student'}</th>
-                  <th className="text-left px-4 py-3">{ja ? 'ソース' : bn ? 'উৎস' : 'Source'}</th>
-                  <th className="text-left px-4 py-3">{ja ? 'ステータス' : bn ? 'স্ট্যাটাস' : 'Status'}</th>
-                  <th className="text-left px-4 py-3 hidden sm:table-cell">{ja ? '渡航先' : bn ? 'গন্তব্য' : 'Country'}</th>
-                  <th className="text-left px-4 py-3 hidden md:table-cell">{ja ? 'コース' : bn ? 'কোর্স' : 'Course'}</th>
-                  <th className="text-left px-4 py-3 hidden lg:table-cell">{ja ? '登録日' : bn ? 'তারিখ' : 'Added'}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {applicants.map(a => (
-                  <tr key={a.id}
-                    onClick={() => router.push(`/dashboard/admin/applicants/${a.id}`)}
-                    className="hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer">
-                    <td className="px-5 py-3">
-                      <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{a.lead_code}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-slate-800 text-xs">{a.student?.name ?? '—'}</p>
-                      <p className="text-[11px] text-slate-400">{a.student?.email ?? ''}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      <SourceBadge applicant={a} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col gap-1">
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full w-fit ${STATUS_COLORS[a.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                          {a.status.replace(/_/g, ' ')}
-                        </span>
-                        {a.submission_status === 'submitted' && (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 w-fit">
-                            {ja ? '審査待ち' : bn ? 'রিভিউ পেন্ডিং' : 'Pending Review'}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-slate-500 hidden sm:table-cell">{a.target_country ?? '—'}</td>
-                    <td className="px-4 py-3 text-xs text-slate-500 hidden md:table-cell">{a.target_course ?? '—'}</td>
-                    <td className="px-4 py-3 text-xs text-slate-400 hidden lg:table-cell">{new Date(a.created_at).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <span className="ml-auto text-xs text-slate-400">{apps.length} total</span>
           </div>
 
-          {/* Pagination */}
-          {(data?.last_page ?? 1) > 1 && (
-            <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
-              <p className="text-xs text-slate-400">{ja ? `ページ ${page} / ${data?.last_page}` : bn ? `পেজ ${page} / ${data?.last_page}` : `Page ${page} of ${data?.last_page}`}</p>
-              <div className="flex gap-2">
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                  className="px-3 py-1 text-xs rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50">
-                  {ja ? '前へ' : bn ? 'আগে' : 'Prev'}
-                </button>
-                <button onClick={() => setPage(p => Math.min(data?.last_page ?? 1, p + 1))} disabled={page === (data?.last_page ?? 1)}
-                  className="px-3 py-1 text-xs rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50">
-                  {ja ? '次へ' : bn ? 'পরে' : 'Next'}
-                </button>
+          {/* Create form */}
+          {showCreate && (
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-5">
+              <h3 className="font-bold text-slate-800 text-sm mb-4">Create New Application (Admin)</h3>
+              {createErr && <div className="mb-4 p-3 bg-rose-50 border border-rose-100 rounded-xl text-xs text-rose-600">⚠️ {createErr}</div>}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>Application Form *</label>
+                  <select className={inp} value={createForm.templateId} onChange={e => setCreateForm(p => ({ ...p, templateId: e.target.value }))}>
+                    <option value="">Select form…</option>
+                    {templates.map(t => <option key={t.id} value={t.id}>{t.country} — {t.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={lbl}>Student Name *</label>
+                  <input className={inp} placeholder="Full name" value={createForm.name}
+                    onChange={e => setCreateForm(p => ({ ...p, name: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={lbl}>Email</label>
+                  <input className={inp} type="email" placeholder="student@email.com" value={createForm.email}
+                    onChange={e => setCreateForm(p => ({ ...p, email: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={lbl}>Phone</label>
+                  <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={createForm.phone}
+                    onChange={e => setCreateForm(p => ({ ...p, phone: e.target.value }))} />
+                </div>
               </div>
+              <button onClick={() => createMut.mutate()}
+                disabled={createMut.isPending || !createForm.name || !createForm.templateId}
+                className="mt-5 flex items-center gap-2 px-6 py-3 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-2xl disabled:opacity-50">
+                {createMut.isPending && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+                🚀 Create & Open Form
+              </button>
             </div>
           )}
+
+          {/* All Applications Table */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              {isLoading ? (
+                <div className="py-20 text-center"><span className="w-8 h-8 border-3 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" /></div>
+              ) : apps.length === 0 ? (
+                <div className="py-20 text-center">
+                  <div className="text-4xl mb-3">📋</div>
+                  <p className="text-sm text-slate-400">No applications found</p>
+                </div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wide">
+                      <th className="text-left px-5 py-3">Code</th>
+                      <th className="text-left px-4 py-3">Student</th>
+                      <th className="text-left px-4 py-3">Submitted by</th>
+                      <th className="text-left px-4 py-3 hidden sm:table-cell">Country / Form</th>
+                      <th className="text-left px-4 py-3">Progress</th>
+                      <th className="text-left px-4 py-3">Status</th>
+                      <th className="text-left px-4 py-3 hidden lg:table-cell">Date</th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {apps.map(app => (
+                      <tr key={app.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-5 py-3">
+                          <span className="font-mono text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{app.application_code}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-slate-800 text-xs">{app.student_name}</p>
+                          <p className="text-[11px] text-slate-400">{app.student_email}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ROLE_BADGE[app.submitted_by_role] ?? 'bg-slate-100 text-slate-500'}`}>
+                            {ROLE_LABEL[app.submitted_by_role] ?? app.submitted_by_role}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          <p className="text-xs font-medium text-slate-700">{app.form_template?.country ?? '—'}</p>
+                          <p className="text-[11px] text-slate-400">{app.form_template?.name ?? ''}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                style={{ width: `${app.progress}%` }} />
+                            </div>
+                            <span className="text-xs font-bold text-slate-600">{app.progress}%</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={app.status}
+                            onClick={e => e.stopPropagation()}
+                            onChange={e => handleStatusChange(app.id, e.target.value)}
+                            className={`text-[10px] font-bold px-2 py-1 rounded-full border-0 cursor-pointer focus:outline-none ${STATUS_COLOR[app.status] ?? ''}`}>
+                            <option value="draft">draft</option>
+                            <option value="submitted">submitted</option>
+                            <option value="accepted">accepted</option>
+                            <option value="rejected">rejected</option>
+                          </select>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-slate-400 hidden lg:table-cell">
+                          {new Date(app.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <button onClick={() => setActiveAppId(app.id)}
+                            className="text-xs font-bold text-green-700 hover:text-green-900 whitespace-nowrap">
+                            Open →
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </>
+      ) : activeApp ? (
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <ApplicationFormBody
+            app={activeApp}
+            template={template ?? null}
+            onSaved={updateApps}
+            onSubmitted={updateApps}
+            onDocUploaded={handleDocUploaded}
+            onDocDeleted={handleDocDeleted}
+            onClose={() => setActiveAppId(null)}
+          />
         </div>
-      )}
+      ) : null}
 
     </DashboardLayout>
   );
