@@ -9,6 +9,14 @@ class CreateFormTemplate extends CreateRecord
 {
     protected static string $resource = FormTemplateResource::class;
 
+    protected function afterCreate(): void
+    {
+        $structure = json_decode($this->data['form_structure'] ?? '[]', true);
+        if (! empty($structure)) {
+            FormTemplateResource::syncStructure($this->getRecord(), $structure);
+        }
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
