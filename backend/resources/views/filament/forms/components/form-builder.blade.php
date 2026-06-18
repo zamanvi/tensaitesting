@@ -215,7 +215,7 @@
     {{-- Add new field --}}
     <button type="button" @click="addGroup()"
         class="w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:border-primary-300 hover:text-primary-600 transition-colors">
-        + Add Data and Document
+        + Field Title
     </button>
 </div>
 
