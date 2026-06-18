@@ -130,7 +130,7 @@
                                                 class="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"/>
                                         </div>
 
-                                        <div class="flex gap-6">
+                                        <div class="flex gap-6 flex-wrap">
                                             <label class="flex items-center gap-2 cursor-pointer"
                                                 @click.prevent="box.is_required = !box.is_required; sync()">
                                                 <span class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
@@ -149,15 +149,31 @@
                                                 </span>
                                                 <span class="text-xs text-gray-600">Visible</span>
                                             </label>
-                                            <label class="flex items-center gap-2 cursor-pointer"
-                                                @click.prevent="box.requires_document = !box.requires_document; sync()">
-                                                <span class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
-                                                    :class="box.requires_document ? 'bg-amber-500' : 'bg-gray-300'">
-                                                    <span class="inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform"
-                                                        :class="box.requires_document ? 'translate-x-4' : 'translate-x-1'"></span>
-                                                </span>
-                                                <span class="text-xs text-gray-600">📎 Doc upload</span>
-                                            </label>
+                                        </div>
+
+                                        {{-- Document upload mode --}}
+                                        <div class="space-y-1">
+                                            <label class="text-xs font-medium text-gray-500 block">📎 Document Upload</label>
+                                            <div class="flex gap-2">
+                                                <button type="button"
+                                                    @click="box.document_mode = 'none'; sync()"
+                                                    :class="box.document_mode === 'none' ? 'bg-gray-200 text-gray-700 font-semibold' : 'bg-white text-gray-400 border border-gray-200'"
+                                                    class="text-xs px-3 py-1 rounded-full transition-colors">
+                                                    None
+                                                </button>
+                                                <button type="button"
+                                                    @click="box.document_mode = 'optional'; sync()"
+                                                    :class="box.document_mode === 'optional' ? 'bg-amber-100 text-amber-700 font-semibold' : 'bg-white text-gray-400 border border-gray-200'"
+                                                    class="text-xs px-3 py-1 rounded-full transition-colors">
+                                                    Optional
+                                                </button>
+                                                <button type="button"
+                                                    @click="box.document_mode = 'mandatory'; sync()"
+                                                    :class="box.document_mode === 'mandatory' ? 'bg-red-100 text-red-700 font-semibold' : 'bg-white text-gray-400 border border-gray-200'"
+                                                    class="text-xs px-3 py-1 rounded-full transition-colors">
+                                                    Mandatory
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <details>
@@ -256,7 +272,9 @@ document.addEventListener('alpine:init', () => {
                         box_size: b.size || 'middle',
                         is_required: b.is_required || false,
                         is_active: b.is_active !== false,
-                        requires_document: b.requires_document || false,
+                        requires_document: b.document_mode !== 'none',
+                        document_required: b.document_mode === 'mandatory',
+                        document_mode: b.document_mode || 'none',
                         placeholder: b.placeholder || '',
                         helper_text: b.helper_text || '',
                         options: b.options || [],
@@ -298,7 +316,7 @@ document.addEventListener('alpine:init', () => {
                 size: size,
                 is_required: false,
                 is_active: true,
-                requires_document: false,
+                document_mode: 'none',
                 placeholder: '',
                 helper_text: '',
                 options: [],
