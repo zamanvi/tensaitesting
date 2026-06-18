@@ -29,6 +29,6 @@ class CreateFormTemplate extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('edit', ['record' => $this->getRecord()]);
+        return $this->getResource()::getUrl('index');
     }
 }
