@@ -75,29 +75,7 @@ class FormTemplateResource extends Resource
                             ->placeholder('Notes visible only to admins…')
                             ->columnSpanFull(),
                     ]),
-            ])->columnSpan(['lg' => 2]),
-
-            // ── Right: Status ─────────────────────────────────────────────────
-            Forms\Components\Group::make()->schema([
-                Forms\Components\Section::make('For Save Data')
-                    ->icon('heroicon-o-check-circle')
-                    ->schema([
-                        Forms\Components\Select::make('status')
-                            ->label('Form Status')
-                            ->options([
-                                'draft'     => '📝  Draft — not visible to branches',
-                                'published' => '✅  Published — live to branches',
-                            ])
-                            ->default('draft')
-                            ->required()
-                            ->helperText('Only published forms are available to branch admins.'),
-
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Form Active')
-                            ->helperText('Unpublish temporarily without deleting.')
-                            ->default(true),
-                    ]),
-            ])->columnSpan(['lg' => 1]),
+            ])->columnSpanFull(),
 
             // ── Full width: Custom Form Builder ───────────────────────────────
             Forms\Components\Section::make('Add Data and Document')
@@ -109,7 +87,7 @@ class FormTemplateResource extends Resource
                         ->columnSpanFull(),
                 ]),
 
-        ])->columns(3);
+        ])->columns(1);
     }
 
     // ── Sync JSON structure → relational tables ───────────────────────────────
