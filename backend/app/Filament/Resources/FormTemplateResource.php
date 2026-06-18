@@ -100,7 +100,7 @@ class FormTemplateResource extends Resource
             ])->columnSpan(['lg' => 1]),
 
             // ── Full width: Custom Form Builder ───────────────────────────────
-            Forms\Components\Section::make('Form Fields')
+            Forms\Components\Section::make('Add new field')
                 ->icon('heroicon-o-rectangle-stack')
                 ->columnSpanFull()
                 ->schema([
