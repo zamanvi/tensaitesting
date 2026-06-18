@@ -8,13 +8,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class FormTemplate extends Model
 {
     protected $fillable = [
-        'country', 'name', 'intake_options', 'is_active', 'notes',
+        'country', 'visa_type', 'name', 'intake_options', 'is_active', 'status', 'notes',
     ];
 
     protected $casts = [
         'intake_options' => 'array',
         'is_active'      => 'boolean',
     ];
+
+    public function isPublished(): bool
+    {
+        return $this->status === 'published';
+    }
 
     public function fieldGroups(): HasMany
     {
