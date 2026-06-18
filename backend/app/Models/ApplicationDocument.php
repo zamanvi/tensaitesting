@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Storage;
 class ApplicationDocument extends Model
 {
     protected $fillable = [
-        'application_form_id', 'doc_type', 'label',
-        'file_path', 'original_name', 'file_size', 'mime_type',
+        'application_form_id', 'application_id', 'doc_type', 'field_key',
+        'label', 'file_path', 'original_name', 'file_size', 'mime_type',
     ];
 
     protected $appends = ['url'];
@@ -18,6 +18,11 @@ class ApplicationDocument extends Model
     public function applicationForm(): BelongsTo
     {
         return $this->belongsTo(ApplicationForm::class);
+    }
+
+    public function application(): BelongsTo
+    {
+        return $this->belongsTo(Application::class);
     }
 
     public function getUrlAttribute(): string
