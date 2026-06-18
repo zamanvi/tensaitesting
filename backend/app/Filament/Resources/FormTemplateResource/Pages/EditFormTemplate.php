@@ -10,6 +10,14 @@ class EditFormTemplate extends EditRecord
 {
     protected static string $resource = FormTemplateResource::class;
 
+    protected function afterSave(): void
+    {
+        $structure = json_decode($this->data['form_structure'] ?? '[]', true);
+        if (! empty($structure)) {
+            FormTemplateResource::syncStructure($this->getRecord(), $structure);
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [Actions\DeleteAction::make()];
