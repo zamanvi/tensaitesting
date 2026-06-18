@@ -14,37 +14,23 @@
     <template x-for="(group, gi) in groups" :key="group._key">
         <div class="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
 
-            {{-- Field header --}}
-            <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200 cursor-pointer select-none"
-                @click="group.collapsed = !group.collapsed">
-                <span class="text-gray-300 cursor-grab text-sm">⠿⠿</span>
-                <input type="text"
-                    x-model="group.label"
-                    @input="sync()"
-                    @click.stop
-                    placeholder="Field title..."
-                    class="flex-1 font-semibold text-sm text-gray-800 bg-transparent border-none outline-none placeholder-gray-400"/>
-                <span class="text-xs bg-white border border-gray-200 text-gray-500 px-2 py-0.5 rounded-full"
-                    x-text="group.boxes.length + (group.boxes.length === 1 ? ' box' : ' boxes')"></span>
-                <button type="button" @click.stop="removeGroup(gi)"
-                    class="p-1 text-gray-400 hover:text-red-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                </button>
-                <button type="button" class="p-1 text-gray-400">
-                    <svg class="w-4 h-4 transition-transform duration-200"
-                        :class="group.collapsed ? '' : 'rotate-180'"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                    </svg>
-                </button>
-            </div>
+            <div class="p-4 space-y-3">
 
-            {{-- Field body --}}
-            <div x-show="!group.collapsed" x-collapse>
-                <div class="p-4 space-y-4">
+                {{-- Field title + delete --}}
+                <div class="flex items-center gap-2">
+                    <input type="text"
+                        x-model="group.label"
+                        @input="sync()"
+                        placeholder="Field title..."
+                        class="flex-1 font-semibold text-sm text-gray-800 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"/>
+                    <button type="button" @click="removeGroup(gi)"
+                        class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
 
                     {{-- Boxes displayed in a flex-wrap grid showing actual widths --}}
                     <div class="flex flex-wrap gap-2">
@@ -221,6 +207,7 @@
                     </div>
 
                 </div>
+
             </div>
         </div>
     </template>
