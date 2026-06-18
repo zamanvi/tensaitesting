@@ -9,15 +9,15 @@ class CreateFormTemplate extends CreateRecord
 {
     protected static string $resource = FormTemplateResource::class;
 
-    protected function getFormActions(): array
+    protected function getCreateFormAction(): \Filament\Actions\Action
     {
-        return [
-            $this->getCreateFormAction()->label('Save'),
-            \Filament\Actions\Action::make('cancel')
-                ->label('Cancel')
-                ->url($this->getResource()::getUrl('index'))
-                ->color('gray'),
-        ];
+        return parent::getCreateFormAction()->label('Save');
+    }
+
+    protected function getCreateAnotherFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCreateAnotherFormAction()
+            ->extraAttributes(['style' => 'display:none']);
     }
 
     protected function afterCreate(): void
