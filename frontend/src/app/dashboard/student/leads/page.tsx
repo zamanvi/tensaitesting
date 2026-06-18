@@ -1,209 +1,168 @@
 'use client';
 import DashboardLayout from '@/components/shared/DashboardLayout';
-import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useAuthStore } from '@/store/authStore';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { STATUS_COLORS } from '@/lib/constants';
+import { useEffect, useState } from 'react';
+import {
+  Application, AppDoc, FormTemplateData,
+  ProgressBar,
+} from '@/components/applications/ApplicationFormShared';
+import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 
-interface Lead {
-  id: number;
-  lead_code: string;
-  status: string;
-  target_country: string;
-  target_course: string | null;
-  target_intake: string | null;
-  created_at: string;
-  assigned_agency?: { id: number; name: string } | null;
-}
+const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
+const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide';
 
-const PIPELINE_STAGES = [
-  { key: 'new',                  en: 'New',               ja: '新規',         bn: 'নতুন',          color: 'bg-slate-200 text-slate-700',   dot: 'bg-slate-400' },
-  { key: 'contacted',            en: 'Contacted',         ja: '連絡済み',     bn: 'যোগাযোগ হয়েছে', color: 'bg-blue-100 text-blue-700',     dot: 'bg-blue-400' },
-  { key: 'shortlisted',          en: 'Shortlisted',       ja: '選考中',       bn: 'শর্টলিস্টেড',   color: 'bg-amber-100 text-amber-700',   dot: 'bg-amber-400' },
-  { key: 'applied',              en: 'Applied',           ja: '申請済み',     bn: 'আবেদন হয়েছে',   color: 'bg-indigo-100 text-indigo-700', dot: 'bg-indigo-400' },
-  { key: 'interview',            en: 'Interview',         ja: '面接',         bn: 'ইন্টারভিউ',     color: 'bg-purple-100 text-purple-700', dot: 'bg-purple-400' },
-  { key: 'interview_scheduled',  en: 'Interview',         ja: '面接',         bn: 'ইন্টারভিউ',     color: 'bg-purple-100 text-purple-700', dot: 'bg-purple-400' },
-  { key: 'enrolled',             en: 'Enrolled',          ja: '入学済み',     bn: 'ভর্তি হয়েছে',   color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
-  { key: 'offer_received',       en: 'Offer Received',    ja: 'オファー受領', bn: 'অফার পেয়েছেন', color: 'bg-green-100 text-green-700',   dot: 'bg-green-500' },
-  { key: 'visa_processing',      en: 'Visa Processing',   ja: 'ビザ申請中',   bn: 'ভিসা প্রক্রিয়া', color: 'bg-cyan-100 text-cyan-700',   dot: 'bg-cyan-500' },
-  { key: 'visa_approved',        en: 'Visa Approved',     ja: 'ビザ承認',     bn: 'ভিসা অনুমোদন', color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
-];
-const TERMINAL_STAGES = ['rejected', 'withdrawn', 'closed', 'visa_rejected', 'on_hold'];
+const EMPTY = { templateId: '' };
 
-// Ordered pipeline for progress bar (simplified 6-step view)
-const PROGRESS_KEYS = ['new', 'contacted', 'shortlisted', 'applied', 'interview', 'enrolled'];
-const PROGRESS_INDEX: Record<string, number> = {
-  new: 0, contacted: 1, shortlisted: 2, applied: 3,
-  interview: 4, interview_scheduled: 4, interviewed: 4,
-  offer_received: 5, visa_processing: 5, visa_approved: 5, enrolled: 5,
-};
+export default function StudentApplicationPage() {
+  const { user } = useAuthStore();
+  const router   = useRouter();
+  const qc       = useQueryClient();
 
-function progressLabel(status: string, lang: string): string {
-  const stage = PIPELINE_STAGES.find(s => s.key === status);
-  if (!stage) return status.replace(/_/g, ' ');
-  return lang === 'ja' ? stage.ja : lang === 'bn' ? stage.bn : stage.en;
-}
+  const isStudent = user?.gateway_type === 'student';
+  useEffect(() => {
+    if (user && !isStudent) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
+  }, [user, isStudent, router]);
 
-export default function StudentLeads() {
-  const router = useRouter();
-  const { t, lang } = useLang();
-  const sl = t.studentLeads;
-  const statuses = t.statuses;
-  const ja = lang === 'ja';
-  const bn = lang === 'bn';
+  const [showCreate,  setShowCreate]  = useState(false);
+  const [createForm,  setCreateForm]  = useState(EMPTY);
+  const [createErr,   setCreateErr]   = useState('');
 
-  const [filter, setFilter] = useState<string>('all');
+  // Students have at most 1 application
+  const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
+    queryKey: ['student-application'],
+    queryFn: () => api.get('/applications').then(r => r.data),
+    enabled: !!isStudent,
+  });
+  const apps = appsData?.data ?? [];
+  const myApp = apps[0] ?? null;
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['student-leads'],
-    queryFn: () => api.get('/student/leads').then((r) => r.data),
-    staleTime: 30_000,
+  const { data: template } = useQuery<FormTemplateData | null>({
+    queryKey: ['form-template', myApp?.form_template?.country],
+    queryFn: () => myApp?.form_template?.country
+      ? api.get(`/form-templates/${encodeURIComponent(myApp.form_template!.country)}`).then(r => r.data)
+      : Promise.resolve(null),
+    enabled: !!myApp?.form_template?.country,
+    staleTime: 300_000,
   });
 
-  const allLeads: Lead[] = data?.data ?? [];
+  const { data: templates = [] } = useQuery<{ id: number; name: string; country: string }[]>({
+    queryKey: ['form-templates-list'],
+    queryFn: () => api.get('/form-templates').then(r => r.data),
+    enabled: !!isStudent && !myApp,
+  });
 
-  // Pipeline summary counts (active stages only)
-  const activeCounts: Record<string, number> = {};
-  for (const l of allLeads) {
-    if (!TERMINAL_STAGES.includes(l.status)) {
-      activeCounts[l.status] = (activeCounts[l.status] ?? 0) + 1;
-    }
+  const createMut = useMutation({
+    mutationFn: () => api.post('/applications', {
+      form_template_id: parseInt(createForm.templateId),
+      student_name:     user?.name ?? 'Student',
+      student_email:    user?.email ?? undefined,
+    }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['student-application'] });
+      setShowCreate(false);
+    },
+    onError: (e: unknown) => {
+      const ax = e as { response?: { data?: { message?: string } } };
+      setCreateErr(ax.response?.data?.message ?? 'Failed.');
+    },
+  });
+
+  function updateApp(updated: Application) {
+    qc.setQueryData(['student-application'], (old: { data: Application[] } | undefined) => ({
+      ...old,
+      data: (old?.data ?? []).map(a => a.id === updated.id ? { ...a, ...updated } : a),
+    }));
   }
-  const terminalCount = allLeads.filter(l => TERMINAL_STAGES.includes(l.status)).length;
 
-  const displayed = filter === 'all' ? allLeads : filter === 'closed' ? allLeads.filter(l => TERMINAL_STAGES.includes(l.status)) : allLeads.filter(l => l.status === filter);
+  function handleDocUploaded(doc: AppDoc, progress: number) {
+    qc.setQueryData(['student-application'], (old: { data: Application[] } | undefined) => ({
+      ...old,
+      data: (old?.data ?? []).map(a =>
+        a.id === myApp?.id
+          ? { ...a, progress, documents: [...a.documents.filter(d => d.doc_type !== doc.doc_type), doc] }
+          : a
+      ),
+    }));
+  }
 
-  const filterTabs = [
-    { key: 'all', label: ja ? 'すべて' : bn ? 'সব' : 'All', count: allLeads.length },
-    ...PIPELINE_STAGES.filter(s => (activeCounts[s.key] ?? 0) > 0).reduce<typeof PIPELINE_STAGES>((acc, s) => {
-      if (!acc.find(x => x.key === s.key)) acc.push(s);
-      return acc;
-    }, []).map(s => ({ key: s.key, label: lang === 'ja' ? s.ja : lang === 'bn' ? s.bn : s.en, count: activeCounts[s.key] ?? 0 })),
-    ...(terminalCount > 0 ? [{ key: 'closed', label: ja ? '終了' : bn ? 'বন্ধ' : 'Closed', count: terminalCount }] : []),
-  ];
+  function handleDocDeleted(docId: number, progress: number) {
+    qc.setQueryData(['student-application'], (old: { data: Application[] } | undefined) => ({
+      ...old,
+      data: (old?.data ?? []).map(a =>
+        a.id === myApp?.id
+          ? { ...a, progress, documents: a.documents.filter(d => d.id !== docId) }
+          : a
+      ),
+    }));
+  }
+
+  if (!user || !isStudent) return null;
 
   return (
-    <DashboardLayout title={sl.title}>
+    <DashboardLayout title="My Application">
 
-      {/* Pipeline progress summary */}
-      {!isLoading && allLeads.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 mb-5">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            {ja ? 'パイプライン概要' : bn ? 'পাইপলাইন সারসংক্ষেপ' : 'Application Pipeline'}
-          </p>
-          <div className="flex items-center gap-1 sm:gap-2">
-            {PROGRESS_KEYS.map((key, i) => {
-              const count = allLeads.filter(l => (PROGRESS_INDEX[l.status] ?? -1) === i).length;
-              const stage = PIPELINE_STAGES.find(s => s.key === key)!;
-              const label = ja ? stage.ja : bn ? stage.bn : stage.en;
-              return (
-                <div key={key} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-                  <div className={`w-full h-2 rounded-full ${count > 0 ? stage.dot : 'bg-slate-100'}`} />
-                  <span className="hidden sm:block text-[10px] text-slate-400 truncate w-full text-center">{label}</span>
-                  {count > 0 && <span className={`text-xs font-bold ${count > 0 ? 'text-slate-700' : 'text-slate-300'}`}>{count}</span>}
-                </div>
-              );
-            })}
+      {isLoading ? (
+        <div className="py-20 text-center"><span className="w-8 h-8 border-3 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" /></div>
+      ) : myApp ? (
+        /* ── Has application: show form ── */
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          {/* Status banner if submitted */}
+          {myApp.status !== 'draft' && (
+            <div className={`px-6 py-3 text-sm font-semibold flex items-center gap-2 ${myApp.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-b border-emerald-100' : myApp.status === 'rejected' ? 'bg-rose-50 text-rose-700 border-b border-rose-100' : 'bg-amber-50 text-amber-700 border-b border-amber-100'}`}>
+              {myApp.status === 'accepted' ? '✅ Your application was accepted!' :
+               myApp.status === 'rejected' ? '❌ Your application was rejected. Contact support.' :
+               '⏳ Your application is under review.'}
+            </div>
+          )}
+          <ApplicationFormBody
+            app={myApp}
+            template={template ?? null}
+            onSaved={updateApp}
+            onSubmitted={updateApp}
+            onDocUploaded={handleDocUploaded}
+            onDocDeleted={handleDocDeleted}
+          />
+        </div>
+      ) : (
+        /* ── No application yet: create ── */
+        <div className="max-w-lg mx-auto">
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-8 text-center">
+              <div className="w-16 h-16 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl">🌏</div>
+              <h2 className="text-xl font-black text-white mb-1">Start Your Application</h2>
+              <p className="text-green-100 text-sm">Fill in your study abroad application form</p>
+            </div>
+
+            <div className="p-6">
+              {createErr && <div className="mb-4 p-3 bg-rose-50 border border-rose-100 rounded-xl text-xs text-rose-600">⚠️ {createErr}</div>}
+
+              <div className="mb-5">
+                <label className={lbl}>Select Country / Program *</label>
+                <select className={inp} value={createForm.templateId}
+                  onChange={e => setCreateForm(p => ({ ...p, templateId: e.target.value }))}>
+                  <option value="">Choose your destination…</option>
+                  {templates.map(t => <option key={t.id} value={t.id}>{t.country} — {t.name}</option>)}
+                </select>
+              </div>
+
+              <button onClick={() => createMut.mutate()}
+                disabled={createMut.isPending || !createForm.templateId}
+                className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-2xl disabled:opacity-50 transition-all shadow-md flex items-center justify-center gap-2 text-sm">
+                {createMut.isPending && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+                🚀 Start Application
+              </button>
+
+              <p className="text-center text-xs text-slate-400 mt-4">
+                You can save your progress and come back anytime before submitting.
+              </p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Filter tabs */}
-      {!isLoading && allLeads.length > 1 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {filterTabs.map(tab => (
-            <button key={tab.key} onClick={() => setFilter(tab.key)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
-                filter === tab.key
-                  ? 'bg-green-700 text-white border-green-700'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
-              }`}>
-              {tab.label}
-              <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold ${filter === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {isLoading ? (
-        <div className="text-center py-16 text-slate-400">{t.common.loading}</div>
-      ) : allLeads.length === 0 ? (
-        <EmptyState icon="📋" title={sl.emptyTitle} desc={sl.emptyDesc} />
-      ) : displayed.length === 0 ? (
-        <div className="text-center py-10 text-slate-400 text-sm">
-          {ja ? '該当する申請がありません' : bn ? 'এই ফিল্টারে কোনো আবেদন নেই' : 'No applications in this stage'}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {displayed.map((lead) => {
-            const progIdx = PROGRESS_INDEX[lead.status] ?? -1;
-            const isTerminal = TERMINAL_STAGES.includes(lead.status);
-            const statusLabel = statuses[lead.status as keyof typeof statuses] ?? progressLabel(lead.status, lang);
-            return (
-              <div key={lead.id}
-                onClick={() => router.push(`/dashboard/student/leads/${lead.id}`)}
-                className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 cursor-pointer hover:border-green-200 active:bg-slate-50 transition-colors">
-
-                {/* Top row */}
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className="font-mono text-xs text-slate-400">{lead.lead_code}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[lead.status] ?? 'bg-slate-100 text-slate-600'}`}>
-                    {statusLabel}
-                  </span>
-                  <span className="ml-auto text-xs text-slate-400">
-                    {new Date(lead.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                  </span>
-                </div>
-
-                {/* Target */}
-                <div className="font-semibold text-sm text-slate-900 mb-1">
-                  {lead.target_country}{lead.target_course ? ` — ${lead.target_course}` : ''}
-                </div>
-
-                {/* Intake + agency */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5">
-                  {lead.target_intake && (
-                    <span className="text-xs text-slate-500">
-                      {sl.intake} {new Date(lead.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                    </span>
-                  )}
-                  {lead.assigned_agency?.name && (
-                    <span className="text-xs text-slate-400">
-                      {ja ? '経由:' : bn ? 'এজেন্সি:' : 'via'} {lead.assigned_agency.name}
-                    </span>
-                  )}
-                </div>
-
-                {/* Mini progress bar (only for active leads) */}
-                {!isTerminal && progIdx >= 0 && (
-                  <div className="mt-3 flex items-center gap-0.5">
-                    {PROGRESS_KEYS.map((_, i) => (
-                      <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= progIdx ? 'bg-green-500' : 'bg-slate-100'}`} />
-                    ))}
-                    <span className="ml-2 text-[10px] text-slate-400 shrink-0">
-                      {progIdx + 1}/{PROGRESS_KEYS.length}
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
     </DashboardLayout>
-  );
-}
-
-function EmptyState({ icon, title, desc }: { icon: string; title: string; desc: string }) {
-  return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-10 sm:p-16 text-center text-slate-400">
-      <div className="text-4xl mb-3">{icon}</div>
-      <div className="font-medium text-slate-600">{title}</div>
-      <div className="text-sm mt-1">{desc}</div>
-    </div>
   );
 }
