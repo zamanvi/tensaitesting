@@ -100,7 +100,7 @@ class FormTemplateResource extends Resource
             ])->columnSpan(['lg' => 1]),
 
             // ── Full width: Saved Fields display ─────────────────────────────
-            Forms\Components\Section::make('Saved Fields')
+            Forms\Components\Section::make('Field Title')
                 ->icon('heroicon-o-clipboard-document-list')
                 ->columnSpanFull()
                 ->schema([
