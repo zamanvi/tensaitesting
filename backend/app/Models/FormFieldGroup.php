@@ -21,6 +21,18 @@ class FormFieldGroup extends Model
         return $this->belongsTo(FormTemplate::class, 'form_template_id');
     }
 
+    public function boxes(): HasMany
+    {
+        return $this->hasMany(FormFieldBox::class, 'form_field_group_id')->orderBy('sort_order');
+    }
+
+    public function activeBoxes(): HasMany
+    {
+        return $this->hasMany(FormFieldBox::class, 'form_field_group_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order');
+    }
+
     public function fields(): HasMany
     {
         return $this->hasMany(FormTemplateField::class, 'form_field_group_id')->orderBy('sort_order');
