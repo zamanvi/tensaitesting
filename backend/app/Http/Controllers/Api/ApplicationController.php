@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
-    // GET /api/applications
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -23,17 +22,14 @@ class ApplicationController extends Controller
         } elseif ($user->hasRole(['branch_admin', 'branch_manager'])) {
             $q->where('branch_id', $user->branch_id);
         } else {
-            // agency / student — own only
             $q->where('user_id', $user->id);
         }
 
-        $status = $request->query('status');
-        if ($status) $q->where('status', $status);
+        if ($request->query('status')) $q->where('status', $request->query('status'));
 
         return response()->json($q->paginate(30));
     }
 
-    // POST /api/applications
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -44,19 +40,18 @@ class ApplicationController extends Controller
             'student_phone'    => 'nullable|string|max:50',
         ]);
 
-        // Student: only 1 application allowed
         if ($user->hasRole('student')) {
             $existing = Application::where('user_id', $user->id)->first();
             if ($existing) {
-                return response()->json(['message' => 'You already have an application.', 'application' => $this->format($existing)], 200);
+                return response()->json(['application' => $this->format($existing->load('documents'))], 200);
             }
         }
 
-        $template = FormTemplate::where('id', $data['form_template_id'])
+        FormTemplate::where('id', $data['form_template_id'])
             ->where('status', 'published')->where('is_active', true)->firstOrFail();
 
         $app = Application::create([
-            'form_template_id'  => $template->id,
+            'form_template_id'  => $data['form_template_id'],
             'user_id'           => $user->id,
             'submitted_by_role' => $this->roleOf($user),
             'branch_id'         => $user->hasRole(['branch_admin', 'branch_manager']) ? $user->branch_id : null,
@@ -71,14 +66,11 @@ class ApplicationController extends Controller
         return response()->json(['application' => $this->format($app)], 201);
     }
 
-    // GET /api/applications/{id}
     public function show(Request $request, int $id): JsonResponse
     {
-        $app = $this->findOwned($request, $id);
-        return response()->json($this->format($app));
+        return response()->json($this->format($this->findOwned($request, $id)));
     }
 
-    // PATCH /api/applications/{id}
     public function update(Request $request, int $id): JsonResponse
     {
         $app = $this->findOwned($request, $id);
@@ -106,7 +98,6 @@ class ApplicationController extends Controller
         return response()->json($this->format($app));
     }
 
-    // POST /api/applications/{id}/submit
     public function submit(Request $request, int $id): JsonResponse
     {
         $app = $this->findOwned($request, $id);
@@ -123,19 +114,24 @@ class ApplicationController extends Controller
         return response()->json($this->format($app));
     }
 
-    // POST /api/applications/{id}/documents
+    public function updateStatus(Request $request, int $id): JsonResponse
+    {
+        $app  = Application::findOrFail($id);
+        $data = $request->validate(['status' => 'required|in:draft,submitted,accepted,rejected']);
+        $app->update($data);
+        return response()->json($this->format($app));
+    }
+
     public function uploadDocument(Request $request, int $id): JsonResponse
     {
         $app = $this->findOwned($request, $id);
         $request->validate(['file' => 'required|file|max:10240', 'doc_type' => 'required|string', 'field_key' => 'nullable|string', 'label' => 'nullable|string']);
 
-        $file     = $request->file('file');
-        $file     = $this->maybeCompressImage($file);
-        $disk     = app()->environment('production') ? 'r2' : 'public';
-        $path     = $file->store("applications/{$app->id}", $disk);
-        $docType  = $request->input('doc_type');
+        $file    = $request->file('file');
+        $disk    = app()->environment('production') ? 'r2' : 'public';
+        $path    = $file->store("applications/{$app->id}", $disk);
+        $docType = $request->input('doc_type');
 
-        // Replace existing doc for same doc_type
         $existing = ApplicationDocument::where('application_id', $app->id)->where('doc_type', $docType)->first();
         if ($existing) {
             try { Storage::disk($disk)->delete($existing->file_path); } catch (\Throwable) {}
@@ -159,7 +155,6 @@ class ApplicationController extends Controller
         return response()->json(['document' => $doc->append('url'), 'progress' => $app->progress]);
     }
 
-    // DELETE /api/applications/{id}/documents/{docId}
     public function deleteDocument(Request $request, int $id, int $docId): JsonResponse
     {
         $app = $this->findOwned($request, $id);
@@ -174,8 +169,6 @@ class ApplicationController extends Controller
 
         return response()->json(['progress' => $app->progress]);
     }
-
-    // ── helpers ──────────────────────────────────────────────────────────────
 
     private function findOwned(Request $request, int $id): Application
     {
@@ -203,7 +196,7 @@ class ApplicationController extends Controller
 
     private function format(Application $app): array
     {
-        $app->load(['formTemplate:id,name,country,intake_options', 'documents']);
+        $app->loadMissing(['formTemplate:id,name,country,intake_options', 'documents']);
         return [
             'id'                => $app->id,
             'application_code'  => $app->application_code,
@@ -237,11 +230,5 @@ class ApplicationController extends Controller
                 'mime_type'     => $d->mime_type,
             ])->values()->toArray(),
         ];
-    }
-
-    private function maybeCompressImage($file)
-    {
-        // return as-is; actual compression done client-side
-        return $file;
     }
 }
