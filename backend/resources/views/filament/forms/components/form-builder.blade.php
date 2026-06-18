@@ -233,11 +233,20 @@
         </div>
     </template>
 
-    {{-- Add new field --}}
-    <button type="button" @click="addGroup()"
-        class="w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:border-primary-300 hover:text-primary-600 transition-colors">
-        + Add new field
-    </button>
+    {{-- Bottom action buttons --}}
+    <div class="flex items-stretch gap-3">
+        {{-- Create option (adds a field/group with boxes) --}}
+        <button type="button" @click="addGroup()"
+            class="flex-1 border-2 border-dashed border-primary-300 rounded-xl py-3 text-sm font-semibold text-primary-600 hover:bg-primary-50 hover:border-primary-400 transition-colors">
+            + Create option
+        </button>
+
+        {{-- Add new field section (adds a section divider/header only) --}}
+        <button type="button" @click="addSection()"
+            class="flex-1 border-2 border-dashed border-gray-300 rounded-xl py-3 text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 transition-colors">
+            + Add new field section
+        </button>
+    </div>
 </div>
 
 @once
@@ -361,6 +370,20 @@ document.addEventListener('alpine:init', () => {
 
         removeGroup(gi) {
             this.groups.splice(gi, 1);
+            this.sync();
+        },
+
+        addSection() {
+            this.groups.push({
+                _key: ++this._counter,
+                id: null,
+                label: '',
+                is_active: true,
+                is_section: true,
+                sort_order: this.groups.length,
+                collapsed: false,
+                boxes: [],
+            });
             this.sync();
         },
 
