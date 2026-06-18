@@ -6,6 +6,7 @@ use App\Filament\Resources\FormTemplateResource\Pages;
 use App\Models\FormTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -15,7 +16,7 @@ class FormTemplateResource extends Resource
     protected static ?string $model = FormTemplate::class;
     protected static ?string $navigationIcon  = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Settings';
-    protected static ?string $navigationLabel = 'Application Form Builder';
+    protected static ?string $navigationLabel = 'Create Applications';
     protected static ?int    $navigationSort  = 3;
 
     public static function canAccess(): bool
@@ -27,49 +28,70 @@ class FormTemplateResource extends Resource
     {
         return $form->schema([
 
-            // ── Left column: Template Info ────────────────────────────────────
+            // ── Left: Template Info ───────────────────────────────────────────
             Forms\Components\Group::make()->schema([
 
-                Forms\Components\Section::make('Template Info')
+                Forms\Components\Section::make('Application Form Info')
                     ->icon('heroicon-o-globe-alt')
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('country')
                             ->required()
                             ->unique(ignoreRecord: true)
+                            ->label('Country')
                             ->placeholder('e.g. Japan')
-                            ->helperText('Must match the country name used in the application form.')
-                            ->prefixIcon('heroicon-o-flag'),
+                            ->helperText('One form per country. Must match country name used in applications.')
+                            ->prefixIcon('heroicon-o-flag')
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('visa_type')
+                            ->label('Visa Type')
+                            ->placeholder('e.g. Student Visa, Work Permit')
+                            ->prefixIcon('heroicon-o-identification')
+                            ->columnSpan(1),
 
                         Forms\Components\TextInput::make('name')
                             ->required()
+                            ->label('Form Name')
                             ->placeholder('e.g. Japan Study Abroad Application')
                             ->maxLength(255)
-                            ->prefixIcon('heroicon-o-pencil-square'),
+                            ->prefixIcon('heroicon-o-pencil-square')
+                            ->columnSpanFull(),
 
                         Forms\Components\TagsInput::make('intake_options')
                             ->label('Available Intakes')
                             ->placeholder('Type and press Enter — e.g. April 2025')
-                            ->helperText('Branch admin picks from these in the application form.')
+                            ->helperText('Branch admin picks from these when filling an application.')
                             ->columnSpanFull(),
 
                         Forms\Components\Textarea::make('notes')
                             ->rows(2)
-                            ->placeholder('Internal notes about this template…')
+                            ->label('Internal Notes')
+                            ->placeholder('Notes visible only to admins…')
                             ->columnSpanFull(),
                     ]),
 
             ])->columnSpan(['lg' => 2]),
 
-            // ── Right column: Status ──────────────────────────────────────────
+            // ── Right: Status ─────────────────────────────────────────────────
             Forms\Components\Group::make()->schema([
 
                 Forms\Components\Section::make('Status')
                     ->icon('heroicon-o-check-circle')
                     ->schema([
+                        Forms\Components\Select::make('status')
+                            ->label('Form Status')
+                            ->options([
+                                'draft'     => '📝  Draft — not visible to branches',
+                                'published' => '✅  Published — live to branches',
+                            ])
+                            ->default('draft')
+                            ->required()
+                            ->helperText('Only published forms are available to branch admins.'),
+
                         Forms\Components\Toggle::make('is_active')
-                            ->label('Template Active')
-                            ->helperText('Inactive templates are hidden from branch admins.')
+                            ->label('Form Active')
+                            ->helperText('Unpublish temporarily without deleting.')
                             ->default(true),
                     ]),
 
@@ -80,20 +102,21 @@ class FormTemplateResource extends Resource
                     ->schema([
                         Forms\Components\Placeholder::make('')
                             ->content(
-                                '• Add groups as form sections (e.g. Academic Background)' . "\n" .
-                                '• Add field boxes inside each group' . "\n" .
-                                '• Use custom_ prefix for new field keys' . "\n" .
-                                '• Toggle 📎 to require a document upload per field' . "\n" .
-                                '• Use Conditional Visibility to show/hide fields'
+                                "1. Fill Country, Visa Type, Form Name\n" .
+                                "2. Add Fields (top-level sections e.g. Academic Background)\n" .
+                                "3. Inside each Field, create Boxes (e.g. HSC Result)\n" .
+                                "4. Inside each Box, add sub-inputs (¼ Quarter / ½ Half / ↔ Full)\n" .
+                                "5. Toggle 📎 on a Box if a document upload is required\n" .
+                                "6. Save as Draft while building — Publish when ready"
                             ),
                     ]),
 
             ])->columnSpan(['lg' => 1]),
 
-            // ── Full width: Field Groups ──────────────────────────────────────
-            Forms\Components\Section::make('Form Sections')
+            // ── Full width: Field Builder ──────────────────────────────────────
+            Forms\Components\Section::make('Form Fields')
                 ->icon('heroicon-o-rectangle-stack')
-                ->description('Each section contains fields shown in the branch application form. Add a new section at the bottom, then add fields inside it.')
+                ->description('Build your form. Each Field is a section (e.g. Academic Background). Inside each Field, add Boxes (e.g. HSC Result). Each Box holds sub-inputs.')
                 ->columnSpanFull()
                 ->schema([
                     Forms\Components\Repeater::make('fieldGroups')
@@ -101,156 +124,177 @@ class FormTemplateResource extends Resource
                         ->orderColumn('sort_order')
                         ->collapsible()
                         ->cloneable()
-                        ->addActionLabel('＋ Add New Section')
+                        ->addActionLabel('＋ Add New Field')
                         ->itemLabel(fn (array $state): string =>
-                            '📂  ' . ($state['label'] ?? 'Untitled Section') .
-                            (isset($state['fields']) ? '  — ' . count($state['fields']) . ' fields' : '')
+                            '📂  ' . ($state['label'] ?? 'Untitled Field') .
+                            (isset($state['boxes']) ? '  — ' . count($state['boxes']) . ' boxes' : '')
                         )
                         ->schema([
 
-                            Forms\Components\Grid::make(3)->schema([
+                            Forms\Components\Grid::make(2)->schema([
                                 Forms\Components\TextInput::make('label')
                                     ->required()
-                                    ->label('Group Title')
+                                    ->label('Field Title')
                                     ->placeholder('e.g. Academic Background')
                                     ->prefixIcon('heroicon-o-bars-3')
                                     ->columnSpan(1),
 
-                                Forms\Components\TextInput::make('hint')
-                                    ->label('Group Subtitle')
-                                    ->placeholder('e.g. Enter your academic qualifications')
-                                    ->helperText('Shown under the group title in the form')
-                                    ->columnSpan(1),
-
                                 Forms\Components\Toggle::make('is_active')
-                                    ->label('Group Visible')
+                                    ->label('Field Visible')
                                     ->default(true)
                                     ->inline(false)
                                     ->columnSpan(1),
                             ]),
 
-                            // ── Field boxes inside this group ─────────────────
-                            Forms\Components\Repeater::make('fields')
-                                ->relationship('fields')
+                            // ── Boxes ─────────────────────────────────────────
+                            Forms\Components\Repeater::make('boxes')
+                                ->relationship('boxes')
                                 ->orderColumn('sort_order')
                                 ->collapsible()
                                 ->cloneable()
-                                ->addActionLabel('＋ Add Field to this Section')
+                                ->addActionLabel('＋ Create Box')
                                 ->itemLabel(fn (array $state): string =>
-                                    (!empty($state['label'])
-                                        ? '▸  ' . $state['label'] . '  [' . strtoupper($state['box_size'] ?? 'middle') . ']'
-                                        : '▸  New Field — enter label below') .
-                                    (!empty($state['is_required']) ? '  *required' : '') .
-                                    (!empty($state['requires_document']) ? '  📎' : '')
+                                    '📦  ' . ($state['name'] ?? 'Untitled Box') .
+                                    (!empty($state['requires_document']) ? '  📎' : '') .
+                                    (isset($state['fields']) ? '  — ' . count($state['fields']) . ' inputs' : '')
                                 )
                                 ->schema([
 
-                                    // Row 1: label + key + size
-                                    Forms\Components\Grid::make(4)->schema([
-                                        Forms\Components\TextInput::make('label')
-                                            ->required()
-                                            ->label('Field Label')
-                                            ->placeholder('e.g. JLPT Score')
-                                            ->columnSpan(2),
-
-                                        Forms\Components\TextInput::make('field_key')
-                                            ->required()
-                                            ->label('Field Key')
-                                            ->placeholder('e.g. jlpt_score')
-                                            ->helperText('snake_case. Prefix new fields with custom_')
-                                            ->columnSpan(1),
-
-                                        Forms\Components\Select::make('box_size')
-                                            ->label('Width')
-                                            ->required()
-                                            ->default('middle')
-                                            ->options([
-                                                'small'  => '⅓ Small',
-                                                'middle' => '½ Middle',
-                                                'full'   => '↔ Full',
-                                            ])
-                                            ->columnSpan(1),
-                                    ]),
-
-                                    // Row 2: type + placeholder + hint
                                     Forms\Components\Grid::make(3)->schema([
-                                        Forms\Components\Select::make('field_type')
+                                        Forms\Components\TextInput::make('name')
                                             ->required()
-                                            ->label('Field Type')
-                                            ->options([
-                                                'text'     => '✏️  Text',
-                                                'number'   => '🔢  Number',
-                                                'date'     => '📅  Date',
-                                                'select'   => '▾  Dropdown',
-                                                'textarea' => '📝  Textarea',
-                                                'file'     => '📎  File Only',
-                                            ])
-                                            ->live(),
-
-                                        Forms\Components\TextInput::make('placeholder')
-                                            ->label('Placeholder')
-                                            ->placeholder('e.g. Enter your score…'),
-
-                                        Forms\Components\TextInput::make('helper_text')
-                                            ->label('Hint / Helper')
-                                            ->placeholder('e.g. Out of 5.00'),
-                                    ]),
-
-                                    // Row 3: select options (only for dropdown)
-                                    Forms\Components\TagsInput::make('options')
-                                        ->label('Dropdown Options')
-                                        ->placeholder('Type each option and press Enter')
-                                        ->helperText('e.g.  N1  N2  N3  N4  N5  None')
-                                        ->visible(fn (Forms\Get $get) => $get('field_type') === 'select'),
-
-                                    // Row 4: toggles
-                                    Forms\Components\Grid::make(3)->schema([
-                                        Forms\Components\Toggle::make('is_required')
-                                            ->label('Required *')
-                                            ->default(false)
-                                            ->inline(false),
+                                            ->label('Box Name')
+                                            ->placeholder('e.g. HSC Result')
+                                            ->prefixIcon('heroicon-o-inbox')
+                                            ->columnSpan(1),
 
                                         Forms\Components\Toggle::make('requires_document')
-                                            ->label('📎 Needs Document')
-                                            ->helperText('Shows upload button in branch form')
+                                            ->label('📎 Requires Document')
+                                            ->helperText('Student must upload a file for this box')
                                             ->default(false)
-                                            ->inline(false),
+                                            ->inline(false)
+                                            ->columnSpan(1),
 
                                         Forms\Components\Toggle::make('is_active')
-                                            ->label('Field Visible')
+                                            ->label('Box Visible')
                                             ->default(true)
-                                            ->inline(false),
+                                            ->inline(false)
+                                            ->columnSpan(1),
                                     ]),
 
-                                    // Row 5: conditional (collapsed)
-                                    Forms\Components\Section::make('⚙️  Conditional Visibility')
-                                        ->description('Show this field only when another field has a specific value')
+                                    // ── Sub-inputs ────────────────────────────
+                                    Forms\Components\Repeater::make('fields')
+                                        ->relationship('fields')
+                                        ->orderColumn('sort_order')
                                         ->collapsible()
-                                        ->collapsed(true)
+                                        ->cloneable()
+                                        ->addActionLabel('＋ Add Sub-input')
+                                        ->itemLabel(fn (array $state): string =>
+                                            (!empty($state['label'])
+                                                ? '▸  ' . $state['label'] . '  [' . strtoupper($state['box_size'] ?? 'middle') . ']'
+                                                : '▸  New sub-input') .
+                                            (!empty($state['is_required']) ? '  *' : '')
+                                        )
                                         ->schema([
-                                            Forms\Components\Grid::make(3)->schema([
-                                                Forms\Components\TextInput::make('conditional_field_key')
-                                                    ->label('When field key…')
-                                                    ->placeholder('e.g. jlpt_level'),
 
-                                                Forms\Components\Select::make('conditional_operator')
-                                                    ->label('…operator…')
-                                                    ->placeholder('Select')
+                                            Forms\Components\Grid::make(4)->schema([
+                                                Forms\Components\TextInput::make('label')
+                                                    ->required()
+                                                    ->label('Hint Text')
+                                                    ->placeholder('e.g. Enter GPA out of 5.00')
+                                                    ->helperText('Shown to student as placeholder / label')
+                                                    ->columnSpan(2),
+
+                                                Forms\Components\TextInput::make('field_key')
+                                                    ->required()
+                                                    ->label('Field Key')
+                                                    ->placeholder('e.g. hsc_gpa')
+                                                    ->helperText('snake_case — prefix new fields with custom_')
+                                                    ->columnSpan(1),
+
+                                                Forms\Components\Select::make('box_size')
+                                                    ->label('Width')
+                                                    ->required()
+                                                    ->default('middle')
                                                     ->options([
-                                                        'is'           => 'is',
-                                                        'is_not'       => 'is not',
-                                                        'is_empty'     => 'is empty',
-                                                        'is_not_empty' => 'is not empty',
-                                                    ]),
-
-                                                Forms\Components\TextInput::make('conditional_value')
-                                                    ->label('…value')
-                                                    ->placeholder('e.g. None'),
+                                                        'small'  => '¼ Quarter',
+                                                        'middle' => '½ Half',
+                                                        'full'   => '↔ Full',
+                                                    ])
+                                                    ->columnSpan(1),
                                             ]),
-                                        ]),
-                                ])
-                                ->columns(1)
-                                ->grid(1),
+
+                                            Forms\Components\Grid::make(3)->schema([
+                                                Forms\Components\Select::make('field_type')
+                                                    ->required()
+                                                    ->label('Field Type')
+                                                    ->default('text')
+                                                    ->options([
+                                                        'text'     => '✏️  Text',
+                                                        'number'   => '🔢  Number',
+                                                        'date'     => '📅  Date',
+                                                        'select'   => '▾  Dropdown',
+                                                        'textarea' => '📝  Textarea',
+                                                        'file'     => '📎  File Only',
+                                                    ])
+                                                    ->live(),
+
+                                                Forms\Components\TextInput::make('placeholder')
+                                                    ->label('Placeholder')
+                                                    ->placeholder('e.g. Enter your score…'),
+
+                                                Forms\Components\TextInput::make('helper_text')
+                                                    ->label('Hint / Helper')
+                                                    ->placeholder('e.g. Out of 5.00'),
+                                            ]),
+
+                                            Forms\Components\TagsInput::make('options')
+                                                ->label('Dropdown Options')
+                                                ->placeholder('Type each option and press Enter')
+                                                ->helperText('e.g.  N1  N2  N3  N4  N5  None')
+                                                ->visible(fn (Forms\Get $get) => $get('field_type') === 'select'),
+
+                                            Forms\Components\Grid::make(2)->schema([
+                                                Forms\Components\Toggle::make('is_required')
+                                                    ->label('Required *')
+                                                    ->default(false)
+                                                    ->inline(false),
+
+                                                Forms\Components\Toggle::make('is_active')
+                                                    ->label('Sub-input Visible')
+                                                    ->default(true)
+                                                    ->inline(false),
+                                            ]),
+
+                                            Forms\Components\Section::make('⚙️  Conditional Visibility')
+                                                ->description('Show this sub-input only when another field has a specific value')
+                                                ->collapsible()
+                                                ->collapsed(true)
+                                                ->schema([
+                                                    Forms\Components\Grid::make(3)->schema([
+                                                        Forms\Components\TextInput::make('conditional_field_key')
+                                                            ->label('When field key…')
+                                                            ->placeholder('e.g. jlpt_level'),
+
+                                                        Forms\Components\Select::make('conditional_operator')
+                                                            ->label('…operator…')
+                                                            ->placeholder('Select')
+                                                            ->options([
+                                                                'is'           => 'is',
+                                                                'is_not'       => 'is not',
+                                                                'is_empty'     => 'is empty',
+                                                                'is_not_empty' => 'is not empty',
+                                                            ]),
+
+                                                        Forms\Components\TextInput::make('conditional_value')
+                                                            ->label('…value')
+                                                            ->placeholder('e.g. None'),
+                                                    ]),
+                                                ]),
+                                        ])
+                                        ->columns(1)
+                                        ->grid(1),
+                                ]),
                         ]),
                 ]),
 
@@ -266,15 +310,29 @@ class FormTemplateResource extends Resource
                     ->weight('bold')
                     ->icon('heroicon-o-flag'),
 
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
+                Tables\Columns\TextColumn::make('visa_type')
+                    ->label('Visa Type')
+                    ->default('—')
                     ->color('gray'),
 
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('fieldGroups_count')
-                    ->label('Groups')
+                    ->label('Fields')
                     ->counts('fieldGroups')
                     ->badge()
                     ->color('info'),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state) => match ($state) {
+                        'published' => 'success',
+                        'draft'     => 'warning',
+                        default     => 'gray',
+                    }),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')
@@ -289,6 +347,38 @@ class FormTemplateResource extends Resource
             ->defaultSort('country')
             ->striped()
             ->actions([
+                Tables\Actions\Action::make('publish')
+                    ->label('Publish')
+                    ->icon('heroicon-o-rocket-launch')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Publish this form?')
+                    ->modalDescription('Once published, branch admins and agencies can use this form to fill applications.')
+                    ->visible(fn (FormTemplate $r) => $r->status === 'draft')
+                    ->action(function (FormTemplate $r) {
+                        $r->update(['status' => 'published', 'is_active' => true]);
+                        Notification::make()
+                            ->title('Form published — now live to branches')
+                            ->success()
+                            ->send();
+                    }),
+
+                Tables\Actions\Action::make('unpublish')
+                    ->label('Unpublish')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Unpublish this form?')
+                    ->modalDescription('Branches will no longer be able to use this form. Existing submitted applications are not affected.')
+                    ->visible(fn (FormTemplate $r) => $r->status === 'published')
+                    ->action(function (FormTemplate $r) {
+                        $r->update(['status' => 'draft']);
+                        Notification::make()
+                            ->title('Form unpublished — moved back to draft')
+                            ->warning()
+                            ->send();
+                    }),
+
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
