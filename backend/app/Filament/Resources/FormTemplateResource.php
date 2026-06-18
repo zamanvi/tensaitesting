@@ -76,17 +76,18 @@ class FormTemplateResource extends Resource
                             ->placeholder('Notes visible only to admins…')
                             ->columnSpanFull(),
                     ]),
-            ])->columnSpanFull(),
+            ])->columnSpan(['lg' => 2]),
 
-            // ── Full width: Saved field groups ────────────────────────────────
-            Forms\Components\Section::make('For Save Data')
-                ->icon('heroicon-o-archive-box')
-                ->columnSpanFull()
-                ->schema([
-                    SavedStructureField::make('saved_structure')
-                        ->label('')
-                        ->columnSpanFull(),
-                ]),
+            // ── Right: Saved field groups ─────────────────────────────────────
+            Forms\Components\Group::make()->schema([
+                Forms\Components\Section::make('For Save Data')
+                    ->icon('heroicon-o-archive-box')
+                    ->schema([
+                        SavedStructureField::make('saved_structure')
+                            ->label('')
+                            ->columnSpanFull(),
+                    ]),
+            ])->columnSpan(['lg' => 1]),
 
             // ── Full width: Custom Form Builder ───────────────────────────────
             Forms\Components\Section::make('Add Data and Document')
@@ -98,7 +99,7 @@ class FormTemplateResource extends Resource
                         ->columnSpanFull(),
                 ]),
 
-        ])->columns(1);
+        ])->columns(3);
     }
 
     // ── Sync JSON structure → relational tables ───────────────────────────────
