@@ -2,8 +2,12 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Forms\Components\FormBuilderField;
 use App\Filament\Resources\FormTemplateResource\Pages;
+use App\Models\FormFieldBox;
+use App\Models\FormFieldGroup;
 use App\Models\FormTemplate;
+use App\Models\FormTemplateField;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -24,13 +28,14 @@ class FormTemplateResource extends Resource
         return auth()->user()?->hasRole(['super_admin', 'admin']);
     }
 
+    // ── Form ─────────────────────────────────────────────────────────────────
+
     public static function form(Form $form): Form
     {
         return $form->schema([
 
             // ── Left: Template Info ───────────────────────────────────────────
             Forms\Components\Group::make()->schema([
-
                 Forms\Components\Section::make('Application Form Info')
                     ->icon('heroicon-o-globe-alt')
                     ->columns(2)
@@ -70,12 +75,10 @@ class FormTemplateResource extends Resource
                             ->placeholder('Notes visible only to admins…')
                             ->columnSpanFull(),
                     ]),
-
             ])->columnSpan(['lg' => 2]),
 
             // ── Right: Status ─────────────────────────────────────────────────
             Forms\Components\Group::make()->schema([
-
                 Forms\Components\Section::make('Status')
                     ->icon('heroicon-o-check-circle')
                     ->schema([
@@ -94,195 +97,135 @@ class FormTemplateResource extends Resource
                             ->helperText('Unpublish temporarily without deleting.')
                             ->default(true),
                     ]),
-
             ])->columnSpan(['lg' => 1]),
 
-            // ── Full width: Field Builder ──────────────────────────────────────
+            // ── Full width: Custom Form Builder ───────────────────────────────
             Forms\Components\Section::make('Form Fields')
                 ->icon('heroicon-o-rectangle-stack')
                 ->columnSpanFull()
                 ->schema([
-                    Forms\Components\Repeater::make('fieldGroups')
-                        ->relationship('fieldGroups')
-                        ->orderColumn('sort_order')
-                        ->collapsible()
-                        ->cloneable()
-                        ->addActionLabel('＋ Add New Field')
-                        ->itemLabel(fn (array $state): string =>
-                            '📂  ' . ($state['label'] ?? 'Untitled Field') .
-                            (isset($state['boxes']) ? '  — ' . count($state['boxes']) . ' boxes' : '')
-                        )
-                        ->schema([
-
-                            Forms\Components\Grid::make(2)->schema([
-                                Forms\Components\TextInput::make('label')
-                                    ->required()
-                                    ->label('Field Title')
-                                    ->placeholder('e.g. Academic Background')
-                                    ->prefixIcon('heroicon-o-bars-3')
-                                    ->columnSpan(1),
-
-                                Forms\Components\Toggle::make('is_active')
-                                    ->label('Field Visible')
-                                    ->default(true)
-                                    ->inline(false)
-                                    ->columnSpan(1),
-                            ]),
-
-                            // ── Boxes ─────────────────────────────────────────
-                            Forms\Components\Repeater::make('boxes')
-                                ->relationship('boxes')
-                                ->orderColumn('sort_order')
-                                ->collapsible()
-                                ->cloneable()
-                                ->addActionLabel('＋ Create Box')
-                                ->itemLabel(fn (array $state): string =>
-                                    '📦  ' . ($state['name'] ?? 'Untitled Box') .
-                                    (!empty($state['requires_document']) ? '  📎' : '') .
-                                    (isset($state['fields']) ? '  — ' . count($state['fields']) . ' inputs' : '')
-                                )
-                                ->schema([
-
-                                    Forms\Components\Grid::make(3)->schema([
-                                        Forms\Components\TextInput::make('name')
-                                            ->required()
-                                            ->label('Box Name')
-                                            ->placeholder('e.g. HSC Result')
-                                            ->prefixIcon('heroicon-o-inbox')
-                                            ->columnSpan(1),
-
-                                        Forms\Components\Toggle::make('requires_document')
-                                            ->label('📎 Requires Document')
-                                            ->helperText('Student must upload a file for this box')
-                                            ->default(false)
-                                            ->inline(false)
-                                            ->columnSpan(1),
-
-                                        Forms\Components\Toggle::make('is_active')
-                                            ->label('Box Visible')
-                                            ->default(true)
-                                            ->inline(false)
-                                            ->columnSpan(1),
-                                    ]),
-
-                                    // ── Sub-inputs ────────────────────────────
-                                    Forms\Components\Repeater::make('fields')
-                                        ->relationship('fields')
-                                        ->orderColumn('sort_order')
-                                        ->collapsible()
-                                        ->cloneable()
-                                        ->addActionLabel('＋ Add Sub-input')
-                                        ->itemLabel(fn (array $state): string =>
-                                            (!empty($state['label'])
-                                                ? '▸  ' . $state['label'] . '  [' . strtoupper($state['box_size'] ?? 'middle') . ']'
-                                                : '▸  New sub-input') .
-                                            (!empty($state['is_required']) ? '  *' : '')
-                                        )
-                                        ->schema([
-
-                                            Forms\Components\Grid::make(4)->schema([
-                                                Forms\Components\TextInput::make('label')
-                                                    ->required()
-                                                    ->label('Hint Text')
-                                                    ->placeholder('e.g. Enter GPA out of 5.00')
-                                                    ->helperText('Shown to student as placeholder / label')
-                                                    ->columnSpan(2),
-
-                                                Forms\Components\TextInput::make('field_key')
-                                                    ->required()
-                                                    ->label('Field Key')
-                                                    ->placeholder('e.g. hsc_gpa')
-                                                    ->helperText('snake_case — prefix new fields with custom_')
-                                                    ->columnSpan(1),
-
-                                                Forms\Components\Select::make('box_size')
-                                                    ->label('Width')
-                                                    ->required()
-                                                    ->default('middle')
-                                                    ->options([
-                                                        'small'  => '¼ Quarter',
-                                                        'middle' => '½ Half',
-                                                        'full'   => '↔ Full',
-                                                    ])
-                                                    ->columnSpan(1),
-                                            ]),
-
-                                            Forms\Components\Grid::make(3)->schema([
-                                                Forms\Components\Select::make('field_type')
-                                                    ->required()
-                                                    ->label('Field Type')
-                                                    ->default('text')
-                                                    ->options([
-                                                        'text'     => '✏️  Text',
-                                                        'number'   => '🔢  Number',
-                                                        'date'     => '📅  Date',
-                                                        'select'   => '▾  Dropdown',
-                                                        'textarea' => '📝  Textarea',
-                                                        'file'     => '📎  File Only',
-                                                    ])
-                                                    ->live(),
-
-                                                Forms\Components\TextInput::make('placeholder')
-                                                    ->label('Placeholder')
-                                                    ->placeholder('e.g. Enter your score…'),
-
-                                                Forms\Components\TextInput::make('helper_text')
-                                                    ->label('Hint / Helper')
-                                                    ->placeholder('e.g. Out of 5.00'),
-                                            ]),
-
-                                            Forms\Components\TagsInput::make('options')
-                                                ->label('Dropdown Options')
-                                                ->placeholder('Type each option and press Enter')
-                                                ->helperText('e.g.  N1  N2  N3  N4  N5  None')
-                                                ->visible(fn (Forms\Get $get) => $get('field_type') === 'select'),
-
-                                            Forms\Components\Grid::make(2)->schema([
-                                                Forms\Components\Toggle::make('is_required')
-                                                    ->label('Required *')
-                                                    ->default(false)
-                                                    ->inline(false),
-
-                                                Forms\Components\Toggle::make('is_active')
-                                                    ->label('Sub-input Visible')
-                                                    ->default(true)
-                                                    ->inline(false),
-                                            ]),
-
-                                            Forms\Components\Section::make('⚙️  Conditional Visibility')
-                                                ->description('Show this sub-input only when another field has a specific value')
-                                                ->collapsible()
-                                                ->collapsed(true)
-                                                ->schema([
-                                                    Forms\Components\Grid::make(3)->schema([
-                                                        Forms\Components\TextInput::make('conditional_field_key')
-                                                            ->label('When field key…')
-                                                            ->placeholder('e.g. jlpt_level'),
-
-                                                        Forms\Components\Select::make('conditional_operator')
-                                                            ->label('…operator…')
-                                                            ->placeholder('Select')
-                                                            ->options([
-                                                                'is'           => 'is',
-                                                                'is_not'       => 'is not',
-                                                                'is_empty'     => 'is empty',
-                                                                'is_not_empty' => 'is not empty',
-                                                            ]),
-
-                                                        Forms\Components\TextInput::make('conditional_value')
-                                                            ->label('…value')
-                                                            ->placeholder('e.g. None'),
-                                                    ]),
-                                                ]),
-                                        ])
-                                        ->columns(1)
-                                        ->grid(1),
-                                ]),
-                        ]),
+                    FormBuilderField::make('form_structure')
+                        ->label('')
+                        ->columnSpanFull(),
                 ]),
 
         ])->columns(3);
     }
+
+    // ── Sync JSON structure → relational tables ───────────────────────────────
+
+    public static function syncStructure(FormTemplate $template, array $structure): void
+    {
+        $keepGroupIds = [];
+        $keepBoxIds   = [];
+        $keepFieldIds = [];
+
+        foreach ($structure as $gi => $gData) {
+            if (! empty($gData['id'])) {
+                $group = FormFieldGroup::find($gData['id']);
+                if ($group) {
+                    $group->update([
+                        'form_template_id' => $template->id,
+                        'label'      => $gData['label'],
+                        'is_active'  => $gData['is_active'] ?? true,
+                        'sort_order' => $gi,
+                    ]);
+                } else {
+                    $group = FormFieldGroup::create([
+                        'form_template_id' => $template->id,
+                        'label'      => $gData['label'],
+                        'is_active'  => $gData['is_active'] ?? true,
+                        'sort_order' => $gi,
+                    ]);
+                }
+            } else {
+                $group = FormFieldGroup::create([
+                    'form_template_id' => $template->id,
+                    'label'      => $gData['label'],
+                    'is_active'  => $gData['is_active'] ?? true,
+                    'sort_order' => $gi,
+                ]);
+            }
+            $keepGroupIds[] = $group->id;
+
+            foreach ($gData['boxes'] ?? [] as $bi => $bData) {
+                if (! empty($bData['id'])) {
+                    $box = FormFieldBox::find($bData['id']);
+                    if ($box) {
+                        $box->update([
+                            'form_field_group_id' => $group->id,
+                            'name'               => $bData['name'] ?: $gData['label'],
+                            'requires_document'  => $bData['requires_document'] ?? false,
+                            'is_active'          => $bData['is_active'] ?? true,
+                            'sort_order'         => $bi,
+                        ]);
+                    } else {
+                        $box = FormFieldBox::create([
+                            'form_field_group_id' => $group->id,
+                            'name'               => $bData['name'] ?: $gData['label'],
+                            'requires_document'  => $bData['requires_document'] ?? false,
+                            'is_active'          => $bData['is_active'] ?? true,
+                            'sort_order'         => $bi,
+                        ]);
+                    }
+                } else {
+                    $box = FormFieldBox::create([
+                        'form_field_group_id' => $group->id,
+                        'name'               => $bData['name'] ?: $gData['label'],
+                        'requires_document'  => $bData['requires_document'] ?? false,
+                        'is_active'          => $bData['is_active'] ?? true,
+                        'sort_order'         => $bi,
+                    ]);
+                }
+                $keepBoxIds[] = $box->id;
+
+                foreach ($bData['fields'] ?? [] as $fi => $fData) {
+                    $attrs = [
+                        'form_template_id'      => $template->id,
+                        'form_field_group_id'   => $group->id,
+                        'form_field_box_id'     => $box->id,
+                        'label'                 => $fData['label'] ?? '',
+                        'field_key'             => $fData['field_key'] ?? '',
+                        'field_type'            => $fData['field_type'] ?? 'text',
+                        'box_size'              => $fData['box_size'] ?? 'middle',
+                        'is_required'           => $fData['is_required'] ?? false,
+                        'is_active'             => $fData['is_active'] ?? true,
+                        'placeholder'           => $fData['placeholder'] ?: null,
+                        'helper_text'           => $fData['helper_text'] ?: null,
+                        'options'               => $fData['options'] ?: null,
+                        'sort_order'            => $fi,
+                        'conditional_field_key' => $fData['conditional_field_key'] ?: null,
+                        'conditional_operator'  => $fData['conditional_operator'] ?: null,
+                        'conditional_value'     => $fData['conditional_value'] ?: null,
+                    ];
+
+                    if (! empty($fData['id'])) {
+                        $field = FormTemplateField::find($fData['id']);
+                        if ($field) {
+                            $field->update($attrs);
+                        } else {
+                            $field = FormTemplateField::create($attrs);
+                        }
+                    } else {
+                        $field = FormTemplateField::create($attrs);
+                    }
+                    $keepFieldIds[] = $field->id;
+                }
+            }
+        }
+
+        // Delete removed records
+        FormTemplateField::where('form_template_id', $template->id)
+            ->whereNotIn('id', $keepFieldIds ?: [0])->delete();
+
+        FormFieldBox::whereHas('group', fn ($q) => $q->where('form_template_id', $template->id))
+            ->whereNotIn('id', $keepBoxIds ?: [0])->delete();
+
+        FormFieldGroup::where('form_template_id', $template->id)
+            ->whereNotIn('id', $keepGroupIds ?: [0])->delete();
+    }
+
+    // ── Table ─────────────────────────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {
@@ -336,14 +279,11 @@ class FormTemplateResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Publish this form?')
-                    ->modalDescription('Once published, branch admins and agencies can use this form to fill applications.')
+                    ->modalDescription('Once published, branch admins and agencies can use this form.')
                     ->visible(fn (FormTemplate $r) => $r->status === 'draft')
                     ->action(function (FormTemplate $r) {
                         $r->update(['status' => 'published', 'is_active' => true]);
-                        Notification::make()
-                            ->title('Form published — now live to branches')
-                            ->success()
-                            ->send();
+                        Notification::make()->title('Form published — now live to branches')->success()->send();
                     }),
 
                 Tables\Actions\Action::make('unpublish')
@@ -352,14 +292,11 @@ class FormTemplateResource extends Resource
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('Unpublish this form?')
-                    ->modalDescription('Branches will no longer be able to use this form. Existing submitted applications are not affected.')
+                    ->modalDescription('Branches will no longer be able to use this form.')
                     ->visible(fn (FormTemplate $r) => $r->status === 'published')
                     ->action(function (FormTemplate $r) {
                         $r->update(['status' => 'draft']);
-                        Notification::make()
-                            ->title('Form unpublished — moved back to draft')
-                            ->warning()
-                            ->send();
+                        Notification::make()->title('Form unpublished — moved back to draft')->warning()->send();
                     }),
 
                 Tables\Actions\EditAction::make(),
