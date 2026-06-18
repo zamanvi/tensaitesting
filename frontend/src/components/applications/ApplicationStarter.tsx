@@ -1,0 +1,130 @@
+'use client';
+import { useState } from 'react';
+import api from '@/lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Application } from './ApplicationFormShared';
+
+const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
+const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide';
+
+interface Template { id: number; name: string; country: string; }
+
+interface Props {
+  /** role of the person filling: branch/agency/admin need a student name; student uses own name */
+  role: 'branch' | 'agency' | 'admin' | 'student';
+  studentName?: string;   // pre-filled for student role
+  studentEmail?: string;
+  onCreated: (app: Application) => void;
+  queryKey: string;       // to invalidate after create
+}
+
+export default function ApplicationStarter({ role, studentName, studentEmail, onCreated, queryKey }: Props) {
+  const qc = useQueryClient();
+
+  const { data: templates = [], isLoading } = useQuery<Template[]>({
+    queryKey: ['form-templates-list'],
+    queryFn: () => api.get('/form-templates').then(r => r.data),
+    staleTime: 60_000,
+  });
+
+  const [country,   setCountry]   = useState('');
+  const [name,      setName]      = useState(studentName ?? '');
+  const [email,     setEmail]     = useState(studentEmail ?? '');
+  const [phone,     setPhone]     = useState('');
+  const [err,       setErr]       = useState('');
+
+  const selected = templates.find(t => t.country === country);
+
+  const startMut = useMutation({
+    mutationFn: () => api.post('/applications', {
+      form_template_id: selected!.id,
+      student_name:  name.trim(),
+      student_email: email.trim() || undefined,
+      student_phone: phone.trim() || undefined,
+    }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: [queryKey] });
+      onCreated(res.data.application);
+    },
+    onError: (e: unknown) => {
+      const ax = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+      const errs = ax.response?.data?.errors;
+      setErr(errs ? Object.values(errs).flat().join(' ') : ax.response?.data?.message ?? 'Failed to start application.');
+    },
+  });
+
+  const needStudentInfo = role !== 'student';
+  const canStart = !!selected && !!name.trim();
+
+  if (isLoading) {
+    return (
+      <div className="py-12 text-center">
+        <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" />
+      </div>
+    );
+  }
+
+  if (templates.length === 0) {
+    return (
+      <div className="py-12 text-center">
+        <div className="text-3xl mb-3">📋</div>
+        <p className="text-sm font-semibold text-slate-600">No application forms published yet</p>
+        <p className="text-xs text-slate-400 mt-1">Ask the admin to publish a form first</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-6 py-8 max-w-lg">
+      {err && <div className="mb-4 p-3 bg-rose-50 border border-rose-100 rounded-xl text-xs text-rose-600">⚠️ {err}</div>}
+
+      <div className="space-y-4">
+        {/* Country / Form selector */}
+        <div>
+          <label className={lbl}>Destination Country *</label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {templates.map(t => (
+              <button key={t.id} type="button"
+                onClick={() => setCountry(t.country)}
+                className={`px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-left ${country === t.country ? 'bg-green-700 text-white border-green-700 shadow-sm' : 'bg-white border-slate-200 text-slate-700 hover:border-green-400 hover:bg-green-50'}`}>
+                🌏 {t.country}
+                <br />
+                <span className={`text-[10px] font-normal ${country === t.country ? 'text-green-100' : 'text-slate-400'}`}>{t.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Student name (branch/agency/admin fill for a student) */}
+        {needStudentInfo && (
+          <>
+            <div>
+              <label className={lbl}>Student Name *</label>
+              <input className={inp} placeholder="e.g. Ahmed Rahman" value={name}
+                onChange={e => setName(e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>Student Email</label>
+                <input className={inp} type="email" placeholder="student@email.com" value={email}
+                  onChange={e => setEmail(e.target.value)} />
+              </div>
+              <div>
+                <label className={lbl}>Student Phone</label>
+                <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={phone}
+                  onChange={e => setPhone(e.target.value)} />
+              </div>
+            </div>
+          </>
+        )}
+
+        <button onClick={() => startMut.mutate()}
+          disabled={startMut.isPending || !canStart}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-bold rounded-2xl disabled:opacity-50 transition-all shadow-sm">
+          {startMut.isPending && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+          🚀 Open Application Form
+        </button>
+      </div>
+    </div>
+  );
+}
