@@ -80,7 +80,7 @@ class FormTemplateResource extends Resource
 
             // ── Right: Saved field groups ─────────────────────────────────────
             Forms\Components\Group::make()->schema([
-                Forms\Components\Section::make('For Save Data')
+                Forms\Components\Section::make('Save Field')
                     ->icon('heroicon-o-archive-box')
                     ->schema([
                         SavedStructureField::make('saved_structure')
@@ -152,6 +152,8 @@ class FormTemplateResource extends Resource
                         'box_size'              => $fData['box_size'] ?? 'middle',
                         'is_required'           => $fData['is_required'] ?? false,
                         'is_active'             => $fData['is_active'] ?? true,
+                        'requires_document'     => $fData['requires_document'] ?? false,
+                        'document_required'     => $fData['document_required'] ?? false,
                         'placeholder'           => $fData['placeholder'] ?: null,
                         'helper_text'           => $fData['helper_text'] ?: null,
                         'options'               => $fData['options'] ?: null,
