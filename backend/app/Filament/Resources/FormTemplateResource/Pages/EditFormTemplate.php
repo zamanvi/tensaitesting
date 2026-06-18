@@ -7,7 +7,6 @@ use App\Models\FormFieldGroup;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\Log;
 
 class EditFormTemplate extends EditRecord
 {
@@ -28,12 +27,10 @@ class EditFormTemplate extends EditRecord
                 FormTemplateResource::syncStructure($this->getRecord(), $structure);
             }
         } catch (\Throwable $e) {
-            Log::error('afterSave syncStructure error', [
-                'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-            ]);
-            throw $e;
+            Notification::make()
+                ->title('Fields could not be saved: ' . $e->getMessage())
+                ->danger()
+                ->send();
         }
     }
 
