@@ -79,7 +79,7 @@ class FormTemplateResource extends Resource
 
             // ── Right: Status ─────────────────────────────────────────────────
             Forms\Components\Group::make()->schema([
-                Forms\Components\Section::make('Status')
+                Forms\Components\Section::make('For Save Data')
                     ->icon('heroicon-o-check-circle')
                     ->schema([
                         Forms\Components\Select::make('status')
@@ -100,7 +100,7 @@ class FormTemplateResource extends Resource
             ])->columnSpan(['lg' => 1]),
 
             // ── Full width: Custom Form Builder ───────────────────────────────
-            Forms\Components\Section::make('Add new field')
+            Forms\Components\Section::make('Add Data and Document')
                 ->icon('heroicon-o-rectangle-stack')
                 ->columnSpanFull()
                 ->schema([
