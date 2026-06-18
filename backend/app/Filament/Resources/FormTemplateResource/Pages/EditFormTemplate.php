@@ -52,7 +52,21 @@ class EditFormTemplate extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [Actions\DeleteAction::make()];
+        return [
+            Actions\Action::make('preview')
+                ->label('Preview Form')
+                ->icon('heroicon-o-eye')
+                ->color('info')
+                ->modalHeading('Form Preview')
+                ->modalWidth('4xl')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close')
+                ->modalContent(fn () => view('filament.forms.components.form-preview', [
+                    'record' => $this->getRecord(),
+                ])),
+
+            Actions\DeleteAction::make(),
+        ];
     }
 
     protected function getRedirectUrl(): string
