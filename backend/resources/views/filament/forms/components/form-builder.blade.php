@@ -36,6 +36,43 @@
                             </button>
                         </div>
 
+                        {{-- Document upload for this section --}}
+                        <div class="bg-white border border-dashed border-gray-300 rounded-lg p-3 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-semibold text-gray-500">📎 Document</span>
+                                <div class="flex gap-1 ml-auto">
+                                    <button type="button"
+                                        @click="section.doc_mode = 'none'; sync()"
+                                        :class="(section.doc_mode || 'none') === 'none' ? 'bg-gray-200 text-gray-700 font-semibold' : 'bg-white text-gray-400 border border-gray-200'"
+                                        class="text-xs px-2.5 py-1 rounded-full transition-colors">
+                                        None
+                                    </button>
+                                    <button type="button"
+                                        @click="section.doc_mode = 'optional'; sync()"
+                                        :class="section.doc_mode === 'optional' ? 'bg-amber-100 text-amber-700 font-semibold' : 'bg-white text-gray-400 border border-gray-200'"
+                                        class="text-xs px-2.5 py-1 rounded-full transition-colors">
+                                        Optional
+                                    </button>
+                                    <button type="button"
+                                        @click="section.doc_mode = 'mandatory'; sync()"
+                                        :class="section.doc_mode === 'mandatory' ? 'bg-red-100 text-red-700 font-semibold' : 'bg-white text-gray-400 border border-gray-200'"
+                                        class="text-xs px-2.5 py-1 rounded-full transition-colors">
+                                        Mandatory
+                                    </button>
+                                </div>
+                            </div>
+                            <div x-show="section.doc_mode && section.doc_mode !== 'none'" class="flex gap-2">
+                                <input type="text" x-model="section.doc_label" @input="sync()"
+                                    placeholder="Document label e.g. Passport Copy"
+                                    class="flex-1 border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"/>
+                                <input type="text" x-model="section.doc_key" @input="sync()"
+                                    placeholder="key e.g. passport_copy"
+                                    class="w-36 border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"/>
+                            </div>
+                            <p x-show="section.doc_mode === 'mandatory'" class="text-xs text-red-500">⚠ Student must upload this document before submitting.</p>
+                            <p x-show="section.doc_mode === 'optional'" class="text-xs text-amber-600">Upload is optional for this section.</p>
+                        </div>
+
                         {{-- Boxes inside this section --}}
                         <div class="flex flex-wrap gap-2">
                             <template x-for="(box, bi) in section.boxes" :key="box._key">
@@ -263,7 +300,11 @@ document.addEventListener('alpine:init', () => {
                     name: s.name || '',
                     sort_order: si,
                     is_active: true,
-                    requires_document: s.requires_document || false,
+                    requires_document: s.doc_mode && s.doc_mode !== 'none',
+                    document_required: s.doc_mode === 'mandatory',
+                    doc_label: s.doc_label || '',
+                    doc_key: s.doc_key || '',
+                    doc_mode: s.doc_mode || 'none',
                     fields: s.boxes.map((b, bi) => ({
                         field_id: b.id || null,
                         label: b.label || '',
@@ -296,6 +337,9 @@ document.addEventListener('alpine:init', () => {
                 id: null,
                 name: '',
                 requires_document: false,
+                doc_mode: 'none',
+                doc_label: '',
+                doc_key: '',
                 boxes: [],
             });
             this.sync();
