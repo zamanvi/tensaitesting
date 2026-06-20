@@ -278,14 +278,53 @@ document.addEventListener('alpine:init', () => {
         _counter: 0,
 
         init() {
-            // Always start with one empty group (one Field Title)
-            this.groups = [{
-                _key: ++this._counter,
-                id: null,
-                label: '',
-                is_active: true,
-                sections: [],
-            }];
+            const raw = this.$refs.hiddenInput.value;
+            let parsed = [];
+            try { parsed = JSON.parse(raw); } catch(e) {}
+
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                this.groups = parsed.map(g => ({
+                    _key: ++this._counter,
+                    id: g.id || null,
+                    label: g.label || '',
+                    is_active: g.is_active !== false,
+                    sections: (g.boxes || []).map(s => ({
+                        _key: ++this._counter,
+                        id: s.id || null,
+                        name: s.name || '',
+                        doc_mode: s.doc_mode || 'none',
+                        doc_label: s.doc_label || '',
+                        doc_key: s.doc_key || '',
+                        requires_document: s.requires_document || false,
+                        boxes: (s.fields || []).map(b => ({
+                            _key: ++this._counter,
+                            id: b.field_id || null,
+                            label: b.label || '',
+                            field_key: b.field_key || '',
+                            field_type: b.field_type || 'text',
+                            size: b.box_size || 'middle',
+                            is_required: b.is_required || false,
+                            is_active: b.is_active !== false,
+                            document_mode: b.document_mode || 'none',
+                            placeholder: b.placeholder || '',
+                            helper_text: b.helper_text || '',
+                            options: b.options || [],
+                            conditional_field_key: b.conditional_field_key || '',
+                            conditional_operator: b.conditional_operator || '',
+                            conditional_value: b.conditional_value || '',
+                            expanded: false,
+                        })),
+                    })),
+                }));
+            } else {
+                this.groups = [{
+                    _key: ++this._counter,
+                    id: null,
+                    label: '',
+                    is_active: true,
+                    sections: [],
+                }];
+            }
             this.$nextTick(() => this.sync());
         },
 

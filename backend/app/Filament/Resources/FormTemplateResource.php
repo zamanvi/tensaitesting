@@ -20,8 +20,8 @@ class FormTemplateResource extends Resource
 {
     protected static ?string $model = FormTemplate::class;
     protected static ?string $navigationIcon  = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'Settings';
-    protected static ?string $navigationLabel = 'Create Applications';
+    protected static ?string $navigationGroup = 'Applicant Management';
+    protected static ?string $navigationLabel = 'Form Templates';
     protected static ?int    $navigationSort  = 3;
 
     public static function canAccess(): bool
@@ -131,6 +131,9 @@ class FormTemplateResource extends Resource
                     'name'               => $sData['name'] ?? ('Section ' . ($si + 1)),
                     'is_active'          => $sData['is_active'] ?? true,
                     'requires_document'  => $sData['requires_document'] ?? false,
+                    'document_required'  => $sData['document_required'] ?? false,
+                    'doc_label'          => $sData['doc_label'] ?? null,
+                    'doc_key'            => $sData['doc_key'] ?? null,
                     'sort_order'         => $si,
                 ];
                 if (! empty($sData['id']) && $box = FormFieldBox::find($sData['id'])) {

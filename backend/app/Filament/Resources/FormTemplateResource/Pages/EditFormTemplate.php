@@ -100,6 +100,23 @@ class EditFormTemplate extends EditRecord
                         ->send();
                 }),
 
+            Actions\Action::make('publish')
+                ->label(fn () => $this->getRecord()->status === 'published' ? 'Unpublish' : 'Publish')
+                ->icon(fn () => $this->getRecord()->status === 'published' ? 'heroicon-o-arrow-uturn-left' : 'heroicon-o-rocket-launch')
+                ->color(fn () => $this->getRecord()->status === 'published' ? 'warning' : 'success')
+                ->requiresConfirmation()
+                ->action(function () {
+                    $record = $this->getRecord();
+                    if ($record->status === 'published') {
+                        $record->update(['status' => 'draft']);
+                        Notification::make()->title('Form unpublished — moved back to draft')->warning()->send();
+                    } else {
+                        $record->update(['status' => 'published', 'is_active' => true]);
+                        Notification::make()->title('Form published — now live to branches')->success()->send();
+                    }
+                    $this->redirect($this->getResource()::getUrl('edit', ['record' => $record]));
+                }),
+
             Actions\Action::make('preview')
                 ->label('Preview Form')
                 ->icon('heroicon-o-eye')

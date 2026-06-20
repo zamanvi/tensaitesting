@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class FormFieldBox extends Model
 {
     protected $fillable = [
-        'form_field_group_id', 'name', 'requires_document', 'sort_order', 'is_active',
+        'form_field_group_id', 'name', 'requires_document', 'document_required',
+        'doc_label', 'doc_key', 'sort_order', 'is_active',
     ];
 
     protected $casts = [
-        'requires_document' => 'boolean',
-        'is_active'         => 'boolean',
+        'requires_document'  => 'boolean',
+        'document_required'  => 'boolean',
+        'is_active'          => 'boolean',
     ];
 
     public function group(): BelongsTo
