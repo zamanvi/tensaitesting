@@ -44,6 +44,8 @@ export interface Application {
   student_name: string; student_email: string; student_phone: string;
   form_data: Record<string, string>;
   progress: number; status: 'draft' | 'submitted' | 'accepted' | 'rejected';
+  submitted_by_role: string;
+  branch_id: number | null;
   submitted_at: string | null; created_at: string; updated_at: string;
   documents: AppDoc[];
 }
