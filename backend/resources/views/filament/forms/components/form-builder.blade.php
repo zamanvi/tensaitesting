@@ -100,7 +100,9 @@
                                                                            'calc(25% - 6px)'
                                         }"
                                         class="rounded-lg border bg-white overflow-hidden transition-all"
-                                        :class="box.expanded ? 'border-primary-300 shadow-sm' : 'border-gray-200'">
+                                        :class="box.expanded
+                                            ? 'border-primary-300 shadow-md'
+                                            : (box.size === 'small' ? 'border-violet-200' : box.size === 'full' ? 'border-green-200' : 'border-blue-200')">
 
                                         {{-- Box row — looks like a real user input field --}}
                                         <div class="relative group" @click="box.expanded = !box.expanded">
@@ -118,8 +120,10 @@
 
                                             {{-- Field preview — looks like a real input --}}
                                             <div class="px-3 pt-6 pb-3 cursor-pointer">
-                                                <div class="w-full rounded-lg border border-gray-200 bg-gray-50 shadow-sm px-3 py-2.5 flex items-center justify-center min-h-[2.5rem] transition-all"
-                                                    :class="box.expanded ? 'border-primary-300 bg-white shadow-md' : 'hover:border-gray-300 hover:shadow'">
+                                                <div class="w-full rounded-lg border shadow-sm px-3 py-2.5 flex items-center justify-center min-h-[2.5rem] transition-all"
+                                                    :class="box.expanded
+                                                        ? 'border-primary-300 bg-white shadow-md'
+                                                        : (box.size === 'small' ? 'border-violet-100 bg-violet-50 hover:shadow' : box.size === 'full' ? 'border-green-100 bg-green-50 hover:shadow' : 'border-blue-100 bg-blue-50 hover:shadow')">
                                                     <input type="text"
                                                         x-model="box.label"
                                                         @input="sync()"
