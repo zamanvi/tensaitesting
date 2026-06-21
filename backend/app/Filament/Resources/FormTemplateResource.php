@@ -19,10 +19,12 @@ use Filament\Tables\Table;
 class FormTemplateResource extends Resource
 {
     protected static ?string $model = FormTemplate::class;
-    protected static ?string $navigationIcon  = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon  = 'heroicon-o-document-plus';
     protected static ?string $navigationGroup = 'Settings';
-    protected static ?string $navigationLabel = 'Form Templates';
-    protected static ?int    $navigationSort  = 2;
+    protected static ?string $navigationLabel  = 'Country Forms';
+    protected static ?string $modelLabel       = 'Country Form';
+    protected static ?string $pluralModelLabel = 'Country Forms';
+    protected static ?int    $navigationSort  = 1;
 
     public static function canAccess(): bool
     {
@@ -208,12 +210,11 @@ class FormTemplateResource extends Resource
                     ->searchable()
                     ->color('gray'),
 
-                Tables\Columns\TextColumn::make('fieldGroups_count')
+                Tables\Columns\TextColumn::make('field_groups_count_value')
                     ->label('Sections')
-                    ->counts('fieldGroups')
+                    ->getStateUsing(fn (FormTemplate $record) => $record->fieldGroupsCount()->count())
                     ->badge()
-                    ->color('info')
-                    ->default('0'),
+                    ->color('info'),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -235,6 +236,9 @@ class FormTemplateResource extends Resource
             ])
             ->defaultSort('country')
             ->striped()
+            ->emptyStateHeading('No application forms yet')
+            ->emptyStateDescription('Create your first form template to start receiving applications from branches and agencies.')
+            ->emptyStateIcon('heroicon-o-document-plus')
             ->actions([
                 Tables\Actions\Action::make('publish')
                     ->label('Publish')
