@@ -102,22 +102,32 @@
                                         class="rounded-lg border bg-white overflow-hidden transition-all"
                                         :class="box.expanded ? 'border-primary-300 shadow-sm' : 'border-gray-200'">
 
-                                        {{-- Box row --}}
-                                        <div class="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
-                                            @click="box.expanded = !box.expanded">
-                                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-md text-[10px] font-bold shrink-0"
-                                                :class="box.size === 'small' ? 'bg-violet-100 text-violet-600' : box.size === 'full' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'"
+                                        {{-- Box row — looks like a real user input field --}}
+                                        <div class="relative group" @click="box.expanded = !box.expanded">
+
+                                            {{-- Size badge top-left --}}
+                                            <span class="absolute top-2 left-2 inline-flex items-center justify-center w-5 h-5 rounded text-[9px] font-black z-10 cursor-pointer"
+                                                :class="box.size === 'small' ? 'bg-violet-100 text-violet-500' : box.size === 'full' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-500'"
                                                 x-text="box.size === 'small' ? '¼' : (box.size === 'full' ? '↔' : '½')"></span>
-                                            <input type="text"
-                                                x-model="box.label"
-                                                @input="sync()"
-                                                @click.stop
-                                                :placeholder="box.size === 'small' ? 'Quarter field label…' : box.size === 'full' ? 'Full width field label…' : 'Half field label…'"
-                                                class="flex-1 text-sm border-none outline-none bg-transparent placeholder-gray-300 min-w-0 text-gray-700"/>
+
+                                            {{-- Remove button top-right --}}
                                             <button type="button" @click.stop="removeBox(section, bi)"
-                                                class="w-5 h-5 flex items-center justify-center rounded-full text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors focus:outline-none shrink-0">
+                                                class="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-300 hover:bg-red-50 hover:text-red-400 transition-colors focus:outline-none z-10">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                             </button>
+
+                                            {{-- Field preview — looks like a real input --}}
+                                            <div class="px-3 pt-6 pb-3 cursor-pointer">
+                                                <div class="w-full rounded-lg border border-gray-200 bg-gray-50 shadow-sm px-3 py-2.5 flex items-center justify-center min-h-[2.5rem] transition-all"
+                                                    :class="box.expanded ? 'border-primary-300 bg-white shadow-md' : 'hover:border-gray-300 hover:shadow'">
+                                                    <input type="text"
+                                                        x-model="box.label"
+                                                        @input="sync()"
+                                                        @click.stop
+                                                        :placeholder="box.size === 'small' ? 'Field label…' : box.size === 'full' ? 'Field label…' : 'Field label…'"
+                                                        class="w-full text-sm text-center font-medium text-gray-700 bg-transparent border-none outline-none placeholder-gray-300 cursor-text"/>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {{-- Expanded panel --}}
