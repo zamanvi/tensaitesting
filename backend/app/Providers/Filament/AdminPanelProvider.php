@@ -42,11 +42,14 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('16rem')
             ->navigationGroups([
-                'Lead Management',
                 'Verification',
-                'Commissions',
                 'Users & Gateways',
-                'System',
+                'Applicant Management',
+                'Branches',
+                'Earnings & Payouts',
+                'Content',
+                'Support',
+                'Settings',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

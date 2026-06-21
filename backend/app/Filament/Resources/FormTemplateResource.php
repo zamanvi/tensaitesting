@@ -20,9 +20,9 @@ class FormTemplateResource extends Resource
 {
     protected static ?string $model = FormTemplate::class;
     protected static ?string $navigationIcon  = 'heroicon-o-document-text';
-    protected static ?string $navigationGroup = 'Applicant Management';
+    protected static ?string $navigationGroup = 'Settings';
     protected static ?string $navigationLabel = 'Form Templates';
-    protected static ?int    $navigationSort  = 3;
+    protected static ?int    $navigationSort  = 2;
 
     public static function canAccess(): bool
     {
@@ -204,15 +204,16 @@ class FormTemplateResource extends Resource
                     ->color('gray'),
 
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Form Name')
                     ->searchable()
-                    ->color('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->color('gray'),
 
                 Tables\Columns\TextColumn::make('fieldGroups_count')
-                    ->label('Fields')
+                    ->label('Sections')
                     ->counts('fieldGroups')
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->default('0'),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
