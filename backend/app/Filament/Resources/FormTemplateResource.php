@@ -204,15 +204,16 @@ class FormTemplateResource extends Resource
                     ->color('gray'),
 
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Form Name')
                     ->searchable()
-                    ->color('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->color('gray'),
 
                 Tables\Columns\TextColumn::make('fieldGroups_count')
-                    ->label('Fields')
+                    ->label('Sections')
                     ->counts('fieldGroups')
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->default('0'),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()

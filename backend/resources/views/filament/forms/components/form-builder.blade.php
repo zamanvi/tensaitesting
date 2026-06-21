@@ -1,9 +1,10 @@
 @php
-    $statePath = $getStatePath();
+    $statePath  = $getStatePath();
+    $initialJson = $getState() ?: '[]';
 @endphp
 
 <div
-    x-data="formBuilder()"
+    x-data="formBuilder({{ \Illuminate\Support\Js::from($initialJson) }})"
     x-init="init()"
     wire:ignore
     class="space-y-4"
@@ -289,14 +290,16 @@
 @once
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('formBuilder', () => ({
+    Alpine.data('formBuilder', (initialData = '[]') => ({
         groups: [],
         _counter: 0,
 
         init() {
-            const raw = this.$refs.hiddenInput.value;
             let parsed = [];
-            try { parsed = JSON.parse(raw); } catch(e) {}
+            try {
+                const raw = typeof initialData === 'string' ? initialData : JSON.stringify(initialData);
+                parsed = JSON.parse(raw);
+            } catch(e) {}
 
             if (Array.isArray(parsed) && parsed.length > 0) {
                 this.groups = parsed.map(g => ({
