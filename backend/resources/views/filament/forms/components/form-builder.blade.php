@@ -13,18 +13,6 @@
     <template x-for="(group, gi) in groups" :key="group._key">
         <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
 
-            {{-- Group header: Field Title --}}
-            <div class="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary-50 to-white border-b border-gray-100">
-                <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-primary-100 text-primary-600 shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                </span>
-                <input type="text"
-                    x-model="group.label"
-                    @input="sync()"
-                    placeholder="Section title — e.g. Academic Background"
-                    class="flex-1 font-semibold text-sm text-gray-800 bg-transparent border-none outline-none placeholder-gray-400"/>
-            </div>
-
             <div class="p-4 space-y-3">
 
                 {{-- Sections --}}
