@@ -12,6 +12,12 @@ class EditFormTemplate extends EditRecord
 {
     protected static string $resource = FormTemplateResource::class;
 
+    public function getTitle(): string
+    {
+        $record = $this->getRecord();
+        return $record->country . ' — ' . ($record->name ?: 'Edit Form');
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         unset($data['form_structure'], $data['saved_structure']);

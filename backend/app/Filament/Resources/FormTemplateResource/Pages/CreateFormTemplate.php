@@ -10,6 +10,11 @@ class CreateFormTemplate extends CreateRecord
 {
     protected static string $resource = FormTemplateResource::class;
 
+    public function getTitle(): string
+    {
+        return 'New Application Form';
+    }
+
     protected function getCreateFormAction(): \Filament\Actions\Action
     {
         return parent::getCreateFormAction()->label('Save');

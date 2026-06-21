@@ -26,6 +26,11 @@ class FormTemplate extends Model
         return $this->hasMany(FormFieldGroup::class)->orderBy('sort_order');
     }
 
+    public function fieldGroupsCount(): HasMany
+    {
+        return $this->hasMany(FormFieldGroup::class);
+    }
+
     public function activeFieldGroups(): HasMany
     {
         return $this->hasMany(FormFieldGroup::class)
