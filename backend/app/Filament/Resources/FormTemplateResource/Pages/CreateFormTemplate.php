@@ -12,7 +12,7 @@ class CreateFormTemplate extends CreateRecord
 
     public function getTitle(): string
     {
-        return 'New Application Form';
+        return 'New Country Form';
     }
 
     protected function getCreateFormAction(): \Filament\Actions\Action

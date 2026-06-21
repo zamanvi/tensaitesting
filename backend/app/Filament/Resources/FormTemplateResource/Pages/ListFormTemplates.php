@@ -12,13 +12,13 @@ class ListFormTemplates extends ListRecords
 
     public function getTitle(): string
     {
-        return 'Application Forms';
+        return 'Country Forms';
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('New Application Form')->icon('heroicon-o-plus'),
+            Actions\CreateAction::make()->label('New Country Form')->icon('heroicon-o-plus'),
         ];
     }
 }
