@@ -114,11 +114,6 @@
                                                 @click.stop
                                                 :placeholder="box.size === 'small' ? 'Quarter field label…' : box.size === 'full' ? 'Full width field label…' : 'Half field label…'"
                                                 class="flex-1 text-sm border-none outline-none bg-transparent placeholder-gray-300 min-w-0 text-gray-700"/>
-                                            <svg class="w-3.5 h-3.5 text-gray-300 shrink-0 transition-transform duration-200"
-                                                :class="box.expanded ? 'rotate-180 text-primary-400' : ''"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
                                             <button type="button" @click.stop="removeBox(section, bi)"
                                                 class="w-5 h-5 flex items-center justify-center rounded-full text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors focus:outline-none shrink-0">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
