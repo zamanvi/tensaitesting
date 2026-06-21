@@ -22,7 +22,7 @@ class FormTemplateResource extends Resource
     protected static ?string $navigationIcon  = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Settings';
     protected static ?string $navigationLabel = 'Form Templates';
-    protected static ?int    $navigationSort  = 2;
+    protected static ?int    $navigationSort  = 1;
 
     public static function canAccess(): bool
     {

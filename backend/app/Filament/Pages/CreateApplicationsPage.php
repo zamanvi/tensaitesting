@@ -11,6 +11,7 @@ class CreateApplicationsPage extends Page
     protected static ?string $navigationLabel = 'Application Forms';
     protected static ?string $navigationGroup = 'Settings';
     protected static ?int    $navigationSort  = 1;
+    protected static bool    $shouldRegisterNavigation = false;
     protected static string  $view            = 'filament.pages.create-applications';
 
     public function getTitle(): string
