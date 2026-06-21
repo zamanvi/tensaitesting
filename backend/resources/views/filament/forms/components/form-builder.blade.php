@@ -104,34 +104,44 @@
                                             ? 'border-primary-300 shadow-md'
                                             : (box.size === 'small' ? 'border-violet-200' : box.size === 'full' ? 'border-green-200' : 'border-blue-200')">
 
-                                        {{-- Box row — looks like a real user input field --}}
-                                        <div class="relative group" @click="box.expanded = !box.expanded">
+                                        {{-- Box — real form field preview --}}
+                                        <div class="relative p-3 pt-2">
 
-                                            {{-- Size badge top-left --}}
-                                            <span class="absolute top-2 left-2 inline-flex items-center justify-center w-5 h-5 rounded text-[9px] font-black z-10 cursor-pointer"
-                                                :class="box.size === 'small' ? 'bg-violet-100 text-violet-500' : box.size === 'full' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-500'"
-                                                x-text="box.size === 'small' ? '¼' : (box.size === 'full' ? '↔' : '½')"></span>
+                                            {{-- Top row: size badge + label input + remove --}}
+                                            <div class="flex items-center gap-1.5 mb-1.5">
+                                                <span class="inline-flex items-center justify-center w-5 h-5 rounded text-[9px] font-black shrink-0"
+                                                    :class="box.size === 'small' ? 'bg-violet-100 text-violet-500' : box.size === 'full' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-500'"
+                                                    x-text="box.size === 'small' ? '¼' : (box.size === 'full' ? '↔' : '½')"></span>
 
-                                            {{-- Remove button top-right --}}
-                                            <button type="button" @click.stop="removeBox(section, bi)"
-                                                class="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-300 hover:bg-red-50 hover:text-red-400 transition-colors focus:outline-none z-10">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
+                                                {{-- Editable label — becomes the field label --}}
+                                                <input type="text"
+                                                    x-model="box.label"
+                                                    @input="sync()"
+                                                    @click.stop
+                                                    placeholder="Field label…"
+                                                    class="flex-1 text-xs font-semibold text-gray-700 bg-transparent border-none outline-none placeholder-gray-300 min-w-0"/>
 
-                                            {{-- Field preview — looks like a real input --}}
-                                            <div class="px-3 pt-6 pb-3 cursor-pointer">
-                                                <div class="w-full rounded-lg border shadow-sm px-3 py-2.5 flex items-center justify-center min-h-[2.5rem] transition-all"
-                                                    :class="box.expanded
-                                                        ? 'border-primary-300 bg-white shadow-md'
-                                                        : (box.size === 'small' ? 'border-violet-100 bg-violet-50 hover:shadow' : box.size === 'full' ? 'border-green-100 bg-green-50 hover:shadow' : 'border-blue-100 bg-blue-50 hover:shadow')">
-                                                    <input type="text"
-                                                        x-model="box.label"
-                                                        @input="sync()"
-                                                        @click.stop
-                                                        :placeholder="box.size === 'small' ? 'Field label…' : box.size === 'full' ? 'Field label…' : 'Field label…'"
-                                                        class="w-full text-sm text-center font-medium text-gray-700 bg-transparent border-none outline-none placeholder-gray-300 cursor-text"/>
-                                                </div>
+                                                <button type="button" @click.stop="removeBox(section, bi)"
+                                                    class="w-5 h-5 flex items-center justify-center rounded-full text-gray-300 hover:bg-red-50 hover:text-red-400 transition-colors focus:outline-none shrink-0">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
                                             </div>
+
+                                            {{-- Real input preview — user types here --}}
+                                            <div class="w-full rounded-lg border bg-white shadow-sm px-3 py-2 transition-all cursor-text"
+                                                :class="box.size === 'small' ? 'border-violet-200' : box.size === 'full' ? 'border-green-200' : 'border-blue-200'"
+                                                @click.stop>
+                                                <input type="text"
+                                                    :placeholder="box.label ? 'Enter ' + box.label.toLowerCase() + '…' : 'Type here…'"
+                                                    class="w-full text-sm text-gray-500 bg-transparent border-none outline-none placeholder-gray-400"/>
+                                            </div>
+
+                                            {{-- Settings toggle --}}
+                                            <button type="button" @click.stop="box.expanded = !box.expanded"
+                                                class="mt-1.5 flex items-center gap-1 text-[10px] font-semibold text-gray-300 hover:text-gray-500 transition-colors">
+                                                <svg class="w-3 h-3 transition-transform" :class="box.expanded ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                Field settings
+                                            </button>
                                         </div>
 
                                         {{-- Expanded panel --}}
