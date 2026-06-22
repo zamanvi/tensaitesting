@@ -101,7 +101,7 @@ export default function AgencyAddApplicationPage() {
             <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-6 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-black text-white">My Applications</h2>
-                <p className="text-green-100 text-xs mt-1">Submit student applications using the official form</p>
+                <p className="text-green-100 text-xs mt-1">Select a country form and fill in student details — submit when complete</p>
               </div>
               <button onClick={() => setShowStarter(s => !s)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-md ${showStarter ? 'bg-white/20 text-white' : 'bg-white text-green-800 hover:bg-green-50'}`}>
@@ -117,7 +117,7 @@ export default function AgencyAddApplicationPage() {
               <div className="px-6 py-8 text-center">
                 <div className="w-14 h-14 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl">📝</div>
                 <p className="text-sm font-semibold text-slate-600">
-                  {isLoading ? 'Loading…' : apps.length === 0 ? 'No applications yet — click New Application' : 'Select an application or start a new one'}
+                  {isLoading ? 'Loading…' : apps.length === 0 ? 'No applications yet — click New Application' : 'Select an existing application or start a new one'}
                 </p>
               </div>
             )}

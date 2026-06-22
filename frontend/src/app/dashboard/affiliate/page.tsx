@@ -105,7 +105,7 @@ export default function AffiliateDashboard() {
                   ? '日本留学を希望する学生をTensaiコンサルタンシーに紹介します。学生が入学するたびに固定コミッションを獲得。'
                   : bn
                   ? 'জাপানে পড়তে আগ্রহী শিক্ষার্থীদের Tensai কনসালটেন্সিতে পাঠান। প্রতিটি ভর্তিতে নির্দিষ্ট কমিশন পান।'
-                  : 'Refer students interested in studying in Japan to Tensai. Earn a fixed commission for every student who gets enrolled.'}
+                  : 'Refer students to Tensai and earn a fixed commission for every student who successfully enrolls.'}
               </p>
               <div className="flex flex-wrap gap-2 text-xs">
                 <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full font-medium">✓ {ja ? '学生紹介' : bn ? 'শিক্ষার্থী রেফার' : 'Student Referrals'}</span>
@@ -128,7 +128,7 @@ export default function AffiliateDashboard() {
                   ? '学校・教育機関またはTensaiの従業員を管理します。機関への入学ごとにパーセンテージのコミッションを獲得。'
                   : bn
                   ? 'স্কুল/শিক্ষা প্রতিষ্ঠান অথবা Tensai কর্মীদের ম্যানেজ করুন। প্রতিটি প্রতিষ্ঠানে ভর্তিতে % কমিশন পান।'
-                  : 'Manage schools/institutions or employees for Tensai. Earn a percentage commission per student enrolled at your institutions.'}
+                  : 'Partner with Tensai by referring institutions and managing their students. Earn percentage commissions on each enrollment.'}
               </p>
               <div className="flex flex-wrap gap-2 text-xs">
                 <span className="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full font-medium">✓ {ja ? '機関管理' : bn ? 'প্রতিষ্ঠান ম্যানেজ' : 'Manage Institutions'}</span>
@@ -293,7 +293,7 @@ export default function AffiliateDashboard() {
             {ja ? 'コミッションはAdminが設定します' : bn ? 'কমিশন অ্যাডমিন কর্তৃক নির্ধারিত' : 'Commission rates set by admin'}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">
-            {ja ? '国・ビザ種別・期ごとに設定された料金で、ビザ承認ごとにコミッションが発生します。' : bn ? 'দেশ, ভিসা ক্যাটাগরি ও ইনটেক অনুযায়ী নির্ধারিত হারে ভিসা অনুমোদন হলে কমিশন পাবেন।' : 'Rates are configured per country, visa type, and intake period. You earn commission each time a referred student gets visa approved.'}
+            {ja ? '国・ビザ種別・期ごとに設定された料金で、ビザ承認ごとにコミッションが発生します。' : bn ? 'দেশ, ভিসা ক্যাটাগরি ও ইনটেক অনুযায়ী নির্ধারিত হারে ভিসা অনুমোদন হলে কমিশন পাবেন।' : 'Commission rates are set per country and visa type. You earn each time a student from your referred institution gets a visa approved.'}
           </p>
         </div>
       </div>

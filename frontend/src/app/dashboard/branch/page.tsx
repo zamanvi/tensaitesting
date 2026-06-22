@@ -96,15 +96,15 @@ export default function BranchAdminDashboard() {
   const stats = [
     { label: ja ? '合計' : bn ? 'মোট' : 'Total',         value: total,     color: 'bg-slate-100 text-slate-700',   icon: '👥' },
     { label: ja ? '下書き' : bn ? 'ড্রাফট' : 'Draft',     value: draft,     color: 'bg-amber-50 text-amber-700',    icon: '📝' },
-    { label: ja ? '選択済' : bn ? 'নির্বাচিত' : 'Selected',  value: submitted, color: 'bg-blue-50 text-blue-700',      icon: '📌' },
+    { label: ja ? '選択済' : bn ? 'সাবমিট' : 'Submitted', value: submitted, color: 'bg-blue-50 text-blue-700',      icon: '📌' },
     { label: ja ? '承認済' : bn ? 'অনুমোদিত' : 'Accepted', value: accepted,  color: 'bg-green-50 text-green-700',    icon: '✅' },
   ];
 
   const quickLinks = [
-    { label: ja ? '申請を見る' : bn ? 'আবেদন দেখুন' : 'View Applications', href: '/dashboard/branch/applicants', icon: '📋', desc: ja ? '申請者を管理' : bn ? 'আবেদনকারী পরিচালনা' : 'Manage applicants' },
-    { label: ja ? 'チームを管理' : bn ? 'টিম পরিচালনা' : 'Manage Team',      href: '/dashboard/branch/team',       icon: '👤', desc: ja ? 'スタッフを追加・編集' : bn ? 'স্টাফ যোগ ও সম্পাদনা' : 'Add and edit staff' },
-    { label: ja ? 'ギャラリー' : bn ? 'গ্যালারি' : 'Gallery',                href: '/dashboard/branch/gallery',    icon: '🖼️', desc: ja ? '写真を管理' : bn ? 'ছবি পরিচালনা' : 'Manage photos' },
-    { label: ja ? '設定' : bn ? 'সেটিংস' : 'Settings',                       href: '/dashboard/branch/settings',   icon: '⚙️', desc: ja ? '支局情報を更新' : bn ? 'শাখার তথ্য আপডেট' : 'Update branch info' },
+    { label: ja ? '申請を見る' : bn ? 'আবেদন দেখুন' : 'View Applications', href: '/dashboard/branch/applicants', icon: '📋', desc: ja ? '申請者を管理' : bn ? 'আবেদনকারী পরিচালনা' : 'Manage student applications and submit to admin' },
+    { label: ja ? 'チームを管理' : bn ? 'টিম পরিচালনা' : 'Manage Team',      href: '/dashboard/branch/team',       icon: '👤', desc: ja ? 'スタッフを追加・編集' : bn ? 'স্টাফ যোগ ও সম্পাদনা' : 'Add team members and manage roles' },
+    { label: ja ? 'ギャラリー' : bn ? 'গ্যালারি' : 'Gallery',                href: '/dashboard/branch/gallery',    icon: '🖼️', desc: ja ? '写真を管理' : bn ? 'ছবি পরিচালনা' : 'Upload and manage branch gallery images' },
+    { label: ja ? '設定' : bn ? 'সেটিংস' : 'Settings',                       href: '/dashboard/branch/settings',   icon: '⚙️', desc: ja ? '支局情報を更新' : bn ? 'শাখার তথ্য আপডেট' : 'Update contact details, hours and social links' },
   ];
 
   return (

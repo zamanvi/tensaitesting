@@ -92,8 +92,8 @@ export default function BranchApplicantsPage() {
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm mb-6 overflow-hidden">
             <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-6 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black text-white">Application Forms</h2>
-                <p className="text-green-100 text-xs mt-1">Fill the admin-published form for a student</p>
+                <h2 className="text-lg font-black text-white">Student Applications</h2>
+                <p className="text-green-100 text-xs mt-1">Select a country form and fill student details — submit when ready</p>
               </div>
               <button onClick={() => setShowStarter(s => !s)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-md ${showStarter ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-white text-green-800 hover:bg-green-50'}`}>
@@ -111,8 +111,8 @@ export default function BranchApplicantsPage() {
                 <div className="w-14 h-14 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl">📝</div>
                 <p className="text-sm font-semibold text-slate-600">
                   {isLoading ? 'Loading…' : apps.length === 0
-                    ? 'No applications yet — click New Application to start'
-                    : 'Select an application below or start a new one'}
+                    ? 'No applications yet — click 'New Application' to begin'
+                    : 'Select an application from the list below, or start a new one'}
                 </p>
               </div>
             )}

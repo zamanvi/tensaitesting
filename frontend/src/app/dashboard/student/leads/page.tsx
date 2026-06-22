@@ -75,8 +75,8 @@ export default function StudentApplicationPage() {
               myApp.status === 'rejected' ? 'bg-rose-50 text-rose-700 border-rose-100' :
               'bg-amber-50 text-amber-700 border-amber-100'}`}>
               {myApp.status === 'accepted' ? '✅ Your application was accepted!' :
-               myApp.status === 'rejected' ? '❌ Your application was not accepted. Please contact your branch.' :
-               '⏳ Your application is under review.'}
+               myApp.status === 'rejected' ? '❌ Your application was not accepted. Please contact your branch or agency for next steps.' :
+               '⏳ Your application has been submitted and is under review by the admin team.'}
             </div>
           )}
           <ApplicationFormBody
@@ -91,7 +91,7 @@ export default function StudentApplicationPage() {
             <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-8 text-center">
               <div className="w-16 h-16 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl">🌏</div>
               <h2 className="text-xl font-black text-white mb-1">Start Your Application</h2>
-              <p className="text-green-100 text-sm">Select your destination and fill in your details</p>
+              <p className="text-green-100 text-sm">Choose your destination country and fill in your personal details</p>
             </div>
             <ApplicationStarter
               role="student"
