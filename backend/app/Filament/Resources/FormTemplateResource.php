@@ -86,38 +86,72 @@ class FormTemplateResource extends Resource
                             ->prefixIcon('heroicon-o-identification')
                             ->columnSpan(1),
 
-                        Forms\Components\Select::make('education')
-                            ->label('Education Level')
-                            ->prefixIcon('heroicon-o-academic-cap')
-                            ->options([
-                                'ssc'        => 'SSC / O-Level',
-                                'hsc'        => 'HSC / A-Level',
-                                'diploma'    => 'Diploma',
-                                'bachelors'  => 'Bachelor\'s Degree',
-                                'masters'    => 'Master\'s Degree',
-                                'phd'        => 'PhD / Doctorate',
-                                'other'      => 'Other',
-                            ])
-                            ->placeholder('Select education level')
-                            ->columnSpan(1),
-
-                        Forms\Components\Section::make('')
+                        Forms\Components\Repeater::make('educations')
+                            ->label('Education Background')
                             ->schema([
-                                Forms\Components\FileUpload::make('education_document')
-                                    ->label('Education Certificate / Transcript')
-                                    ->helperText('Upload degree certificate, transcript, or marksheet.')
+                                Forms\Components\Grid::make(4)->schema([
+                                    Forms\Components\Select::make('level')
+                                        ->label('Education Level')
+                                        ->options([
+                                            'ssc'       => 'SSC / O-Level',
+                                            'hsc'       => 'HSC / A-Level',
+                                            'diploma'   => 'Diploma',
+                                            'bachelors' => 'Bachelor\'s',
+                                            'masters'   => 'Master\'s',
+                                            'phd'       => 'PhD',
+                                            'other'     => 'Other',
+                                        ])
+                                        ->required()
+                                        ->placeholder('Select level')
+                                        ->columnSpan(1),
+
+                                    Forms\Components\TextInput::make('institution')
+                                        ->label('Institution / Board')
+                                        ->placeholder('e.g. Dhaka Board')
+                                        ->columnSpan(1),
+
+                                    Forms\Components\TextInput::make('gpa')
+                                        ->label('GPA / Grade / Point')
+                                        ->placeholder('e.g. 5.00 / A+')
+                                        ->columnSpan(1),
+
+                                    Forms\Components\TextInput::make('passing_year')
+                                        ->label('Passing Year')
+                                        ->placeholder('e.g. 2022')
+                                        ->numeric()
+                                        ->minValue(1990)
+                                        ->maxValue(2099)
+                                        ->columnSpan(1),
+                                ]),
+
+                                Forms\Components\FileUpload::make('document')
+                                    ->label('Certificate / Transcript / Marksheet')
                                     ->disk('public')
                                     ->directory('education-documents')
                                     ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'])
                                     ->maxSize(5120)
                                     ->downloadable()
                                     ->previewable()
-                                    ->uploadingMessage('Uploading document…')
-                                    ->removeUploadedFileButtonPosition('right')
+                                    ->uploadingMessage('Uploading…')
                                     ->columnSpanFull(),
                             ])
-                            ->icon('heroicon-o-paper-clip')
-                            ->compact()
+                            ->addActionLabel('+ Add Education')
+                            ->itemLabel(fn (array $state): ?string =>
+                                match($state['level'] ?? '') {
+                                    'ssc'       => 'SSC / O-Level',
+                                    'hsc'       => 'HSC / A-Level',
+                                    'diploma'   => 'Diploma',
+                                    'bachelors' => 'Bachelor\'s',
+                                    'masters'   => 'Master\'s',
+                                    'phd'       => 'PhD',
+                                    'other'     => 'Other',
+                                    default     => 'Education Entry',
+                                }
+                            )
+                            ->collapsible()
+                            ->collapsed()
+                            ->cloneable()
+                            ->reorderable()
                             ->columnSpanFull(),
 
                         Forms\Components\TagsInput::make('intake_options')

@@ -9,12 +9,13 @@ class FormTemplate extends Model
 {
     protected $fillable = [
         'country', 'visa_type', 'name', 'intake_options', 'birth_date',
-        'student_name', 'passport_no', 'education', 'education_document',
+        'student_name', 'passport_no', 'educations',
         'is_active', 'status', 'notes',
     ];
 
     protected $casts = [
         'intake_options' => 'array',
+        'educations'     => 'array',
         'is_active'      => 'boolean',
     ];
 
