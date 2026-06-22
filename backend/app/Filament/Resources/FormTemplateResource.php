@@ -46,10 +46,20 @@ class FormTemplateResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('country')
                             ->required()
-                            ->unique(ignoreRecord: true)
+                            ->unique(
+                                table: 'form_templates',
+                                column: 'country',
+                                modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule, \Filament\Forms\Get $get, ?FormTemplate $record) =>
+                                    $rule
+                                        ->where('visa_type', $get('visa_type') ?? '')
+                                        ->where('name', $get('name') ?? '')
+                                        ->ignore($record?->id),
+                                ignoreRecord: false,
+                            )
+                            ->validationMessages(['unique' => 'A form for this country, visa type and name already exists.'])
                             ->label('Destination Country')
                             ->placeholder('e.g. Japan')
-                            ->helperText('One form per country. Must match the country name used in applications.')
+                            ->helperText('Multiple forms per country are allowed — they must differ by Visa Type or Form Name.')
                             ->prefixIcon('heroicon-o-flag')
                             ->columnSpan(1),
 

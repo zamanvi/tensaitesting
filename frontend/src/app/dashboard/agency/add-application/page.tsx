@@ -46,11 +46,11 @@ export default function AgencyAddApplicationPage() {
   const activeApp = apps.find(a => a.id === activeAppId) ?? null;
 
   const { data: template } = useQuery<FormTemplateData | null>({
-    queryKey: ['form-template', activeApp?.form_template?.country],
-    queryFn: () => activeApp?.form_template?.country
-      ? api.get(`/form-templates/${encodeURIComponent(activeApp.form_template!.country)}`).then(r => r.data)
+    queryKey: ['form-template', activeApp?.form_template_id],
+    queryFn: () => activeApp?.form_template_id
+      ? api.get(`/form-templates/${activeApp.form_template_id}`).then(r => r.data)
       : Promise.resolve(null),
-    enabled: !!activeApp?.form_template?.country,
+    enabled: !!activeApp?.form_template_id,
     staleTime: 300_000,
   });
 

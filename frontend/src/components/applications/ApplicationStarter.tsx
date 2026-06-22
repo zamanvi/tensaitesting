@@ -7,15 +7,14 @@ import { Application } from './ApplicationFormShared';
 const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
 const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide';
 
-interface Template { id: number; name: string; country: string; }
+interface Template { id: number; name: string; country: string; visa_type?: string; }
 
 interface Props {
-  /** role of the person filling: branch/agency/admin need a student name; student uses own name */
   role: 'branch' | 'agency' | 'admin' | 'student';
-  studentName?: string;   // pre-filled for student role
+  studentName?: string;
   studentEmail?: string;
   onCreated: (app: Application) => void;
-  queryKey: string;       // to invalidate after create
+  queryKey: string;
 }
 
 export default function ApplicationStarter({ role, studentName, studentEmail, onCreated, queryKey }: Props) {
@@ -27,17 +26,23 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
     staleTime: 60_000,
   });
 
-  const [country,   setCountry]   = useState('');
-  const [name,      setName]      = useState(studentName ?? '');
-  const [email,     setEmail]     = useState(studentEmail ?? '');
-  const [phone,     setPhone]     = useState('');
-  const [err,       setErr]       = useState('');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [name,       setName]       = useState(studentName ?? '');
+  const [email,      setEmail]      = useState(studentEmail ?? '');
+  const [phone,      setPhone]      = useState('');
+  const [err,        setErr]        = useState('');
 
-  const selected = templates.find(t => t.country === country);
+  const selected = templates.find(t => t.id === selectedId) ?? null;
+
+  // Group templates by country for display
+  const byCountry = templates.reduce<Record<string, Template[]>>((acc, t) => {
+    (acc[t.country] ??= []).push(t);
+    return acc;
+  }, {});
 
   const startMut = useMutation({
     mutationFn: () => api.post('/applications', {
-      form_template_id: selected!.id,
+      form_template_id: selectedId,
       student_name:  name.trim(),
       student_email: email.trim() || undefined,
       student_phone: phone.trim() || undefined,
@@ -54,7 +59,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   });
 
   const needStudentInfo = role !== 'student';
-  const canStart = !!selected && !!name.trim();
+  const canStart = !!selectedId && !!name.trim();
 
   if (isLoading) {
     return (
@@ -79,23 +84,48 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
       {err && <div className="mb-4 p-3 bg-rose-50 border border-rose-100 rounded-xl text-xs text-rose-600">⚠️ {err}</div>}
 
       <div className="space-y-4">
-        {/* Country / Form selector */}
+        {/* Template selector — grouped by country */}
         <div>
-          <label className={lbl}>Destination Country *</label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {templates.map(t => (
-              <button key={t.id} type="button"
-                onClick={() => setCountry(t.country)}
-                className={`px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-left ${country === t.country ? 'bg-green-700 text-white border-green-700 shadow-sm' : 'bg-white border-slate-200 text-slate-700 hover:border-green-400 hover:bg-green-50'}`}>
-                🌏 {t.country}
-                <br />
-                <span className={`text-[10px] font-normal ${country === t.country ? 'text-green-100' : 'text-slate-400'}`}>{t.name}</span>
-              </button>
+          <label className={lbl}>Select Application Form *</label>
+          <div className="space-y-2">
+            {Object.entries(byCountry).map(([country, forms]) => (
+              <div key={country}>
+                {/* Country header when multiple forms exist */}
+                {Object.keys(byCountry).length > 1 || forms.length > 1 ? (
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-0.5">
+                    🌏 {country}
+                  </p>
+                ) : null}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {forms.map(t => (
+                    <button key={t.id} type="button"
+                      onClick={() => setSelectedId(t.id)}
+                      className={`px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-left ${
+                        selectedId === t.id
+                          ? 'bg-green-700 text-white border-green-700 shadow-sm'
+                          : 'bg-white border-slate-200 text-slate-700 hover:border-green-400 hover:bg-green-50'
+                      }`}>
+                      <span className="block font-bold">{t.name}</span>
+                      {t.visa_type && (
+                        <span className={`text-[10px] font-normal ${selectedId === t.id ? 'text-green-100' : 'text-slate-400'}`}>
+                          {t.visa_type}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
+
+          {selected && (
+            <div className="mt-2 px-3 py-2 bg-green-50 border border-green-100 rounded-xl text-xs text-green-800 font-medium">
+              ✅ {selected.country}{selected.visa_type ? ` · ${selected.visa_type}` : ''} — {selected.name}
+            </div>
+          )}
         </div>
 
-        {/* Student name (branch/agency/admin fill for a student) */}
+        {/* Student info (branch / agency / admin fill for student) */}
         {needStudentInfo && (
           <>
             <div>

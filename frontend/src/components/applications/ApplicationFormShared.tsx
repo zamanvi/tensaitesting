@@ -40,7 +40,7 @@ export interface FormTemplateData {
 export interface Application {
   id: number; application_code: string;
   form_template_id: number;
-  form_template: { id: number; name: string; country: string; intake_options: string[] } | null;
+  form_template: { id: number; name: string; country: string; visa_type?: string; intake_options: string[] } | null;
   student_name: string; student_email: string; student_phone: string;
   form_data: Record<string, string>;
   progress: number; status: 'draft' | 'submitted' | 'accepted' | 'rejected';

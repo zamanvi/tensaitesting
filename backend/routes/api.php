@@ -31,8 +31,8 @@ use Illuminate\Support\Facades\Route;
 
 // Form Templates (authenticated)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/form-templates',           [FormTemplateController::class, 'index']);
-    Route::get('/form-templates/{country}', [FormTemplateController::class, 'show']);
+    Route::get('/form-templates',      [FormTemplateController::class, 'index']);
+    Route::get('/form-templates/{id}', [FormTemplateController::class, 'show'])->where('id', '[0-9]+');
 });
 
 // Health check

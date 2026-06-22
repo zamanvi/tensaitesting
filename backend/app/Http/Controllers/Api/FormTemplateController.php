@@ -8,50 +8,27 @@ use Illuminate\Http\JsonResponse;
 
 class FormTemplateController extends Controller
 {
-    // GET /api/form-templates/{country}
-    public function show(string $country): JsonResponse
+    // GET /api/form-templates/{id}  — fetch by template ID (unambiguous with multiple per country)
+    public function show(int $id): JsonResponse
     {
-        $template = $this->findTemplate($country);
-
-        if (!$template) {
-            return response()->json(null);
-        }
+        $template = FormTemplate::with(['activeFieldGroups.activeBoxes.activeFields'])
+            ->where('status', 'published')
+            ->where('is_active', true)
+            ->findOrFail($id);
 
         return response()->json($this->formatTemplate($template));
     }
 
-    // GET /api/form-templates
+    // GET /api/form-templates  — list all published templates (country + visa_type + name)
     public function index(): JsonResponse
     {
         $templates = FormTemplate::where('status', 'published')
             ->where('is_active', true)
             ->orderBy('country')
-            ->get(['id', 'country', 'name', 'intake_options']);
+            ->orderBy('visa_type')
+            ->get(['id', 'country', 'visa_type', 'name', 'intake_options']);
 
         return response()->json($templates);
-    }
-
-    // ──────────────────────────────────────────────────────────────────────────
-
-    private function findTemplate(string $country): ?FormTemplate
-    {
-        $with = ['activeFieldGroups.activeBoxes.activeFields'];
-
-        $template = FormTemplate::with($with)
-            ->where('status', 'published')
-            ->where('is_active', true)
-            ->where('country', $country)
-            ->first();
-
-        if (!$template) {
-            $template = FormTemplate::with($with)
-                ->where('status', 'published')
-                ->where('is_active', true)
-                ->where('country', 'Global')
-                ->first();
-        }
-
-        return $template;
     }
 
     private function formatTemplate(FormTemplate $template): array
@@ -71,6 +48,7 @@ class FormTemplateController extends Controller
         return [
             'id'             => $template->id,
             'country'        => $template->country,
+            'visa_type'      => $template->visa_type,
             'name'           => $template->name,
             'intake_options' => $template->intake_options ?? [],
             'groups'         => $groups,

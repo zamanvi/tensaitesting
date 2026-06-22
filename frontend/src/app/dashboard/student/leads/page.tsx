@@ -27,11 +27,11 @@ export default function StudentApplicationPage() {
   const myApp = appsData?.data?.[0] ?? null;
 
   const { data: template } = useQuery<FormTemplateData | null>({
-    queryKey: ['form-template', myApp?.form_template?.country],
-    queryFn: () => myApp?.form_template?.country
-      ? api.get(`/form-templates/${encodeURIComponent(myApp.form_template!.country)}`).then(r => r.data)
+    queryKey: ['form-template', myApp?.form_template_id],
+    queryFn: () => myApp?.form_template_id
+      ? api.get(`/form-templates/${myApp.form_template_id}`).then(r => r.data)
       : Promise.resolve(null),
-    enabled: !!myApp?.form_template?.country,
+    enabled: !!myApp?.form_template_id,
     staleTime: 300_000,
   });
 
