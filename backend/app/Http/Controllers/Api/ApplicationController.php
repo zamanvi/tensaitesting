@@ -32,7 +32,9 @@ class ApplicationController extends Controller
         if ($request->query('status')) $q->where('status', $request->query('status'));
         if ($request->query('role'))   $q->where('submitted_by_role', $request->query('role'));
 
-        return response()->json($q->paginate(50));
+        $paginated = $q->paginate(50);
+        $paginated->getCollection()->transform(fn ($app) => $this->format($app));
+        return response()->json($paginated);
     }
 
     public function store(Request $request): JsonResponse
@@ -202,7 +204,7 @@ class ApplicationController extends Controller
 
     private function format(Application $app): array
     {
-        $app->loadMissing(['formTemplate:id,name,country,intake_options', 'documents']);
+        $app->loadMissing(['formTemplate:id,name,country,intake_options', 'documents', 'user:id,name,email', 'branch:id,name']);
         return [
             'id'                => $app->id,
             'application_code'  => $app->application_code,

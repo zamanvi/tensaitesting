@@ -91,7 +91,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
         $agency->assignRole('agency');
-        AgencyProfile::firstOrCreate(['user_id' => $agency->id]);
+        AgencyProfile::firstOrCreate(
+            ['user_id' => $agency->id],
+            [
+                'agency_name'          => 'Demo Agency',
+                'contact_person_name'  => 'Demo Contact',
+                'contact_person_phone' => '+880100000001',
+                'address'              => 'Dhaka',
+                'city'                 => 'Dhaka',
+                'vetting_status'       => 'approved',
+            ]
+        );
 
         // Demo institution
         $institution = User::updateOrCreate(
@@ -107,7 +117,13 @@ class DatabaseSeeder extends Seeder
         $institution->assignRole('institution');
         InstitutionProfile::firstOrCreate(
             ['user_id' => $institution->id],
-            ['institution_name' => 'Demo University', 'country' => 'Japan', 'status' => 'active']
+            [
+                'institution_name' => 'Demo University',
+                'country'          => 'Japan',
+                'city'             => 'Tokyo',
+                'address'          => 'Tokyo, Japan',
+                'status'           => 'active',
+            ]
         );
 
         // Demo affiliate
