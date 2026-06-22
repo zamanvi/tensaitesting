@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\FormTemplateController;
 use App\Http\Controllers\Api\AdminSettingsController;
 use App\Http\Controllers\Api\AdminAffiliateController;
 use App\Http\Controllers\Api\AdminInstitutionController;
+use App\Http\Controllers\Api\AccountController;
 use Illuminate\Support\Facades\Route;
 
 // Form Templates (authenticated)
@@ -99,6 +100,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('student')->middleware('role:student')->group(function () {
         Route::get('/profile', [StudentProfileController::class, 'show']);
         Route::put('/profile', [StudentProfileController::class, 'update']);
+        Route::patch('/account',        [AccountController::class, 'update']);
+        Route::post('/account/avatar',  [AccountController::class, 'avatar']);
+        Route::get('/referrals',        [AffiliateController::class, 'referredStudents']);
         Route::post('/ocr/upload', [OcrController::class, 'upload']);
         Route::post('/ocr/review-request', [OcrController::class, 'requestReview']);
         Route::post('/help-request', [HelpRequestController::class, 'store']);
@@ -113,6 +117,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('agency')->middleware('role:agency')->group(function () {
         Route::get('/profile',  [AgencyProfileController::class, 'show']);
         Route::post('/profile', [AgencyProfileController::class, 'upsert']);
+        Route::get('/settings',          [AccountController::class, 'agencySettings']);
+        Route::patch('/settings',        [AccountController::class, 'agencySettings']);
+        Route::post('/avatar',           [AccountController::class, 'avatar']);
+        Route::patch('/change-password', [AccountController::class, 'changePassword']);
         Route::post('/leads', [LeadController::class, 'addLead']);
         Route::get('/leads/private-vault', [LeadController::class, 'privateVault']);
         Route::get('/leads/open-pool', [LeadController::class, 'openPool']);
@@ -128,6 +136,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('institution')->middleware('role:institution')->group(function () {
         Route::get('/profile', [InstitutionController::class, 'profile']);
         Route::post('/profile', [InstitutionController::class, 'updateProfile']);
+        Route::get('/account',          [AccountController::class, 'update']);
+        Route::patch('/account',        [AccountController::class, 'update']);
+        Route::post('/account/avatar',  [AccountController::class, 'avatar']);
+        Route::get('/account-managers', [InstitutionController::class, 'profile']);
+        Route::get('/referrals',        [AffiliateController::class, 'referredStudents']);
+        Route::get('/selected-applications',              [InstitutionController::class, 'myLeads']);
+        Route::get('/browse-applications',                [InstitutionController::class, 'myLeads']);
         Route::get('/leads', [InstitutionController::class, 'myLeads']);
         Route::get('/students', [StudentProfileController::class, 'institutionBrowse']);
         Route::post('/contact-request/{lead}', [InstitutionController::class, 'contactRequest']);
@@ -138,7 +153,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Affiliate gateway
     Route::prefix('affiliate')->middleware('role:affiliate')->group(function () {
-        Route::post('/set-type',       [AffiliateController::class, 'setType']);
+        Route::post('/set-type',          [AffiliateController::class, 'setType']);
+        Route::post('/avatar',            [AccountController::class, 'avatar']);
+        Route::patch('/change-password',  [AccountController::class, 'changePassword']);
+        Route::get('/settings',           [AccountController::class, 'update']);
+        Route::patch('/settings',         [AccountController::class, 'update']);
+        Route::get('/institution-referrals', [AffiliateController::class, 'referredStudents']);
         Route::get('/profile',         [AffiliateController::class, 'showProfile']);
         Route::post('/profile',        [AffiliateController::class, 'updateProfile']);
         Route::get('/dashboard',       [AffiliateController::class, 'dashboard']);

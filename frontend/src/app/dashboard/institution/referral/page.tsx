@@ -58,7 +58,7 @@ export default function InstitutionReferralPage() {
 
   const { data: settingsData } = useQuery({
     queryKey: ['public-settings'],
-    queryFn: () => api.get('/public/settings').then(r => r.data),
+    queryFn: () => api.get('/settings/public').then(r => r.data),
     staleTime: 5 * 60_000,
   });
 
