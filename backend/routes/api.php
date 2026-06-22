@@ -24,6 +24,8 @@ use App\Http\Controllers\Api\ApplicationFormController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\FormTemplateController;
 use App\Http\Controllers\Api\AdminSettingsController;
+use App\Http\Controllers\Api\AdminAffiliateController;
+use App\Http\Controllers\Api\AdminInstitutionController;
 use Illuminate\Support\Facades\Route;
 
 // Form Templates (authenticated)
@@ -207,5 +209,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/gallery/{gallery}',             [AdminGalleryController::class, 'destroy']);
         // Admin applications (full list + PATCH status)
         Route::patch('/applications/{id}/status',       [ApplicationController::class, 'updateStatus']);
+
+        // Admin affiliates
+        Route::get('/affiliates',                                                    [AdminAffiliateController::class, 'index']);
+        Route::patch('/affiliates/{id}/status',                                      [AdminAffiliateController::class, 'updateStatus']);
+        Route::patch('/affiliates/{affiliateId}/commissions/{commissionId}/mark-paid', [AdminAffiliateController::class, 'markCommissionPaid']);
+        Route::patch('/affiliates/{affiliateId}/commissions/mark-all-paid',          [AdminAffiliateController::class, 'markAllPaid']);
+
+        // Admin institutions
+        Route::get('/institutions',            [AdminInstitutionController::class, 'index']);
+        Route::patch('/institutions/{id}/status', [AdminInstitutionController::class, 'updateStatus']);
+        Route::patch('/institutions/{id}/verify', [AdminInstitutionController::class, 'verify']);
     });
 });
