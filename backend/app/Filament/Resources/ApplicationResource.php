@@ -28,7 +28,7 @@ class ApplicationResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole(['super_admin', 'admin', 'branch_admin', 'agency']);
+        return auth()->user()?->hasRole(['super_admin', 'admin', 'branch_admin']);
     }
 
     public static function getEloquentQuery(): Builder
@@ -44,12 +44,6 @@ class ApplicationResource extends Resource
         // Branch admin sees only their branch's applications
         if ($user->hasRole('branch_admin')) {
             return $query->where('branch_id', $user->branch_id);
-        }
-
-        // Agency sees only applications they submitted
-        if ($user->hasRole('agency')) {
-            return $query->where('user_id', $user->id)
-                         ->where('submitted_by_role', 'agency');
         }
 
         return $query->whereRaw('0 = 1'); // fallback: nothing

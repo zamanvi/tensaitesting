@@ -21,9 +21,6 @@ class ListApplications extends ListRecords
         if ($user?->hasRole('branch_admin')) {
             return 'Branch Applications';
         }
-        if ($user?->hasRole('agency')) {
-            return 'My Submitted Applications';
-        }
         return 'Applications';
     }
 
@@ -35,9 +32,6 @@ class ListApplications extends ListRecords
         }
         if ($user?->hasRole('branch_admin')) {
             return 'Applications submitted by your branch. You can create new applications, edit drafts, and track submission status.';
-        }
-        if ($user?->hasRole('agency')) {
-            return 'Applications you have submitted on behalf of students. Edit drafts or track accepted/rejected status.';
         }
         return null;
     }
