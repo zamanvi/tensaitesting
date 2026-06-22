@@ -279,9 +279,8 @@ class FormTemplateResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListFormTemplates::route('/'),
-            'create' => Pages\CreateFormTemplate::route('/create'),
-            'edit'   => Pages\EditFormTemplate::route('/{record}/edit'),
+            'index' => Pages\ListFormTemplates::route('/'),
+            'edit'  => Pages\EditFormTemplate::route('/{record}/edit'),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FormTemplateResource\Pages;
 
 use App\Filament\Resources\FormTemplateResource;
+use App\Models\FormTemplate;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -36,7 +37,21 @@ class ListFormTemplates extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('New Country Form')->icon('heroicon-o-plus'),
+            Actions\Action::make('new_form')
+                ->label('New Country Form')
+                ->icon('heroicon-o-plus')
+                ->action(function () {
+                    $record = FormTemplate::create([
+                        'country'   => '',
+                        'name'      => '',
+                        'status'    => 'draft',
+                        'is_active' => false,
+                    ]);
+
+                    $this->redirect(
+                        FormTemplateResource::getUrl('edit', ['record' => $record->id])
+                    );
+                }),
         ];
     }
 }
