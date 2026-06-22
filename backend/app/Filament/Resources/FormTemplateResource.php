@@ -133,6 +133,15 @@ class FormTemplateResource extends Resource
                             ->reorderable()
                             ->columnSpanFull(),
 
+                        Forms\Components\Section::make('Preview — How Branch Admin Will See This')
+                            ->icon('heroicon-o-eye')
+                            ->description('This is a read-only preview. Branch admins will fill these fields when creating an application.')
+                            ->collapsible()
+                            ->collapsed()
+                            ->columnSpanFull()
+                            ->visible(fn (Forms\Get $get) => !empty($get('educations')))
+                            ->schema(fn (Forms\Get $get): array => self::buildEducationPreview($get('educations'))),
+
                         Forms\Components\TagsInput::make('intake_options')
                             ->label('Available Intakes')
                             ->placeholder('e.g. April 2025, September 2025…')
@@ -172,6 +181,79 @@ class FormTemplateResource extends Resource
                 ]),
 
         ])->columns(3);
+    }
+
+    // ── Education preview (read-only, for super admin) ───────────────────────
+
+    public static function buildEducationPreview(array $educations): array
+    {
+        if (empty($educations)) return [];
+
+        $levelLabels = [
+            'ssc'       => 'SSC / O-Level',
+            'hsc'       => 'HSC / A-Level',
+            'diploma'   => 'Diploma',
+            'bachelors' => "Bachelor's Degree",
+            'masters'   => "Master's Degree",
+            'phd'       => 'PhD / Doctorate',
+            'other'     => 'Other',
+        ];
+
+        $fields = [];
+
+        foreach ($educations as $i => $edu) {
+            $level       = $edu['level'] ?? 'other';
+            $requirement = $edu['requirement'] ?? 'mandatory';
+            $label       = $levelLabels[$level] ?? 'Certificate';
+            $badge       = match($requirement) {
+                'mandatory' => '🔴 Mandatory',
+                'optional'  => '📎 Optional',
+                default     => '— Not Required',
+            };
+
+            $fields[] = Forms\Components\Section::make("{$label}  {$badge}")
+                ->schema([
+                    Forms\Components\Grid::make(3)->schema([
+                        Forms\Components\TextInput::make("_preview_{$i}_institution")
+                            ->label('Institution / Board')
+                            ->placeholder('e.g. Dhaka Education Board')
+                            ->disabled()
+                            ->dehydrated(false),
+
+                        Forms\Components\TextInput::make("_preview_{$i}_gpa")
+                            ->label('GPA / Grade / Point')
+                            ->placeholder('e.g. 5.00 / A+')
+                            ->disabled()
+                            ->dehydrated(false),
+
+                        Forms\Components\TextInput::make("_preview_{$i}_year")
+                            ->label('Passing Year')
+                            ->placeholder('e.g. 2022')
+                            ->disabled()
+                            ->dehydrated(false),
+                    ]),
+
+                    Forms\Components\FileUpload::make("_preview_{$i}_document")
+                        ->label(
+                            $requirement === 'mandatory'
+                                ? 'Certificate / Transcript — Required 🔴'
+                                : 'Certificate / Transcript — Optional 📎'
+                        )
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->columnSpanFull()
+                        ->hint($requirement === 'mandatory'
+                            ? 'Branch admin must upload before submitting'
+                            : 'Branch admin can optionally upload'
+                        )
+                        ->hintColor($requirement === 'mandatory' ? 'danger' : 'warning'),
+                ])
+                ->compact()
+                ->collapsible()
+                ->collapsed(false);
+        }
+
+        return $fields;
     }
 
     // ── Sync JSON structure → relational tables ───────────────────────────────
