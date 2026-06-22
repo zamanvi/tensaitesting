@@ -28,11 +28,13 @@ class ApplicationResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+
             Forms\Components\Section::make('Application Details')
+                ->icon('heroicon-o-document-text')
                 ->columns(2)
                 ->schema([
                     Forms\Components\Select::make('form_template_id')
-                        ->label('Form Template (Country)')
+                        ->label('Country Form')
                         ->options(
                             FormTemplate::where('status', 'published')
                                 ->where('is_active', true)
@@ -40,16 +42,22 @@ class ApplicationResource extends Resource
                         )
                         ->required()
                         ->searchable()
+                        ->live()
                         ->columnSpanFull(),
 
                     Forms\Components\TextInput::make('student_name')
-                        ->required()->label('Student Name'),
+                        ->required()
+                        ->label('Student Name')
+                        ->prefixIcon('heroicon-o-user'),
 
                     Forms\Components\TextInput::make('student_email')
-                        ->email()->label('Student Email'),
+                        ->email()
+                        ->label('Student Email')
+                        ->prefixIcon('heroicon-o-envelope'),
 
                     Forms\Components\TextInput::make('student_phone')
-                        ->label('Student Phone'),
+                        ->label('Student Phone')
+                        ->prefixIcon('heroicon-o-phone'),
 
                     Forms\Components\Select::make('status')
                         ->options([
@@ -61,7 +69,94 @@ class ApplicationResource extends Resource
                         ->default('draft')
                         ->required(),
                 ]),
+
+            Forms\Components\Section::make('Education Background')
+                ->icon('heroicon-o-academic-cap')
+                ->description('Fill in the student\'s education certificates as required by the selected country form.')
+                ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
+                ->schema([
+                    Forms\Components\Repeater::make('form_data.educations')
+                        ->label('')
+                        ->schema(fn (Forms\Get $get): array => self::buildEducationSchema($get('form_template_id')))
+                        ->addable(false)
+                        ->deletable(false)
+                        ->reorderable(false)
+                        ->columnSpanFull(),
+                ])
+                ->collapsible(),
+
         ]);
+    }
+
+    protected static function buildEducationSchema(?int $templateId): array
+    {
+        if (! $templateId) return [];
+
+        $template   = FormTemplate::find($templateId);
+        $educations = $template?->educations ?? [];
+
+        if (empty($educations)) return [
+            Forms\Components\Placeholder::make('no_edu')
+                ->label('')
+                ->content('No education certificates configured for this country form.'),
+        ];
+
+        $levelLabels = [
+            'ssc'       => 'SSC / O-Level',
+            'hsc'       => 'HSC / A-Level',
+            'diploma'   => 'Diploma',
+            'bachelors' => "Bachelor's Degree",
+            'masters'   => "Master's Degree",
+            'phd'       => 'PhD / Doctorate',
+            'other'     => 'Other',
+        ];
+
+        $fields = [];
+
+        foreach ($educations as $i => $edu) {
+            $level       = $edu['level'] ?? 'other';
+            $requirement = $edu['requirement'] ?? 'mandatory';
+            $label       = $levelLabels[$level] ?? 'Certificate';
+            $badge       = match($requirement) {
+                'mandatory' => '🔴 Mandatory',
+                'optional'  => '📎 Optional',
+                default     => '',
+            };
+
+            $fields[] = Forms\Components\Section::make("{$label}  {$badge}")
+                ->schema([
+                    Forms\Components\Grid::make(3)->schema([
+                        Forms\Components\TextInput::make("form_data.edu_{$i}_institution")
+                            ->label('Institution / Board')
+                            ->placeholder('e.g. Dhaka Education Board'),
+
+                        Forms\Components\TextInput::make("form_data.edu_{$i}_gpa")
+                            ->label('GPA / Grade / Point')
+                            ->placeholder('e.g. 5.00 / A+'),
+
+                        Forms\Components\TextInput::make("form_data.edu_{$i}_year")
+                            ->label('Passing Year')
+                            ->placeholder('e.g. 2022')
+                            ->numeric(),
+                    ]),
+
+                    Forms\Components\FileUpload::make("form_data.edu_{$i}_document")
+                        ->label($requirement === 'mandatory' ? 'Certificate / Transcript (Required)' : 'Certificate / Transcript (Optional)')
+                        ->disk('public')
+                        ->directory('application-education-docs')
+                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                        ->maxSize(5120)
+                        ->downloadable()
+                        ->columnSpanFull()
+                        ->hintIcon($requirement === 'mandatory' ? 'heroicon-o-exclamation-circle' : 'heroicon-o-information-circle')
+                        ->hintColor($requirement === 'mandatory' ? 'danger' : 'warning')
+                        ->hint($requirement === 'mandatory' ? 'Must upload before submitting' : 'Optional — upload if available'),
+                ])
+                ->compact()
+                ->collapsible();
+        }
+
+        return $fields;
     }
 
     public static function table(Table $table): Table
