@@ -15,7 +15,13 @@ class EditFormTemplate extends EditRecord
     public function getTitle(): string
     {
         $record = $this->getRecord();
-        return $record->country . ' — ' . ($record->name ?: 'Edit Form');
+        $country = $record->country ?: null;
+        $name    = $record->name    ?: null;
+
+        if ($country && $name) return $country . ' — ' . $name;
+        if ($country)          return $country . ' Form';
+        if ($name)             return $name;
+        return 'New Country Form';
     }
 
     public function mount(int | string $record): void

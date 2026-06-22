@@ -41,6 +41,7 @@ class FormTemplateResource extends Resource
             Forms\Components\Group::make()->schema([
                 Forms\Components\Section::make('Application Form Info')
                     ->icon('heroicon-o-globe-alt')
+                    ->description('Basic details about this country form — visible to branch admins.')
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('country')
@@ -48,7 +49,7 @@ class FormTemplateResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->label('Country')
                             ->placeholder('e.g. Japan')
-                            ->helperText('One form per country. Must match country name used in applications.')
+                            ->helperText('One form per country.')
                             ->prefixIcon('heroicon-o-flag')
                             ->columnSpan(1),
 
@@ -61,16 +62,24 @@ class FormTemplateResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->label('Form Name')
-                            ->placeholder('e.g. Japan Study Abroad Application')
+                            ->placeholder('e.g. Japan Study Abroad Application 2025')
                             ->maxLength(255)
                             ->prefixIcon('heroicon-o-pencil-square')
                             ->columnSpanFull(),
 
+                        Forms\Components\DatePicker::make('birth_date')
+                            ->label('Date of Birth')
+                            ->placeholder('Select date of birth')
+                            ->prefixIcon('heroicon-o-calendar-days')
+                            ->displayFormat('d M Y')
+                            ->helperText('Applicant date of birth reference for this form.')
+                            ->columnSpan(1),
+
                         Forms\Components\TagsInput::make('intake_options')
                             ->label('Available Intakes')
                             ->placeholder('Type and press Enter — e.g. April 2025')
-                            ->helperText('Branch admin picks from these when filling an application.')
-                            ->columnSpanFull(),
+                            ->helperText('Branch admin picks from these when submitting.')
+                            ->columnSpan(1),
 
                         Forms\Components\Textarea::make('notes')
                             ->rows(2)
