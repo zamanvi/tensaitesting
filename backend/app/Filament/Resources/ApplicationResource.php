@@ -110,15 +110,7 @@ class ApplicationResource extends Resource
                 ->icon('heroicon-o-academic-cap')
                 ->description('Enter the student\'s academic qualifications and upload supporting certificates. Required documents are marked in red.')
                 ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
-                ->schema([
-                    Forms\Components\Repeater::make('form_data.educations')
-                        ->label('')
-                        ->schema(fn (Forms\Get $get): array => self::buildEducationSchema($get('form_template_id')))
-                        ->addable(false)
-                        ->deletable(false)
-                        ->reorderable(false)
-                        ->columnSpanFull(),
-                ])
+                ->schema(fn (Forms\Get $get): array => self::buildEducationSchema($get('form_template_id')))
                 ->collapsible(),
 
         ]);
