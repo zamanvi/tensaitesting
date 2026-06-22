@@ -86,20 +86,51 @@ class FormTemplateResource extends Resource
                             ->prefixIcon('heroicon-o-identification')
                             ->columnSpan(1),
 
-                        Forms\Components\CheckboxList::make('educations')
-                            ->label('Required Education Certificates')
-                            ->helperText('Select which education certificates applicants must provide for this country form.')
-                            ->options([
-                                'ssc'       => '🎓 SSC / O-Level',
-                                'hsc'       => '🎓 HSC / A-Level',
-                                'diploma'   => '📜 Diploma',
-                                'bachelors' => '🏫 Bachelor\'s Degree',
-                                'masters'   => '🎖 Master\'s Degree',
-                                'phd'       => '🔬 PhD / Doctorate',
-                                'other'     => '📄 Other',
+                        Forms\Components\Repeater::make('educations')
+                            ->label('Education Certificates')
+                            ->helperText('Add each certificate required for this country form and set if it is mandatory or optional.')
+                            ->schema([
+                                Forms\Components\Grid::make(2)->schema([
+                                    Forms\Components\Select::make('level')
+                                        ->label('Certificate / Exam')
+                                        ->options([
+                                            'ssc'       => 'SSC / O-Level',
+                                            'hsc'       => 'HSC / A-Level',
+                                            'diploma'   => 'Diploma',
+                                            'bachelors' => 'Bachelor\'s Degree',
+                                            'masters'   => 'Master\'s Degree',
+                                            'phd'       => 'PhD / Doctorate',
+                                            'other'     => 'Other',
+                                        ])
+                                        ->required()
+                                        ->placeholder('Select certificate')
+                                        ->columnSpan(1),
+
+                                    Forms\Components\Select::make('requirement')
+                                        ->label('Document Requirement')
+                                        ->options([
+                                            'none'      => '— Not Required',
+                                            'optional'  => '📎 Optional',
+                                            'mandatory' => '🔴 Mandatory',
+                                        ])
+                                        ->default('mandatory')
+                                        ->required()
+                                        ->columnSpan(1),
+                                ]),
                             ])
-                            ->columns(2)
-                            ->gridDirection('row')
+                            ->addActionLabel('+ Add Certificate')
+                            ->itemLabel(fn (array $state): ?string => match($state['level'] ?? '') {
+                                'ssc'       => 'SSC / O-Level',
+                                'hsc'       => 'HSC / A-Level',
+                                'diploma'   => 'Diploma',
+                                'bachelors' => 'Bachelor\'s Degree',
+                                'masters'   => 'Master\'s Degree',
+                                'phd'       => 'PhD / Doctorate',
+                                'other'     => 'Other',
+                                default     => 'Certificate',
+                            })
+                            ->collapsible()
+                            ->reorderable()
                             ->columnSpanFull(),
 
                         Forms\Components\TagsInput::make('intake_options')
