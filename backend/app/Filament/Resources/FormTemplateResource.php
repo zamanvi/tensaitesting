@@ -67,12 +67,38 @@ class FormTemplateResource extends Resource
                             ->prefixIcon('heroicon-o-pencil-square')
                             ->columnSpanFull(),
 
+                        Forms\Components\TextInput::make('student_name')
+                            ->label('Student Name')
+                            ->placeholder('e.g. Tanaka Yuki')
+                            ->prefixIcon('heroicon-o-user')
+                            ->columnSpan(1),
+
                         Forms\Components\DatePicker::make('birth_date')
                             ->label('Date of Birth')
                             ->placeholder('Select date of birth')
                             ->prefixIcon('heroicon-o-calendar-days')
                             ->displayFormat('d M Y')
-                            ->helperText('Applicant date of birth reference for this form.')
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('passport_no')
+                            ->label('Passport No')
+                            ->placeholder('e.g. BD1234567')
+                            ->prefixIcon('heroicon-o-identification')
+                            ->columnSpan(1),
+
+                        Forms\Components\Select::make('education')
+                            ->label('Education Level')
+                            ->prefixIcon('heroicon-o-academic-cap')
+                            ->options([
+                                'ssc'        => 'SSC / O-Level',
+                                'hsc'        => 'HSC / A-Level',
+                                'diploma'    => 'Diploma',
+                                'bachelors'  => 'Bachelor\'s Degree',
+                                'masters'    => 'Master\'s Degree',
+                                'phd'        => 'PhD / Doctorate',
+                                'other'      => 'Other',
+                            ])
+                            ->placeholder('Select education level')
                             ->columnSpan(1),
 
                         Forms\Components\TagsInput::make('intake_options')

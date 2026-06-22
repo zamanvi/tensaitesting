@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class FormTemplate extends Model
 {
     protected $fillable = [
-        'country', 'visa_type', 'name', 'intake_options', 'birth_date', 'is_active', 'status', 'notes',
+        'country', 'visa_type', 'name', 'intake_options', 'birth_date',
+        'student_name', 'passport_no', 'education',
+        'is_active', 'status', 'notes',
     ];
 
     protected $casts = [
