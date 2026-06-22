@@ -11,18 +11,48 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Builder;
 
 class ApplicationResource extends Resource
 {
     protected static ?string $model          = Application::class;
     protected static ?string $navigationIcon  = 'heroicon-o-document-text';
-    protected static ?string $navigationLabel = 'All Applications';
+    public static function getNavigationLabel(): string
+    {
+        $user = auth()->user();
+        if ($user?->hasRole(['super_admin', 'admin'])) return 'All Applications';
+        return 'Applications';
+    }
     protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?int    $navigationSort  = 1;
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole(['super_admin', 'admin']);
+        return auth()->user()?->hasRole(['super_admin', 'admin', 'branch_admin', 'agency']);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user  = auth()->user();
+        $query = parent::getEloquentQuery();
+
+        // Super admin / admin sees everything
+        if ($user->hasRole(['super_admin', 'admin'])) {
+            return $query;
+        }
+
+        // Branch admin sees only their branch's applications
+        if ($user->hasRole('branch_admin')) {
+            return $query->where('branch_id', $user->branch_id);
+        }
+
+        // Agency sees only applications they submitted
+        if ($user->hasRole('agency')) {
+            return $query->where('user_id', $user->id)
+                         ->where('submitted_by_role', 'agency');
+        }
+
+        return $query->whereRaw('0 = 1'); // fallback: nothing
     }
 
     public static function form(Form $form): Form
@@ -254,7 +284,10 @@ class ApplicationResource extends Resource
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (Application $r) => $r->status === 'submitted')
+                    ->visible(fn (Application $r) =>
+                        $r->status === 'submitted' &&
+                        auth()->user()?->hasRole(['super_admin', 'admin'])
+                    )
                     ->action(function (Application $r) {
                         $r->update(['status' => 'accepted']);
                         Notification::make()->title('Application accepted')->success()->send();
@@ -265,15 +298,20 @@ class ApplicationResource extends Resource
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn (Application $r) => $r->status === 'submitted')
+                    ->visible(fn (Application $r) =>
+                        $r->status === 'submitted' &&
+                        auth()->user()?->hasRole(['super_admin', 'admin'])
+                    )
                     ->action(function (Application $r) {
                         $r->update(['status' => 'rejected']);
                         Notification::make()->title('Application rejected')->warning()->send();
                     }),
 
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn (Application $r) => $r->status === 'draft'),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->hasRole(['super_admin', 'admin'])),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
