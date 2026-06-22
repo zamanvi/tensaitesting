@@ -77,8 +77,12 @@ class FormTemplateResource extends Resource
 
                         Forms\Components\TagsInput::make('intake_options')
                             ->label('Available Intakes')
-                            ->placeholder('Type and press Enter — e.g. April 2025')
-                            ->helperText('Branch admin picks from these when submitting.')
+                            ->placeholder('e.g. April 2025, September 2025…')
+                            ->suggestions([
+                                'January 2025', 'April 2025', 'July 2025', 'September 2025', 'October 2025',
+                                'January 2026', 'April 2026', 'July 2026', 'September 2026', 'October 2026',
+                            ])
+                            ->helperText('Type and press Enter. Branch admins choose from these intakes.')
                             ->columnSpan(1),
 
                         Forms\Components\Textarea::make('notes')
@@ -218,6 +222,13 @@ class FormTemplateResource extends Resource
                     ->label('Form Name')
                     ->searchable()
                     ->color('gray'),
+
+                Tables\Columns\TextColumn::make('intake_options')
+                    ->label('Intakes')
+                    ->getStateUsing(fn (FormTemplate $record) => $record->intake_options ?? [])
+                    ->badge()
+                    ->color('success')
+                    ->separator(','),
 
                 Tables\Columns\TextColumn::make('field_groups_count_value')
                     ->label('Sections')
