@@ -75,8 +75,9 @@ class ApplicationController extends Controller
     {
         $app = $this->findOwned($request, $id);
 
-        if ($app->status === 'submitted') {
-            return response()->json(['message' => 'Cannot edit a submitted application.'], 422);
+        // Accepted/rejected applications cannot be edited — only draft/submitted can
+        if (in_array($app->status, ['accepted', 'rejected'])) {
+            return response()->json(['message' => 'Accepted or rejected applications cannot be edited.'], 422);
         }
 
         $data = $request->validate([
@@ -102,8 +103,8 @@ class ApplicationController extends Controller
     {
         $app = $this->findOwned($request, $id);
 
-        if ($app->status !== 'draft') {
-            return response()->json(['message' => 'Already submitted.'], 422);
+        if (in_array($app->status, ['accepted', 'rejected'])) {
+            return response()->json(['message' => 'Cannot resubmit an accepted or rejected application.'], 422);
         }
         if ($app->progress < 50) {
             return response()->json(['message' => 'Progress must be at least 50% to submit.'], 422);

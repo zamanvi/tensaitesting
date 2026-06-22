@@ -27,9 +27,10 @@ export default function ApplicationFormBody({
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
 
-  const progress  = app.progress;
-  const canSubmit = progress >= 50 && app.status === 'draft';
-  const docs      = app.documents ?? [];
+  const progress   = app.progress;
+  const isEditable = !['accepted', 'rejected'].includes(app.status);
+  const canSubmit  = progress >= 50 && isEditable;
+  const docs       = app.documents ?? [];
 
   function set(key: string, val: string) {
     setFormData(p => ({ ...p, [key]: val }));
@@ -82,7 +83,7 @@ export default function ApplicationFormBody({
           <div className="flex items-center gap-2">
             {msg && <span className="text-xs font-bold text-emerald-600 animate-pulse">{msg}</span>}
             {err && <span className="text-xs text-rose-500">{err}</span>}
-            {app.status === 'draft' && (
+            {isEditable && (
               <button onClick={handleSave} disabled={saving}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl disabled:opacity-50 transition-colors">
                 {saving ? 'Saving…' : '💾 Save'}
@@ -181,7 +182,7 @@ export default function ApplicationFormBody({
         )}
 
         {/* Bottom actions */}
-        {app.status === 'draft' && (
+        {isEditable && (
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button onClick={handleSave} disabled={saving}
               className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-sm font-bold disabled:opacity-50 transition-colors">
@@ -191,13 +192,23 @@ export default function ApplicationFormBody({
               <button onClick={handleSubmit} disabled={submitting}
                 className="flex-1 py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-2xl text-sm font-bold disabled:opacity-50 transition-all shadow-md flex items-center justify-center gap-2">
                 {submitting && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
-                🚀 Submit Application
+                {app.status === 'submitted' ? '🔄 Resubmit Application' : '🚀 Submit Application'}
               </button>
             ) : (
               <div className="flex-1 py-3.5 bg-slate-50 border border-dashed border-slate-200 text-slate-400 rounded-2xl text-sm font-semibold text-center">
                 Submit unlocks at 50% — currently {progress}%
               </div>
             )}
+          </div>
+        )}
+
+        {/* Accepted/Rejected — read only notice */}
+        {!isEditable && (
+          <div className={`rounded-2xl px-5 py-4 text-center ${app.status === 'accepted' ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
+            <p className={`text-sm font-bold ${app.status === 'accepted' ? 'text-emerald-700' : 'text-rose-700'}`}>
+              {app.status === 'accepted' ? '✅ Application Accepted — congratulations!' : '❌ Application Rejected'}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">This application is locked and can no longer be edited.</p>
           </div>
         )}
       </div>
