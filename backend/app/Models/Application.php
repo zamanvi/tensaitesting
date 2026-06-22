@@ -11,7 +11,7 @@ class Application extends Model
 {
     protected $fillable = [
         'application_code', 'form_template_id', 'user_id', 'submitted_by_role',
-        'branch_id', 'student_name', 'student_email', 'student_phone',
+        'branch_id', 'student_name', 'student_email', 'student_phone', 'whatsapp_no', 'permanent_address',
         'form_data', 'progress', 'status', 'submitted_at',
     ];
 

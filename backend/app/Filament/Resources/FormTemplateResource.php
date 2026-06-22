@@ -101,6 +101,29 @@ class FormTemplateResource extends Resource
                             ->prefixIcon('heroicon-o-identification')
                             ->columnSpan(1),
 
+                        Forms\Components\TextInput::make('contact_phone')
+                            ->label('Contact Phone Number')
+                            ->placeholder('e.g. +880 1XXXXXXXXX')
+                            ->helperText('Applicant\'s primary contact phone number.')
+                            ->prefixIcon('heroicon-o-phone')
+                            ->tel()
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('whatsapp_no')
+                            ->label('WhatsApp Number')
+                            ->placeholder('e.g. +880 1XXXXXXXXX')
+                            ->helperText('WhatsApp number for direct communication.')
+                            ->prefixIcon('heroicon-o-chat-bubble-left-ellipsis')
+                            ->tel()
+                            ->columnSpan(1),
+
+                        Forms\Components\Textarea::make('permanent_address')
+                            ->label('Permanent Address')
+                            ->placeholder('e.g. House 12, Road 5, Mirpur, Dhaka-1216')
+                            ->helperText('Applicant\'s full permanent home address.')
+                            ->rows(2)
+                            ->columnSpanFull(),
+
                         Forms\Components\Repeater::make('educations')
                             ->label('Required Education Certificates')
                             ->helperText('Add each academic certificate applicants must provide. Set each as Mandatory (must upload) or Optional (can skip).')

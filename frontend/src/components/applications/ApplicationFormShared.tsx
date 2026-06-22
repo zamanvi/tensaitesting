@@ -42,6 +42,7 @@ export interface Application {
   form_template_id: number;
   form_template: { id: number; name: string; country: string; visa_type?: string; intake_options: string[] } | null;
   student_name: string; student_email: string; student_phone: string;
+  whatsapp_no?: string; permanent_address?: string;
   form_data: Record<string, string>;
   progress: number; status: 'draft' | 'submitted' | 'accepted' | 'rejected';
   submitted_by_role: string;

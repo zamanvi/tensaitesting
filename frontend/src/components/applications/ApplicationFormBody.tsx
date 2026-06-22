@@ -18,6 +18,52 @@ interface Props {
   onClose?: () => void;
 }
 
+// ── Inline editable contact fields ───────────────────────────────────────────
+
+function WhatsAppField({ app, isEditable, onSaved }: { app: Application; isEditable: boolean; onSaved: (a: Application) => void }) {
+  const [val, setVal] = useState(app.whatsapp_no ?? '');
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (val === (app.whatsapp_no ?? '')) return;
+    setSaving(true);
+    try { const res = await api.patch(`/applications/${app.id}`, { whatsapp_no: val }); onSaved(res.data); }
+    catch { /* noop */ }
+    setSaving(false);
+  }
+
+  if (!isEditable) return <input className={`${inp} bg-slate-50`} value={val} readOnly />;
+  return (
+    <input className={inp} type="tel" placeholder="+880 1XXXXXXXXX" value={val}
+      onChange={e => setVal(e.target.value)}
+      onBlur={save}
+      disabled={saving} />
+  );
+}
+
+function AddressField({ app, isEditable, onSaved }: { app: Application; isEditable: boolean; onSaved: (a: Application) => void }) {
+  const [val, setVal] = useState(app.permanent_address ?? '');
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (val === (app.permanent_address ?? '')) return;
+    setSaving(true);
+    try { const res = await api.patch(`/applications/${app.id}`, { permanent_address: val }); onSaved(res.data); }
+    catch { /* noop */ }
+    setSaving(false);
+  }
+
+  if (!isEditable) return <textarea className={`${inp} bg-slate-50 resize-none`} rows={2} value={val} readOnly />;
+  return (
+    <textarea className={`${inp} resize-none`} rows={2}
+      placeholder="House, Road, Area, City, Postcode"
+      value={val}
+      onChange={e => setVal(e.target.value)}
+      onBlur={save}
+      disabled={saving} />
+  );
+}
+
 export default function ApplicationFormBody({
   app, template, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose,
 }: Props) {
@@ -104,7 +150,7 @@ export default function ApplicationFormBody({
       {/* Form body */}
       <div className="px-6 py-8 space-y-10">
 
-        {/* Student info (read-only) */}
+        {/* Student info */}
         <section>
           <SectionHead n={1} title="Student Information" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -117,12 +163,20 @@ export default function ApplicationFormBody({
               <input className={`${inp} bg-slate-50`} value={app.student_email ?? ''} readOnly />
             </div>
             <div>
-              <label className={lbl}>Phone</label>
+              <label className={lbl}>Contact Phone</label>
               <input className={`${inp} bg-slate-50`} value={app.student_phone ?? ''} readOnly />
+            </div>
+            <div>
+              <label className={lbl}>WhatsApp Number</label>
+              <WhatsAppField app={app} isEditable={isEditable} onSaved={onSaved} />
             </div>
             <div>
               <label className={lbl}>Target Country</label>
               <input className={`${inp} bg-slate-50`} value={app.form_template?.country ?? ''} readOnly />
+            </div>
+            <div className="sm:col-span-2">
+              <label className={lbl}>Permanent Address</label>
+              <AddressField app={app} isEditable={isEditable} onSaved={onSaved} />
             </div>
           </div>
         </section>

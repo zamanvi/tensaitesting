@@ -45,6 +45,8 @@ class ApplicationController extends Controller
             'student_name'     => 'required|string|max:255',
             'student_email'    => 'nullable|email|max:255',
             'student_phone'    => 'nullable|string|max:50',
+            'whatsapp_no'      => 'nullable|string|max:50',
+            'permanent_address'=> 'nullable|string|max:500',
         ]);
 
         if ($user->hasRole('student')) {
@@ -65,6 +67,8 @@ class ApplicationController extends Controller
             'student_name'      => $data['student_name'],
             'student_email'     => $data['student_email'] ?? null,
             'student_phone'     => $data['student_phone'] ?? null,
+            'whatsapp_no'       => $data['whatsapp_no'] ?? null,
+            'permanent_address' => $data['permanent_address'] ?? null,
             'form_data'         => [],
             'progress'          => 0,
             'status'            => 'draft',
@@ -88,10 +92,12 @@ class ApplicationController extends Controller
         }
 
         $data = $request->validate([
-            'student_name'  => 'sometimes|string|max:255',
-            'student_email' => 'sometimes|nullable|email|max:255',
-            'student_phone' => 'sometimes|nullable|string|max:50',
-            'form_data'     => 'sometimes|array',
+            'student_name'     => 'sometimes|string|max:255',
+            'student_email'    => 'sometimes|nullable|email|max:255',
+            'student_phone'    => 'sometimes|nullable|string|max:50',
+            'whatsapp_no'      => 'sometimes|nullable|string|max:50',
+            'permanent_address'=> 'sometimes|nullable|string|max:500',
+            'form_data'        => 'sometimes|array',
         ]);
 
         if (isset($data['form_data'])) {
@@ -224,6 +230,8 @@ class ApplicationController extends Controller
             'student_name'      => $app->student_name,
             'student_email'     => $app->student_email,
             'student_phone'     => $app->student_phone,
+            'whatsapp_no'       => $app->whatsapp_no,
+            'permanent_address' => $app->permanent_address,
             'form_data'         => $app->form_data ?? [],
             'progress'          => $app->progress,
             'status'            => $app->status,

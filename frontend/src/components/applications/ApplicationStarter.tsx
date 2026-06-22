@@ -30,6 +30,8 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   const [name,       setName]       = useState(studentName ?? '');
   const [email,      setEmail]      = useState(studentEmail ?? '');
   const [phone,      setPhone]      = useState('');
+  const [whatsapp,   setWhatsapp]   = useState('');
+  const [address,    setAddress]    = useState('');
   const [err,        setErr]        = useState('');
 
   const selected = templates.find(t => t.id === selectedId) ?? null;
@@ -43,9 +45,11 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   const startMut = useMutation({
     mutationFn: () => api.post('/applications', {
       form_template_id: selectedId,
-      student_name:  name.trim(),
-      student_email: email.trim() || undefined,
-      student_phone: phone.trim() || undefined,
+      student_name:      name.trim(),
+      student_email:     email.trim() || undefined,
+      student_phone:     phone.trim() || undefined,
+      whatsapp_no:       whatsapp.trim() || undefined,
+      permanent_address: address.trim() || undefined,
     }),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: [queryKey] });
@@ -140,9 +144,19 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                   onChange={e => setEmail(e.target.value)} />
               </div>
               <div>
-                <label className={lbl}>Student Phone</label>
+                <label className={lbl}>Contact Phone</label>
                 <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={phone}
                   onChange={e => setPhone(e.target.value)} />
+              </div>
+              <div>
+                <label className={lbl}>WhatsApp Number</label>
+                <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={whatsapp}
+                  onChange={e => setWhatsapp(e.target.value)} />
+              </div>
+              <div>
+                <label className={lbl}>Permanent Address</label>
+                <input className={inp} placeholder="House, Road, Area, City" value={address}
+                  onChange={e => setAddress(e.target.value)} />
               </div>
             </div>
           </>
