@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/admin');
 });
+
+Route::get('/admin/form-templates/create', function () {
+    return redirect('/admin/form-templates');
+});
