@@ -15,10 +15,14 @@ class ApplicationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $q    = Application::with(['formTemplate:id,name,country', 'documents'])->latest();
+        $q    = Application::with(['formTemplate:id,name,country', 'documents', 'user:id,name,email', 'branch:id,name'])->latest();
 
         if ($user->hasRole(['super_admin', 'admin'])) {
-            // see all
+            // Exclude agency drafts — they are private until the agency submits (makes live)
+            $q->where(function ($sub) {
+                $sub->where('submitted_by_role', '!=', 'agency')
+                    ->orWhere('status', '!=', 'draft');
+            });
         } elseif ($user->hasRole(['branch_admin', 'branch_manager'])) {
             $q->where('branch_id', $user->branch_id);
         } else {
@@ -26,8 +30,9 @@ class ApplicationController extends Controller
         }
 
         if ($request->query('status')) $q->where('status', $request->query('status'));
+        if ($request->query('role'))   $q->where('submitted_by_role', $request->query('role'));
 
-        return response()->json($q->paginate(30));
+        return response()->json($q->paginate(50));
     }
 
     public function store(Request $request): JsonResponse
@@ -210,7 +215,10 @@ class ApplicationController extends Controller
             ] : null,
             'user_id'           => $app->user_id,
             'submitted_by_role' => $app->submitted_by_role,
+            'submitter_name'    => $app->user?->name,
+            'submitter_email'   => $app->user?->email,
             'branch_id'         => $app->branch_id,
+            'branch_name'       => $app->branch?->name,
             'student_name'      => $app->student_name,
             'student_email'     => $app->student_email,
             'student_phone'     => $app->student_phone,

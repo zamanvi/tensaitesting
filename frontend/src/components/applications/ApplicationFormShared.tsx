@@ -45,7 +45,10 @@ export interface Application {
   form_data: Record<string, string>;
   progress: number; status: 'draft' | 'submitted' | 'accepted' | 'rejected';
   submitted_by_role: string;
+  submitter_name?: string;
+  submitter_email?: string;
   branch_id: number | null;
+  branch_name?: string;
   submitted_at: string | null; created_at: string; updated_at: string;
   documents: AppDoc[];
 }
