@@ -128,12 +128,42 @@
                                             </div>
 
                                             {{-- Real input preview — user types here --}}
-                                            <div class="w-full rounded-lg border bg-white shadow-sm px-3 py-2 transition-all cursor-text"
+                                            <div class="w-full rounded-lg border bg-white shadow-sm transition-all cursor-text"
                                                 :class="box.size === 'small' ? 'border-violet-200' : box.size === 'full' ? 'border-green-200' : 'border-blue-200'"
                                                 @click.stop>
-                                                <input type="text"
-                                                    :placeholder="box.label ? 'Enter ' + box.label.toLowerCase() + '…' : 'Type here…'"
-                                                    class="w-full text-sm text-gray-500 bg-transparent border-none outline-none placeholder-gray-400"/>
+
+                                                {{-- textarea --}}
+                                                <template x-if="box.field_type === 'textarea'">
+                                                    <textarea rows="2"
+                                                        :placeholder="box.placeholder || (box.label ? 'Enter ' + box.label.toLowerCase() + '…' : 'Type here…')"
+                                                        class="w-full px-3 py-2 text-sm text-gray-600 bg-transparent border-none outline-none placeholder-gray-400 resize-none"></textarea>
+                                                </template>
+
+                                                {{-- select / dropdown --}}
+                                                <template x-if="box.field_type === 'select'">
+                                                    <select class="w-full px-3 py-2 text-sm text-gray-500 bg-transparent border-none outline-none">
+                                                        <option value="" disabled selected x-text="box.placeholder || (box.label ? 'Select ' + box.label.toLowerCase() + '…' : 'Select…')"></option>
+                                                        <template x-for="opt in (box.options || [])">
+                                                            <option :value="opt" x-text="opt"></option>
+                                                        </template>
+                                                    </select>
+                                                </template>
+
+                                                {{-- file upload --}}
+                                                <template x-if="box.field_type === 'file'">
+                                                    <div class="px-3 py-2.5 text-center">
+                                                        <p class="text-xs text-gray-400">📎 <span x-text="box.label || 'Upload file'"></span></p>
+                                                    </div>
+                                                </template>
+
+                                                {{-- text / number / date / email / default --}}
+                                                <template x-if="!['textarea','select','file'].includes(box.field_type)">
+                                                    <input
+                                                        :type="box.field_type === 'number' ? 'number' : (box.field_type === 'date' ? 'date' : (box.field_type === 'email' ? 'email' : 'text'))"
+                                                        :placeholder="box.placeholder || (box.label ? 'Enter ' + box.label.toLowerCase() + '…' : 'Type here…')"
+                                                        class="w-full px-3 py-2 text-sm text-gray-600 bg-transparent border-none outline-none placeholder-gray-400"/>
+                                                </template>
+
                                             </div>
 
                                             {{-- Settings toggle --}}
