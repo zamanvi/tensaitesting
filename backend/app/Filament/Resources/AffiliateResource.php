@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -20,6 +20,11 @@ class AffiliateResource extends Resource
     protected static ?string $navigationLabel = 'Affiliates';
     protected static ?int    $navigationSort  = 4;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -40,8 +45,8 @@ class AffiliateResource extends Resource
                 Forms\Components\Select::make('affiliate_type')
                     ->label('Affiliate Type')
                     ->options([
-                        'local'  => '🎓 Local — refers students',
-                        'global' => '🌐 Global — manages institutions/employees',
+                        'local'  => 'ðŸŽ“ Local â€” refers students',
+                        'global' => 'ðŸŒ Global â€” manages institutions/employees',
                     ])
                     ->required(),
 
@@ -58,10 +63,10 @@ class AffiliateResource extends Resource
 
                 Forms\Components\Select::make('performance_level')
                     ->options([
-                        'bronze'   => '🥉 Bronze',
-                        'silver'   => '🥈 Silver',
-                        'gold'     => '🥇 Gold',
-                        'platinum' => '💎 Platinum',
+                        'bronze'   => 'ðŸ¥‰ Bronze',
+                        'silver'   => 'ðŸ¥ˆ Silver',
+                        'gold'     => 'ðŸ¥‡ Gold',
+                        'platinum' => 'ðŸ’Ž Platinum',
                     ])
                     ->required(),
             ])->columns(2),
@@ -150,7 +155,7 @@ class AffiliateResource extends Resource
                         'global' => 'warning',
                         default  => 'primary',
                     })
-                    ->formatStateUsing(fn (string $state) => $state === 'global' ? '🌐 Global' : '🎓 Local'),
+                    ->formatStateUsing(fn (string $state) => $state === 'global' ? 'ðŸŒ Global' : 'ðŸŽ“ Local'),
 
                 Tables\Columns\TextColumn::make('performance_level')
                     ->badge()

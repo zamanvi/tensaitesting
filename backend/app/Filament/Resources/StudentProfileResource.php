@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -18,6 +18,11 @@ class StudentProfileResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
     protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?int $navigationSort = 3;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
 
     public static function form(Form $form): Form
     {
@@ -83,22 +88,22 @@ class StudentProfileResource extends Resource
                 Tables\Columns\TextColumn::make('jlpt_level')
                     ->badge()
                     ->color('info')
-                    ->placeholder('—'),
+                    ->placeholder('â€”'),
 
                 Tables\Columns\TextColumn::make('nat_level')
                     ->badge()
                     ->color('warning')
-                    ->placeholder('—'),
+                    ->placeholder('â€”'),
 
                 Tables\Columns\TextColumn::make('gpa')
                     ->sortable()
-                    ->placeholder('—'),
+                    ->placeholder('â€”'),
 
                 Tables\Columns\TextColumn::make('highest_qualification')
-                    ->placeholder('—')
+                    ->placeholder('â€”')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                // Eligibility score — computed from the model method
+                // Eligibility score â€” computed from the model method
                 Tables\Columns\TextColumn::make('eligibility_score')
                     ->label('Eligibility')
                     ->suffix('%')
@@ -119,12 +124,12 @@ class StudentProfileResource extends Resource
                 Tables\Columns\TextColumn::make('locked_at')
                     ->label('Locked At')
                     ->dateTime()
-                    ->placeholder('—')
+                    ->placeholder('â€”')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('locker.name')
                     ->label('Locked By')
-                    ->placeholder('—')
+                    ->placeholder('â€”')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')

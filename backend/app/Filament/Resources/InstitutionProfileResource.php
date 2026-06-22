@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -20,6 +20,11 @@ class InstitutionProfileResource extends Resource
     protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?string $navigationLabel = 'Institutions';
     protected static ?int $navigationSort = 3;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
 
     public static function form(Form $form): Form
     {
@@ -152,7 +157,7 @@ class InstitutionProfileResource extends Resource
                 Tables\Columns\TextColumn::make('verified_at')
                     ->label('Verified')
                     ->dateTime()
-                    ->placeholder('—')
+                    ->placeholder('â€”')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 

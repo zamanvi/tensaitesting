@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -19,6 +19,11 @@ class TensaiNotificationResource extends Resource
     protected static ?string $navigationGroup = 'Support';
     protected static ?string $navigationLabel = 'Notifications';
     protected static ?int    $navigationSort  = 3;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
 
     public static function getNavigationBadge(): ?string
     {
@@ -44,11 +49,11 @@ class TensaiNotificationResource extends Resource
 
                 Forms\Components\Select::make('type')
                     ->options([
-                        'info'    => 'ℹ️ Info',
-                        'success' => '✅ Success',
-                        'warning' => '⚠️ Warning',
-                        'error'   => '❌ Error',
-                        'system'  => '🔧 System',
+                        'info'    => 'â„¹ï¸ Info',
+                        'success' => 'âœ… Success',
+                        'warning' => 'âš ï¸ Warning',
+                        'error'   => 'âŒ Error',
+                        'system'  => 'ðŸ”§ System',
                     ])
                     ->default('info')
                     ->required(),

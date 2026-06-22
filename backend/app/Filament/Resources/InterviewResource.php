@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -19,6 +19,11 @@ class InterviewResource extends Resource
     protected static ?string $navigationLabel = 'Interviews';
     protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?int    $navigationSort  = 2;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
 
     public static function form(Form $form): Form
     {

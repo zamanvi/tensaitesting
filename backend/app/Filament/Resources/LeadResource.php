@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -19,6 +19,11 @@ class LeadResource extends Resource
     protected static ?string $navigationLabel = 'Leads (Legacy)';
     protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?int    $navigationSort  = 99;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
     protected static bool    $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
@@ -55,10 +60,10 @@ class LeadResource extends Resource
             Forms\Components\Section::make('Student Info')->schema([
                 Forms\Components\Placeholder::make('student_email')
                     ->label('Email')
-                    ->content(fn (Lead $record): string => $record->student?->email ?? '—'),
+                    ->content(fn (Lead $record): string => $record->student?->email ?? 'â€”'),
                 Forms\Components\Placeholder::make('student_phone')
                     ->label('Phone')
-                    ->content(fn (Lead $record): string => $record->student?->phone ?? '—'),
+                    ->content(fn (Lead $record): string => $record->student?->phone ?? 'â€”'),
             ])->columns(2)->visibleOn('edit'),
 
             Forms\Components\Section::make('Assignment')->schema([
@@ -166,9 +171,9 @@ class LeadResource extends Resource
                 Tables\Columns\TextColumn::make('source')
                     ->label('Source')
                     ->getStateUsing(fn (Lead $record) => match($record->source_type) {
-                        'agency'    => $record->sourceAgency?->name ?? '—',
-                        'branch'    => $record->sourceBranch?->name ?? '—',
-                        'affiliate' => $record->sourceAffiliate?->name ?? '—',
+                        'agency'    => $record->sourceAgency?->name ?? 'â€”',
+                        'branch'    => $record->sourceBranch?->name ?? 'â€”',
+                        'affiliate' => $record->sourceAffiliate?->name ?? 'â€”',
                         'student'   => 'Self-applied',
                         'admin'     => 'Head Office',
                         default     => 'Head Office',
@@ -185,24 +190,24 @@ class LeadResource extends Resource
                     ->sortable('source_type'),
                 Tables\Columns\TextColumn::make('assignedAgency.name')
                     ->label('Assigned Agency')
-                    ->default('—'),
+                    ->default('â€”'),
                 Tables\Columns\TextColumn::make('assignedInstitution.name')
                     ->label('Institution')
-                    ->default('—')
+                    ->default('â€”')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('target_course')
                     ->label('Course')
-                    ->default('—')
+                    ->default('â€”')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('jlpt_nat_score')
                     ->label('JLPT/NAT')
-                    ->default('—')
+                    ->default('â€”')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('preferred_cities')
                     ->label('Preferred Cities')
                     ->getStateUsing(fn (Lead $record) => $record->preferred_cities
                         ? implode(', ', $record->preferred_cities)
-                        : '—'
+                        : 'â€”'
                     )
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('target_intake')

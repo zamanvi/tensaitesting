@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -19,6 +19,11 @@ class ManagerResource extends Resource
     protected static ?string $navigationGroup = 'Settings';
     protected static ?string $navigationLabel = 'Managers';
     protected static ?int $navigationSort = 10;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
     protected static ?string $slug = 'managers';
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
@@ -75,11 +80,11 @@ class ManagerResource extends Resource
                 Tables\Columns\TextColumn::make('email')->searchable(),
                 Tables\Columns\TextColumn::make('manager_sections')
                     ->label('Sections')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : '—')
+                    ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : 'â€”')
                     ->wrap(),
                 Tables\Columns\TextColumn::make('manager_plain_password')
                     ->label('Password')
-                    ->formatStateUsing(fn ($state) => $state ?? '—')
+                    ->formatStateUsing(fn ($state) => $state ?? 'â€”')
                     ->copyable()
                     ->copyMessage('Password copied'),
                 Tables\Columns\TextColumn::make('manager_login_link')

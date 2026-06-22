@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -18,6 +18,11 @@ class SettingResource extends Resource
     protected static ?string $navigationGroup = 'Settings';
     protected static ?string $navigationLabel = 'Platform Settings';
     protected static ?int    $navigationSort  = 1;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
     protected static bool    $shouldRegisterNavigation = false;
 
     public static function form(Form $form): Form
@@ -54,7 +59,7 @@ class SettingResource extends Resource
                     ->sortable()
                     ->weight('semibold')
                     ->description(fn (Setting $record) => $record->key)
-                    ->placeholder('—'),
+                    ->placeholder('â€”'),
 
                 Tables\Columns\TextColumn::make('value')
                     ->label('Current Value')

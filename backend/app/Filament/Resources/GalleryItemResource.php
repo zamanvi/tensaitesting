@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -20,6 +20,11 @@ class GalleryItemResource extends Resource
     protected static ?string $navigationLabel = 'Gallery';
     protected static ?int $navigationSort = 1;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -32,14 +37,14 @@ class GalleryItemResource extends Resource
 
                 Forms\Components\Select::make('category')
                     ->options([
-                        'students'   => '🎓 Students',
-                        'japan'      => '🇯🇵 Japan',
-                        'milestones' => '🏆 Milestones',
-                        'agencies'   => '🏢 Agencies',
-                        'events'     => '🎉 Events',
-                        'docs'       => '📄 Docs',
-                        'departures' => '✈️ Departures',
-                        'institutes' => '🏫 Institutes',
+                        'students'   => 'ðŸŽ“ Students',
+                        'japan'      => 'ðŸ‡¯ðŸ‡µ Japan',
+                        'milestones' => 'ðŸ† Milestones',
+                        'agencies'   => 'ðŸ¢ Agencies',
+                        'events'     => 'ðŸŽ‰ Events',
+                        'docs'       => 'ðŸ“„ Docs',
+                        'departures' => 'âœˆï¸ Departures',
+                        'institutes' => 'ðŸ« Institutes',
                     ])
                     ->required(),
 
@@ -62,7 +67,7 @@ class GalleryItemResource extends Resource
                         ->visibility('public')
                         ->maxSize(8192)
                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-                        ->helperText('JPG, PNG, WebP — max 8 MB.')
+                        ->helperText('JPG, PNG, WebP â€” max 8 MB.')
                         ->columnSpanFull(),
 
                     Forms\Components\TextInput::make('image_url')
@@ -86,7 +91,7 @@ class GalleryItemResource extends Resource
                             'link',
                             'undo', 'redo',
                         ])
-                        ->placeholder('Write the full story here — student background, process, outcome...')
+                        ->placeholder('Write the full story here â€” student background, process, outcome...')
                         ->columnSpanFull(),
                 ]),
 

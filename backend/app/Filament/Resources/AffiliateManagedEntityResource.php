@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -19,6 +19,11 @@ class AffiliateManagedEntityResource extends Resource
     protected static ?string $navigationLabel = 'Managed Entities';
     protected static ?int    $navigationSort  = 5;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -33,8 +38,8 @@ class AffiliateManagedEntityResource extends Resource
                 Forms\Components\Select::make('entity_type')
                     ->label('Type')
                     ->options([
-                        'institution' => '🏫 Institution',
-                        'employee'    => '👤 Employee / Recruiter',
+                        'institution' => 'ðŸ« Institution',
+                        'employee'    => 'ðŸ‘¤ Employee / Recruiter',
                     ])
                     ->required(),
 
@@ -115,7 +120,7 @@ class AffiliateManagedEntityResource extends Resource
                         'employee'    => 'info',
                         default       => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state) => $state === 'institution' ? '🏫 Institution' : '👤 Employee'),
+                    ->formatStateUsing(fn (string $state) => $state === 'institution' ? 'ðŸ« Institution' : 'ðŸ‘¤ Employee'),
 
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
@@ -123,7 +128,7 @@ class AffiliateManagedEntityResource extends Resource
                     ->description(fn (AffiliateManagedEntity $r) => $r->contact_email),
 
                 Tables\Columns\TextColumn::make('country')
-                    ->placeholder('—'),
+                    ->placeholder('â€”'),
 
                 Tables\Columns\TextColumn::make('commission_percent')
                     ->label('Commission')

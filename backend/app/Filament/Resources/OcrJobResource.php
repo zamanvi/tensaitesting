@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -20,6 +20,11 @@ class OcrJobResource extends Resource
     protected static ?string $navigationGroup = 'Verification';
     protected static ?string $navigationLabel = 'OCR Review Queue';
     protected static ?int $navigationSort = 1;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
 
     public static function form(Form $form): Form
     {
@@ -111,7 +116,7 @@ class OcrJobResource extends Resource
 
                 Tables\Columns\TextColumn::make('reviewer.name')
                     ->label('Reviewed By')
-                    ->placeholder('—')
+                    ->placeholder('â€”')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')
@@ -137,7 +142,7 @@ class OcrJobResource extends Resource
                 ]),
             ])
             ->actions([
-                // ── Approve & apply extracted data to student profile ──────
+                // â”€â”€ Approve & apply extracted data to student profile â”€â”€â”€â”€â”€â”€
                 Tables\Actions\Action::make('approve')
                     ->label('Approve & Apply')
                     ->icon('heroicon-o-check-circle')
@@ -183,7 +188,7 @@ class OcrJobResource extends Resource
                             ->send();
                     }),
 
-                // ── Reject with reason ────────────────────────────────────
+                // â”€â”€ Reject with reason â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
                 Tables\Actions\Action::make('reject')
                     ->label('Reject')
                     ->icon('heroicon-o-x-circle')

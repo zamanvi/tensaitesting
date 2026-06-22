@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Filament\Resources;
 
@@ -18,6 +18,11 @@ class CommissionResource extends Resource
     protected static ?string $navigationGroup = 'Earnings & Payouts';
     protected static ?string $navigationLabel = 'Earnings & Payouts';
     protected static ?int $navigationSort = 1;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
 
     public static function form(Form $form): Form
     {
