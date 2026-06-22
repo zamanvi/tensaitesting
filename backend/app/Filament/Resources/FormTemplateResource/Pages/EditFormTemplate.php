@@ -18,6 +18,15 @@ class EditFormTemplate extends EditRecord
         return $record->country . ' — ' . ($record->name ?: 'Edit Form');
     }
 
+    public function mount(int | string $record): void
+    {
+        parent::mount($record);
+
+        if (request()->query('preview') === '1') {
+            $this->dispatch('open-modal', id: 'preview-form-modal');
+        }
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         unset($data['form_structure'], $data['saved_structure']);

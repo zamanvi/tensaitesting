@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FormTemplateResource\Pages;
 
 use App\Filament\Resources\FormTemplateResource;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -10,27 +11,60 @@ class CreateFormTemplate extends CreateRecord
 {
     protected static string $resource = FormTemplateResource::class;
 
+    public ?int $createdRecordId = null;
+    public bool $publishAfterCreate = false;
+    public bool $previewAfterCreate = false;
+
     public function getTitle(): string
     {
         return 'New Country Form';
     }
 
-    protected function getCreateFormAction(): \Filament\Actions\Action
+    protected function getCreateFormAction(): Action
     {
-        return parent::getCreateFormAction()->label('Save');
+        return parent::getCreateFormAction()
+            ->label('Save as Draft')
+            ->icon('heroicon-o-document');
     }
 
-    protected function getCreateAnotherFormAction(): \Filament\Actions\Action
+    protected function getCreateAnotherFormAction(): Action
     {
         return parent::getCreateAnotherFormAction()
             ->extraAttributes(['style' => 'display:none']);
     }
 
-    public ?int $createdRecordId = null;
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('save_publish')
+                ->label('Save & Publish')
+                ->icon('heroicon-o-rocket-launch')
+                ->color('success')
+                ->action(function () {
+                    $this->publishAfterCreate = true;
+                    $this->create();
+                }),
+
+            Action::make('save_preview')
+                ->label('Save & Preview')
+                ->icon('heroicon-o-eye')
+                ->color('info')
+                ->action(function () {
+                    $this->previewAfterCreate = true;
+                    $this->create();
+                }),
+        ];
+    }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         unset($data['form_structure'], $data['saved_structure']);
+
+        if ($this->publishAfterCreate) {
+            $data['status']    = 'published';
+            $data['is_active'] = true;
+        }
+
         return $data;
     }
 
@@ -49,10 +83,20 @@ class CreateFormTemplate extends CreateRecord
                 ->danger()
                 ->send();
         }
+
+        if ($this->publishAfterCreate) {
+            Notification::make()->title('Form saved and published — now live')->success()->send();
+        }
     }
 
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('edit', ['record' => $this->createdRecordId]);
+        $url = $this->getResource()::getUrl('edit', ['record' => $this->createdRecordId]);
+
+        if ($this->previewAfterCreate) {
+            $url .= '?preview=1';
+        }
+
+        return $url;
     }
 }
