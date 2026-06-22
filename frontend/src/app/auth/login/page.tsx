@@ -33,6 +33,10 @@ export default function LoginPage() {
     try {
       await login(email, password);
       const user = useAuthStore.getState().user;
+      if (user?.status === 'pending') {
+        router.push(`/auth/verify-email?email=${encodeURIComponent(email)}&gateway=${user.gateway_type}`);
+        return;
+      }
       const isAdmin = user?.roles?.some(r => r === 'admin' || r === 'super_admin');
       router.push(isAdmin ? '/dashboard/admin/gallery' : `/dashboard/${user?.gateway_type}`);
     } catch (err: unknown) {
