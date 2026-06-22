@@ -41,21 +41,22 @@ class FormTemplateResource extends Resource
             Forms\Components\Group::make()->schema([
                 Forms\Components\Section::make('Application Form Info')
                     ->icon('heroicon-o-globe-alt')
-                    ->description('Basic details about this country form — visible to branch admins.')
+                    ->description('Basic information about this application form. These details are visible to branch admins and agencies when they submit applications.')
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('country')
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->label('Country')
+                            ->label('Destination Country')
                             ->placeholder('e.g. Japan')
-                            ->helperText('One form per country.')
+                            ->helperText('One form per country. Must match the country name used in applications.')
                             ->prefixIcon('heroicon-o-flag')
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('visa_type')
                             ->label('Visa Type')
                             ->placeholder('e.g. Student Visa, Work Permit')
+                            ->helperText('The type of visa this form is for.')
                             ->prefixIcon('heroicon-o-identification')
                             ->columnSpan(1),
 
@@ -63,32 +64,36 @@ class FormTemplateResource extends Resource
                             ->required()
                             ->label('Form Name')
                             ->placeholder('e.g. Japan Study Abroad Application 2025')
+                            ->helperText('A clear name that branch admins will recognise when selecting this form.')
                             ->maxLength(255)
                             ->prefixIcon('heroicon-o-pencil-square')
                             ->columnSpanFull(),
 
                         Forms\Components\TextInput::make('student_name')
-                            ->label('Student Name')
+                            ->label('Default Student Name')
                             ->placeholder('e.g. Tanaka Yuki')
+                            ->helperText('Optional default name pre-filled in new applications.')
                             ->prefixIcon('heroicon-o-user')
                             ->columnSpan(1),
 
                         Forms\Components\DatePicker::make('birth_date')
                             ->label('Date of Birth')
                             ->placeholder('Select date of birth')
+                            ->helperText('Applicant\'s date of birth reference for this form.')
                             ->prefixIcon('heroicon-o-calendar-days')
                             ->displayFormat('d M Y')
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('passport_no')
-                            ->label('Passport No')
+                            ->label('Passport Number')
                             ->placeholder('e.g. BD1234567')
+                            ->helperText('Applicant\'s passport number.')
                             ->prefixIcon('heroicon-o-identification')
                             ->columnSpan(1),
 
                         Forms\Components\Repeater::make('educations')
-                            ->label('Education Certificates')
-                            ->helperText('Add each certificate required for this country form and set if it is mandatory or optional.')
+                            ->label('Required Education Certificates')
+                            ->helperText('Add each academic certificate applicants must provide. Set each as Mandatory (must upload) or Optional (can skip).')
                             ->schema([
                                 Forms\Components\Grid::make(2)->schema([
                                     Forms\Components\Select::make('level')
@@ -135,7 +140,7 @@ class FormTemplateResource extends Resource
 
                         Forms\Components\Section::make('Preview — How Branch Admin Will See This')
                             ->icon('heroicon-o-eye')
-                            ->description('This is a read-only preview. Branch admins will fill these fields when creating an application.')
+                            ->description('Read-only preview — this is exactly what branch admins and agencies will see when they fill an application for this country form.')
                             ->collapsible()
                             ->collapsed()
                             ->columnSpanFull()
@@ -155,7 +160,8 @@ class FormTemplateResource extends Resource
                         Forms\Components\Textarea::make('notes')
                             ->rows(2)
                             ->label('Internal Notes')
-                            ->placeholder('Notes visible only to admins…')
+                            ->placeholder('Private notes visible only to super admins — e.g. special requirements, processing notes…')
+                            ->helperText('These notes are never shown to branch admins, agencies or students.')
                             ->columnSpanFull(),
                     ]),
             ])->columnSpan(['lg' => 2]),

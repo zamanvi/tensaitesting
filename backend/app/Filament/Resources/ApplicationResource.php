@@ -65,11 +65,12 @@ class ApplicationResource extends Resource
 
             Forms\Components\Section::make('Application Details')
                 ->icon('heroicon-o-document-text')
-                ->description('Fill in the student details and select the country form for this application.')
+                ->description('Select the country form and enter the student\'s basic contact information.')
                 ->columns(2)
                 ->schema([
                     Forms\Components\Select::make('form_template_id')
                         ->label('Country Form')
+                        ->helperText('Select which country this student is applying to.')
                         ->options(
                             FormTemplate::where('status', 'published')
                                 ->where('is_active', true)
@@ -107,7 +108,7 @@ class ApplicationResource extends Resource
 
             Forms\Components\Section::make('Education Background')
                 ->icon('heroicon-o-academic-cap')
-                ->description('Fill in the student\'s education certificates as required by the selected country form.')
+                ->description('Enter the student\'s academic qualifications and upload supporting certificates. Required documents are marked in red.')
                 ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
                 ->schema([
                     Forms\Components\Repeater::make('form_data.educations')
@@ -261,6 +262,9 @@ class ApplicationResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
+            ->emptyStateHeading('No applications yet')
+            ->emptyStateDescription('Applications submitted from any panel — branch, agency, or student — will appear here.')
+            ->emptyStateIcon('heroicon-o-document-text')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([

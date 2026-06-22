@@ -30,47 +30,53 @@ class EditApplication extends EditRecord
         $record = $this->getRecord();
 
         return [
-            // Progress badge — always visible
+            // Progress badge — always visible, shows current completion
             Actions\Action::make('progress_indicator')
-                ->label(fn () => 'Progress: ' . $this->getRecord()->progress . '%')
+                ->label(fn () => $this->getRecord()->progress . '% Complete')
                 ->color(fn () => $this->getRecord()->progress >= 80 ? 'success'
                     : ($this->getRecord()->progress >= 50 ? 'warning' : 'danger'))
                 ->icon(fn () => $this->getRecord()->progress >= 50
                     ? 'heroicon-o-check-circle' : 'heroicon-o-clock')
+                ->tooltip(fn () => $this->getRecord()->progress >= 50
+                    ? 'Form is ready to submit'
+                    : 'Fill ' . (50 - $this->getRecord()->progress) . '% more to unlock Submit')
                 ->disabled()
                 ->extraAttributes(['style' => 'cursor:default;pointer-events:none;']),
 
-            // Submit — only when progress ≥ 50%
+            // Submit — only unlocks at 50%+
             Actions\Action::make('submit_application')
-                ->label(fn () => $this->getRecord()->status === 'submitted' ? 'Resubmit' : 'Submit Application')
+                ->label(fn () => $this->getRecord()->status === 'submitted' ? '↺ Resubmit' : '✈ Submit Application')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success')
-                ->visible(fn () => $this->getRecord()->progress >= 50)
+                ->visible(fn () => $this->getRecord()->progress >= 50
+                    && !in_array($this->getRecord()->status, ['accepted', 'rejected']))
                 ->requiresConfirmation()
                 ->modalHeading('Submit this application?')
-                ->modalDescription('The application will be marked as submitted and visible to all admins.')
+                ->modalDescription('This application will be sent to the admin panel for review. You can still edit it after submitting.')
+                ->modalSubmitActionLabel('Yes, Submit Now')
                 ->action(function () {
                     $this->getRecord()->update([
                         'status'       => 'submitted',
                         'submitted_at' => now(),
                     ]);
                     Notification::make()
-                        ->title('Application submitted successfully')
+                        ->title('Application submitted — admin has been notified')
                         ->success()
                         ->send();
                     $this->refreshFormData(['status', 'submitted_at']);
                 }),
 
-            Actions\Action::make('view_progress')
-                ->label('Recalculate Progress')
+            Actions\Action::make('recalculate')
+                ->label('Refresh Progress')
                 ->icon('heroicon-o-arrow-path')
                 ->color('gray')
+                ->tooltip('Recalculate the form completion percentage based on filled fields')
                 ->action(function () {
                     $record   = $this->getRecord();
                     $progress = $record->recalculateProgress();
                     $record->update(['progress' => $progress]);
                     Notification::make()
-                        ->title("Progress updated: {$progress}%")
+                        ->title("Progress refreshed: {$progress}%")
                         ->success()
                         ->send();
                     $this->redirect($this->getResource()::getUrl('edit', ['record' => $record]));
