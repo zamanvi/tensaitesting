@@ -59,8 +59,13 @@ class ApplicationResource extends Resource
     {
         return $form->schema([
 
+            // ── Progress bar (edit mode only) ─────────────────────────────────
+            Forms\Components\View::make('filament.forms.components.application-progress')
+                ->hiddenOn('create'),
+
             Forms\Components\Section::make('Application Details')
                 ->icon('heroicon-o-document-text')
+                ->description('Fill in the student details and select the country form for this application.')
                 ->columns(2)
                 ->schema([
                     Forms\Components\Select::make('form_template_id')
@@ -308,8 +313,7 @@ class ApplicationResource extends Resource
                     }),
 
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make()
-                    ->visible(fn (Application $r) => $r->status === 'draft'),
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn () => auth()->user()?->hasRole(['super_admin', 'admin'])),
             ])
