@@ -101,6 +101,25 @@ class FormTemplateResource extends Resource
                             ->placeholder('Select education level')
                             ->columnSpan(1),
 
+                        Forms\Components\Section::make('')
+                            ->schema([
+                                Forms\Components\FileUpload::make('education_document')
+                                    ->label('Education Certificate / Transcript')
+                                    ->helperText('Upload degree certificate, transcript, or marksheet.')
+                                    ->disk('public')
+                                    ->directory('education-documents')
+                                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'])
+                                    ->maxSize(5120)
+                                    ->downloadable()
+                                    ->previewable()
+                                    ->uploadingMessage('Uploading document…')
+                                    ->removeUploadedFileButtonPosition('right')
+                                    ->columnSpanFull(),
+                            ])
+                            ->icon('heroicon-o-paper-clip')
+                            ->compact()
+                            ->columnSpanFull(),
+
                         Forms\Components\TagsInput::make('intake_options')
                             ->label('Available Intakes')
                             ->placeholder('e.g. April 2025, September 2025…')

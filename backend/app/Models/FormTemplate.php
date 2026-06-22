@@ -9,7 +9,7 @@ class FormTemplate extends Model
 {
     protected $fillable = [
         'country', 'visa_type', 'name', 'intake_options', 'birth_date',
-        'student_name', 'passport_no', 'education',
+        'student_name', 'passport_no', 'education', 'education_document',
         'is_active', 'status', 'notes',
     ];
 
