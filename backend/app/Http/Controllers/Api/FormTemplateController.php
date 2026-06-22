@@ -23,7 +23,8 @@ class FormTemplateController extends Controller
     // GET /api/form-templates
     public function index(): JsonResponse
     {
-        $templates = FormTemplate::where('is_active', true)
+        $templates = FormTemplate::where('status', 'published')
+            ->where('is_active', true)
             ->orderBy('country')
             ->get(['id', 'country', 'name', 'intake_options']);
 
@@ -37,12 +38,14 @@ class FormTemplateController extends Controller
         $with = ['activeFieldGroups.activeBoxes.activeFields'];
 
         $template = FormTemplate::with($with)
+            ->where('status', 'published')
             ->where('is_active', true)
             ->where('country', $country)
             ->first();
 
         if (!$template) {
             $template = FormTemplate::with($with)
+                ->where('status', 'published')
                 ->where('is_active', true)
                 ->where('country', 'Global')
                 ->first();

@@ -82,8 +82,8 @@ class EditFormTemplate extends EditRecord
                 ->action(function () {
                     $record = $this->getRecord();
                     if ($record->status === 'published') {
-                        $record->update(['status' => 'draft']);
-                        Notification::make()->title('Form unpublished — moved back to draft')->warning()->send();
+                        $record->update(['status' => 'draft', 'is_active' => false]);
+                        Notification::make()->title('Form unpublished — moved back to draft and hidden from branches')->warning()->send();
                     } else {
                         $record->update(['status' => 'published', 'is_active' => true]);
                         Notification::make()->title('Form published — now live to branches')->success()->send();
