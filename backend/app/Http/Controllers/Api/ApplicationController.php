@@ -15,7 +15,7 @@ class ApplicationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        $q    = Application::with(['formTemplate:id,name,country', 'documents', 'user:id,name,email', 'branch:id,name'])->latest();
+        $q    = Application::with(['formTemplate:id,name,country,visa_type,intake_options', 'documents', 'user:id,name,email', 'branch:id,name'])->latest();
 
         if ($user->hasRole(['super_admin', 'admin'])) {
             // Exclude agency drafts — they are private until the agency submits (makes live)
@@ -187,7 +187,7 @@ class ApplicationController extends Controller
     private function findOwned(Request $request, int $id): Application
     {
         $user = $request->user();
-        $q    = Application::with(['formTemplate', 'documents'])->where('id', $id);
+        $q    = Application::with(['formTemplate:id,name,country,visa_type,intake_options', 'documents'])->where('id', $id);
 
         if ($user->hasRole(['super_admin', 'admin'])) {
             // unrestricted
@@ -210,7 +210,7 @@ class ApplicationController extends Controller
 
     private function format(Application $app): array
     {
-        $app->loadMissing(['formTemplate:id,name,country,intake_options', 'documents', 'user:id,name,email', 'branch:id,name']);
+        $app->loadMissing(['formTemplate:id,name,country,visa_type,intake_options', 'documents', 'user:id,name,email', 'branch:id,name']);
         return [
             'id'                => $app->id,
             'application_code'  => $app->application_code,
@@ -219,6 +219,7 @@ class ApplicationController extends Controller
                 'id'             => $app->formTemplate->id,
                 'name'           => $app->formTemplate->name,
                 'country'        => $app->formTemplate->country,
+                'visa_type'      => $app->formTemplate->visa_type,
                 'intake_options' => $app->formTemplate->intake_options ?? [],
             ] : null,
             'user_id'           => $app->user_id,
