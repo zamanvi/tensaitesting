@@ -111,7 +111,7 @@ export default function BranchApplicantsPage() {
                 <div className="w-14 h-14 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl">📝</div>
                 <p className="text-sm font-semibold text-slate-600">
                   {isLoading ? 'Loading…' : apps.length === 0
-                    ? 'No applications yet — click 'New Application' to begin'
+                    ? "No applications yet — click 'New Application' to begin"
                     : 'Select an application from the list below, or start a new one'}
                 </p>
               </div>
