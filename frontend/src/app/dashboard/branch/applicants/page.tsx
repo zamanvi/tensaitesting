@@ -189,7 +189,7 @@ export default function BranchApplicantsPage() {
           </div>
 
           {/* ── Interviews Section ── */}
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mt-6">
+          <div id="interviews" className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mt-6">
             <div className="px-6 py-5 border-b border-slate-100">
               <h3 className="font-black text-slate-900 text-sm">Interviews</h3>
               <p className="text-xs text-slate-400 mt-0.5">Scheduled interviews for students submitted by your branch</p>
