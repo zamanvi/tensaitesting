@@ -13,6 +13,22 @@ use Illuminate\Support\Str;
 
 class InterviewController extends Controller
 {
+    public function branchInterviews(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        // Interviews for students whose applications were submitted by this branch
+        $studentIds = \App\Models\Application::where('branch_id', $user->branch_id)
+            ->pluck('user_id')
+            ->unique();
+
+        $interviews = Interview::whereIn('student_id', $studentIds)
+            ->with(['student:id,name,email', 'institution:id,name'])
+            ->orderBy('scheduled_at', 'desc')
+            ->get();
+
+        return response()->json($interviews);
+    }
+
     public function myInterviews(Request $request): JsonResponse
     {
         $interviews = Interview::where('student_id', $request->user()->id)

@@ -173,6 +173,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Branch admin gateway
     Route::prefix('branch-admin')->middleware('role:branch_admin|branch_manager')->group(function () {
+        Route::get('/interviews',  [InterviewController::class, 'branchInterviews']);
         Route::get('/my-branch',   [BranchController::class, 'myBranch']);
         Route::patch('/contact',   [BranchController::class, 'updateContact']);
         Route::get('/settings',    [BranchAdminController::class, 'getSettings']);
