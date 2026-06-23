@@ -6,29 +6,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
-
-interface Interview {
-  id: number;
-  scheduled_at: string | null;
-  medium: string;
-  status: string;
-  result: string | null;
-  meeting_link: string | null;
-  student: { id: number; name: string; email: string } | null;
-  institution: { id: number; name: string } | null;
-}
-
-const INTERVIEW_STATUS: Record<string, string> = {
-  pending:   'bg-amber-100 text-amber-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  completed: 'bg-emerald-100 text-emerald-700',
-  cancelled: 'bg-rose-100 text-rose-600',
-};
-
-const MEDIUM_LABEL: Record<string, string> = {
-  zoom: '🎥 Zoom', google_meet: '🎥 Meet', teams: '🎥 Teams',
-  phone: '📞 Phone', in_person: '🏢 In Person',
-};
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
 
@@ -52,12 +29,6 @@ export default function BranchApplicantsPage() {
   const [activeAppId, setActiveAppId] = useState<number | null>(null);
   const [showStarter, setShowStarter] = useState(false);
   const [tableTab,    setTableTab]    = useState<'draft' | 'submitted'>('submitted');
-
-  const { data: interviews = [], isLoading: interviewsLoading } = useQuery<Interview[]>({
-    queryKey: ['branch-interviews'],
-    queryFn: () => api.get('/branch-admin/interviews').then(r => r.data),
-    enabled: !!isBranchAdmin,
-  });
 
   const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
     queryKey: ['branch-applications'],
@@ -219,74 +190,14 @@ export default function BranchApplicantsPage() {
 
           {/* ── Interviews Section ── */}
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mt-6">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h3 className="font-black text-slate-900 text-sm">Interviews</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Scheduled interviews for students submitted by your branch</p>
-              </div>
-              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-xl">{interviews.length} total</span>
+            <div className="px-6 py-5 border-b border-slate-100">
+              <h3 className="font-black text-slate-900 text-sm">Interviews</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Scheduled interviews for students submitted by your branch</p>
             </div>
-
-            {interviewsLoading ? (
-              <div className="py-16 text-center"><span className="w-7 h-7 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" /></div>
-            ) : interviews.length === 0 ? (
-              <div className="py-16 text-center">
-                <div className="text-4xl mb-3">🗓️</div>
-                <p className="text-sm font-semibold text-slate-500">No interviews scheduled yet</p>
-                <p className="text-xs text-slate-400 mt-1">Interviews will appear here once admin schedules them for your students</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-slate-50/80 text-xs font-bold text-slate-400 uppercase tracking-wide">
-                      <th className="text-left px-6 py-3">Student</th>
-                      <th className="text-left px-4 py-3">Institution</th>
-                      <th className="text-left px-4 py-3">Scheduled</th>
-                      <th className="text-left px-4 py-3 hidden sm:table-cell">Medium</th>
-                      <th className="text-left px-4 py-3">Status</th>
-                      <th className="text-left px-4 py-3 hidden md:table-cell">Result</th>
-                      <th className="px-4 py-3" />
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {interviews.map(iv => (
-                      <tr key={iv.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <p className="font-bold text-slate-800 text-xs">{iv.student?.name ?? '—'}</p>
-                          <p className="text-[11px] text-slate-400">{iv.student?.email ?? ''}</p>
-                        </td>
-                        <td className="px-4 py-4 text-xs text-slate-600">{iv.institution?.name ?? '—'}</td>
-                        <td className="px-4 py-4 text-xs text-slate-600">
-                          {iv.scheduled_at
-                            ? new Date(iv.scheduled_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
-                            : <span className="text-slate-300">TBD</span>}
-                        </td>
-                        <td className="px-4 py-4 text-xs text-slate-500 hidden sm:table-cell">
-                          {MEDIUM_LABEL[iv.medium] ?? iv.medium}
-                        </td>
-                        <td className="px-4 py-4">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${INTERVIEW_STATUS[iv.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                            {iv.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 text-xs text-slate-500 hidden md:table-cell">
-                          {iv.result ?? <span className="text-slate-300">Pending</span>}
-                        </td>
-                        <td className="px-4 py-4">
-                          {iv.meeting_link && (
-                            <a href={iv.meeting_link} target="_blank" rel="noreferrer"
-                              className="text-xs font-bold text-green-700 hover:text-green-900 whitespace-nowrap">
-                              Join →
-                            </a>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <div className="py-16 text-center">
+              <div className="text-4xl mb-3">🗓️</div>
+              <p className="text-sm font-semibold text-slate-500">Coming soon</p>
+            </div>
           </div>
         </>
       ) : activeApp ? (
