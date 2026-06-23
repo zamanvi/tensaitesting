@@ -129,38 +129,40 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
           )}
         </div>
 
-        {/* Student info (branch / agency / admin fill for student) */}
+        {/* Student info */}
         {needStudentInfo && (
-          <>
-            <div>
-              <label className={lbl}>Student Name *</label>
-              <input className={inp} placeholder="e.g. Ahmed Rahman" value={name}
-                onChange={e => setName(e.target.value)} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={lbl}>Student Email</label>
-                <input className={inp} type="email" placeholder="student@email.com" value={email}
-                  onChange={e => setEmail(e.target.value)} />
-              </div>
-              <div>
-                <label className={lbl}>Contact Phone</label>
-                <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={phone}
-                  onChange={e => setPhone(e.target.value)} />
-              </div>
-              <div>
-                <label className={lbl}>WhatsApp Number</label>
-                <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={whatsapp}
-                  onChange={e => setWhatsapp(e.target.value)} />
-              </div>
-              <div>
-                <label className={lbl}>Permanent Address</label>
-                <input className={inp} placeholder="House, Road, Area, City" value={address}
-                  onChange={e => setAddress(e.target.value)} />
-              </div>
-            </div>
-          </>
+          <div>
+            <label className={lbl}>Student Name *</label>
+            <input className={inp} placeholder="e.g. Ahmed Rahman" value={name}
+              onChange={e => setName(e.target.value)} />
+          </div>
         )}
+
+        {/* Contact details — branch/agency fill all; student fills contact + whatsapp + address */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {needStudentInfo && (
+            <div>
+              <label className={lbl}>Student Email</label>
+              <input className={inp} type="email" placeholder="student@email.com" value={email}
+                onChange={e => setEmail(e.target.value)} />
+            </div>
+          )}
+          <div>
+            <label className={lbl}>Contact Phone</label>
+            <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={phone}
+              onChange={e => setPhone(e.target.value)} />
+          </div>
+          <div>
+            <label className={lbl}>WhatsApp Number</label>
+            <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={whatsapp}
+              onChange={e => setWhatsapp(e.target.value)} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={lbl}>Permanent Address</label>
+            <input className={inp} placeholder="House, Road, Area, City" value={address}
+              onChange={e => setAddress(e.target.value)} />
+          </div>
+        </div>
 
         <button onClick={() => startMut.mutate()}
           disabled={startMut.isPending || !canStart}

@@ -32,7 +32,7 @@ export interface TemplateGroup {
 }
 
 export interface FormTemplateData {
-  id: number; country: string; name: string;
+  id: number; country: string; visa_type?: string; name: string;
   intake_options: string[];
   groups: TemplateGroup[];
 }

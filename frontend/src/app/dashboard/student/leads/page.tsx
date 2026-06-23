@@ -35,7 +35,7 @@ export default function StudentApplicationPage() {
     staleTime: 300_000,
   });
 
-  function handleCreated(app: Application) {
+  function handleCreated(_app: Application) {
     qc.invalidateQueries({ queryKey: ['student-application'] });
   }
 
