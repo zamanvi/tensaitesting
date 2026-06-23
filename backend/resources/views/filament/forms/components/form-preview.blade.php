@@ -99,19 +99,13 @@
                     {{-- Contact Phone --}}
                     <div class="tpf-field">
                         <label>Contact Phone <span style="color:#ef4444;">*</span></label>
-                        <input class="tpf-inp{{ $record->contact_phone ? ' tpf-inp-ro' : '' }}" type="tel"
-                            value="{{ $record->contact_phone ?: '' }}"
-                            placeholder="{{ $record->contact_phone ?: '+880 1XXXXXXXXX' }}"
-                            {{ $record->contact_phone ? 'readonly' : '' }} />
+                        <input class="tpf-inp" type="tel" placeholder="+880 1XXXXXXXXX" />
                     </div>
 
                     {{-- WhatsApp --}}
                     <div class="tpf-field">
                         <label>WhatsApp Number</label>
-                        <input class="tpf-inp{{ $record->whatsapp_no ? ' tpf-inp-ro' : '' }}" type="tel"
-                            value="{{ $record->whatsapp_no ?: '' }}"
-                            placeholder="{{ $record->whatsapp_no ?: '+880 1XXXXXXXXX' }}"
-                            {{ $record->whatsapp_no ? 'readonly' : '' }} />
+                        <input class="tpf-inp" type="tel" placeholder="+880 1XXXXXXXXX" />
                         <p style="font-size:11px;color:#94a3b8;margin:4px 0 0;">For direct WhatsApp communication</p>
                     </div>
 
@@ -159,9 +153,7 @@
                     {{-- Permanent Address --}}
                     <div class="tpf-field tpf-grid-full">
                         <label>Permanent Address <span style="color:#ef4444;">*</span></label>
-                        <textarea class="tpf-inp{{ $record->permanent_address ? ' tpf-inp-ro' : '' }}" rows="2"
-                            placeholder="{{ $record->permanent_address ?: 'House, Road, Area, City, Postcode' }}"
-                            {{ $record->permanent_address ? 'readonly' : '' }}>{{ $record->permanent_address ?: '' }}</textarea>
+                        <textarea class="tpf-inp" rows="2" placeholder="House, Road, Area, City, Postcode"></textarea>
                     </div>
                 </div>
 
