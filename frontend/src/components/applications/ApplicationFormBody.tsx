@@ -18,60 +18,19 @@ interface Props {
   onClose?: () => void;
 }
 
-// ── Inline editable contact fields ───────────────────────────────────────────
-
-function WhatsAppField({ app, isEditable, onSaved }: { app: Application; isEditable: boolean; onSaved: (a: Application) => void }) {
-  const [val, setVal] = useState(app.whatsapp_no ?? '');
-  const [saving, setSaving] = useState(false);
-
-  async function save() {
-    if (val === (app.whatsapp_no ?? '')) return;
-    setSaving(true);
-    try { const res = await api.patch(`/applications/${app.id}`, { whatsapp_no: val }); onSaved(res.data); }
-    catch { /* noop */ }
-    setSaving(false);
-  }
-
-  if (!isEditable) return <input className={`${inp} bg-slate-50`} value={val} readOnly />;
-  return (
-    <input className={inp} type="tel" placeholder="+880 1XXXXXXXXX" value={val}
-      onChange={e => setVal(e.target.value)}
-      onBlur={save}
-      disabled={saving} />
-  );
-}
-
-function AddressField({ app, isEditable, onSaved }: { app: Application; isEditable: boolean; onSaved: (a: Application) => void }) {
-  const [val, setVal] = useState(app.permanent_address ?? '');
-  const [saving, setSaving] = useState(false);
-
-  async function save() {
-    if (val === (app.permanent_address ?? '')) return;
-    setSaving(true);
-    try { const res = await api.patch(`/applications/${app.id}`, { permanent_address: val }); onSaved(res.data); }
-    catch { /* noop */ }
-    setSaving(false);
-  }
-
-  if (!isEditable) return <textarea className={`${inp} bg-slate-50 resize-none`} rows={2} value={val} readOnly />;
-  return (
-    <textarea className={`${inp} resize-none`} rows={2}
-      placeholder="House, Road, Area, City, Postcode"
-      value={val}
-      onChange={e => setVal(e.target.value)}
-      onBlur={save}
-      disabled={saving} />
-  );
-}
 
 export default function ApplicationFormBody({
   app, template, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose,
 }: Props) {
-  const [formData, setFormData] = useState<Record<string, string>>(app.form_data ?? {});
-  const [saving,   setSaving]   = useState(false);
+  const [formData,   setFormData]   = useState<Record<string, string>>(app.form_data ?? {});
+  const [whatsapp,   setWhatsapp]   = useState(app.whatsapp_no ?? '');
+  const [address,    setAddress]    = useState(app.permanent_address ?? '');
+  const [infoSaving, setInfoSaving] = useState(false);
+  const [infoMsg,    setInfoMsg]    = useState('');
+  const [saving,     setSaving]     = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [err, setErr] = useState('');
+  const [msg,        setMsg]        = useState('');
+  const [err,        setErr]        = useState('');
 
   const progress   = app.progress;
   const isEditable = !['accepted', 'rejected'].includes(app.status);
@@ -80,6 +39,19 @@ export default function ApplicationFormBody({
 
   function set(key: string, val: string) {
     setFormData(p => ({ ...p, [key]: val }));
+  }
+
+  async function handleInfoSave() {
+    setInfoSaving(true); setInfoMsg('');
+    try {
+      const res = await api.patch(`/applications/${app.id}`, {
+        whatsapp_no:       whatsapp.trim() || null,
+        permanent_address: address.trim()  || null,
+      });
+      onSaved(res.data);
+      setInfoMsg('Saved ✓'); setTimeout(() => setInfoMsg(''), 2500);
+    } catch { setInfoMsg('Save failed.'); }
+    setInfoSaving(false);
   }
 
   async function handleSave() {
@@ -151,32 +123,48 @@ export default function ApplicationFormBody({
       <div className="px-6 py-8 space-y-10">
 
         {/* Student info */}
-        <section>
-          <SectionHead n={1} title="Student Information" />
+        <section className="bg-slate-50/60 rounded-2xl border border-slate-100 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <SectionHead n={1} title="Student Information" subtitle="Applicant's personal and contact details" />
+            {isEditable && (
+              <div className="flex items-center gap-2 shrink-0">
+                {infoMsg && <span className={`text-xs font-bold ${infoMsg.includes('failed') ? 'text-rose-500' : 'text-emerald-600'}`}>{infoMsg}</span>}
+                <button onClick={handleInfoSave} disabled={infoSaving}
+                  className="px-4 py-2 bg-green-700 hover:bg-green-600 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-colors flex items-center gap-1.5">
+                  {infoSaving && <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+                  💾 Save Info
+                </button>
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={lbl}>Full Name</label>
-              <input className={`${inp} bg-slate-50`} value={app.student_name} readOnly />
+              <input className={`${inp} bg-white`} value={app.student_name} readOnly />
             </div>
             <div>
               <label className={lbl}>Email</label>
-              <input className={`${inp} bg-slate-50`} value={app.student_email ?? ''} readOnly />
+              <input className={`${inp} bg-white`} value={app.student_email ?? ''} readOnly />
             </div>
             <div>
               <label className={lbl}>Contact Phone</label>
-              <input className={`${inp} bg-slate-50`} value={app.student_phone ?? ''} readOnly />
+              <input className={`${inp} bg-white`} value={app.student_phone ?? ''} readOnly />
             </div>
             <div>
               <label className={lbl}>WhatsApp Number</label>
-              <WhatsAppField app={app} isEditable={isEditable} onSaved={onSaved} />
+              {isEditable
+                ? <input className={inp} type="tel" placeholder="+880 1XXXXXXXXX" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} />
+                : <input className={`${inp} bg-white`} value={whatsapp} readOnly />}
             </div>
             <div>
               <label className={lbl}>Target Country</label>
-              <input className={`${inp} bg-slate-50`} value={app.form_template?.country ?? ''} readOnly />
+              <input className={`${inp} bg-white`} value={app.form_template?.country ?? ''} readOnly />
             </div>
             <div className="sm:col-span-2">
               <label className={lbl}>Permanent Address</label>
-              <AddressField app={app} isEditable={isEditable} onSaved={onSaved} />
+              {isEditable
+                ? <textarea className={`${inp} resize-none`} rows={2} placeholder="House, Road, Area, City, Postcode" value={address} onChange={e => setAddress(e.target.value)} />
+                : <textarea className={`${inp} bg-white resize-none`} rows={2} value={address} readOnly />}
             </div>
           </div>
         </section>
