@@ -427,18 +427,6 @@ class FormTemplateResource extends Resource
             ->emptyStateDescription('Create a new country form, fill in all details, then click "Submit & Publish" to make it live here.')
             ->emptyStateIcon('heroicon-o-document-plus')
             ->actions([
-                Tables\Actions\Action::make('unpublish')
-                    ->label('Unpublish')
-                    ->icon('heroicon-o-arrow-uturn-left')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->modalHeading('Unpublish this form?')
-                    ->modalDescription('Branches will no longer be able to use this form. It will move back to draft.')
-                    ->action(function (FormTemplate $r) {
-                        $r->update(['status' => 'draft', 'is_active' => false]);
-                        Notification::make()->title('Form unpublished — moved back to draft')->warning()->send();
-                    }),
-
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
