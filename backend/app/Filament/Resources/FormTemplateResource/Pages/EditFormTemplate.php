@@ -71,18 +71,11 @@ class EditFormTemplate extends EditRecord
     {
         $template = $this->getRecord();
 
-        // Always ensure the "Application Form Info" group exists as the first entry
-        $hasAppInfoGroup = $template->fieldGroups()
-            ->where('label', 'Application Form Info')
-            ->exists();
-
-        if (! $hasAppInfoGroup) {
-            $template->fieldGroups()->create([
-                'label'      => 'Application Form Info',
-                'sort_order' => 0,
-                'is_active'  => true,
-            ]);
-        }
+        // Ensure "Application Form Info" group exists exactly once
+        $template->fieldGroups()->firstOrCreate(
+            ['label' => 'Application Form Info'],
+            ['sort_order' => 0, 'is_active' => true]
+        );
 
         // Sync form builder structure then reset it for the next section
         try {
