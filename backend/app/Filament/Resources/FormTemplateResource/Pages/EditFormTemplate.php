@@ -38,19 +38,6 @@ class EditFormTemplate extends EditRecord
         }
     }
 
-    protected function getFooterWidgets(): array
-    {
-        return [];
-    }
-
-    protected function getExtraBodyAttributes(): array
-    {
-        if (request()->query('preview') === '1') {
-            return ['x-init' => '$nextTick(() => $wire.mountAction(\'preview\'))'];
-        }
-        return [];
-    }
-
     protected function beforeSave(): void
     {
         $data      = $this->data;
