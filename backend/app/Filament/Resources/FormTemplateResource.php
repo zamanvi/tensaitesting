@@ -53,10 +53,11 @@ class FormTemplateResource extends Resource
                                     $rule
                                         ->where('visa_type', $get('visa_type') ?? '')
                                         ->where('name', $get('name') ?? '')
+                                        ->where('status', 'published')
                                         ->ignore($record?->id),
                                 ignoreRecord: false,
                             )
-                            ->validationMessages(['unique' => 'A form for this country, visa type and name already exists.'])
+                            ->validationMessages(['unique' => 'A published form for this country, visa type and name already exists.'])
                             ->label('Destination Country')
                             ->placeholder('e.g. Japan')
                             ->helperText('Multiple forms per country are allowed — they must differ by Visa Type or Form Name.')

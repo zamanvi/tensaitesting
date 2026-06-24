@@ -4,6 +4,7 @@ namespace App\Filament\Resources\FormTemplateResource\Pages;
 
 use App\Filament\Resources\FormTemplateResource;
 use App\Models\FormFieldGroup;
+use App\Models\FormTemplate;
 use App\Models\FormTemplateField;
 use Filament\Actions;
 use Filament\Forms;
@@ -32,6 +33,29 @@ class EditFormTemplate extends EditRecord
 
         if (request()->query('preview') === '1') {
             $this->dispatch('open-modal', id: 'preview-form-modal');
+        }
+    }
+
+    protected function beforeSave(): void
+    {
+        $data      = $this->data;
+        $currentId = $this->getRecord()->id;
+
+        $existing = FormTemplate::where('country', $data['country'] ?? '')
+            ->where('visa_type', $data['visa_type'] ?? '')
+            ->where('name', $data['name'] ?? '')
+            ->where('status', 'draft')
+            ->where('id', '!=', $currentId)
+            ->first();
+
+        if ($existing) {
+            // Another draft exists with same details — redirect to it and delete this blank one
+            $this->getRecord()->delete();
+            Notification::make()
+                ->title('A draft for this form already exists — redirected to it.')
+                ->warning()
+                ->send();
+            $this->redirect($this->getResource()::getUrl('edit', ['record' => $existing->id]));
         }
     }
 
