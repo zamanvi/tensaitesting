@@ -36,9 +36,13 @@
                         {{-- Section header --}}
                         <div class="flex items-center gap-2 px-4 py-2.5 bg-white border-b border-gray-100">
                             <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary-500 text-white text-[10px] font-bold shrink-0" x-text="si + 1"></span>
-                            <span class="text-xs font-semibold text-gray-600">Data & Document</span>
+                            <input type="text"
+                                x-model="section.name"
+                                @input="sync()"
+                                placeholder="Box title — e.g. Passport Info, Bank Details"
+                                class="flex-1 text-xs font-semibold text-gray-700 bg-transparent border-none outline-none placeholder-gray-400 min-w-0"/>
                             <button type="button" @click="removeSection(group, si)"
-                                class="ml-auto flex items-center gap-1 text-[11px] text-gray-400 hover:text-red-500 transition-colors font-medium">
+                                class="ml-2 flex items-center gap-1 text-[11px] text-gray-400 hover:text-red-500 transition-colors font-medium shrink-0">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 Remove
                             </button>
