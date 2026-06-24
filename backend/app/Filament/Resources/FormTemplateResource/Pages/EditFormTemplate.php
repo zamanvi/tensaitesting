@@ -191,7 +191,8 @@ class EditFormTemplate extends EditRecord
             if (! empty($fData['id']) && $field = FormTemplateField::find($fData['id'])) {
                 $field->update($attrs);
             } else {
-                $attrs['field_key'] = Str::snake($fData['label'] ?? 'field') . '_' . uniqid();
+                $base = Str::snake($fData['label'] ?? '') ?: 'field';
+                        $attrs['field_key'] = $base . '_' . uniqid();
                 FormTemplateField::create($attrs);
             }
         }
