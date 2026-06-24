@@ -300,15 +300,18 @@ class FormTemplateResource extends Resource
         $keepBoxIds   = [];
         $keepFieldIds = [];
 
+        // Offset sort_order so new groups don't collide with existing ones
+        $sortOffset = $template->fieldGroups()->max('sort_order') + 1;
+
         foreach ($structure as $gi => $gData) {
             // Upsert FormFieldGroup (Field Title)
-            $defaultLabel = $gi === 0 ? 'Application Form Info' : 'Section ' . ($gi + 1);
+            $defaultLabel = 'Section ' . ($gi + 1);
             $groupAttrs = [
                 'form_template_id' => $template->id,
                 'label'      => $gData['label'] ?: $defaultLabel,
                 'hint'       => $gData['hint'] ?? null,
                 'is_active'  => $gData['is_active'] ?? true,
-                'sort_order' => $gi,
+                'sort_order' => $sortOffset + $gi,
             ];
             if (! empty($gData['id']) && $group = FormFieldGroup::find($gData['id'])) {
                 $group->update($groupAttrs);
