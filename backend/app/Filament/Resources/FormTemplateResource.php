@@ -346,8 +346,9 @@ class FormTemplateResource extends Resource
                 }
                 $keepBoxIds[] = $box->id;
 
-                // Each field = one Q/½/↔ input (FormTemplateField)
+                // Each field = one Q/½/↔ input (FormTemplateField) — skip unlabelled fields
                 foreach ($sData['fields'] ?? [] as $fi => $fData) {
+                    if (empty(trim($fData['label'] ?? ''))) continue;
                     $fieldAttrs = [
                         'form_template_id'      => $template->id,
                         'form_field_group_id'   => $group->id,

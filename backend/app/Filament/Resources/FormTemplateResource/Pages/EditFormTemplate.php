@@ -34,7 +34,7 @@ class EditFormTemplate extends EditRecord
         parent::mount($record);
 
         if (request()->query('preview') === '1') {
-            $this->dispatch('open-modal', id: 'preview-form-modal');
+            $this->mountAction('preview');
         }
     }
 

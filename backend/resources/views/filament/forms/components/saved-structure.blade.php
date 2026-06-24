@@ -45,9 +45,11 @@
                         </div>
 
                         <div class="flex items-center gap-1 ml-2 shrink-0">
-                            <span class="text-[10px] text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-full">
-                                {{ $fieldCount }} {{ Str::plural('field', $fieldCount) }}
-                            </span>
+                            @if(!$isAFI)
+                                <span class="text-[10px] text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-full">
+                                    {{ $fieldCount }} {{ Str::plural('field', $fieldCount) }}
+                                </span>
+                            @endif
 
                             @if($isAFI)
                                 <button type="button"
@@ -77,11 +79,16 @@
 
                     {{-- Fields preview --}}
                     @php $allFields = $group->boxes->flatMap(fn($b) => $b->fields)->sortBy('sort_order'); @endphp
-                    @if($allFields->isNotEmpty())
+                    @if($isAFI)
+                        <div class="px-3 py-2.5 text-[11px] text-primary-600 flex items-center gap-1.5">
+                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Fixed layout — country, visa type, name, passport, education &amp; more. Click <strong class="mx-0.5">Edit</strong> to update above.
+                        </div>
+                    @elseif($allFields->isNotEmpty())
                         <div class="px-3 py-2 flex flex-wrap gap-1.5">
                             @foreach($allFields as $field)
                                 <span class="inline-flex items-center gap-1 text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-                                    <span>{{ $field->label ?: 'Untitled' }}</span>
+                                    <span>{{ $field->label ?: '—' }}</span>
                                     <span class="text-slate-400">· {{ $field->field_type }}</span>
                                     @if($field->is_required)<span class="text-red-400 font-bold">*</span>@endif
                                 </span>
