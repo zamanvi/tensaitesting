@@ -423,33 +423,19 @@ class FormTemplateResource extends Resource
             ])
             ->defaultSort('country')
             ->striped()
-            ->emptyStateHeading('No application forms yet')
-            ->emptyStateDescription('Create your first form template to start receiving applications from branches and agencies.')
+            ->emptyStateHeading('No published forms yet')
+            ->emptyStateDescription('Create a new country form, fill in all details, then click "Submit & Publish" to make it live here.')
             ->emptyStateIcon('heroicon-o-document-plus')
             ->actions([
-                Tables\Actions\Action::make('publish')
-                    ->label('Publish')
-                    ->icon('heroicon-o-rocket-launch')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Publish this form?')
-                    ->modalDescription('Once published, branch admins and agencies can use this form.')
-                    ->visible(fn (FormTemplate $r) => $r->status === 'draft')
-                    ->action(function (FormTemplate $r) {
-                        $r->update(['status' => 'published', 'is_active' => true]);
-                        Notification::make()->title('Form published — now live to branches')->success()->send();
-                    }),
-
                 Tables\Actions\Action::make('unpublish')
                     ->label('Unpublish')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('Unpublish this form?')
-                    ->modalDescription('Branches will no longer be able to use this form.')
-                    ->visible(fn (FormTemplate $r) => $r->status === 'published')
+                    ->modalDescription('Branches will no longer be able to use this form. It will move back to draft.')
                     ->action(function (FormTemplate $r) {
-                        $r->update(['status' => 'draft']);
+                        $r->update(['status' => 'draft', 'is_active' => false]);
                         Notification::make()->title('Form unpublished — moved back to draft')->warning()->send();
                     }),
 

@@ -5,7 +5,6 @@ namespace App\Filament\Resources\FormTemplateResource\Pages;
 use App\Filament\Resources\FormTemplateResource;
 use App\Models\FormTemplate;
 use Filament\Actions;
-use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -18,20 +17,9 @@ class ListFormTemplates extends ListRecords
         return 'Country Forms';
     }
 
-    public function getTabs(): array
+    protected function getTableQuery(): Builder
     {
-        return [
-            'published' => Tab::make('Published')
-                ->icon('heroicon-o-rocket-launch')
-                ->badge(fn () => \App\Models\FormTemplate::where('status', 'published')->count())
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'published')),
-
-            'drafts' => Tab::make('Drafts')
-                ->icon('heroicon-o-pencil-square')
-                ->badge(fn () => \App\Models\FormTemplate::where('status', 'draft')->count())
-                ->badgeColor('warning')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'draft')),
-        ];
+        return \App\Models\FormTemplate::query()->where('status', 'published')->orderBy('country');
     }
 
     protected function getHeaderActions(): array
