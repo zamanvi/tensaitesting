@@ -83,185 +83,123 @@ class EditFormTemplate extends EditRecord
         }
     }
 
+    // Inline group editing state
+    public ?int   $inlineEditGroupId    = null;
+    public string $inlineEditLabel      = '';
+    public string $inlineEditHint       = '';
+    public bool   $inlineEditIsActive   = true;
+    public array  $inlineEditFields     = [];
+
     public function openEditFieldGroup(int $groupId): void
     {
-        $this->mountAction('editFieldGroup', ['groupId' => $groupId]);
+        $group = FormFieldGroup::with('boxes.fields')->find($groupId);
+        if (! $group) return;
+
+        $this->inlineEditGroupId  = $groupId;
+        $this->inlineEditLabel    = $group->label ?? '';
+        $this->inlineEditHint     = $group->hint  ?? '';
+        $this->inlineEditIsActive = (bool) $group->is_active;
+        $this->inlineEditFields   = $group->boxes
+            ->flatMap(fn ($b) => $b->fields->sortBy('sort_order')->map(fn ($f) => [
+                'id'                => $f->id,
+                'label'             => $f->label,
+                'field_key'         => $f->field_key,
+                'field_type'        => $f->field_type,
+                'box_size'          => $f->box_size ?? 'middle',
+                'is_required'       => (bool) $f->is_required,
+                'placeholder'       => $f->placeholder ?? '',
+                'helper_text'       => $f->helper_text ?? '',
+                'requires_document' => (bool) $f->requires_document,
+                'document_required' => (bool) $f->document_required,
+                'options'           => $f->options ? implode(', ', $f->options) : '',
+            ]))
+            ->values()
+            ->toArray();
     }
 
-    public function editFieldGroupAction(): Actions\Action
+    public function cancelInlineEdit(): void
     {
-        return Actions\Action::make('editFieldGroup')
-            ->label('Edit Field Group')
-            ->modalHeading('Edit Field Group')
-            ->slideOver()
-            ->modalSubmitActionLabel('Save Changes')
-            ->mountUsing(function (Forms\Form $form, array $arguments): void {
-                $group = FormFieldGroup::with('boxes.fields')->find($arguments['groupId']);
-                if (! $group) return;
+        $this->inlineEditGroupId = null;
+        $this->inlineEditFields  = [];
+    }
 
-                $fields = $group->boxes->flatMap(fn ($b) => $b->fields->sortBy('sort_order')->map(fn ($f) => [
-                    'id'                => $f->id,
-                    'label'             => $f->label,
-                    'field_key'         => $f->field_key,
-                    'field_type'        => $f->field_type,
-                    'box_size'          => $f->box_size ?? 'middle',
-                    'is_required'       => (bool) $f->is_required,
-                    'placeholder'       => $f->placeholder ?? '',
-                    'helper_text'       => $f->helper_text ?? '',
-                    'requires_document' => (bool) $f->requires_document,
-                    'document_required' => (bool) $f->document_required,
-                    'options'           => $f->options ? implode(', ', $f->options) : '',
-                ]))->values()->toArray();
+    public function addInlineField(): void
+    {
+        $this->inlineEditFields[] = [
+            'id'                => null,
+            'label'             => '',
+            'field_key'         => '',
+            'field_type'        => 'text',
+            'box_size'          => 'middle',
+            'is_required'       => false,
+            'placeholder'       => '',
+            'helper_text'       => '',
+            'requires_document' => false,
+            'document_required' => false,
+            'options'           => '',
+        ];
+    }
 
-                $form->fill([
-                    'group_id'  => $group->id,
-                    'label'     => $group->label,
-                    'hint'      => $group->hint ?? '',
-                    'is_active' => (bool) $group->is_active,
-                    'fields'    => $fields,
-                ]);
-            })
-            ->form([
-                Forms\Components\Hidden::make('group_id'),
+    public function removeInlineField(int $index): void
+    {
+        $field = $this->inlineEditFields[$index] ?? null;
+        if ($field && ! empty($field['id'])) {
+            FormTemplateField::find($field['id'])?->delete();
+        }
+        array_splice($this->inlineEditFields, $index, 1);
+    }
 
-                Forms\Components\Section::make('Group Info')->schema([
-                    Forms\Components\TextInput::make('label')
-                        ->label('Group Title')
-                        ->required()
-                        ->placeholder('e.g. Personal Information'),
+    public function saveInlineGroup(): void
+    {
+        $group = FormFieldGroup::find($this->inlineEditGroupId);
+        if (! $group) return;
 
-                    Forms\Components\Textarea::make('hint')
-                        ->label('Hint / Description')
-                        ->rows(2)
-                        ->placeholder('Optional guidance shown below the title'),
+        $group->update([
+            'label'     => $this->inlineEditLabel,
+            'hint'      => $this->inlineEditHint ?: null,
+            'is_active' => $this->inlineEditIsActive,
+        ]);
 
-                    Forms\Components\Toggle::make('is_active')
-                        ->label('Active')
-                        ->inline(false),
-                ])->columns(1),
+        $box = $group->boxes()->first()
+            ?? FormFieldBox::create([
+                'form_field_group_id' => $group->id,
+                'name'       => '',
+                'sort_order' => 0,
+                'is_active'  => true,
+            ]);
 
-                Forms\Components\Section::make('Fields')->schema([
-                    Forms\Components\Repeater::make('fields')
-                        ->label('')
-                        ->schema([
-                            Forms\Components\Hidden::make('id'),
-                            Forms\Components\Hidden::make('field_key'),
+        foreach ($this->inlineEditFields as $fi => $fData) {
+            $attrs = [
+                'form_template_id'    => $group->form_template_id,
+                'form_field_group_id' => $group->id,
+                'form_field_box_id'   => $box->id,
+                'label'               => $fData['label'],
+                'field_type'          => $fData['field_type'] ?? 'text',
+                'box_size'            => $fData['box_size'] ?? 'middle',
+                'is_required'         => $fData['is_required'] ?? false,
+                'is_active'           => true,
+                'placeholder'         => $fData['placeholder'] ?: null,
+                'helper_text'         => $fData['helper_text'] ?: null,
+                'requires_document'   => $fData['requires_document'] ?? false,
+                'document_required'   => $fData['document_required'] ?? false,
+                'options'             => ! empty($fData['options'])
+                    ? array_map('trim', explode(',', $fData['options']))
+                    : null,
+                'sort_order'          => $fi,
+            ];
 
-                            Forms\Components\Grid::make(3)->schema([
-                                Forms\Components\TextInput::make('label')
-                                    ->label('Field Label')
-                                    ->required()
-                                    ->columnSpan(2),
+            if (! empty($fData['id']) && $field = FormTemplateField::find($fData['id'])) {
+                $field->update($attrs);
+            } else {
+                $attrs['field_key'] = Str::snake($fData['label'] ?? 'field') . '_' . uniqid();
+                FormTemplateField::create($attrs);
+            }
+        }
 
-                                Forms\Components\Select::make('field_type')
-                                    ->label('Type')
-                                    ->options([
-                                        'text'     => 'Text',
-                                        'number'   => 'Number',
-                                        'date'     => 'Date',
-                                        'select'   => 'Dropdown',
-                                        'textarea' => 'Textarea',
-                                        'file'     => 'File Upload',
-                                    ])
-                                    ->required()
-                                    ->columnSpan(1),
-
-                                Forms\Components\Select::make('box_size')
-                                    ->label('Width')
-                                    ->options([
-                                        'small'  => 'Small (25%)',
-                                        'middle' => 'Half (50%)',
-                                        'full'   => 'Full (100%)',
-                                    ])
-                                    ->default('middle')
-                                    ->columnSpan(1),
-
-                                Forms\Components\TextInput::make('placeholder')
-                                    ->label('Placeholder')
-                                    ->columnSpan(2),
-                            ]),
-
-                            Forms\Components\TextInput::make('options')
-                                ->label('Options (comma separated — only for Dropdown)')
-                                ->placeholder('e.g. Male, Female, Other')
-                                ->visible(fn (Forms\Get $get) => $get('field_type') === 'select')
-                                ->columnSpanFull(),
-
-                            Forms\Components\TextInput::make('helper_text')
-                                ->label('Helper Text')
-                                ->columnSpanFull(),
-
-                            Forms\Components\Grid::make(3)->schema([
-                                Forms\Components\Toggle::make('is_required')
-                                    ->label('Required')
-                                    ->inline(false),
-
-                                Forms\Components\Toggle::make('requires_document')
-                                    ->label('Has Document Upload')
-                                    ->inline(false),
-
-                                Forms\Components\Toggle::make('document_required')
-                                    ->label('Document Mandatory')
-                                    ->inline(false),
-                            ]),
-                        ])
-                        ->itemLabel(fn (array $state): ?string => $state['label'] ?: 'Field')
-                        ->collapsible()
-                        ->reorderable()
-                        ->addActionLabel('+ Add New Field'),
-                ]),
-            ])
-            ->action(function (array $arguments, array $data): void {
-                $group = FormFieldGroup::find($data['group_id']);
-                if (! $group) return;
-
-                $group->update([
-                    'label'     => $data['label'],
-                    'hint'      => $data['hint'] ?: null,
-                    'is_active' => $data['is_active'] ?? true,
-                ]);
-
-                // Get the first box in the group (or create one)
-                $box = $group->boxes()->first()
-                    ?? FormFieldBox::create([
-                        'form_field_group_id' => $group->id,
-                        'name'       => '',
-                        'sort_order' => 0,
-                        'is_active'  => true,
-                    ]);
-
-                foreach ($data['fields'] ?? [] as $fi => $fData) {
-                    $attrs = [
-                        'form_template_id'    => $group->form_template_id,
-                        'form_field_group_id' => $group->id,
-                        'form_field_box_id'   => $box->id,
-                        'label'               => $fData['label'],
-                        'field_type'          => $fData['field_type'] ?? 'text',
-                        'box_size'            => $fData['box_size'] ?? 'middle',
-                        'is_required'         => $fData['is_required'] ?? false,
-                        'is_active'           => true,
-                        'placeholder'         => $fData['placeholder'] ?: null,
-                        'helper_text'         => $fData['helper_text'] ?: null,
-                        'requires_document'   => $fData['requires_document'] ?? false,
-                        'document_required'   => $fData['document_required'] ?? false,
-                        'options'             => ! empty($fData['options'])
-                            ? array_map('trim', explode(',', $fData['options']))
-                            : null,
-                        'sort_order'          => $fi,
-                    ];
-
-                    if (! empty($fData['id']) && $field = FormTemplateField::find($fData['id'])) {
-                        $field->update($attrs);
-                    } else {
-                        // New field — generate a unique field_key
-                        $attrs['field_key'] = \Illuminate\Support\Str::snake($fData['label'] ?? 'field') . '_' . uniqid();
-                        FormTemplateField::create($attrs);
-                    }
-                }
-
-                Notification::make()->title('Field group updated')->success()->send();
-                $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
-            });
+        $this->inlineEditGroupId = null;
+        $this->inlineEditFields  = [];
+        Notification::make()->title('Group saved')->success()->send();
+        $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
     }
 
     public function deleteFieldGroup(int $groupId): void

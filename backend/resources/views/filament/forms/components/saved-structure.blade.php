@@ -17,72 +17,210 @@
         <div class="space-y-3">
             @foreach($groups as $group)
                 <div class="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-                        <span class="font-semibold text-sm text-gray-800">
-                            {{ $group->label ?: 'Application Form Info' }}
-                        </span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs text-gray-400">
-                                {{ $group->boxes->sum(fn($b) => $b->fields->count()) }} field(s)
+
+                    {{-- ── View mode ── --}}
+                    @if($this->inlineEditGroupId !== $group->id)
+                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                            <span class="font-semibold text-sm text-gray-800">
+                                {{ $group->label ?: 'Application Form Info' }}
                             </span>
-                            <button
-                                wire:click="openEditFieldGroup({{ $group->id }})"
-                                type="button"
-                                class="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors px-2 py-1 rounded hover:bg-blue-50">
-                                ✏ Edit
-                            </button>
-                            <button
-                                wire:click="deleteFieldGroup({{ $group->id }})"
-                                wire:confirm="Delete this field group and all its fields?"
-                                type="button"
-                                class="text-xs text-red-400 hover:text-red-600 font-medium transition-colors px-2 py-1 rounded hover:bg-red-50">
-                                ✕ Delete
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-gray-400">
+                                    {{ $group->boxes->sum(fn($b) => $b->fields->count()) }} field(s)
+                                </span>
+                                <button
+                                    wire:click="openEditFieldGroup({{ $group->id }})"
+                                    type="button"
+                                    class="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors px-2 py-1 rounded hover:bg-blue-50">
+                                    ✏ Edit
+                                </button>
+                                <button
+                                    wire:click="deleteFieldGroup({{ $group->id }})"
+                                    wire:confirm="Delete this field group and all its fields?"
+                                    type="button"
+                                    class="text-xs text-red-400 hover:text-red-600 font-medium transition-colors px-2 py-1 rounded hover:bg-red-50">
+                                    ✕ Delete
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            @php
+                                $allFields = $group->boxes->flatMap(fn($b) => $b->fields)->sortBy('sort_order');
+                            @endphp
+                            @if($allFields->isEmpty())
+                                <p class="text-xs text-gray-400 italic">No input fields in this group.</p>
+                            @else
+                                @foreach($group->boxes->sortBy('sort_order') as $box)
+                                    @if($box->fields->isNotEmpty())
+                                        <div class="mb-3">
+                                            <div class="flex flex-wrap gap-2">
+                                                @foreach($box->fields->sortBy('sort_order') as $field)
+                                                    @php
+                                                        $width = match($field->box_size) {
+                                                            'full'   => '100%',
+                                                            'middle' => 'calc(50% - 4px)',
+                                                            default  => 'calc(25% - 6px)',
+                                                        };
+                                                    @endphp
+                                                    <div style="width: {{ $width }}"
+                                                        class="border border-gray-200 rounded-lg px-3 py-2 bg-gray-50">
+                                                        <div class="text-sm font-medium text-gray-700 truncate">
+                                                            {{ $field->label ?: 'Untitled' }}
+                                                        </div>
+                                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                            <span class="text-xs text-gray-400">{{ $field->field_type }}</span>
+                                                            @if($field->is_required)
+                                                                <span class="text-xs bg-red-100 text-red-500 px-1 rounded">required</span>
+                                                            @endif
+                                                            @if($field->requires_document)
+                                                                <span class="text-xs bg-amber-100 text-amber-600 px-1 rounded">
+                                                                    📎 {{ $field->document_required ? 'mandatory doc' : 'optional doc' }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </div>
+
+                    {{-- ── Inline Edit mode ── --}}
+                    @else
+                        <div class="px-4 py-3 bg-blue-50 border-b border-blue-200 flex items-center justify-between">
+                            <span class="font-semibold text-sm text-blue-800">✏ Editing Group</span>
+                            <button wire:click="cancelInlineEdit" type="button"
+                                class="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded hover:bg-gray-100">
+                                Cancel
                             </button>
                         </div>
-                    </div>
-                    <div class="p-4">
-                        @php
-                            $allFields = $group->boxes->flatMap(fn($b) => $b->fields)->sortBy('sort_order');
-                        @endphp
-                        @if($allFields->isEmpty())
-                            <p class="text-xs text-gray-400 italic">No input fields in this group.</p>
-                        @else
-                            @foreach($group->boxes->sortBy('sort_order') as $box)
-                                @if($box->fields->isNotEmpty())
-                                    <div class="mb-3">
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach($box->fields->sortBy('sort_order') as $field)
-                                                @php
-                                                    $width = match($field->box_size) {
-                                                        'full'   => '100%',
-                                                        'middle' => 'calc(50% - 4px)',
-                                                        default  => 'calc(25% - 6px)',
-                                                    };
-                                                @endphp
-                                                <div style="width: {{ $width }}"
-                                                    class="border border-gray-200 rounded-lg px-3 py-2 bg-gray-50">
-                                                    <div class="text-sm font-medium text-gray-700 truncate">
-                                                        {{ $field->label ?: 'Untitled' }}
+
+                        <div class="p-4 space-y-4">
+                            {{-- Group title --}}
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Group Title</label>
+                                <input type="text" wire:model="inlineEditLabel"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none"
+                                    placeholder="e.g. Personal Information" />
+                            </div>
+
+                            {{-- Hint --}}
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Hint / Description</label>
+                                <textarea wire:model="inlineEditHint" rows="2"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none resize-none"
+                                    placeholder="Optional guidance shown below the title"></textarea>
+                            </div>
+
+                            {{-- Fields --}}
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="text-xs font-semibold text-gray-600">Fields</label>
+                                    <button wire:click="addInlineField" type="button"
+                                        class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg font-medium transition-colors">
+                                        + Add Field
+                                    </button>
+                                </div>
+
+                                @if(empty($this->inlineEditFields))
+                                    <p class="text-xs text-gray-400 italic py-2">No fields yet — click "+ Add Field" to add one.</p>
+                                @else
+                                    <div class="space-y-3">
+                                        @foreach($this->inlineEditFields as $fi => $fData)
+                                            <div class="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-xs font-semibold text-gray-500">Field {{ $fi + 1 }}</span>
+                                                    <button wire:click="removeInlineField({{ $fi }})" type="button"
+                                                        class="text-xs text-red-400 hover:text-red-600">✕ Remove</button>
+                                                </div>
+
+                                                {{-- Label + Type --}}
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <div>
+                                                        <label class="text-[10px] text-gray-500 font-medium">Label *</label>
+                                                        <input type="text" wire:model="inlineEditFields.{{ $fi }}.label"
+                                                            class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-300 outline-none mt-0.5"
+                                                            placeholder="Field name" />
                                                     </div>
-                                                    <div class="flex items-center gap-2 mt-1 flex-wrap">
-                                                        <span class="text-xs text-gray-400">{{ $field->field_type }}</span>
-                                                        @if($field->is_required)
-                                                            <span class="text-xs bg-red-100 text-red-500 px-1 rounded">required</span>
-                                                        @endif
-                                                        @if($field->requires_document)
-                                                            <span class="text-xs bg-amber-100 text-amber-600 px-1 rounded">
-                                                                📎 {{ $field->document_required ? 'mandatory doc' : 'optional doc' }}
-                                                            </span>
-                                                        @endif
+                                                    <div>
+                                                        <label class="text-[10px] text-gray-500 font-medium">Type</label>
+                                                        <select wire:model="inlineEditFields.{{ $fi }}.field_type"
+                                                            class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-300 outline-none mt-0.5">
+                                                            <option value="text">Text</option>
+                                                            <option value="number">Number</option>
+                                                            <option value="date">Date</option>
+                                                            <option value="select">Dropdown</option>
+                                                            <option value="textarea">Textarea</option>
+                                                            <option value="file">File Upload</option>
+                                                        </select>
                                                     </div>
                                                 </div>
-                                            @endforeach
-                                        </div>
+
+                                                {{-- Width + Placeholder --}}
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <div>
+                                                        <label class="text-[10px] text-gray-500 font-medium">Width</label>
+                                                        <select wire:model="inlineEditFields.{{ $fi }}.box_size"
+                                                            class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-300 outline-none mt-0.5">
+                                                            <option value="small">Small (25%)</option>
+                                                            <option value="middle">Half (50%)</option>
+                                                            <option value="full">Full (100%)</option>
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label class="text-[10px] text-gray-500 font-medium">Placeholder</label>
+                                                        <input type="text" wire:model="inlineEditFields.{{ $fi }}.placeholder"
+                                                            class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-300 outline-none mt-0.5"
+                                                            placeholder="e.g. Enter your name" />
+                                                    </div>
+                                                </div>
+
+                                                {{-- Options (dropdown only) --}}
+                                                @if(($fData['field_type'] ?? '') === 'select')
+                                                    <div>
+                                                        <label class="text-[10px] text-gray-500 font-medium">Options (comma separated)</label>
+                                                        <input type="text" wire:model="inlineEditFields.{{ $fi }}.options"
+                                                            class="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:ring-1 focus:ring-blue-300 outline-none mt-0.5"
+                                                            placeholder="Male, Female, Other" />
+                                                    </div>
+                                                @endif
+
+                                                {{-- Toggles --}}
+                                                <div class="flex flex-wrap gap-4 pt-1">
+                                                    <label class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                                                        <input type="checkbox" wire:model="inlineEditFields.{{ $fi }}.is_required"
+                                                            class="rounded border-gray-300 text-green-600" />
+                                                        Required
+                                                    </label>
+                                                    <label class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                                                        <input type="checkbox" wire:model="inlineEditFields.{{ $fi }}.requires_document"
+                                                            class="rounded border-gray-300 text-green-600" />
+                                                        Has Document
+                                                    </label>
+                                                    @if($fData['requires_document'] ?? false)
+                                                        <label class="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer">
+                                                            <input type="checkbox" wire:model="inlineEditFields.{{ $fi }}.document_required"
+                                                                class="rounded border-gray-300 text-green-600" />
+                                                            Doc Mandatory
+                                                        </label>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 @endif
-                            @endforeach
-                        @endif
-                    </div>
+                            </div>
+
+                            {{-- Save button --}}
+                            <button wire:click="saveInlineGroup" type="button"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-xl transition-colors">
+                                Save Changes
+                            </button>
+                        </div>
+                    @endif
+
                 </div>
             @endforeach
 
