@@ -303,7 +303,7 @@ class FormTemplateResource extends Resource
         $keepFieldIds = [];
 
         // Offset sort_order so new groups don't collide with existing ones
-        $sortOffset = $template->fieldGroups()->max('sort_order') + 1;
+        $sortOffset = ($template->fieldGroups()->max('sort_order') ?? 0) + 1;
 
         foreach ($structure as $gi => $gData) {
             // Upsert FormFieldGroup (Field Title)
