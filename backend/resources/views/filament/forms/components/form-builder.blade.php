@@ -328,7 +328,7 @@
                     </div>
                 </template>
 
-                {{-- Add Data and Document button --}}
+                {{-- Add Data and Document box button --}}
                 <button type="button" @click="addSection(group)"
                     class="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm font-semibold text-gray-400 hover:border-primary-400 hover:text-primary-600 hover:bg-primary-50 transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -336,8 +336,24 @@
                 </button>
 
             </div>
+
+            {{-- Remove this whole group --}}
+            <div x-show="groups.length > 1" class="px-4 pb-3 flex justify-end">
+                <button type="button" @click="removeGroup(gi)"
+                    class="text-[11px] text-red-400 hover:text-red-600 font-medium flex items-center gap-1 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Remove this section
+                </button>
+            </div>
         </div>
     </template>
+
+    {{-- Add a brand new section group --}}
+    <button type="button" @click="addGroup()"
+        class="w-full flex items-center justify-center gap-2 border-2 border-dashed border-primary-200 rounded-2xl py-4 text-sm font-semibold text-primary-500 hover:border-primary-400 hover:bg-primary-50 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add New Section
+    </button>
 
 </div>
 
@@ -441,6 +457,26 @@ document.addEventListener('alpine:init', () => {
             this.$refs.hiddenInput.value = JSON.stringify(data);
             this.$refs.hiddenInput.dispatchEvent(new Event('input'));
             this.$refs.hiddenInput.dispatchEvent(new Event('change'));
+        },
+
+        addGroup() {
+            this.groups.push({
+                _key: ++this._counter,
+                id: null,
+                label: '',
+                is_active: true,
+                sections: [],
+            });
+            this.sync();
+            this.$nextTick(() => {
+                const els = document.querySelectorAll('[id^="fb-group-new-"]');
+                if (els.length) els[els.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        },
+
+        removeGroup(gi) {
+            this.groups.splice(gi, 1);
+            this.sync();
         },
 
         addSection(group) {
