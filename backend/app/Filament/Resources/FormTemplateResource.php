@@ -360,15 +360,9 @@ class FormTemplateResource extends Resource
             }
         }
 
-        // Delete removed records
-        FormTemplateField::where('form_template_id', $template->id)
-            ->whereNotIn('id', $keepFieldIds ?: [0])->delete();
-
-        FormFieldBox::whereHas('group', fn ($q) => $q->where('form_template_id', $template->id))
-            ->whereNotIn('id', $keepBoxIds ?: [0])->delete();
-
-        FormFieldGroup::where('form_template_id', $template->id)
-            ->whereNotIn('id', $keepGroupIds ?: [0])->delete();
+        // NOTE: No auto-delete — sections/fields are deleted manually via Delete buttons.
+        // Auto-delete would wipe previously saved sections when the form builder
+        // only contains the latest section's JSON.
     }
 
     // ── Table ─────────────────────────────────────────────────────────────────
