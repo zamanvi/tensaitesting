@@ -84,12 +84,15 @@ class EditFormTemplate extends EditRecord
             ]);
         }
 
-        // Sync form builder structure
+        // Sync form builder structure then reset it for the next section
         try {
             $raw = $this->data['form_structure'] ?? '[]';
             $structure = json_decode((string) $raw, true);
             if (! empty($structure)) {
                 FormTemplateResource::syncStructure($template, $structure);
+                // Reset form builder so user can add another section fresh
+                $this->data['form_structure'] = '[]';
+                $this->form->fill(array_merge($this->data, ['form_structure' => '[]']));
             }
         } catch (\Throwable $e) {
             Notification::make()
