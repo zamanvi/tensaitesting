@@ -173,6 +173,16 @@ class FormTemplateResource extends Resource
                             ->placeholder('Private notes visible only to super admins — e.g. special requirements, processing notes…')
                             ->helperText('These notes are never shown to branch admins, agencies or students.')
                             ->columnSpanFull(),
+
+                        Forms\Components\Actions::make([
+                            Forms\Components\Actions\Action::make('save_info')
+                                ->label('Save Info')
+                                ->icon('heroicon-o-check-circle')
+                                ->color('success')
+                                ->action(function ($livewire) {
+                                    $livewire->save();
+                                }),
+                        ])->columnSpanFull(),
                     ]),
             ])->columnSpan(['lg' => 2]),
 
