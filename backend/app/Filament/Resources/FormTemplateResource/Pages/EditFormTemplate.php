@@ -82,6 +82,13 @@ class EditFormTemplate extends EditRecord
                 ->danger()
                 ->send();
         }
+
+        // Remove any fields saved without a label (test/empty data cleanup)
+        FormTemplateField::where('form_template_id', $this->getRecord()->id)
+            ->where(function ($q) {
+                $q->whereNull('label')->orWhere('label', '');
+            })
+            ->delete();
     }
 
     // Called by "Save Info" button — saves template AND ensures group exists once
