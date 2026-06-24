@@ -210,6 +210,7 @@ class FormTemplateResource extends Resource
             // ── Full width: Custom Form Builder ───────────────────────────────
             Forms\Components\Section::make('')
                 ->columnSpanFull()
+                ->extraAttributes(['id' => 'add-data-section'])
                 ->schema([
                     FormBuilderField::make('form_structure')
                         ->label('')
