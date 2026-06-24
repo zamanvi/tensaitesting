@@ -334,7 +334,7 @@ class FormTemplateResource extends Resource
                         'form_field_group_id'   => $group->id,
                         'form_field_box_id'     => $box->id,
                         'label'                 => $fData['label'] ?? '',
-                        'field_key'             => $fData['field_key'] ?? '',
+                        'field_key'             => ($fData['field_key'] ?? '') ?: (\Illuminate\Support\Str::snake($fData['label'] ?? '') ?: 'field') . '_' . uniqid(),
                         'field_type'            => $fData['field_type'] ?? 'text',
                         'box_size'              => $fData['box_size'] ?? 'middle',
                         'is_required'           => $fData['is_required'] ?? false,
