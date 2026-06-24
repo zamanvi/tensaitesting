@@ -75,8 +75,6 @@ class EditFormTemplate extends EditRecord
             $structure = json_decode((string) $raw, true);
             if (! empty($structure)) {
                 FormTemplateResource::syncStructure($this->getRecord(), $structure);
-                $this->data['form_structure'] = '[]';
-                $this->form->fill(array_merge($this->data, ['form_structure' => '[]']));
             }
         } catch (\Throwable $e) {
             Notification::make()

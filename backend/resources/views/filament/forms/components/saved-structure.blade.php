@@ -4,6 +4,7 @@
 
 @if($record && $record->exists)
     @php
+        $record = $record->fresh();
         $record->load('fieldGroups.boxes.fields');
         $groups      = $record->fieldGroups->sortBy('sort_order');
         $isPublished = $record->status === 'published';
