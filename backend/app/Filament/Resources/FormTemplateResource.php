@@ -293,9 +293,10 @@ class FormTemplateResource extends Resource
 
         foreach ($structure as $gi => $gData) {
             // Upsert FormFieldGroup (Field Title)
+            $defaultLabel = $gi === 0 ? 'Application Form Info' : 'Section ' . ($gi + 1);
             $groupAttrs = [
                 'form_template_id' => $template->id,
-                'label'      => $gData['label'] ?? '',
+                'label'      => $gData['label'] ?: $defaultLabel,
                 'hint'       => $gData['hint'] ?? null,
                 'is_active'  => $gData['is_active'] ?? true,
                 'sort_order' => $gi,

@@ -19,7 +19,7 @@
                 <div class="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
                     <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
                         <span class="font-semibold text-sm text-gray-800">
-                            {{ $group->label ?: 'Untitled Group' }}
+                            {{ $group->label ?: 'Application Form Info' }}
                         </span>
                         <div class="flex items-center gap-2">
                             <span class="text-xs text-gray-400">
