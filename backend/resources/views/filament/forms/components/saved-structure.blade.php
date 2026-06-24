@@ -36,11 +36,19 @@
                             <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
                                 {{ $fieldCount }} field(s)
                             </span>
-                            <button wire:click="openEditFieldGroup({{ $group->id }})" type="button"
-                                onclick="setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),100)"
-                                class="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
-                                ✏ Edit
-                            </button>
+                            @if($group->label === 'Application Form Info')
+                                <button type="button"
+                                    onclick="window.scrollTo({top:0,behavior:'smooth'})"
+                                    class="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
+                                    ✏ Edit
+                                </button>
+                            @else
+                                <button wire:click="openEditFieldGroup({{ $group->id }})" type="button"
+                                    onclick="setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),100)"
+                                    class="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
+                                    ✏ Edit
+                                </button>
+                            @endif
                             <button wire:click="deleteFieldGroup({{ $group->id }})"
                                 wire:confirm="Delete this section and all its fields?"
                                 type="button"
