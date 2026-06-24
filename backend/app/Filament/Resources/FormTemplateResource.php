@@ -181,6 +181,7 @@ class FormTemplateResource extends Resource
                                 ->label('Save Info')
                                 ->icon('heroicon-o-check-circle')
                                 ->color('success')
+                                ->tooltip('Save this form info and create the Application Form Info section in Saved Sections')
                                 ->action(function ($livewire) {
                                     $livewire->saveInfoSection();
                                 }),
@@ -189,18 +190,20 @@ class FormTemplateResource extends Resource
                         Forms\Components\Placeholder::make('add_field_hint')
                             ->label('')
                             ->content(new \Illuminate\Support\HtmlString(
-                                '<div class="border-2 border-dashed border-gray-200 rounded-xl py-4 text-center">
-                                    <p class="text-sm text-gray-400 font-medium">⬇ Use <strong class="text-gray-600">Add Data &amp; Document</strong> below to add a new field section</p>
+                                '<div class="border-2 border-dashed border-gray-200 rounded-xl py-4 text-center space-y-1">
+                                    <p class="text-sm text-gray-500 font-semibold">Need to add more fields?</p>
+                                    <p class="text-xs text-gray-400">⬇ Scroll down to <strong class="text-gray-600">Add Data &amp; Documents</strong> to build and save additional field sections</p>
                                 </div>'
                             ))
                             ->columnSpanFull(),
                     ]),
             ])->columnSpan(['lg' => 2]),
 
-            // ── Right: Saved field groups ─────────────────────────────────────
+            // ── Right: Saved sections panel ───────────────────────────────────
             Forms\Components\Group::make()->schema([
-                Forms\Components\Section::make('Save Field')
+                Forms\Components\Section::make('Saved Sections')
                     ->icon('heroicon-o-archive-box')
+                    ->description('All saved sections of this form. Click Edit to modify, or Delete to remove.')
                     ->schema([
                         SavedStructureField::make('saved_structure')
                             ->label('')
@@ -208,8 +211,10 @@ class FormTemplateResource extends Resource
                     ]),
             ])->columnSpan(['lg' => 1]),
 
-            // ── Full width: Custom Form Builder ───────────────────────────────
-            Forms\Components\Section::make('')
+            // ── Full width: Add Data & Documents builder ──────────────────────
+            Forms\Components\Section::make('Add Data & Documents')
+                ->icon('heroicon-o-plus-circle')
+                ->description('Build custom field sections here. Each section you save will appear in Saved Sections on the right. You can add as many sections as needed.')
                 ->columnSpanFull()
                 ->extraAttributes(['id' => 'add-data-section'])
                 ->schema([

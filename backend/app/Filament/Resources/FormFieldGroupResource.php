@@ -25,25 +25,32 @@ class FormFieldGroupResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Section::make('Section Info')->schema([
+            Forms\Components\Section::make('Section Info')
+                ->description('Basic details for this section. The title is shown to branch admins and applicants.')
+                ->schema([
                 Forms\Components\TextInput::make('label')
                     ->label('Section Title')
                     ->required()
-                    ->placeholder('e.g. Family Information')
+                    ->placeholder('e.g. Family Information, Academic Background')
+                    ->helperText('This title appears as the section heading in the application form.')
                     ->hidden(fn ($record) => $record?->label === 'Application Form Info'),
 
                 Forms\Components\Textarea::make('hint')
-                    ->label('Description / Hint')
+                    ->label('Section Description')
                     ->rows(2)
-                    ->placeholder('Optional guidance shown to applicants'),
+                    ->placeholder('Optional — e.g. Please provide details of all immediate family members')
+                    ->helperText('Short guidance shown below the section title to help applicants understand what to fill in.'),
 
                 Forms\Components\Toggle::make('is_active')
-                    ->label('Active')
+                    ->label('Visible to applicants')
+                    ->helperText('Turn off to hide this section without deleting it.')
                     ->default(true)
                     ->inline(false),
             ])->columns(1),
 
-            Forms\Components\Section::make('Fields')->schema([
+            Forms\Components\Section::make('Fields')
+                ->description('Add the input fields that applicants will fill in for this section.')
+                ->schema([
                 Forms\Components\Repeater::make('fields_data')
                     ->label('')
                     ->schema([
