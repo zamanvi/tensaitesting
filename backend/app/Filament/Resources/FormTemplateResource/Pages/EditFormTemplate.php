@@ -217,8 +217,7 @@ class EditFormTemplate extends EditRecord
 
         $this->inlineEditGroupId = null;
         $this->inlineEditFields  = [];
-        Notification::make()->title('Group saved')->success()->send();
-        $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
+        Notification::make()->title('Section saved')->success()->send();
     }
 
     public function openEditField(int $fieldId): void
