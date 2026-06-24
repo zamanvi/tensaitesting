@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\FormTemplateResource\Pages;
 
 use App\Filament\Resources\FormTemplateResource;
+use App\Models\FormFieldBox;
 use App\Models\FormFieldGroup;
 use App\Models\FormTemplate;
 use App\Models\FormTemplateField;
+use Illuminate\Support\Str;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -206,7 +208,7 @@ class EditFormTemplate extends EditRecord
                         ->itemLabel(fn (array $state): ?string => $state['label'] ?: 'Field')
                         ->collapsible()
                         ->reorderable()
-                        ->addable(false),
+                        ->addActionLabel('+ Add New Field'),
                 ]),
             ])
             ->action(function (array $arguments, array $data): void {
@@ -219,25 +221,42 @@ class EditFormTemplate extends EditRecord
                     'is_active' => $data['is_active'] ?? true,
                 ]);
 
-                foreach ($data['fields'] ?? [] as $fi => $fData) {
-                    if (empty($fData['id'])) continue;
-                    $field = FormTemplateField::find($fData['id']);
-                    if (! $field) continue;
+                // Get the first box in the group (or create one)
+                $box = $group->boxes()->first()
+                    ?? FormFieldBox::create([
+                        'form_field_group_id' => $group->id,
+                        'name'       => '',
+                        'sort_order' => 0,
+                        'is_active'  => true,
+                    ]);
 
-                    $field->update([
-                        'label'             => $fData['label'],
-                        'field_type'        => $fData['field_type'],
-                        'box_size'          => $fData['box_size'] ?? 'middle',
-                        'is_required'       => $fData['is_required'] ?? false,
-                        'placeholder'       => $fData['placeholder'] ?: null,
-                        'helper_text'       => $fData['helper_text'] ?: null,
-                        'requires_document' => $fData['requires_document'] ?? false,
-                        'document_required' => $fData['document_required'] ?? false,
-                        'options'           => ! empty($fData['options'])
+                foreach ($data['fields'] ?? [] as $fi => $fData) {
+                    $attrs = [
+                        'form_template_id'    => $group->form_template_id,
+                        'form_field_group_id' => $group->id,
+                        'form_field_box_id'   => $box->id,
+                        'label'               => $fData['label'],
+                        'field_type'          => $fData['field_type'] ?? 'text',
+                        'box_size'            => $fData['box_size'] ?? 'middle',
+                        'is_required'         => $fData['is_required'] ?? false,
+                        'is_active'           => true,
+                        'placeholder'         => $fData['placeholder'] ?: null,
+                        'helper_text'         => $fData['helper_text'] ?: null,
+                        'requires_document'   => $fData['requires_document'] ?? false,
+                        'document_required'   => $fData['document_required'] ?? false,
+                        'options'             => ! empty($fData['options'])
                             ? array_map('trim', explode(',', $fData['options']))
                             : null,
-                        'sort_order'        => $fi,
-                    ]);
+                        'sort_order'          => $fi,
+                    ];
+
+                    if (! empty($fData['id']) && $field = FormTemplateField::find($fData['id'])) {
+                        $field->update($attrs);
+                    } else {
+                        // New field — generate a unique field_key
+                        $attrs['field_key'] = \Illuminate\Support\Str::snake($fData['label'] ?? 'field') . '_' . uniqid();
+                        FormTemplateField::create($attrs);
+                    }
                 }
 
                 Notification::make()->title('Field group updated')->success()->send();
