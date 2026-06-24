@@ -185,6 +185,14 @@ class FormTemplateResource extends Resource
                                 }),
                         ])->columnSpanFull(),
 
+                        Forms\Components\Placeholder::make('add_field_hint')
+                            ->label('')
+                            ->content(new \Illuminate\Support\HtmlString(
+                                '<div class="border-2 border-dashed border-gray-200 rounded-xl py-4 text-center">
+                                    <p class="text-sm text-gray-400 font-medium">⬇ Use <strong class="text-gray-600">Add Data &amp; Document</strong> below to add a new field section</p>
+                                </div>'
+                            ))
+                            ->columnSpanFull(),
                     ]),
             ])->columnSpan(['lg' => 2]),
 
@@ -199,91 +207,13 @@ class FormTemplateResource extends Resource
                     ]),
             ])->columnSpan(['lg' => 1]),
 
-            // ── Full width: Add New Field Section ────────────────────────────
-            Forms\Components\Section::make('Add New Field Section')
-                ->description('Create a new section with fields. Click "Save Section" to add it to the saved fields on the right.')
-                ->icon('heroicon-o-plus-circle')
+            // ── Full width: Custom Form Builder ───────────────────────────────
+            Forms\Components\Section::make('')
                 ->columnSpanFull()
                 ->schema([
-                    Forms\Components\TextInput::make('new_section_title')
-                        ->label('Section Title')
-                        ->placeholder('e.g. Family Information, Work Experience...')
+                    FormBuilderField::make('form_structure')
+                        ->label('')
                         ->columnSpanFull(),
-
-                    Forms\Components\Repeater::make('new_section_fields')
-                        ->label('Fields')
-                        ->schema([
-                            Forms\Components\Grid::make(3)->schema([
-                                Forms\Components\TextInput::make('label')
-                                    ->label('Field Label')
-                                    ->required()
-                                    ->placeholder('e.g. Father Name')
-                                    ->columnSpan(2),
-
-                                Forms\Components\Select::make('field_type')
-                                    ->label('Type')
-                                    ->options([
-                                        'text'     => 'Text',
-                                        'number'   => 'Number',
-                                        'date'     => 'Date',
-                                        'select'   => 'Dropdown',
-                                        'textarea' => 'Textarea',
-                                        'file'     => 'File Upload',
-                                    ])
-                                    ->default('text')
-                                    ->required()
-                                    ->live()
-                                    ->columnSpan(1),
-
-                                Forms\Components\Select::make('box_size')
-                                    ->label('Width')
-                                    ->options([
-                                        'small'  => 'Small 25%',
-                                        'middle' => 'Half 50%',
-                                        'full'   => 'Full 100%',
-                                    ])
-                                    ->default('middle')
-                                    ->columnSpan(1),
-
-                                Forms\Components\TextInput::make('placeholder')
-                                    ->label('Placeholder')
-                                    ->columnSpan(2),
-                            ]),
-
-                            Forms\Components\TextInput::make('options')
-                                ->label('Options (comma separated — Dropdown only)')
-                                ->placeholder('Male, Female, Other')
-                                ->visible(fn (Forms\Get $get) => $get('field_type') === 'select')
-                                ->columnSpanFull(),
-
-                            Forms\Components\Grid::make(3)->schema([
-                                Forms\Components\Toggle::make('is_required')
-                                    ->label('Required')
-                                    ->inline(false),
-                                Forms\Components\Toggle::make('requires_document')
-                                    ->label('Has Document')
-                                    ->inline(false)
-                                    ->live(),
-                                Forms\Components\Toggle::make('document_required')
-                                    ->label('Doc Mandatory')
-                                    ->inline(false)
-                                    ->visible(fn (Forms\Get $get) => $get('requires_document')),
-                            ]),
-                        ])
-                        ->addActionLabel('+ Add Field')
-                        ->defaultItems(1)
-                        ->reorderable()
-                        ->columnSpanFull(),
-
-                    Forms\Components\Actions::make([
-                        Forms\Components\Actions\Action::make('save_section')
-                            ->label('Save Section')
-                            ->icon('heroicon-o-check-circle')
-                            ->color('success')
-                            ->action(function ($livewire) {
-                                $livewire->saveNewSection();
-                            }),
-                    ])->columnSpanFull(),
                 ]),
 
         ])->columns(3);

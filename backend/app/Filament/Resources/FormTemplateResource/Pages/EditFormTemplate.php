@@ -63,7 +63,7 @@ class EditFormTemplate extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        unset($data['form_structure'], $data['saved_structure'], $data['new_section_title'], $data['new_section_fields']);
+        unset($data['form_structure'], $data['saved_structure']);
         return $data;
     }
 
@@ -224,69 +224,6 @@ class EditFormTemplate extends EditRecord
         $this->inlineEditFields  = [];
         Notification::make()->title('Group saved')->success()->send();
         $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
-    }
-
-    public function saveNewSection(): void
-    {
-        $template = $this->getRecord();
-        $title    = $this->data['new_section_title'] ?? '';
-        $fields   = $this->data['new_section_fields'] ?? [];
-
-        if (empty($title) && empty($fields)) {
-            Notification::make()->title('Please add a section title or at least one field.')->warning()->send();
-            return;
-        }
-
-        // Create the group
-        $sortOrder = $template->fieldGroups()->max('sort_order') + 1;
-        $group = $template->fieldGroups()->create([
-            'label'      => $title ?: 'Section',
-            'sort_order' => $sortOrder,
-            'is_active'  => true,
-        ]);
-
-        // Create a box for the fields
-        $box = FormFieldBox::create([
-            'form_field_group_id' => $group->id,
-            'name'                => '',
-            'sort_order'          => 0,
-            'is_active'           => true,
-        ]);
-
-        // Create each field
-        foreach ($fields as $fi => $fData) {
-            if (empty($fData['label'])) continue;
-            $base = Str::snake($fData['label']) ?: 'field';
-            FormTemplateField::create([
-                'form_template_id'    => $template->id,
-                'form_field_group_id' => $group->id,
-                'form_field_box_id'   => $box->id,
-                'field_key'           => $base . '_' . uniqid(),
-                'label'               => $fData['label'],
-                'field_type'          => $fData['field_type'] ?? 'text',
-                'box_size'            => $fData['box_size'] ?? 'middle',
-                'is_required'         => $fData['is_required'] ?? false,
-                'is_active'           => true,
-                'placeholder'         => $fData['placeholder'] ?: null,
-                'requires_document'   => $fData['requires_document'] ?? false,
-                'document_required'   => $fData['document_required'] ?? false,
-                'options'             => ! empty($fData['options'])
-                    ? array_map('trim', explode(',', $fData['options']))
-                    : null,
-                'sort_order'          => $fi,
-            ]);
-        }
-
-        // Reset the new section form
-        $this->data['new_section_title']  = '';
-        $this->data['new_section_fields'] = [[]];
-        $this->form->fill(array_merge($this->data, [
-            'new_section_title'  => '',
-            'new_section_fields' => [[]],
-        ]));
-
-        Notification::make()->title('Section saved successfully!')->success()->send();
-        $this->redirect($this->getResource()::getUrl('edit', ['record' => $template]));
     }
 
     public function openEditField(int $fieldId): void
