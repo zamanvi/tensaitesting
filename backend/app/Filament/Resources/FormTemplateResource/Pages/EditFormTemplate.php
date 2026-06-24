@@ -69,21 +69,12 @@ class EditFormTemplate extends EditRecord
 
     protected function afterSave(): void
     {
-        $template = $this->getRecord();
-
-        // Ensure "Application Form Info" group exists exactly once
-        $template->fieldGroups()->firstOrCreate(
-            ['label' => 'Application Form Info'],
-            ['sort_order' => 0, 'is_active' => true]
-        );
-
-        // Sync form builder structure then reset it for the next section
+        // Sync form builder structure only (no group auto-creation here)
         try {
             $raw = $this->data['form_structure'] ?? '[]';
             $structure = json_decode((string) $raw, true);
             if (! empty($structure)) {
-                FormTemplateResource::syncStructure($template, $structure);
-                // Reset form builder so user can add another section fresh
+                FormTemplateResource::syncStructure($this->getRecord(), $structure);
                 $this->data['form_structure'] = '[]';
                 $this->form->fill(array_merge($this->data, ['form_structure' => '[]']));
             }
@@ -93,6 +84,19 @@ class EditFormTemplate extends EditRecord
                 ->danger()
                 ->send();
         }
+    }
+
+    // Called by "Save Info" button — saves template AND ensures group exists once
+    public function saveInfoSection(): void
+    {
+        $this->save();
+
+        $this->getRecord()->fieldGroups()->firstOrCreate(
+            ['label' => 'Application Form Info'],
+            ['sort_order' => 0, 'is_active' => true]
+        );
+
+        $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
     }
 
     // Inline group editing state

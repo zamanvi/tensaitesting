@@ -181,7 +181,7 @@ class FormTemplateResource extends Resource
                                 ->icon('heroicon-o-check-circle')
                                 ->color('success')
                                 ->action(function ($livewire) {
-                                    $livewire->save();
+                                    $livewire->saveInfoSection();
                                 }),
                         ])->columnSpanFull(),
 
