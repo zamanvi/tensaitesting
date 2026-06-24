@@ -7,43 +7,63 @@
         $record->load('fieldGroups.boxes.fields');
         $groups      = $record->fieldGroups->sortBy('sort_order');
         $isPublished = $record->status === 'published';
-        $allFields   = $groups->flatMap(fn($g) => $g->boxes->flatMap(fn($b) => $b->fields))->sortBy('sort_order');
     @endphp
 
-    @if($allFields->isEmpty())
+    @if($groups->isEmpty())
         <div class="text-sm text-gray-400 italic py-6 text-center">
-            No fields saved yet. Use "Add Data and Document" below to add fields.
+            No sections saved yet. Fill in Application Form Info and save, or use "Add Data and Document" below.
         </div>
     @else
         <div class="space-y-2">
-            @foreach($allFields as $field)
+            @foreach($groups as $group)
                 @php
-                    $editUrl = \App\Filament\Resources\FormTemplateFieldResource::getUrl('edit', ['record' => $field->id]);
+                    $fieldCount = $group->boxes->sum(fn($b) => $b->fields->count());
+                    $editUrl    = \App\Filament\Resources\FormFieldGroupResource::getUrl('edit', ['record' => $group->id]);
                 @endphp
-                <div class="border border-gray-200 rounded-xl bg-white px-3 py-2.5 flex items-center justify-between">
-                    <div class="flex-1 min-w-0">
-                        <div class="text-sm font-semibold text-gray-800 truncate">
-                            {{ $field->label ?: 'Untitled' }}
+
+                <div class="border border-gray-200 rounded-xl bg-white overflow-hidden">
+                    {{-- Section header --}}
+                    <div class="px-3 py-2.5 flex items-center justify-between bg-gray-50 border-b border-gray-100">
+                        <div>
+                            <div class="text-sm font-semibold text-gray-800">
+                                {{ $group->label ?: 'Application Form Info' }}
+                            </div>
+                            @if($group->hint)
+                                <div class="text-[10px] text-gray-400 mt-0.5">{{ $group->hint }}</div>
+                            @endif
                         </div>
-                        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                            <span class="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{{ $field->field_type }}</span>
-                            <span class="text-[10px] text-gray-400">{{ match($field->box_size) { 'full' => '100%', 'middle' => '50%', default => '25%' } }}</span>
-                            @if($field->is_required) <span class="text-[10px] bg-red-100 text-red-500 px-1 rounded">required</span> @endif
-                            @if($field->requires_document) <span class="text-[10px] bg-amber-100 text-amber-600 px-1 rounded">📎</span> @endif
+                        <div class="flex items-center gap-1.5 ml-2 shrink-0">
+                            <span class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                                {{ $fieldCount }} field(s)
+                            </span>
+                            <a href="{{ $editUrl }}"
+                                class="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
+                                ✏ Edit
+                            </a>
+                            <button wire:click="deleteFieldGroup({{ $group->id }})"
+                                wire:confirm="Delete this section and all its fields?"
+                                type="button"
+                                class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                                ✕ Delete
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1.5 ml-2 shrink-0">
-                        <a href="{{ $editUrl }}"
-                            class="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
-                            ✏ Edit
-                        </a>
-                        <button wire:click="deleteField({{ $field->id }})"
-                            wire:confirm="Delete this field?"
-                            type="button"
-                            class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors">
-                            ✕
-                        </button>
-                    </div>
+
+                    {{-- Fields preview --}}
+                    @php $allFields = $group->boxes->flatMap(fn($b) => $b->fields)->sortBy('sort_order'); @endphp
+                    @if($allFields->isNotEmpty())
+                        <div class="px-3 py-2 flex flex-wrap gap-1.5">
+                            @foreach($allFields as $field)
+                                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    {{ $field->label ?: 'Untitled' }}
+                                    <span class="text-slate-400">· {{ $field->field_type }}</span>
+                                    @if($field->is_required)<span class="text-red-400">*</span>@endif
+                                </span>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="px-3 py-2 text-[11px] text-gray-400 italic">No fields in this section yet — click Edit to add.</div>
+                    @endif
                 </div>
             @endforeach
         </div>
