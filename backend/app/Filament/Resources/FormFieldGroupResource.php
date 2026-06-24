@@ -129,7 +129,8 @@ class FormFieldGroupResource extends Resource
     public static function getPages(): array
     {
         return [
-            'edit' => Pages\EditFormFieldGroup::route('/{record}/edit'),
+            'index' => Pages\ListFormFieldGroups::route('/'),
+            'edit'  => Pages\EditFormFieldGroup::route('/{record}/edit'),
         ];
     }
 }
