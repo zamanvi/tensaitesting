@@ -49,13 +49,13 @@ class EditFormTemplate extends EditRecord
             ->first();
 
         if ($existing) {
-            // Another draft exists with same details — redirect to it and delete this blank one
             $this->getRecord()->delete();
             Notification::make()
                 ->title('A draft for this form already exists — redirected to it.')
                 ->warning()
                 ->send();
             $this->redirect($this->getResource()::getUrl('edit', ['record' => $existing->id]));
+            throw new \Filament\Support\Exceptions\Halt();
         }
     }
 
