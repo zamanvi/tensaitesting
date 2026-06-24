@@ -184,6 +184,15 @@ class FormTemplateResource extends Resource
                                     $livewire->save();
                                 }),
                         ])->columnSpanFull(),
+
+                        Forms\Components\Placeholder::make('add_field_hint')
+                            ->label('')
+                            ->content(new \Illuminate\Support\HtmlString(
+                                '<div class="border-2 border-dashed border-gray-200 rounded-xl py-4 text-center">
+                                    <p class="text-sm text-gray-400 font-medium">⬇ Use <strong class="text-gray-600">Add Data &amp; Document</strong> below to add a new field section</p>
+                                </div>'
+                            ))
+                            ->columnSpanFull(),
                     ]),
             ])->columnSpan(['lg' => 2]),
 
