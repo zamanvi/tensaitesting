@@ -34,8 +34,21 @@ class EditFormTemplate extends EditRecord
         parent::mount($record);
 
         if (request()->query('preview') === '1') {
-            $this->mountAction('preview');
+            $this->dispatch('auto-open-preview');
         }
+    }
+
+    protected function getFooterWidgets(): array
+    {
+        return [];
+    }
+
+    protected function getExtraBodyAttributes(): array
+    {
+        if (request()->query('preview') === '1') {
+            return ['x-init' => '$nextTick(() => $wire.mountAction(\'preview\'))'];
+        }
+        return [];
     }
 
     protected function beforeSave(): void
