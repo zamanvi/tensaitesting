@@ -18,6 +18,8 @@
             @foreach($groups as $group)
                 <div class="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
 
+                    @php $isAppFormInfo = ($loop->first && ($group->label === 'Application Form Info' || $group->label === '')); @endphp
+
                     {{-- ── View mode ── --}}
                     @if($this->inlineEditGroupId !== $group->id)
                         <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
@@ -28,12 +30,24 @@
                                 <span class="text-xs text-gray-400">
                                     {{ $group->boxes->sum(fn($b) => $b->fields->count()) }} field(s)
                                 </span>
-                                <button
-                                    wire:click="openEditFieldGroup({{ $group->id }})"
-                                    type="button"
-                                    class="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors px-2 py-1 rounded hover:bg-blue-50">
-                                    ✏ Edit
-                                </button>
+
+                                @if($isAppFormInfo)
+                                    {{-- Scroll to the left-side Application Form Info section --}}
+                                    <button
+                                        onclick="document.querySelector('.fi-section').scrollIntoView({behavior:'smooth', block:'start'}); window.scrollTo({top:0, behavior:'smooth'});"
+                                        type="button"
+                                        class="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors px-2 py-1 rounded hover:bg-blue-50">
+                                        ✏ Edit
+                                    </button>
+                                @else
+                                    <button
+                                        wire:click="openEditFieldGroup({{ $group->id }})"
+                                        type="button"
+                                        class="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors px-2 py-1 rounded hover:bg-blue-50">
+                                        ✏ Edit
+                                    </button>
+                                @endif
+
                                 <button
                                     wire:click="deleteFieldGroup({{ $group->id }})"
                                     wire:confirm="Delete this field group and all its fields?"
@@ -101,9 +115,16 @@
                             {{-- Group title --}}
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Group Title</label>
-                                <input type="text" wire:model="inlineEditLabel"
-                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none"
-                                    placeholder="e.g. Personal Information" />
+                                @if($isAppFormInfo)
+                                    <div class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-100 text-gray-500 flex items-center justify-between">
+                                        Application Form Info
+                                        <span class="text-[10px] text-gray-400 bg-gray-200 px-2 py-0.5 rounded">default</span>
+                                    </div>
+                                @else
+                                    <input type="text" wire:model="inlineEditLabel"
+                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none"
+                                        placeholder="e.g. Personal Information" />
+                                @endif
                             </div>
 
                             {{-- Hint --}}
