@@ -21,7 +21,9 @@
 }
 .apf-inp::placeholder{color:#b0bec5;font-size:13px;}
 .apf-inp-ro{background:#f1f5f9!important;color:#64748b!important;cursor:default;}
-.apf-label{font-size:12.5px;font-weight:600;color:#374151;display:flex;align-items:center;gap:4px;margin-bottom:6px;}
+.apf-label{font-size:13px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:4px;margin-bottom:6px;letter-spacing:-.01em;}
+.apf-label-name{color:#0f172a;}
+.apf-opt{font-weight:400;font-size:11px;color:#94a3b8;margin-left:2px;}
 .apf-hint{font-size:11px;color:#94a3b8;margin:4px 0 0;}
 .apf-field{display:flex;flex-direction:column;}
 .apf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -30,7 +32,7 @@
 .apf-drop{border:2px dashed #cbd5e1;border-radius:10px;padding:16px 12px;text-align:center;background:#f8fafc;cursor:pointer;transition:all .2s;}
 .apf-drop:hover{border-color:#16a34a;background:#f0fdf4;}
 .apf-required{color:#ef4444;font-size:14px;line-height:1;}
-.apf-opt{font-weight:400;color:#cbd5e1;font-size:10.5px;}
+.apf-opt-old{font-weight:400;color:#cbd5e1;font-size:10.5px;}
 .apf-section{background:#fff;border-radius:16px;border:1px solid #e8edf3;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);}
 .apf-section-hd{display:flex;align-items:center;gap:12px;padding:16px 22px;background:linear-gradient(90deg,#f0fdf4 0%,#f8fafc 100%);border-bottom:1px solid #e8edf3;}
 .apf-section-body{padding:22px;}
@@ -119,7 +121,7 @@ select.apf-inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 
                     {{-- WhatsApp --}}
                     <div class="apf-field">
-                        <label class="apf-label">WhatsApp Number <span class="apf-opt">(optional)</span></label>
+                        <label class="apf-label">WhatsApp Number <span class="apf-opt">optional</span></label>
                         <input class="apf-inp" type="tel" placeholder="+880 1XXXXXXXXX" />
                         <p class="apf-hint">For direct communication via WhatsApp</p>
                     </div>
@@ -251,11 +253,11 @@ select.apf-inp{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
                         @endphp
                         <div class="apf-field" style="width:{{ $w }};min-width:160px;flex:1 1 {{ $w }};">
                             <label class="apf-label">
-                                {{ $field->label ?: 'Field' }}
+                                <span class="apf-label-name">{{ $field->label ?: 'Field' }}</span>
                                 @if($field->is_required)
                                     <span class="apf-required">✱</span>
                                 @else
-                                    <span class="apf-opt">(optional)</span>
+                                    <span class="apf-opt">optional</span>
                                 @endif
                             </label>
 
