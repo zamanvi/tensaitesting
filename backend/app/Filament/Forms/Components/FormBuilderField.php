@@ -26,6 +26,7 @@ class FormBuilderField extends Field
 
             $groups = FormFieldGroup::with(['boxes.fields'])
                 ->where('form_template_id', $record->id)
+                ->where('label', '!=', 'Application Form Info')
                 ->orderBy('sort_order')
                 ->get();
 

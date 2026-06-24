@@ -12,7 +12,8 @@
     <input type="hidden" wire:model.defer="{{ $statePath }}" x-ref="hiddenInput" />
 
     <template x-for="(group, gi) in groups" :key="group._key">
-        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden"
+            :id="group.id ? 'fb-group-' + group.id : 'fb-group-new-' + gi">
 
             {{-- Group header: Field Title --}}
             <div class="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-primary-50 to-white border-b border-gray-100">

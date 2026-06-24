@@ -44,7 +44,7 @@
                                 </button>
                             @else
                                 <button type="button"
-                                    onclick="document.getElementById('add-data-section').scrollIntoView({behavior:'smooth'})"
+                                    onclick="(function(id){ var el = document.getElementById('fb-group-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.outline='2px solid #4f46e5'; setTimeout(()=>el.style.outline='',2000); } })({{ $group->id }})"
                                     class="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
                                     ✏ Edit
                                 </button>
