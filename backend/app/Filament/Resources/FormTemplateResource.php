@@ -37,15 +37,16 @@ class FormTemplateResource extends Resource
     {
         return $form->schema([
 
-            // ── Left: Template Info ───────────────────────────────────────────
+            // ── Left: Application Form Info ───────────────────────────────────
             Forms\Components\Group::make()->schema([
                 Forms\Components\Section::make('Application Form Info')
                     ->icon('heroicon-o-globe-alt')
-                    ->description('Basic information about this application form. These details are visible to branch admins and agencies when they submit applications.')
                     ->extraAttributes(['id' => 'afi-section'])
                     ->columns(2)
                     ->schema([
+
                         Forms\Components\TextInput::make('country')
+                            ->label('Destination Country')
                             ->required()
                             ->unique(
                                 table: 'form_templates',
@@ -58,25 +59,21 @@ class FormTemplateResource extends Resource
                                         ->ignore($record?->id),
                                 ignoreRecord: false,
                             )
-                            ->validationMessages(['unique' => 'A published form for this country, visa type and name already exists.'])
-                            ->label('Destination Country')
+                            ->validationMessages(['unique' => 'A published form already exists for this country + visa type + name.'])
                             ->placeholder('e.g. Japan')
-                            ->helperText('Multiple forms per country are allowed — they must differ by Visa Type or Form Name.')
                             ->prefixIcon('heroicon-o-flag')
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('visa_type')
                             ->label('Visa Type')
-                            ->placeholder('e.g. Student Visa, Work Permit')
-                            ->helperText('The type of visa this form is for.')
+                            ->placeholder('e.g. Student Visa')
                             ->prefixIcon('heroicon-o-identification')
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('name')
-                            ->required()
                             ->label('Form Name')
-                            ->placeholder('e.g. Japan Study Abroad Application 2025')
-                            ->helperText('A clear name that branch admins will recognise when selecting this form.')
+                            ->required()
+                            ->placeholder('e.g. Japan Study Abroad 2025')
                             ->maxLength(255)
                             ->prefixIcon('heroicon-o-pencil-square')
                             ->columnSpanFull(),
@@ -84,28 +81,32 @@ class FormTemplateResource extends Resource
                         Forms\Components\TextInput::make('student_name')
                             ->label('Default Student Name')
                             ->placeholder('e.g. Tanaka Yuki')
-                            ->helperText('Optional default name pre-filled in new applications.')
                             ->prefixIcon('heroicon-o-user')
-                            ->columnSpan(1),
-
-                        Forms\Components\DatePicker::make('birth_date')
-                            ->label('Date of Birth')
-                            ->placeholder('Select date of birth')
-                            ->helperText('Applicant\'s date of birth reference for this form.')
-                            ->prefixIcon('heroicon-o-calendar-days')
-                            ->displayFormat('d M Y')
                             ->columnSpan(1),
 
                         Forms\Components\TextInput::make('passport_no')
                             ->label('Passport Number')
                             ->placeholder('e.g. BD1234567')
-                            ->helperText('Applicant\'s passport number.')
                             ->prefixIcon('heroicon-o-identification')
+                            ->columnSpan(1),
+
+                        Forms\Components\DatePicker::make('birth_date')
+                            ->label('Date of Birth')
+                            ->prefixIcon('heroicon-o-calendar-days')
+                            ->displayFormat('d M Y')
+                            ->columnSpan(1),
+
+                        Forms\Components\TagsInput::make('intake_options')
+                            ->label('Available Intakes')
+                            ->placeholder('Type intake and press Enter…')
+                            ->suggestions([
+                                'January 2025', 'April 2025', 'July 2025', 'September 2025', 'October 2025',
+                                'January 2026', 'April 2026', 'July 2026', 'September 2026', 'October 2026',
+                            ])
                             ->columnSpan(1),
 
                         Forms\Components\Repeater::make('educations')
                             ->label('Required Education Certificates')
-                            ->helperText('Add each academic certificate applicants must provide. Set each as Mandatory (must upload) or Optional (can skip).')
                             ->schema([
                                 Forms\Components\Grid::make(2)->schema([
                                     Forms\Components\Select::make('level')
@@ -120,15 +121,15 @@ class FormTemplateResource extends Resource
                                             'other'     => 'Other',
                                         ])
                                         ->required()
-                                        ->placeholder('Select certificate')
+                                        ->placeholder('Select level')
                                         ->columnSpan(1),
 
                                     Forms\Components\Select::make('requirement')
-                                        ->label('Document Requirement')
+                                        ->label('Requirement')
                                         ->options([
-                                            'none'      => '— Not Required',
-                                            'optional'  => '📎 Optional',
-                                            'mandatory' => '🔴 Mandatory',
+                                            'none'      => 'Not Required',
+                                            'optional'  => 'Optional',
+                                            'mandatory' => 'Mandatory',
                                         ])
                                         ->default('mandatory')
                                         ->required()
@@ -150,30 +151,10 @@ class FormTemplateResource extends Resource
                             ->reorderable()
                             ->columnSpanFull(),
 
-                        Forms\Components\Section::make('Preview — How Branch Admin Will See This')
-                            ->icon('heroicon-o-eye')
-                            ->description('Read-only preview — this is exactly what branch admins and agencies will see when they fill an application for this country form.')
-                            ->collapsible()
-                            ->collapsed()
-                            ->columnSpanFull()
-                            ->visible(fn (Forms\Get $get) => !empty($get('educations')))
-                            ->schema(fn (Forms\Get $get): array => self::buildEducationPreview($get('educations'))),
-
-                        Forms\Components\TagsInput::make('intake_options')
-                            ->label('Available Intakes')
-                            ->placeholder('e.g. April 2025, September 2025…')
-                            ->suggestions([
-                                'January 2025', 'April 2025', 'July 2025', 'September 2025', 'October 2025',
-                                'January 2026', 'April 2026', 'July 2026', 'September 2026', 'October 2026',
-                            ])
-                            ->helperText('Type and press Enter. Branch admins choose from these intakes.')
-                            ->columnSpan(1),
-
                         Forms\Components\Textarea::make('notes')
                             ->rows(2)
                             ->label('Internal Notes')
-                            ->placeholder('Private notes visible only to super admins — e.g. special requirements, processing notes…')
-                            ->helperText('These notes are never shown to branch admins, agencies or students.')
+                            ->placeholder('Private notes for super admins only…')
                             ->columnSpanFull(),
 
                         Forms\Components\Actions::make([
@@ -181,19 +162,13 @@ class FormTemplateResource extends Resource
                                 ->label('Save Info')
                                 ->icon('heroicon-o-check-circle')
                                 ->color('success')
-                                ->tooltip('Save this form info and create the Application Form Info section in Saved Sections')
-                                ->action(function ($livewire) {
-                                    $livewire->saveInfoSection();
-                                }),
+                                ->action(fn ($livewire) => $livewire->saveInfoSection()),
                         ])->columnSpanFull(),
 
                         Forms\Components\Placeholder::make('add_field_hint')
                             ->label('')
                             ->content(new \Illuminate\Support\HtmlString(
-                                '<div class="border-2 border-dashed border-gray-200 rounded-xl py-4 text-center space-y-1">
-                                    <p class="text-sm text-gray-500 font-semibold">Need to add more fields?</p>
-                                    <p class="text-xs text-gray-400">⬇ Scroll down to <strong class="text-gray-600">Add Data &amp; Documents</strong> to build and save additional field sections</p>
-                                </div>'
+                                '<p class="text-xs text-gray-400 text-center py-2">⬇ Scroll down to <strong class="text-gray-500">Add Data &amp; Documents</strong> to add more field sections</p>'
                             ))
                             ->columnSpanFull(),
                     ]),
@@ -203,7 +178,6 @@ class FormTemplateResource extends Resource
             Forms\Components\Group::make()->schema([
                 Forms\Components\Section::make('Saved Sections')
                     ->icon('heroicon-o-archive-box')
-                    ->description('All saved sections of this form. Click Edit to modify, or Delete to remove.')
                     ->schema([
                         SavedStructureField::make('saved_structure')
                             ->label('')
@@ -211,10 +185,9 @@ class FormTemplateResource extends Resource
                     ]),
             ])->columnSpan(['lg' => 1]),
 
-            // ── Full width: Add Data & Documents builder ──────────────────────
+            // ── Full width: Form builder ──────────────────────────────────────
             Forms\Components\Section::make('Add Data & Documents')
                 ->icon('heroicon-o-plus-circle')
-                ->description('Build custom field sections here. Each section you save will appear in Saved Sections on the right. You can add as many sections as needed.')
                 ->columnSpanFull()
                 ->extraAttributes(['id' => 'add-data-section'])
                 ->schema([
