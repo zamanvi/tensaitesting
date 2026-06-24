@@ -26,6 +26,12 @@
                                 {{ $group->boxes->sum(fn($b) => $b->fields->count()) }} field(s)
                             </span>
                             <button
+                                wire:click="openEditFieldGroup({{ $group->id }})"
+                                type="button"
+                                class="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors px-2 py-1 rounded hover:bg-blue-50">
+                                ✏ Edit
+                            </button>
+                            <button
                                 wire:click="deleteFieldGroup({{ $group->id }})"
                                 wire:confirm="Delete this field group and all its fields?"
                                 type="button"

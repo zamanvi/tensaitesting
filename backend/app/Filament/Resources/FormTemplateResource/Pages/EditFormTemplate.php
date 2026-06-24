@@ -4,7 +4,9 @@ namespace App\Filament\Resources\FormTemplateResource\Pages;
 
 use App\Filament\Resources\FormTemplateResource;
 use App\Models\FormFieldGroup;
+use App\Models\FormTemplateField;
 use Filament\Actions;
+use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
@@ -53,6 +55,170 @@ class EditFormTemplate extends EditRecord
                 ->danger()
                 ->send();
         }
+    }
+
+    public function openEditFieldGroup(int $groupId): void
+    {
+        $this->mountAction('editFieldGroup', ['groupId' => $groupId]);
+    }
+
+    public function editFieldGroupAction(): Actions\Action
+    {
+        return Actions\Action::make('editFieldGroup')
+            ->label('Edit Field Group')
+            ->modalHeading('Edit Field Group')
+            ->modalWidth('4xl')
+            ->modalSubmitActionLabel('Save Changes')
+            ->mountUsing(function (Forms\Form $form, array $arguments): void {
+                $group = FormFieldGroup::with('boxes.fields')->find($arguments['groupId']);
+                if (! $group) return;
+
+                $fields = $group->boxes->flatMap(fn ($b) => $b->fields->sortBy('sort_order')->map(fn ($f) => [
+                    'id'                => $f->id,
+                    'label'             => $f->label,
+                    'field_key'         => $f->field_key,
+                    'field_type'        => $f->field_type,
+                    'box_size'          => $f->box_size ?? 'middle',
+                    'is_required'       => (bool) $f->is_required,
+                    'placeholder'       => $f->placeholder ?? '',
+                    'helper_text'       => $f->helper_text ?? '',
+                    'requires_document' => (bool) $f->requires_document,
+                    'document_required' => (bool) $f->document_required,
+                    'options'           => $f->options ? implode(', ', $f->options) : '',
+                ]))->values()->toArray();
+
+                $form->fill([
+                    'group_id'  => $group->id,
+                    'label'     => $group->label,
+                    'hint'      => $group->hint ?? '',
+                    'is_active' => (bool) $group->is_active,
+                    'fields'    => $fields,
+                ]);
+            })
+            ->form([
+                Forms\Components\Hidden::make('group_id'),
+
+                Forms\Components\Section::make('Group Info')->schema([
+                    Forms\Components\TextInput::make('label')
+                        ->label('Group Title')
+                        ->required()
+                        ->placeholder('e.g. Personal Information'),
+
+                    Forms\Components\Textarea::make('hint')
+                        ->label('Hint / Description')
+                        ->rows(2)
+                        ->placeholder('Optional guidance shown below the title'),
+
+                    Forms\Components\Toggle::make('is_active')
+                        ->label('Active')
+                        ->inline(false),
+                ])->columns(1),
+
+                Forms\Components\Section::make('Fields')->schema([
+                    Forms\Components\Repeater::make('fields')
+                        ->label('')
+                        ->schema([
+                            Forms\Components\Hidden::make('id'),
+                            Forms\Components\Hidden::make('field_key'),
+
+                            Forms\Components\Grid::make(3)->schema([
+                                Forms\Components\TextInput::make('label')
+                                    ->label('Field Label')
+                                    ->required()
+                                    ->columnSpan(2),
+
+                                Forms\Components\Select::make('field_type')
+                                    ->label('Type')
+                                    ->options([
+                                        'text'     => 'Text',
+                                        'number'   => 'Number',
+                                        'date'     => 'Date',
+                                        'select'   => 'Dropdown',
+                                        'textarea' => 'Textarea',
+                                        'file'     => 'File Upload',
+                                    ])
+                                    ->required()
+                                    ->columnSpan(1),
+
+                                Forms\Components\Select::make('box_size')
+                                    ->label('Width')
+                                    ->options([
+                                        'small'  => 'Small (25%)',
+                                        'middle' => 'Half (50%)',
+                                        'full'   => 'Full (100%)',
+                                    ])
+                                    ->default('middle')
+                                    ->columnSpan(1),
+
+                                Forms\Components\TextInput::make('placeholder')
+                                    ->label('Placeholder')
+                                    ->columnSpan(2),
+                            ]),
+
+                            Forms\Components\TextInput::make('options')
+                                ->label('Options (comma separated — only for Dropdown)')
+                                ->placeholder('e.g. Male, Female, Other')
+                                ->visible(fn (Forms\Get $get) => $get('field_type') === 'select')
+                                ->columnSpanFull(),
+
+                            Forms\Components\TextInput::make('helper_text')
+                                ->label('Helper Text')
+                                ->columnSpanFull(),
+
+                            Forms\Components\Grid::make(3)->schema([
+                                Forms\Components\Toggle::make('is_required')
+                                    ->label('Required')
+                                    ->inline(false),
+
+                                Forms\Components\Toggle::make('requires_document')
+                                    ->label('Has Document Upload')
+                                    ->inline(false),
+
+                                Forms\Components\Toggle::make('document_required')
+                                    ->label('Document Mandatory')
+                                    ->inline(false),
+                            ]),
+                        ])
+                        ->itemLabel(fn (array $state): ?string => $state['label'] ?: 'Field')
+                        ->collapsible()
+                        ->reorderable()
+                        ->addable(false),
+                ]),
+            ])
+            ->action(function (array $arguments, array $data): void {
+                $group = FormFieldGroup::find($data['group_id']);
+                if (! $group) return;
+
+                $group->update([
+                    'label'     => $data['label'],
+                    'hint'      => $data['hint'] ?: null,
+                    'is_active' => $data['is_active'] ?? true,
+                ]);
+
+                foreach ($data['fields'] ?? [] as $fi => $fData) {
+                    if (empty($fData['id'])) continue;
+                    $field = FormTemplateField::find($fData['id']);
+                    if (! $field) continue;
+
+                    $field->update([
+                        'label'             => $fData['label'],
+                        'field_type'        => $fData['field_type'],
+                        'box_size'          => $fData['box_size'] ?? 'middle',
+                        'is_required'       => $fData['is_required'] ?? false,
+                        'placeholder'       => $fData['placeholder'] ?: null,
+                        'helper_text'       => $fData['helper_text'] ?: null,
+                        'requires_document' => $fData['requires_document'] ?? false,
+                        'document_required' => $fData['document_required'] ?? false,
+                        'options'           => ! empty($fData['options'])
+                            ? array_map('trim', explode(',', $fData['options']))
+                            : null,
+                        'sort_order'        => $fi,
+                    ]);
+                }
+
+                Notification::make()->title('Field group updated')->success()->send();
+                $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
+            });
     }
 
     public function deleteFieldGroup(int $groupId): void
