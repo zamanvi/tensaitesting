@@ -29,9 +29,7 @@ class FormFieldGroupResource extends Resource
                 Forms\Components\TextInput::make('label')
                     ->label('Section Title')
                     ->required()
-                    ->placeholder('e.g. Family Information')
-                    ->disabled(fn (?FormFieldGroup $record) => $record?->label === 'Application Form Info')
-                    ->dehydrated(fn (?FormFieldGroup $record) => $record?->label !== 'Application Form Info'),
+                    ->placeholder('e.g. Family Information'),
 
                 Forms\Components\Textarea::make('hint')
                     ->label('Description / Hint')

@@ -87,9 +87,13 @@ class EditFormFieldGroup extends EditRecord
             }
         }
 
-        // Only return the group columns
+        // Preserve label for Application Form Info (title is fixed)
+        $label = $this->getRecord()->label === 'Application Form Info'
+            ? 'Application Form Info'
+            : $data['label'];
+
         return [
-            'label'     => $data['label'],
+            'label'     => $label,
             'hint'      => $data['hint'] ?: null,
             'is_active' => $data['is_active'] ?? true,
         ];
