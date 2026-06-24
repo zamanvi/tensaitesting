@@ -69,11 +69,27 @@ class EditFormTemplate extends EditRecord
 
     protected function afterSave(): void
     {
+        $template = $this->getRecord();
+
+        // Always ensure the "Application Form Info" group exists as the first entry
+        $hasAppInfoGroup = $template->fieldGroups()
+            ->where('label', 'Application Form Info')
+            ->exists();
+
+        if (! $hasAppInfoGroup) {
+            $template->fieldGroups()->create([
+                'label'      => 'Application Form Info',
+                'sort_order' => 0,
+                'is_active'  => true,
+            ]);
+        }
+
+        // Sync form builder structure
         try {
             $raw = $this->data['form_structure'] ?? '[]';
             $structure = json_decode((string) $raw, true);
             if (! empty($structure)) {
-                FormTemplateResource::syncStructure($this->getRecord(), $structure);
+                FormTemplateResource::syncStructure($template, $structure);
             }
         } catch (\Throwable $e) {
             Notification::make()
