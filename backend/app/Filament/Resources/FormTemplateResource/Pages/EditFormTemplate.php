@@ -93,7 +93,7 @@ class EditFormTemplate extends EditRecord
         return Actions\Action::make('editFieldGroup')
             ->label('Edit Field Group')
             ->modalHeading('Edit Field Group')
-            ->modalWidth('4xl')
+            ->slideOver()
             ->modalSubmitActionLabel('Save Changes')
             ->mountUsing(function (Forms\Form $form, array $arguments): void {
                 $group = FormFieldGroup::with('boxes.fields')->find($arguments['groupId']);
