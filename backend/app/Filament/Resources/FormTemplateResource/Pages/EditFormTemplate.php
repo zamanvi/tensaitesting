@@ -90,6 +90,10 @@ class EditFormTemplate extends EditRecord
     public bool   $inlineEditIsActive   = true;
     public array  $inlineEditFields     = [];
 
+    // Inline field-level editing
+    public ?int  $inlineEditFieldId   = null;
+    public array $inlineEditFieldData = [];
+
     public function openEditFieldGroup(int $groupId): void
     {
         $group = FormFieldGroup::with('boxes.fields')->find($groupId);
@@ -200,6 +204,63 @@ class EditFormTemplate extends EditRecord
         $this->inlineEditGroupId = null;
         $this->inlineEditFields  = [];
         Notification::make()->title('Group saved')->success()->send();
+        $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
+    }
+
+    public function openEditField(int $fieldId): void
+    {
+        $field = FormTemplateField::find($fieldId);
+        if (! $field) return;
+
+        $this->inlineEditFieldId   = $fieldId;
+        $this->inlineEditFieldData = [
+            'label'             => $field->label,
+            'field_type'        => $field->field_type,
+            'box_size'          => $field->box_size ?? 'middle',
+            'is_required'       => (bool) $field->is_required,
+            'placeholder'       => $field->placeholder ?? '',
+            'helper_text'       => $field->helper_text ?? '',
+            'requires_document' => (bool) $field->requires_document,
+            'document_required' => (bool) $field->document_required,
+            'options'           => $field->options ? implode(', ', $field->options) : '',
+        ];
+    }
+
+    public function cancelEditField(): void
+    {
+        $this->inlineEditFieldId   = null;
+        $this->inlineEditFieldData = [];
+    }
+
+    public function saveInlineField(): void
+    {
+        $field = FormTemplateField::find($this->inlineEditFieldId);
+        if (! $field) return;
+
+        $d = $this->inlineEditFieldData;
+        $field->update([
+            'label'             => $d['label'],
+            'field_type'        => $d['field_type'] ?? 'text',
+            'box_size'          => $d['box_size'] ?? 'middle',
+            'is_required'       => $d['is_required'] ?? false,
+            'placeholder'       => $d['placeholder'] ?: null,
+            'helper_text'       => $d['helper_text'] ?: null,
+            'requires_document' => $d['requires_document'] ?? false,
+            'document_required' => $d['document_required'] ?? false,
+            'options'           => ! empty($d['options'])
+                ? array_map('trim', explode(',', $d['options']))
+                : null,
+        ]);
+
+        $this->inlineEditFieldId   = null;
+        $this->inlineEditFieldData = [];
+        Notification::make()->title('Field saved')->success()->send();
+        $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
+    }
+
+    public function deleteField(int $fieldId): void
+    {
+        FormTemplateField::find($fieldId)?->delete();
         $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->getRecord()]));
     }
 
