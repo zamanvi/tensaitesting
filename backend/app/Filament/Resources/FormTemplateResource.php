@@ -42,6 +42,7 @@ class FormTemplateResource extends Resource
                 Forms\Components\Section::make('Application Form Info')
                     ->icon('heroicon-o-globe-alt')
                     ->description('Basic information about this application form. These details are visible to branch admins and agencies when they submit applications.')
+                    ->extraAttributes(['id' => 'afi-section'])
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('country')
