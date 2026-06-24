@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Forms\Components\FormBuilderField;
 use App\Filament\Forms\Components\SavedStructureField;
-use App\Filament\Forms\Components\SectionEditorField;
 use App\Filament\Resources\FormTemplateResource\Pages;
 use App\Models\FormFieldBox;
 use App\Models\FormFieldGroup;
@@ -40,14 +39,9 @@ class FormTemplateResource extends Resource
 
             // ── Left: Template Info ───────────────────────────────────────────
             Forms\Components\Group::make()->schema([
-                SectionEditorField::make('section_editor')
-                    ->label('')
-                    ->columnSpanFull(),
-
                 Forms\Components\Section::make('Application Form Info')
                     ->icon('heroicon-o-globe-alt')
                     ->description('Basic information about this application form. These details are visible to branch admins and agencies when they submit applications.')
-                    ->hidden(fn ($livewire) => !empty($livewire->inlineEditGroupId))
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('country')
@@ -216,7 +210,6 @@ class FormTemplateResource extends Resource
             // ── Full width: Custom Form Builder ───────────────────────────────
             Forms\Components\Section::make('')
                 ->columnSpanFull()
-                ->hidden(fn ($livewire) => !empty($livewire->inlineEditGroupId))
                 ->extraAttributes(['id' => 'add-data-section'])
                 ->schema([
                     FormBuilderField::make('form_structure')
