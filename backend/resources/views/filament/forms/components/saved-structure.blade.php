@@ -38,7 +38,8 @@
                             </span>
                             @if($group->label === 'Application Form Info')
                                 <button type="button"
-                                    onclick="window.scrollTo({top:0,behavior:'smooth'})"
+                                    wire:click="cancelInlineEdit"
+                                    onclick="setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),100)"
                                     class="text-xs text-blue-500 hover:text-blue-700 font-medium px-2 py-1 rounded hover:bg-blue-50 transition-colors">
                                     ✏ Edit
                                 </button>
