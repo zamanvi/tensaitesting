@@ -35,7 +35,6 @@ export default function BranchApplicantsPage() {
 
   const [activeAppId, setActiveAppId] = useState<number | null>(null);
   const [showStarter, setShowStarter] = useState(false);
-  const [tableTab,    setTableTab]    = useState<'submitted' | 'draft'>('submitted');
   const [search,      setSearch]      = useState('');
 
   const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
@@ -85,16 +84,11 @@ export default function BranchApplicantsPage() {
 
   if (!user || !isBranchAdmin) return null;
 
-  const q         = search.toLowerCase();
-  const submitted = apps.filter(a => a.status !== 'draft').filter(a =>
+  const q    = search.toLowerCase();
+  const list = apps.filter(a =>
     !q || a.student_name?.toLowerCase().includes(q) || a.student_email?.toLowerCase().includes(q) ||
     a.application_code?.toLowerCase().includes(q) || a.form_template?.country?.toLowerCase().includes(q)
   );
-  const drafts = apps.filter(a => a.status === 'draft').filter(a =>
-    !q || a.student_name?.toLowerCase().includes(q) || a.student_email?.toLowerCase().includes(q) ||
-    a.application_code?.toLowerCase().includes(q) || a.form_template?.country?.toLowerCase().includes(q)
-  );
-  const list = tableTab === 'submitted' ? submitted : drafts;
 
   /* ── Application edit view ── */
   if (activeAppId !== null && activeApp) return (
@@ -192,15 +186,6 @@ export default function BranchApplicantsPage() {
               placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
           </div>
 
-          {/* Status tabs */}
-          <div className="flex gap-1.5">
-            {(['submitted', 'draft'] as const).map(t => (
-              <button key={t} onClick={() => setTableTab(t)}
-                className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-colors ${tableTab === t ? 'bg-green-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                {t === 'submitted' ? `✓ Submitted (${submitted.length})` : `⏳ Draft (${drafts.length})`}
-              </button>
-            ))}
-          </div>
         </div>
 
         {isLoading ? (
@@ -209,9 +194,9 @@ export default function BranchApplicantsPage() {
           </div>
         ) : list.length === 0 ? (
           <div className="py-16 text-center px-6">
-            <div className="text-4xl mb-3">{tableTab === 'submitted' ? '📬' : '📝'}</div>
+            <div className="text-4xl mb-3">📋</div>
             <p className="text-sm font-semibold text-slate-500">
-              {search ? 'No results found' : tableTab === 'submitted' ? 'No submitted applications yet' : 'No drafts'}
+              {search ? 'No results found' : 'No applications yet'}
             </p>
             {!search && !showStarter && (
               <button onClick={() => setShowStarter(true)}
