@@ -120,10 +120,11 @@ class AllApplicationsTableWidget extends BaseWidget
                     ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('edit')
-                    ->label('Open')
-                    ->icon('heroicon-o-pencil-square')
-                    ->url(fn (Application $r) => route('filament.admin.resources.applications.edit', $r))
+                Tables\Actions\Action::make('open')
+                    ->label('Open →')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (Application $r) => \App\Filament\Resources\ApplicationResource::getUrl('edit', ['record' => $r]))
+                    ->openUrlInNewTab(false)
                     ->color('success'),
             ])
             ->defaultSort('created_at', 'desc')

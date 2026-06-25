@@ -86,4 +86,5 @@ class ListApplications extends ListRecords
             \App\Filament\Widgets\ApplicationStatsWidget::class,
         ];
     }
+
 }

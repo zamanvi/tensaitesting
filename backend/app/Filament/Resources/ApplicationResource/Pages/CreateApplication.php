@@ -29,4 +29,10 @@ class CreateApplication extends CreateRecord
         return $this->getResource()::getUrl('edit', ['record' => $this->getRecord()]);
     }
 
+    protected function getFooterWidgets(): array
+    {
+        return [
+            \App\Filament\Widgets\AllApplicationsTableWidget::class,
+        ];
+    }
 }
