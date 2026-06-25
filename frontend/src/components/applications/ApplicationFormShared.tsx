@@ -31,10 +31,16 @@ export interface TemplateGroup {
   boxes: TemplateBox[];
 }
 
+export interface TemplateEducation {
+  level: string;
+  requirement: 'mandatory' | 'optional' | 'none';
+}
+
 export interface FormTemplateData {
   id: number; country: string; visa_type?: string; name: string;
   intake_options: string[];
   groups: TemplateGroup[];
+  educations: TemplateEducation[];
 }
 
 export interface Application {

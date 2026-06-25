@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import {
   Application, AppDoc, FormTemplateData, TemplateField,
   DynamicField, InlineDoc, SectionHead, ProgressBar,
-  ProgressBar as PB, compressImage, isFieldVisible, colSpan,
+  compressImage, isFieldVisible, colSpan,
   inp, lbl,
 } from './ApplicationFormShared';
 
@@ -177,17 +177,95 @@ export default function ApplicationFormBody({
         {/* Intake picker */}
         {template && template.intake_options?.length > 0 && (
           <div className="bg-green-50 border border-green-100 rounded-2xl px-5 py-4">
-            <p className="text-xs font-bold text-green-800 mb-3">📅 Available Intakes for {app.form_template?.country}</p>
+            <p className="text-xs font-bold text-green-800 mb-3">📅 Select Intake — {app.form_template?.country}</p>
             <div className="flex flex-wrap gap-2">
               {template.intake_options.map(opt => (
                 <button key={opt} type="button"
-                  onClick={() => set('target_intake', opt)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${formData.target_intake === opt ? 'bg-green-700 text-white border-green-700' : 'bg-white border-green-200 text-green-700 hover:bg-green-100'}`}>
+                  onClick={() => isEditable && set('intake', opt)}
+                  disabled={!isEditable}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${formData.intake === opt ? 'bg-green-700 text-white border-green-700 shadow-sm' : 'bg-white border-green-200 text-green-700 hover:bg-green-100'} disabled:opacity-60 disabled:cursor-default`}>
                   {opt}
                 </button>
               ))}
             </div>
+            {formData.intake && (
+              <p className="text-[11px] text-green-700 font-semibold mt-2">✓ Selected: {formData.intake}</p>
+            )}
           </div>
+        )}
+
+        {/* Education Certificates */}
+        {template && template.educations?.length > 0 && (
+          <section>
+            <SectionHead
+              icon="🎓"
+              title="Education Certificates"
+              subtitle="Upload your academic certificates and transcripts"
+            />
+            <div className="space-y-4">
+              {template.educations.filter(e => e.requirement !== 'none').map((edu) => {
+                const levelLabels: Record<string, string> = {
+                  ssc: 'SSC / O-Level', hsc: 'HSC / A-Level', diploma: 'Diploma',
+                  bachelors: "Bachelor's Degree", masters: "Master's Degree",
+                  phd: 'PhD / Doctorate', other: 'Other',
+                };
+                const label = levelLabels[edu.level] ?? edu.level;
+                const mandatory = edu.requirement === 'mandatory';
+                const docKey = `edu_${edu.level}`;
+                const existingDoc = docs.find(d => d.field_key === docKey || d.doc_type === docKey);
+
+                return (
+                  <div key={edu.level} className={`rounded-2xl border p-4 ${mandatory ? 'border-red-100 bg-red-50/40' : 'border-amber-100 bg-amber-50/40'}`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${mandatory ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700'}`}>
+                        {mandatory ? '🔴 Required' : '📎 Optional'}
+                      </span>
+                      <span className="text-xs font-bold text-slate-700">{label}</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                      <div>
+                        <label className={lbl}>Institution / Board</label>
+                        <input className={inp} placeholder="e.g. Dhaka Education Board"
+                          value={formData[`${docKey}_institution`] ?? ''}
+                          onChange={e => set(`${docKey}_institution`, e.target.value)}
+                          readOnly={!isEditable} />
+                      </div>
+                      <div>
+                        <label className={lbl}>GPA / Grade</label>
+                        <input className={inp} placeholder="e.g. 5.00 / A+"
+                          value={formData[`${docKey}_gpa`] ?? ''}
+                          onChange={e => set(`${docKey}_gpa`, e.target.value)}
+                          readOnly={!isEditable} />
+                      </div>
+                      <div>
+                        <label className={lbl}>Passing Year</label>
+                        <input className={inp} placeholder="e.g. 2022"
+                          value={formData[`${docKey}_year`] ?? ''}
+                          onChange={e => set(`${docKey}_year`, e.target.value)}
+                          readOnly={!isEditable} />
+                      </div>
+                    </div>
+                    {isEditable && (
+                      <InlineDoc
+                        fieldKey={docKey}
+                        fieldLabel={`${label} Certificate`}
+                        appId={app.id}
+                        mandatory={mandatory}
+                        existingDoc={existingDoc}
+                        onUploaded={onDocUploaded}
+                        onDeleted={onDocDeleted}
+                      />
+                    )}
+                    {!isEditable && existingDoc && (
+                      <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mt-1">
+                        <span className="text-emerald-600 text-xs font-semibold">📄 {existingDoc.original_name}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         )}
 
         {/* Bottom actions */}

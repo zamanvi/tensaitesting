@@ -47,6 +47,7 @@ class ApplicationController extends Controller
             'student_phone'    => 'nullable|string|max:50',
             'whatsapp_no'      => 'nullable|string|max:50',
             'permanent_address'=> 'nullable|string|max:500',
+            'form_data'        => 'nullable|array',
         ]);
 
         if ($user->hasRole('student')) {
@@ -69,7 +70,7 @@ class ApplicationController extends Controller
             'student_phone'     => $data['student_phone'] ?? null,
             'whatsapp_no'       => $data['whatsapp_no'] ?? null,
             'permanent_address' => $data['permanent_address'] ?? null,
-            'form_data'         => [],
+            'form_data'         => $data['form_data'] ?? [],
             'progress'          => 0,
             'status'            => 'draft',
         ]);

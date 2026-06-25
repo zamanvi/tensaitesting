@@ -31,6 +31,8 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   const [email,      setEmail]      = useState(studentEmail ?? '');
   const [phone,      setPhone]      = useState('');
   const [whatsapp,   setWhatsapp]   = useState('');
+  const [dob,        setDob]        = useState('');
+  const [passport,   setPassport]   = useState('');
   const [address,    setAddress]    = useState('');
   const [err,        setErr]        = useState('');
 
@@ -50,6 +52,10 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
       student_phone:     phone.trim() || undefined,
       whatsapp_no:       whatsapp.trim() || undefined,
       permanent_address: address.trim() || undefined,
+      form_data: {
+        ...(dob      ? { birth_date: dob }      : {}),
+        ...(passport ? { passport_no: passport } : {}),
+      },
     }),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: [queryKey] });
@@ -156,6 +162,16 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
             <label className={lbl}>WhatsApp Number</label>
             <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={whatsapp}
               onChange={e => setWhatsapp(e.target.value)} />
+          </div>
+          <div>
+            <label className={lbl}>Date of Birth</label>
+            <input className={inp} type="date" value={dob}
+              onChange={e => setDob(e.target.value)} />
+          </div>
+          <div>
+            <label className={lbl}>Passport Number</label>
+            <input className={inp} placeholder="e.g. AB1234567" value={passport}
+              onChange={e => setPassport(e.target.value)} />
           </div>
           <div className="sm:col-span-2">
             <label className={lbl}>Permanent Address</label>
