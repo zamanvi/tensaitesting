@@ -72,15 +72,6 @@ class ApplicationResource extends Resource
                         ->placeholder('Select country / visa type…'),
                 ]),
 
-            // ── Template Info Card ────────────────────────────────────────────
-            Forms\Components\Placeholder::make('_template_info_card')
-                ->label('')
-                ->content(fn (Forms\Get $get) => self::buildTemplateInfoCard(
-                    filled($get('form_template_id')) ? (int) $get('form_template_id') : null
-                ))
-                ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
-                ->columnSpanFull(),
-
             // ── Personal Information (matches preview exactly) ────────────────
             Forms\Components\Section::make('Personal Information')
                 ->icon('heroicon-o-user-circle')
