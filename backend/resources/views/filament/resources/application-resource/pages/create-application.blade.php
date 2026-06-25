@@ -158,6 +158,44 @@
 /* ── Hide default Filament form actions ────────────── */
 .cap-form .fi-form-actions { display: none !important; }
 
+/* ── Section reveal animation ──────────────────────── */
+@keyframes capReveal {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.cap-form .fi-section {
+    animation: capReveal 0.35s ease-out both;
+}
+.cap-form .fi-section:nth-child(2)  { animation-delay: .04s; }
+.cap-form .fi-section:nth-child(3)  { animation-delay: .08s; }
+.cap-form .fi-section:nth-child(4)  { animation-delay: .12s; }
+.cap-form .fi-section:nth-child(5)  { animation-delay: .16s; }
+.cap-form .fi-section:nth-child(6)  { animation-delay: .20s; }
+
+/* ── Green border on filled inputs ─────────────────── */
+.cap-form .fi-input:not(:placeholder-shown) {
+    border-color: #86efac !important;
+}
+.cap-form .fi-input-wrp:focus-within {
+    border-color: #16a34a !important;
+    box-shadow: 0 0 0 3px rgba(22,163,74,.1) !important;
+}
+
+/* ── Hide native intake select (pills replace it) ───── */
+.cap-form [id*="intake"] select.cap-intake-hidden-select,
+.cap-form .fi-fo-select:has(#cap-intake-select) { display: none !important; }
+
+/* ── Pill hover ─────────────────────────────────────── */
+.cap-pill:hover {
+    background: #dcfce7 !important;
+    border-color: #6ee7b7 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(22,163,74,.15);
+}
+
+/* ── Placeholder Filament fix ───────────────────────── */
+.cap-form .fi-fo-placeholder { padding: 0 !important; }
+
 /* ── Mobile ────────────────────────────────────────── */
 @media (max-width: 720px) {
     .cap { max-width: 100%; }

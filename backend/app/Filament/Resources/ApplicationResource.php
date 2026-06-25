@@ -72,6 +72,15 @@ class ApplicationResource extends Resource
                         ->placeholder('Select country / visa type…'),
                 ]),
 
+            // ── Template Info Card ────────────────────────────────────────────
+            Forms\Components\Placeholder::make('_template_info_card')
+                ->label('')
+                ->content(fn (Forms\Get $get) => self::buildTemplateInfoCard(
+                    filled($get('form_template_id')) ? (int) $get('form_template_id') : null
+                ))
+                ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
+                ->columnSpanFull(),
+
             // ── Personal Information (matches preview exactly) ────────────────
             Forms\Components\Section::make('Personal Information')
                 ->icon('heroicon-o-user-circle')
@@ -99,6 +108,120 @@ class ApplicationResource extends Resource
                 ->collapsed(false),
 
         ]);
+    }
+
+    // ── Template info card (shown after country form is selected) ────────────
+
+    protected static function buildTemplateInfoCard(?int $templateId): \Illuminate\Support\HtmlString
+    {
+        if (! $templateId) return new \Illuminate\Support\HtmlString('');
+
+        $template = FormTemplate::find($templateId);
+        if (! $template) return new \Illuminate\Support\HtmlString('');
+
+        $country   = e($template->country ?? '');
+        $visaType  = e($template->visa_type ?? '');
+        $name      = e($template->name ?? '');
+        $intakes   = $template->intake_options ?? [];
+        $groupCount = $template->fieldGroups()
+            ->where('is_active', true)
+            ->where('label', '!=', 'Application Form Info')
+            ->count();
+        $eduCount = count($template->educations ?? []);
+
+        // Flag emoji from country name (simple mapping)
+        $flagMap = [
+            'japan' => '🇯🇵', 'uk' => '🇬🇧', 'usa' => '🇺🇸', 'united states' => '🇺🇸',
+            'canada' => '🇨🇦', 'australia' => '🇦🇺', 'germany' => '🇩🇪', 'france' => '🇫🇷',
+            'south korea' => '🇰🇷', 'korea' => '🇰🇷', 'china' => '🇨🇳', 'malaysia' => '🇲🇾',
+            'singapore' => '🇸🇬', 'new zealand' => '🇳🇿', 'ireland' => '🇮🇪',
+            'netherlands' => '🇳🇱', 'sweden' => '🇸🇪', 'finland' => '🇫🇮',
+            'bangladesh' => '🇧🇩', 'india' => '🇮🇳', 'pakistan' => '🇵🇰',
+        ];
+        $flag = $flagMap[strtolower($country)] ?? '🌍';
+
+        $metaParts = [];
+        if ($groupCount > 0) $metaParts[] = "{$groupCount} custom section" . ($groupCount > 1 ? 's' : '');
+        if ($eduCount > 0)   $metaParts[] = "{$eduCount} education certificate" . ($eduCount > 1 ? 's' : '');
+        $meta = implode(' · ', $metaParts);
+
+        // Build intake pills HTML
+        $pillsHtml = '';
+        if (! empty($intakes)) {
+            $pillsHtml .= '<div style="margin-top:12px;">';
+            $pillsHtml .= '<p style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#9ca3af;margin:0 0 7px;">Select Intake</p>';
+            $pillsHtml .= '<div style="display:flex;flex-wrap:wrap;gap:7px;" id="cap-pill-row">';
+            foreach ($intakes as $intake) {
+                $safe = e($intake);
+                $pillsHtml .= "<button type='button'
+                    class='cap-pill'
+                    data-val='{$safe}'
+                    onclick=\"capSelectIntake('{$safe}', this)\"
+                    style=\"padding:6px 14px;border-radius:99px;border:1.5px solid #d1fae5;
+                        background:#f0fdf4;color:#065f46;font-size:12.5px;font-weight:600;
+                        cursor:pointer;font-family:inherit;transition:all .15s;\">
+                    📅 {$safe}
+                </button>";
+            }
+            $pillsHtml .= '</div></div>';
+        }
+
+        $html = "
+        <div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #a7f3d0;
+            border-radius:12px;padding:16px 20px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;'>
+
+            <div style='flex:1;min-width:200px;'>
+                <div style='display:flex;align-items:center;gap:10px;flex-wrap:wrap;'>
+                    <span style='font-size:24px;line-height:1;'>{$flag}</span>
+                    <span style='font-size:16px;font-weight:800;color:#064e3b;'>{$country}</span>
+                    " . ($visaType ? "<span style='font-size:11.5px;color:#6b7280;background:#fff;padding:3px 10px;border-radius:99px;border:1px solid #e5e7eb;font-weight:500;'>{$visaType}</span>" : '') . "
+                </div>
+                <p style='font-size:13.5px;font-weight:700;color:#1f2937;margin:6px 0 2px;'>{$name}</p>
+                " . ($meta ? "<p style='font-size:11.5px;color:#6b7280;margin:0;'>{$meta}</p>" : '') . "
+            </div>
+
+            <div style='flex:1;min-width:220px;'>
+                {$pillsHtml}
+            </div>
+        </div>
+        <script>
+        function capSelectIntake(value, btn) {
+            // Update pills visual
+            document.querySelectorAll('.cap-pill').forEach(function(p) {
+                p.style.background = '#f0fdf4';
+                p.style.borderColor = '#d1fae5';
+                p.style.color = '#065f46';
+                p.style.boxShadow = 'none';
+            });
+            btn.style.background = '#16a34a';
+            btn.style.borderColor = '#16a34a';
+            btn.style.color = '#fff';
+            btn.style.boxShadow = '0 2px 8px rgba(22,163,74,.3)';
+
+            // Set value via Livewire
+            try {
+                var wireEls = document.querySelectorAll('[wire\\\\:id]');
+                wireEls.forEach(function(el) {
+                    var id = el.getAttribute('wire:id');
+                    var comp = window.Livewire ? window.Livewire.find(id) : null;
+                    if (comp) {
+                        try { comp.set('data.form_data.intake', value); } catch(e) {}
+                    }
+                });
+            } catch(e) {}
+
+            // Also set native select as fallback
+            var sel = document.getElementById('cap-intake-select');
+            if (!sel) sel = document.querySelector('[id*=\"intake\"]');
+            if (sel) {
+                sel.value = value;
+                sel.dispatchEvent(new Event('change', {bubbles:true}));
+            }
+        }
+        </script>
+        ";
+
+        return new \Illuminate\Support\HtmlString($html);
     }
 
     // ── Personal Information section — mirrors the form preview exactly ───────
@@ -145,14 +268,14 @@ class ApplicationResource extends Resource
                 ->columnSpan(1),
         ];
 
-        // Intake selector — only if template has intakes configured
+        // Intake selector — shown in the info card as pills; hidden native select stores the value
         if (! empty($intakes)) {
             $fields[] = Forms\Components\Select::make('form_data.intake')
                 ->label('Select Intake')
                 ->options(collect($intakes)->mapWithKeys(fn ($i) => [$i => $i]))
                 ->placeholder('Choose intake…')
-                ->native(false)
-                ->prefixIcon('heroicon-o-calendar')
+                ->native(true)
+                ->extraAttributes(['class' => 'cap-intake-hidden-select', 'id' => 'cap-intake-select'])
                 ->columnSpan(1);
         }
 
