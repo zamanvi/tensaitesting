@@ -17,25 +17,32 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 const ROLE_BADGE: Record<string, string> = {
-  admin:        'bg-purple-100 text-purple-700',
-  branch_admin: 'bg-blue-100 text-blue-700',
-  agency:       'bg-amber-100 text-amber-700',
-  student:      'bg-teal-100 text-teal-700',
+  admin:          'bg-slate-100 text-slate-600',
+  super_admin:    'bg-slate-100 text-slate-600',
+  branch_admin:   'bg-blue-100 text-blue-700',
+  branch_manager: 'bg-blue-100 text-blue-700',
+  agency:         'bg-amber-100 text-amber-700',
+  student:        'bg-teal-100 text-teal-700',
+  individual:     'bg-purple-100 text-purple-700',
 };
 
 const ROLE_LABEL: Record<string, string> = {
-  admin:        '🏛 Admin',
-  branch_admin: '🏢 Branch',
-  agency:       '🏪 Agency',
-  student:      '👤 Student',
+  admin:          '🏛 Admin',
+  super_admin:    '🏛 Admin',
+  branch_admin:   '🏢 Branch',
+  branch_manager: '🏢 Branch',
+  agency:         '🏪 Agency',
+  student:        '👤 Student',
+  individual:     '👤 Individual',
 };
 
 const ROLE_FILTERS = [
-  { key: '', label: 'All Sources' },
+  { key: '',           label: 'All Sources' },
   { key: 'branch_admin', label: '🏢 Branch' },
-  { key: 'agency',       label: '🏪 Agency' },
-  { key: 'student',      label: '👤 Student' },
-  { key: 'admin',        label: '🏛 Admin' },
+  { key: 'agency',     label: '🏪 Agency' },
+  { key: 'student',    label: '👤 Student' },
+  { key: 'individual', label: '👤 Individual' },
+  { key: 'admin',      label: '🏛 Admin' },
 ];
 
 const STATUS_FILTERS = ['', 'draft', 'submitted', 'accepted', 'rejected'] as const;
@@ -240,13 +247,14 @@ export default function AdminApplicantsPage() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {apps.map(app => {
-                  const sourceLabel = app.submitted_by_role === 'branch_admin'
-                    ? (app.branch_name ?? 'Branch')
-                    : app.submitted_by_role === 'agency'
-                    ? (app.submitter_name ?? 'Agency')
-                    : app.submitted_by_role === 'student'
-                    ? (app.submitter_name ?? 'Student')
-                    : 'Admin';
+                  const roleKey = app.submitted_by_role ?? 'individual';
+                  const sourceLabel =
+                    ['branch_admin','branch_manager'].includes(roleKey) ? (app.branch_name ?? 'Branch') :
+                    roleKey === 'agency'     ? (app.submitter_name ?? 'Agency') :
+                    roleKey === 'student'    ? (app.submitter_name ?? 'Student') :
+                    roleKey === 'individual' ? (app.submitter_name ?? 'Personal') :
+                    ['admin','super_admin'].includes(roleKey) ? 'Admin' :
+                    (app.submitter_name ?? 'Individual');
 
                   return (
                     <tr key={app.id} className="hover:bg-slate-50 transition-colors">
@@ -260,8 +268,8 @@ export default function AdminApplicantsPage() {
                         <p className="text-[11px] text-slate-400">{app.student_email}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ROLE_BADGE[app.submitted_by_role] ?? 'bg-slate-100 text-slate-500'}`}>
-                          {ROLE_LABEL[app.submitted_by_role] ?? app.submitted_by_role}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${ROLE_BADGE[roleKey] ?? 'bg-purple-100 text-purple-700'}`}>
+                          {ROLE_LABEL[roleKey] ?? '👤 Individual'}
                         </span>
                         <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[120px]">{sourceLabel}</p>
                       </td>
