@@ -34,6 +34,9 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
     staleTime: 60_000,
   });
 
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [intake,     setIntake]     = useState('');
+
   // Fetch full template detail (with educations + groups) when one is selected
   const { data: selectedDetail } = useQuery<Template & { groups?: unknown[] }>({
     queryKey: ['form-template-detail', selectedId],
@@ -41,9 +44,6 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
     enabled: !!selectedId,
     staleTime: 300_000,
   });
-
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [intake,     setIntake]     = useState('');
   const [name,       setName]       = useState(studentName ?? '');
   const [email,      setEmail]      = useState(studentEmail ?? '');
   const [phone,      setPhone]      = useState('');
