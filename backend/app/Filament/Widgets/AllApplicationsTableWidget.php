@@ -85,15 +85,6 @@ class AllApplicationsTableWidget extends BaseWidget
                     ->suffix('%')
                     ->sortable(),
 
-                Tables\Columns\BadgeColumn::make('status')
-                    ->label('Status')
-                    ->colors([
-                        'gray'    => 'draft',
-                        'warning' => 'submitted',
-                        'success' => 'accepted',
-                        'danger'  => 'rejected',
-                    ]),
-
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
                     ->date('d M Y')
