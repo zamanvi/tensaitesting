@@ -129,10 +129,6 @@ export default function AgencyAddApplicationPage() {
           <div className="relative bg-gradient-to-br from-green-800 via-green-700 to-emerald-600 px-5 sm:px-8 py-7 sm:py-9 overflow-hidden">
             <div className="absolute right-0 top-0 w-56 h-56 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/4 pointer-events-none" />
             <div className="absolute right-12 bottom-0 w-36 h-36 bg-white/5 rounded-full translate-y-1/2 pointer-events-none" />
-            <button onClick={() => setShowStarter(false)}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-bold rounded-xl transition-all z-10">
-              ✕ Cancel
-            </button>
             <div className="relative z-10 pr-20">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-green-200 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-3">
                 🔒 NEW APPLICATION
@@ -156,7 +152,7 @@ export default function AgencyAddApplicationPage() {
               </div>
             </div>
           </div>
-          <ApplicationStarter role="agency" onCreated={handleCreated} queryKey="agency-applications" />
+          <ApplicationStarter role="agency" onCreated={handleCreated} onCancel={() => setShowStarter(false)} queryKey="agency-applications" />
         </div>
       )}
 
