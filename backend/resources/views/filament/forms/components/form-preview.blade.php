@@ -1,7 +1,8 @@
 @php
     $record->load('fieldGroups.boxes.fields');
     $groups     = $record->fieldGroups->sortBy('sort_order')
-                      ->filter(fn($g) => $g->label !== 'Application Form Info' && $g->is_active);
+                      ->filter(fn($g) => $g->label !== 'Application Form Info' && $g->is_active)
+                      ->values(); // re-index so $loop->iteration works correctly
     $intakes    = $record->intake_options ?? [];
     $educations = $record->educations ?? [];
 @endphp
@@ -40,15 +41,48 @@ textarea.pf-inp{resize:vertical;}
 
 <div class="pf">
 
-    {{-- Form title bar --}}
-    <div style="padding:16px 20px 14px;border-bottom:1px solid #e5e7eb;background:#f9fafb;">
-        <p style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;">Application Form</p>
-        <h2 style="font-size:17px;font-weight:700;color:#111827;">{{ $record->name ?: 'Application Form' }}</h2>
-        @if($record->country || $record->visa_type)
-        <p style="font-size:13px;color:#6b7280;margin-top:4px;">
-            {{ implode(' · ', array_filter([$record->country, $record->visa_type])) }}
-        </p>
-        @endif
+    {{-- Form headline --}}
+    <div style="padding:0;border-bottom:1px solid #e5e7eb;overflow:hidden;">
+        {{-- Green accent bar --}}
+        <div style="height:4px;background:linear-gradient(90deg,#16a34a,#22c55e);"></div>
+        <div style="padding:18px 22px 16px;background:#fff;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                        <span style="background:#dcfce7;color:#15803d;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em;">Application Form</span>
+                        @if($record->status === 'published')
+                        <span style="background:#f0fdf4;color:#16a34a;font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid #bbf7d0;">● Live</span>
+                        @endif
+                    </div>
+                    <h2 style="font-size:20px;font-weight:800;color:#111827;line-height:1.2;margin-bottom:4px;">{{ $record->name ?: 'Application Form' }}</h2>
+                    @if($record->country || $record->visa_type)
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        @if($record->country)
+                        <span style="display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;color:#374151;">
+                            <svg style="width:13px;height:13px;color:#6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21l1.65-3.8a9 9 0 1113.4-13.4L21 3"/></svg>
+                            {{ $record->country }}
+                        </span>
+                        @endif
+                        @if($record->country && $record->visa_type)<span style="color:#d1d5db;">·</span>@endif
+                        @if($record->visa_type)
+                        <span style="font-size:12.5px;color:#6b7280;">{{ $record->visa_type }}</span>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+                @if(count($intakes))
+                <div style="text-align:right;">
+                    <p style="font-size:10.5px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Available Intakes</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;">
+                        @foreach(array_slice($intakes,0,3) as $intake)
+                        <span style="background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px;border:1px solid #bfdbfe;">{{ $intake }}</span>
+                        @endforeach
+                        @if(count($intakes)>3)<span style="font-size:11px;color:#9ca3af;">+{{ count($intakes)-3 }} more</span>@endif
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     <div style="padding:16px 20px 20px;display:flex;flex-direction:column;gap:16px;">
@@ -162,10 +196,10 @@ textarea.pf-inp{resize:vertical;}
         </div>
 
         {{-- ── Dynamic Sections ── --}}
-        @foreach($groups as $gi => $group)
+        @foreach($groups as $group)
         <div class="pf-section">
             <div class="pf-sec-head">
-                <span class="pf-sec-num" style="background:#2563eb;">{{ $gi + 2 }}</span>
+                <span class="pf-sec-num" style="background:#2563eb;">{{ $loop->iteration + 1 }}</span>
                 <div>
                     <span class="pf-sec-title">{{ $group->label }}</span>
                     @if($group->hint)
