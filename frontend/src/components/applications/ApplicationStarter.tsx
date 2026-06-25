@@ -6,7 +6,7 @@ import { Application } from './ApplicationFormShared';
 
 const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white transition-all placeholder:text-slate-300';
 const lbl = 'block text-sm font-medium text-slate-700 mb-1';
-const required = <span className="text-red-500 ml-0.5">*</span>;
+const req = <span className="text-red-500 ml-0.5">*</span>;
 
 interface Template {
   id: number; name: string; country: string; visa_type?: string;
@@ -30,15 +30,14 @@ interface Props {
   queryKey: string;
 }
 
-/* Filament-style section card */
 function FiCard({ icon, title, children }: { icon?: string; title: string; children: React.ReactNode }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100">
-        {icon && <span className="text-slate-400 text-base">{icon}</span>}
-        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+      <div className="flex items-center gap-2.5 px-4 sm:px-6 py-3.5 border-b border-slate-100 bg-slate-50/60">
+        {icon && <span className="text-slate-500 text-base">{icon}</span>}
+        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
       </div>
-      <div className="px-6 py-5">{children}</div>
+      <div className="px-4 sm:px-6 py-4 sm:py-5">{children}</div>
     </div>
   );
 }
@@ -71,16 +70,16 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   const [address,  setAddress]  = useState('');
   const [err,      setErr]      = useState('');
 
-  const selected = templates.find(t => t.id === selectedId) ?? null;
-  const needStudentInfo = role !== 'student';
-  const canStart = !!selectedId && !!name.trim();
+  const selected      = templates.find(t => t.id === selectedId) ?? null;
+  const needStudent   = role !== 'student';
+  const canStart      = !!selectedId && !!name.trim();
   const intakeOptions = (selectedDetail?.intake_options ?? []) as string[];
-  const eduCount = (selectedDetail?.educations ?? []).filter(e => e.requirement !== 'none').length;
-  const groupCount = (selectedDetail?.groups ?? []).length;
+  const eduCount      = (selectedDetail?.educations ?? []).filter(e => e.requirement !== 'none').length;
+  const groupCount    = (selectedDetail?.groups ?? []).length;
 
   const startMut = useMutation({
     mutationFn: () => api.post('/applications', {
-      form_template_id: selectedId,
+      form_template_id:  selectedId,
       student_name:      name.trim(),
       student_email:     email.trim() || undefined,
       student_phone:     phone.trim() || undefined,
@@ -103,34 +102,30 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="p-10 text-center">
-        <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" />
-      </div>
-    );
-  }
+  if (isLoading) return (
+    <div className="py-12 text-center">
+      <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" />
+    </div>
+  );
 
-  if (templates.length === 0) {
-    return (
-      <div className="p-10 text-center">
-        <div className="text-3xl mb-3">📋</div>
-        <p className="text-sm font-semibold text-slate-600">No application forms published yet</p>
-        <p className="text-xs text-slate-400 mt-1">Ask the admin to publish a form first</p>
-      </div>
-    );
-  }
+  if (templates.length === 0) return (
+    <div className="py-12 text-center px-6">
+      <div className="text-3xl mb-3">📋</div>
+      <p className="text-sm font-semibold text-slate-600">No application forms published yet</p>
+      <p className="text-xs text-slate-400 mt-1">Ask the admin to publish a form first</p>
+    </div>
+  );
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       {err && (
         <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">⚠️ {err}</div>
       )}
 
-      {/* Country Form — matches admin card */}
+      {/* 1 — Country Form */}
       <FiCard icon="🌏" title="Country Form">
         <div>
-          <label className={lbl}>Country Form {required}</label>
+          <label className={lbl}>Country Form {req}</label>
           <select
             value={selectedId ?? ''}
             onChange={e => { setSelectedId(e.target.value ? Number(e.target.value) : null); setIntake(''); }}
@@ -144,7 +139,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
           </select>
         </div>
 
-        {/* Template info card — same as admin green card */}
+        {/* Template info card */}
         {selectedId && (
           <div className="mt-4">
             {detailLoading ? (
@@ -154,7 +149,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
               </div>
             ) : selected && (
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
                   <span className="text-xl">{FLAG[selected.country?.toLowerCase()] ?? '🌍'}</span>
                   <span className="font-bold text-slate-800 text-sm">{selected.country}</span>
                   {selected.visa_type && (
@@ -163,11 +158,13 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                     </span>
                   )}
                 </div>
-                <p className="text-sm font-bold text-slate-800 mb-1">{selected.name}</p>
-                <div className="flex gap-3 flex-wrap text-xs text-slate-500">
-                  {groupCount > 0 && <span>{groupCount} custom section{groupCount !== 1 ? 's' : ''}</span>}
-                  {eduCount > 0 && <span>· {eduCount} education certificate{eduCount !== 1 ? 's' : ''}</span>}
-                </div>
+                <p className="text-sm font-bold text-slate-800 mb-1.5">{selected.name}</p>
+                {(groupCount > 0 || eduCount > 0) && (
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                    {groupCount > 0 && <span>📋 {groupCount} custom section{groupCount !== 1 ? 's' : ''}</span>}
+                    {eduCount > 0 && <span>🎓 {eduCount} education certificate{eduCount !== 1 ? 's' : ''}</span>}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -177,13 +174,13 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
         {intakeOptions.length > 0 && (
           <div className="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
             <label className={lbl}>Target Intake</label>
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="flex flex-wrap gap-2 mt-1.5">
               {intakeOptions.map(opt => (
                 <button key={opt} type="button"
                   onClick={() => setIntake(prev => prev === opt ? '' : opt)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                     intake === opt
-                      ? 'bg-green-700 text-white border-green-700'
+                      ? 'bg-green-700 text-white border-green-700 shadow-sm'
                       : 'bg-white border-slate-300 text-slate-700 hover:border-green-400 hover:bg-green-50'
                   }`}>
                   {opt}
@@ -195,18 +192,18 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
         )}
       </FiCard>
 
-      {/* Personal Information — shows after template selected */}
+      {/* 2 — Personal Information */}
       {selectedId && (
         <FiCard icon="👤" title="Personal Information">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {needStudentInfo && (
-              <div className="sm:col-span-2">
-                <label className={lbl}>Full Name {required}</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {needStudent && (
+              <div className="col-span-1 sm:col-span-2">
+                <label className={lbl}>Full Name {req}</label>
                 <input className={inp} placeholder="e.g. Ahmed Rahman" value={name}
                   onChange={e => setName(e.target.value)} />
               </div>
             )}
-            {needStudentInfo && (
+            {needStudent && (
               <div>
                 <label className={lbl}>Email Address</label>
                 <input className={inp} type="email" placeholder="student@email.com" value={email}
@@ -214,7 +211,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
               </div>
             )}
             <div>
-              <label className={lbl}>Contact Number {required}</label>
+              <label className={lbl}>Contact Number {req}</label>
               <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={phone}
                 onChange={e => setPhone(e.target.value)} />
             </div>
@@ -233,7 +230,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
               <input className={inp} placeholder="e.g. AB1234567" value={passport}
                 onChange={e => setPassport(e.target.value)} />
             </div>
-            <div className="sm:col-span-2">
+            <div className="col-span-1 sm:col-span-2">
               <label className={lbl}>Permanent Address</label>
               <input className={inp} placeholder="House, Road, Area, City" value={address}
                 onChange={e => setAddress(e.target.value)} />
@@ -242,18 +239,20 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
         </FiCard>
       )}
 
-      {/* Save & Continue */}
+      {/* 3 — Save & Continue */}
       {selectedId && (
-        <div className="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-6 py-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-xl border border-slate-200 px-4 sm:px-6 py-4 shadow-sm">
           <p className="text-sm text-slate-500">
-            {canStart ? 'Ready to open the full application form' : 'Fill in student name to continue'}
+            {canStart
+              ? 'Ready — click to open the full application form'
+              : <span className="text-amber-600">Fill in student name to continue</span>}
           </p>
           <button
             onClick={() => startMut.mutate()}
             disabled={startMut.isPending || !canStart}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-all shadow-sm">
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-all shadow-sm">
             {startMut.isPending
-              ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Creating…</>
+              ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating…</>
               : '🚀 Save & Continue'}
           </button>
         </div>
