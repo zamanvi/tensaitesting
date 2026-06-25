@@ -45,6 +45,10 @@ class FormTemplateController extends Controller
             ])->values(),
         ])->values();
 
+        $educations = collect($template->educations ?? [])
+            ->filter(fn ($e) => ($e['requirement'] ?? 'none') !== 'none')
+            ->values();
+
         return [
             'id'             => $template->id,
             'country'        => $template->country,
@@ -52,6 +56,7 @@ class FormTemplateController extends Controller
             'name'           => $template->name,
             'intake_options' => $template->intake_options ?? [],
             'groups'         => $groups,
+            'educations'     => $educations,
         ];
     }
 

@@ -29,6 +29,7 @@ export default function BranchApplicantsPage() {
   const [activeAppId, setActiveAppId] = useState<number | null>(null);
   const [showStarter, setShowStarter] = useState(false);
   const [tableTab,    setTableTab]    = useState<'draft' | 'submitted'>('submitted');
+  const [search,      setSearch]      = useState('');
 
   const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
     queryKey: ['branch-applications'],
@@ -80,8 +81,15 @@ export default function BranchApplicantsPage() {
 
   if (!user || !isBranchAdmin) return null;
 
-  const submitted = apps.filter(a => a.status !== 'draft');
-  const drafts    = apps.filter(a => a.status === 'draft');
+  const q         = search.toLowerCase();
+  const submitted = apps.filter(a => a.status !== 'draft').filter(a =>
+    !q || a.student_name?.toLowerCase().includes(q) || a.student_email?.toLowerCase().includes(q) ||
+    a.application_code?.toLowerCase().includes(q) || a.form_template?.country?.toLowerCase().includes(q)
+  );
+  const drafts    = apps.filter(a => a.status === 'draft').filter(a =>
+    !q || a.student_name?.toLowerCase().includes(q) || a.student_email?.toLowerCase().includes(q) ||
+    a.application_code?.toLowerCase().includes(q) || a.form_template?.country?.toLowerCase().includes(q)
+  );
 
   return (
     <BranchLayout title="Applications">
@@ -120,11 +128,24 @@ export default function BranchApplicantsPage() {
 
           {/* Table */}
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-              <div>
+            <div className="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1">
                 <h3 className="font-black text-slate-900 text-sm">All Applications</h3>
                 <p className="text-xs text-slate-400 mt-0.5">{apps.length} total</p>
               </div>
+              {/* Search */}
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  className="pl-8 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-400 w-48 bg-slate-50"
+                  placeholder="Search name, code, country…"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                />
+              </div>
+              {/* Tabs */}
               <div className="flex gap-1.5">
                 {(['submitted', 'draft'] as const).map(t => (
                   <button key={t} onClick={() => setTableTab(t)}
@@ -151,7 +172,8 @@ export default function BranchApplicantsPage() {
                       <th className="text-left px-4 py-3">Student</th>
                       <th className="text-left px-4 py-3">Progress</th>
                       <th className="text-left px-4 py-3 hidden sm:table-cell">Country</th>
-                      <th className="text-left px-4 py-3 hidden md:table-cell">Status</th>
+                      <th className="text-left px-4 py-3 hidden md:table-cell">Intake</th>
+                      <th className="text-left px-4 py-3 hidden lg:table-cell">Status</th>
                       <th className="text-left px-4 py-3 hidden lg:table-cell">Updated</th>
                       <th className="px-4 py-3" />
                     </tr>
@@ -176,6 +198,11 @@ export default function BranchApplicantsPage() {
                         </td>
                         <td className="px-4 py-4 text-xs text-slate-500 hidden sm:table-cell">{app.form_template?.country ?? '—'}</td>
                         <td className="px-4 py-4 hidden md:table-cell">
+                          {app.form_data?.intake
+                            ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{app.form_data.intake}</span>
+                            : <span className="text-[10px] text-slate-300">—</span>}
+                        </td>
+                        <td className="px-4 py-4 hidden lg:table-cell">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_STYLE[app.status] ?? ''}`}>{app.status}</span>
                         </td>
                         <td className="px-4 py-4 text-xs text-slate-400 hidden lg:table-cell">{new Date(app.updated_at).toLocaleDateString()}</td>

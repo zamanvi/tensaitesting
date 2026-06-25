@@ -7,7 +7,7 @@ import { Application } from './ApplicationFormShared';
 const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
 const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide';
 
-interface Template { id: number; name: string; country: string; visa_type?: string; }
+interface Template { id: number; name: string; country: string; visa_type?: string; intake_options?: string[]; }
 
 interface Props {
   role: 'branch' | 'agency' | 'admin' | 'student';
@@ -27,6 +27,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   });
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [intake,     setIntake]     = useState('');
   const [name,       setName]       = useState(studentName ?? '');
   const [email,      setEmail]      = useState(studentEmail ?? '');
   const [phone,      setPhone]      = useState('');
@@ -55,6 +56,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
       form_data: {
         ...(dob      ? { birth_date: dob }      : {}),
         ...(passport ? { passport_no: passport } : {}),
+        ...(intake   ? { intake }                : {}),
       },
     }),
     onSuccess: (res) => {
@@ -109,7 +111,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {forms.map(t => (
                     <button key={t.id} type="button"
-                      onClick={() => setSelectedId(t.id)}
+                      onClick={() => { setSelectedId(t.id); setIntake(''); }}
                       className={`px-3 py-2.5 rounded-xl text-xs font-bold border transition-all text-left ${
                         selectedId === t.id
                           ? 'bg-green-700 text-white border-green-700 shadow-sm'
@@ -131,6 +133,27 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
           {selected && (
             <div className="mt-2 px-3 py-2 bg-green-50 border border-green-100 rounded-xl text-xs text-green-800 font-medium">
               ✅ {selected.country}{selected.visa_type ? ` · ${selected.visa_type}` : ''} — {selected.name}
+            </div>
+          )}
+
+          {/* Intake pills */}
+          {selected && (selected.intake_options ?? []).length > 0 && (
+            <div className="mt-3">
+              <label className={lbl}>Select Intake</label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {(selected.intake_options ?? []).map(opt => (
+                  <button key={opt} type="button"
+                    onClick={() => setIntake(prev => prev === opt ? '' : opt)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                      intake === opt
+                        ? 'bg-green-700 text-white border-green-700 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-green-400 hover:bg-green-50'
+                    }`}>
+                    📅 {opt}
+                  </button>
+                ))}
+              </div>
+              {intake && <p className="text-[11px] text-green-700 font-semibold mt-1.5">✓ Selected: {intake}</p>}
             </div>
           )}
         </div>

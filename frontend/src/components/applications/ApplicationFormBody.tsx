@@ -22,13 +22,20 @@ interface Props {
 export default function ApplicationFormBody({
   app, template, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose,
 }: Props) {
-  const [formData, setFormData] = useState<Record<string, string>>(app.form_data ?? {});
-  const [saving,   setSaving]   = useState(false);
+  const [formData,   setFormData]   = useState<Record<string, string>>(app.form_data ?? {});
+  const [studentInfo, setStudentInfo] = useState({
+    student_email:     app.student_email ?? '',
+    student_phone:     app.student_phone ?? '',
+    whatsapp_no:       app.whatsapp_no ?? '',
+    permanent_address: app.permanent_address ?? '',
+  });
+  const [saving,     setSaving]     = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [msg,        setMsg]        = useState('');
   const [err,        setErr]        = useState('');
+  const [liveProgress, setLiveProgress] = useState(app.progress);
 
-  const progress   = app.progress;
+  const progress   = liveProgress;
   const isEditable = !['accepted', 'rejected'].includes(app.status);
   const canSubmit  = progress >= 50 && isEditable;
   const docs       = app.documents ?? [];
@@ -40,8 +47,12 @@ export default function ApplicationFormBody({
   async function handleSave() {
     setSaving(true); setErr('');
     try {
-      const res = await api.patch(`/applications/${app.id}`, { form_data: formData });
+      const res = await api.patch(`/applications/${app.id}`, {
+        form_data: formData,
+        ...studentInfo,
+      });
       onSaved(res.data);
+      if (res.data?.progress !== undefined) setLiveProgress(res.data.progress);
       setMsg('Saved ✓'); setTimeout(() => setMsg(''), 2500);
     } catch { setErr('Save failed.'); }
     setSaving(false);
@@ -105,33 +116,61 @@ export default function ApplicationFormBody({
       {/* Form body */}
       <div className="px-6 py-8 space-y-10">
 
-        {/* Student info — read-only, captured at application creation */}
+        {/* Student info */}
         <section>
-          <SectionHead n={1} title="Student Information" />
+          <SectionHead n={1} title="Student Information" subtitle={isEditable ? 'Contact details can be updated and saved' : undefined} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Name — always read-only */}
             <div>
               <label className={lbl}>Full Name</label>
               <input className={`${inp} bg-slate-50`} value={app.student_name} readOnly />
             </div>
-            <div>
-              <label className={lbl}>Email</label>
-              <input className={`${inp} bg-slate-50`} value={app.student_email ?? ''} readOnly />
-            </div>
-            <div>
-              <label className={lbl}>Contact Phone</label>
-              <input className={`${inp} bg-slate-50`} value={app.student_phone ?? ''} readOnly />
-            </div>
-            <div>
-              <label className={lbl}>WhatsApp Number</label>
-              <input className={`${inp} bg-slate-50`} value={app.whatsapp_no ?? ''} readOnly />
-            </div>
+            {/* Country — always read-only */}
             <div>
               <label className={lbl}>Target Country</label>
               <input className={`${inp} bg-slate-50`} value={app.form_template?.country ?? ''} readOnly />
             </div>
+            {/* Editable contact fields */}
+            <div>
+              <label className={lbl}>Email Address</label>
+              <input className={inp} type="email" value={studentInfo.student_email}
+                readOnly={!isEditable}
+                onChange={e => setStudentInfo(p => ({ ...p, student_email: e.target.value }))} />
+            </div>
+            <div>
+              <label className={lbl}>Contact Phone</label>
+              <input className={inp} type="tel" value={studentInfo.student_phone}
+                readOnly={!isEditable}
+                onChange={e => setStudentInfo(p => ({ ...p, student_phone: e.target.value }))} />
+            </div>
+            <div>
+              <label className={lbl}>WhatsApp Number</label>
+              <input className={inp} type="tel" value={studentInfo.whatsapp_no}
+                readOnly={!isEditable}
+                onChange={e => setStudentInfo(p => ({ ...p, whatsapp_no: e.target.value }))} />
+            </div>
+            {/* DOB from form_data */}
+            <div>
+              <label className={lbl}>Date of Birth</label>
+              <input className={inp} type="date"
+                value={formData.birth_date ?? ''}
+                readOnly={!isEditable}
+                onChange={e => set('birth_date', e.target.value)} />
+            </div>
+            {/* Passport from form_data */}
+            <div>
+              <label className={lbl}>Passport Number</label>
+              <input className={inp} placeholder="e.g. AB1234567"
+                value={formData.passport_no ?? ''}
+                readOnly={!isEditable}
+                onChange={e => set('passport_no', e.target.value)} />
+            </div>
             <div className="sm:col-span-2">
               <label className={lbl}>Permanent Address</label>
-              <textarea className={`${inp} bg-slate-50 resize-none`} rows={2} value={app.permanent_address ?? ''} readOnly />
+              <textarea className={`${inp} resize-none`} rows={2}
+                value={studentInfo.permanent_address}
+                readOnly={!isEditable}
+                onChange={e => setStudentInfo(p => ({ ...p, permanent_address: e.target.value }))} />
             </div>
           </div>
         </section>
