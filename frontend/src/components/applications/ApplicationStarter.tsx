@@ -181,30 +181,49 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
             </div>
           )}
 
-          {/* Intake pills */}
-          {selected && (selected.intake_options ?? []).length > 0 && (
-            <div className="mt-3">
-              <label className={lbl}>Select Intake</label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {(selected.intake_options ?? []).map(opt => (
+          {/* Intake pills — use selectedDetail (full API) for reliable data */}
+          {selectedDetail && (selectedDetail.intake_options ?? []).length > 0 && (
+            <div className="mt-3 bg-blue-50 border border-blue-100 rounded-2xl p-4">
+              <p className="text-xs font-bold text-blue-800 mb-2.5">📅 Select Target Intake</p>
+              <div className="flex flex-wrap gap-2">
+                {(selectedDetail.intake_options as string[]).map(opt => (
                   <button key={opt} type="button"
                     onClick={() => setIntake(prev => prev === opt ? '' : opt)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                       intake === opt
-                        ? 'bg-green-700 text-white border-green-700 shadow-sm'
-                        : 'bg-white border-slate-200 text-slate-700 hover:border-green-400 hover:bg-green-50'
+                        ? 'bg-blue-700 text-white border-blue-700 shadow-sm'
+                        : 'bg-white border-blue-200 text-blue-700 hover:bg-blue-100'
                     }`}>
-                    📅 {opt}
+                    {opt}
                   </button>
                 ))}
               </div>
-              {intake && <p className="text-[11px] text-green-700 font-semibold mt-1.5">✓ Selected: {intake}</p>}
+              {intake && <p className="text-[11px] text-blue-700 font-semibold mt-2">✓ Selected: {intake}</p>}
             </div>
           )}
         </div>
 
-        {/* Student info */}
-        {needStudentInfo && (
+        {/* Personal Information section */}
+        {selectedId && (
+          <div className="pt-2">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-lg bg-green-700 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">2</div>
+              <div>
+                <p className="text-sm font-black text-slate-900">Personal Information</p>
+                <p className="text-xs text-slate-400">Student contact and identification details</p>
+              </div>
+            </div>
+
+            {needStudentInfo && (
+              <div className="mb-4">
+                <label className={lbl}>Student Name *</label>
+                <input className={inp} placeholder="e.g. Ahmed Rahman" value={name}
+                  onChange={e => setName(e.target.value)} />
+              </div>
+            )}
+          </div>
+        )}
+        {!selectedId && needStudentInfo && (
           <div>
             <label className={lbl}>Student Name *</label>
             <input className={inp} placeholder="e.g. Ahmed Rahman" value={name}
@@ -212,7 +231,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
           </div>
         )}
 
-        {/* Contact details — branch/agency fill all; student fills contact + whatsapp + address */}
+        {/* Contact details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {needStudentInfo && (
             <div>
