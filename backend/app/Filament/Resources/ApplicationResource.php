@@ -52,12 +52,9 @@ class ApplicationResource extends Resource
             Forms\Components\View::make('filament.forms.components.application-progress')
                 ->hiddenOn('create'),
 
-            // ── Section 1: Application Details ────────────────────────────────
-            Forms\Components\Section::make('Application Details')
-                ->icon('heroicon-o-user-circle')
-                ->columns(2)
+            // ── Country Form selector ─────────────────────────────────────────
+            Forms\Components\Section::make()
                 ->schema([
-
                     Forms\Components\Select::make('form_template_id')
                         ->label('Country Form')
                         ->options(fn () => FormTemplate::where('status', 'published')
@@ -72,58 +69,28 @@ class ApplicationResource extends Resource
                         ->disabled(fn (string $operation) => $operation === 'edit')
                         ->dehydrated()
                         ->columnSpanFull()
-                        ->helperText(fn (string $operation) => $operation === 'create'
-                            ? 'Select the country this student is applying to.'
-                            : null),
-
-                    Forms\Components\TextInput::make('student_name')
-                        ->label('Student Name')
-                        ->required()
-                        ->prefixIcon('heroicon-o-user'),
-
-                    Forms\Components\TextInput::make('student_email')
-                        ->label('Student Email')
-                        ->email()
-                        ->prefixIcon('heroicon-o-envelope'),
-
-                    Forms\Components\TextInput::make('student_phone')
-                        ->label('Phone Number')
-                        ->prefixIcon('heroicon-o-phone'),
-
-                    Forms\Components\TextInput::make('whatsapp_no')
-                        ->label('WhatsApp Number')
-                        ->prefixIcon('heroicon-o-chat-bubble-left-right'),
-
-                    Forms\Components\Textarea::make('permanent_address')
-                        ->label('Permanent Address')
-                        ->rows(2)
-                        ->columnSpanFull(),
-
-                    Forms\Components\Select::make('status')
-                        ->label('Application Status')
-                        ->options([
-                            'draft'     => 'Draft',
-                            'submitted' => 'Submitted',
-                            'accepted'  => 'Accepted',
-                            'rejected'  => 'Rejected',
-                        ])
-                        ->default('draft')
-                        ->required()
-                        ->native(false)
-                        ->hiddenOn('create'),
+                        ->placeholder('Select country / visa type…'),
                 ]),
 
-            // ── Dynamic template sections ────────────────────────────────────
+            // ── Personal Information (matches preview exactly) ────────────────
+            Forms\Components\Section::make('Personal Information')
+                ->icon('heroicon-o-user-circle')
+                ->columns(2)
+                ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
+                ->schema(fn (Forms\Get $get): array => self::buildPersonalInfoFields(
+                    filled($get('form_template_id')) ? (int) $get('form_template_id') : null
+                )),
+
+            // ── Dynamic template sections ─────────────────────────────────────
             Forms\Components\Group::make()
                 ->schema(fn (Forms\Get $get): array => self::buildTemplateFieldSections(
                     filled($get('form_template_id')) ? (int) $get('form_template_id') : null
                 ))
                 ->visible(fn (Forms\Get $get) => filled($get('form_template_id'))),
 
-            // ── Education Background ─────────────────────────────────────────
-            Forms\Components\Section::make('Education Background')
+            // ── Education Certificates ────────────────────────────────────────
+            Forms\Components\Section::make('Education Certificates')
                 ->icon('heroicon-o-academic-cap')
-                ->description('Academic qualifications and supporting certificates.')
                 ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
                 ->schema(fn (Forms\Get $get): array => self::buildEducationSchema(
                     filled($get('form_template_id')) ? (int) $get('form_template_id') : null
@@ -132,6 +99,85 @@ class ApplicationResource extends Resource
                 ->collapsed(false),
 
         ]);
+    }
+
+    // ── Personal Information section — mirrors the form preview exactly ───────
+
+    protected static function buildPersonalInfoFields(?int $templateId): array
+    {
+        $template = $templateId ? FormTemplate::find($templateId) : null;
+        $intakes  = $template?->intake_options ?? [];
+
+        $fields = [
+            Forms\Components\TextInput::make('student_name')
+                ->label('Full Name')
+                ->required()
+                ->prefixIcon('heroicon-o-user')
+                ->columnSpan(1),
+
+            Forms\Components\TextInput::make('student_email')
+                ->label('Email Address')
+                ->email()
+                ->prefixIcon('heroicon-o-envelope')
+                ->columnSpan(1),
+
+            Forms\Components\TextInput::make('student_phone')
+                ->label('Contact Number')
+                ->required()
+                ->prefixIcon('heroicon-o-phone')
+                ->columnSpan(1),
+
+            Forms\Components\TextInput::make('whatsapp_no')
+                ->label('WhatsApp Number')
+                ->prefixIcon('heroicon-o-chat-bubble-left-right')
+                ->columnSpan(1),
+
+            Forms\Components\DatePicker::make('form_data.birth_date')
+                ->label('Date of Birth')
+                ->displayFormat('d M Y')
+                ->prefixIcon('heroicon-o-calendar-days')
+                ->columnSpan(1),
+
+            Forms\Components\TextInput::make('form_data.passport_no')
+                ->label('Passport Number')
+                ->placeholder('e.g. AB1234567')
+                ->prefixIcon('heroicon-o-identification')
+                ->columnSpan(1),
+        ];
+
+        // Intake selector — only if template has intakes configured
+        if (! empty($intakes)) {
+            $fields[] = Forms\Components\Select::make('form_data.intake')
+                ->label('Select Intake')
+                ->options(collect($intakes)->mapWithKeys(fn ($i) => [$i => $i]))
+                ->placeholder('Choose intake…')
+                ->native(false)
+                ->prefixIcon('heroicon-o-calendar')
+                ->columnSpan(1);
+        }
+
+        $fields[] = Forms\Components\Textarea::make('permanent_address')
+            ->label('Permanent Address')
+            ->placeholder('House, Road, Area, City, Postcode')
+            ->rows(2)
+            ->columnSpanFull();
+
+        // Admin-only: status control (edit only)
+        $fields[] = Forms\Components\Select::make('status')
+            ->label('Application Status')
+            ->options([
+                'draft'     => 'Draft',
+                'submitted' => 'Submitted',
+                'accepted'  => 'Accepted',
+                'rejected'  => 'Rejected',
+            ])
+            ->default('draft')
+            ->required()
+            ->native(false)
+            ->hiddenOn('create')
+            ->columnSpan(1);
+
+        return $fields;
     }
 
     // ── Build dynamic form sections from FormFieldGroups ─────────────────────
