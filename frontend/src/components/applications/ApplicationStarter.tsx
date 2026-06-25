@@ -133,7 +133,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
             <option value="">— Select a country form —</option>
             {templates.map(t => (
               <option key={t.id} value={t.id}>
-                {t.country} — {t.name}{t.visa_type ? ` (${t.visa_type})` : ''}
+                {t.country} — {t.name}
               </option>
             ))}
           </select>
