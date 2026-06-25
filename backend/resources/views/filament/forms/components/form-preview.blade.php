@@ -54,7 +54,8 @@ textarea.pf-inp{resize:vertical;}
                         <span style="background:#f0fdf4;color:#16a34a;font-size:10.5px;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid #bbf7d0;">● Live</span>
                         @endif
                     </div>
-                    <h2 style="font-size:20px;font-weight:800;color:#111827;line-height:1.2;margin-bottom:6px;padding-bottom:8px;border-bottom:2px solid #16a34a;display:block;width:100%;">{{ $record->name ?: 'Application Form' }}</h2>
+                    <h2 style="font-size:20px;font-weight:800;color:#111827;line-height:1.2;margin-bottom:0;">{{ $record->name ?: 'Application Form' }}</h2>
+                    <div style="height:2px;background:#16a34a;width:100%;margin:6px 0 6px;"></div>
                     @if($record->country || $record->visa_type)
                     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                         @if($record->country)
