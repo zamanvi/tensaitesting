@@ -131,79 +131,104 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
 
   const intakeOptions = detail?.intake_options ?? [];
 
+  // ── STEP 1: Template selection screen ──
+  if (!selectedId) {
+    const byCountry = templates.reduce<Record<string, ListTemplate[]>>((acc, t) => {
+      (acc[t.country] ??= []).push(t);
+      return acc;
+    }, {});
+
+    return (
+      <div className="p-4 sm:p-6">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+          Select a Country Form to begin
+        </p>
+        <div className="space-y-4">
+          {Object.entries(byCountry).map(([country, forms]) => (
+            <div key={country}>
+              {/* Country header */}
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-base">{FLAG[country.toLowerCase()] ?? '🌍'}</span>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{country}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {forms.map(t => (
+                  <button key={t.id} type="button"
+                    onClick={() => handleSelectTemplate(t.id)}
+                    className="group text-left bg-white border border-slate-200 hover:border-green-400 hover:shadow-md rounded-xl p-4 transition-all">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-bold text-slate-800 group-hover:text-green-800 leading-tight">
+                          {t.name}
+                        </p>
+                        {t.visa_type && (
+                          <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">
+                            {t.visa_type}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-slate-300 group-hover:text-green-500 text-lg mt-0.5 flex-shrink-0">→</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── STEP 2: Form for selected template ──
   return (
     <div className="p-4 sm:p-6 space-y-4">
       {err && <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">⚠️ {err}</div>}
 
-      {/* ── 1. Country Form ── */}
-      <FiCard icon="🌏" title="Country Form">
-        <div>
-          <label className={lbl}>Country Form {req}</label>
-          <select
-            value={selectedId ?? ''}
-            onChange={e => handleSelectTemplate(e.target.value ? Number(e.target.value) : null)}
-            className={inp + ' cursor-pointer'}>
-            <option value="">— Select a country form —</option>
-            {templates.map(t => (
-              <option key={t.id} value={t.id}>{t.country} — {t.name}</option>
-            ))}
-          </select>
+      {/* Selected template header — click to go back */}
+      <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm">
+        <button type="button" onClick={() => handleSelectTemplate(null)}
+          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors flex-shrink-0">
+          ←
+        </button>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <span className="text-lg">{FLAG[selected?.country?.toLowerCase() ?? ''] ?? '🌍'}</span>
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-800 truncate">{selected?.name}</p>
+            <p className="text-[11px] text-slate-400">{selected?.country}{selected?.visa_type ? ` · ${selected.visa_type}` : ''}</p>
+          </div>
         </div>
-
-        {/* Template info card */}
-        {selectedId && (
-          <div className="mt-4">
-            {detailLoading ? (
-              <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
-                <span className="w-4 h-4 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
-                Loading form details…
-              </div>
-            ) : selected && detail && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="text-xl">{FLAG[selected.country?.toLowerCase()] ?? '🌍'}</span>
-                  <span className="font-bold text-slate-800 text-sm">{selected.country}</span>
-                  {selected.visa_type && (
-                    <span className="text-[11px] font-semibold px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">
-                      {selected.visa_type}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm font-bold text-slate-800 mb-1.5">{selected.name}</p>
-                <div className="flex flex-wrap gap-x-3 text-xs text-slate-500">
-                  {detail.groups.length > 0 && (
-                    <span>📋 {detail.groups.length} custom section{detail.groups.length !== 1 ? 's' : ''}</span>
-                  )}
-                  {detail.educations.filter(e => e.requirement !== 'none').length > 0 && (
-                    <span>🎓 {detail.educations.filter(e => e.requirement !== 'none').length} education certificate{detail.educations.filter(e => e.requirement !== 'none').length !== 1 ? 's' : ''}</span>
-                  )}
-                </div>
-              </div>
+        {detailLoading && (
+          <span className="w-4 h-4 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin flex-shrink-0" />
+        )}
+        {detail && (
+          <div className="flex gap-2 text-[10px] text-slate-400 flex-shrink-0">
+            {detail.groups.length > 0 && <span>📋 {detail.groups.length}</span>}
+            {detail.educations.filter(e => e.requirement !== 'none').length > 0 && (
+              <span>🎓 {detail.educations.filter(e => e.requirement !== 'none').length}</span>
             )}
           </div>
         )}
+      </div>
 
-        {/* Intake pills */}
-        {intakeOptions.length > 0 && (
-          <div className="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <label className={lbl}>Target Intake</label>
-            <div className="flex flex-wrap gap-2 mt-1.5">
-              {intakeOptions.map(opt => (
-                <button key={opt} type="button"
-                  onClick={() => setIntake(prev => prev === opt ? '' : opt)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                    intake === opt
-                      ? 'bg-green-700 text-white border-green-700 shadow-sm'
-                      : 'bg-white border-slate-300 text-slate-700 hover:border-green-400 hover:bg-green-50'
-                  }`}>
-                  {opt}
-                </button>
-              ))}
-            </div>
-            {intake && <p className="text-xs text-green-700 font-medium mt-2">✓ {intake}</p>}
+      {/* Intake pills */}
+      {intakeOptions.length > 0 && (
+        <FiCard icon="📅" title="Target Intake">
+          <div className="flex flex-wrap gap-2">
+            {intakeOptions.map(opt => (
+              <button key={opt} type="button"
+                onClick={() => setIntake(prev => prev === opt ? '' : opt)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                  intake === opt
+                    ? 'bg-green-700 text-white border-green-700 shadow-sm'
+                    : 'bg-white border-slate-300 text-slate-700 hover:border-green-400 hover:bg-green-50'
+                }`}>
+                {opt}
+              </button>
+            ))}
           </div>
-        )}
-      </FiCard>
+          {intake && <p className="text-xs text-green-700 font-medium mt-2">✓ {intake}</p>}
+        </FiCard>
+      )}
 
       {/* ── 2. Personal Information ── */}
       {selectedId && (
