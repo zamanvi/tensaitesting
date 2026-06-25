@@ -92,14 +92,12 @@ class ApplicationResource extends Resource
 
                     Forms\Components\TextInput::make('whatsapp_no')
                         ->label('WhatsApp Number')
-                        ->prefixIcon('heroicon-o-chat-bubble-left-right')
-                        ->hiddenOn('create'),
+                        ->prefixIcon('heroicon-o-chat-bubble-left-right'),
 
                     Forms\Components\Textarea::make('permanent_address')
                         ->label('Permanent Address')
                         ->rows(2)
-                        ->columnSpanFull()
-                        ->hiddenOn('create'),
+                        ->columnSpanFull(),
 
                     Forms\Components\Select::make('status')
                         ->label('Application Status')
@@ -115,15 +113,14 @@ class ApplicationResource extends Resource
                         ->hiddenOn('create'),
                 ]),
 
-            // ── Dynamic template sections (Edit only) ─────────────────────────
+            // ── Dynamic template sections ────────────────────────────────────
             Forms\Components\Group::make()
                 ->schema(fn (Forms\Get $get): array => self::buildTemplateFieldSections(
                     filled($get('form_template_id')) ? (int) $get('form_template_id') : null
                 ))
-                ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
-                ->hiddenOn('create'),
+                ->visible(fn (Forms\Get $get) => filled($get('form_template_id'))),
 
-            // ── Education Background ──────────────────────────────────────────
+            // ── Education Background ─────────────────────────────────────────
             Forms\Components\Section::make('Education Background')
                 ->icon('heroicon-o-academic-cap')
                 ->description('Academic qualifications and supporting certificates.')
