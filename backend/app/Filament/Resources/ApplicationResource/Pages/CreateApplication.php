@@ -11,10 +11,9 @@ class CreateApplication extends CreateRecord
 
     protected static string $view = 'filament.resources.application-resource.pages.create-application';
 
-    public function getTitle(): string
-    {
-        return 'New Application';
-    }
+    public function getTitle(): string { return ''; }
+    public function getHeading(): string { return ''; }
+    public function getBreadcrumbs(): array { return []; }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
