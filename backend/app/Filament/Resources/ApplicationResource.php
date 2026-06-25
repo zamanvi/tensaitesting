@@ -514,24 +514,59 @@ class ApplicationResource extends Resource
     {
         return $table
             ->columns([
+                // #  Application code + created date
                 Tables\Columns\TextColumn::make('application_code')
-                    ->label('Code')
+                    ->label('App. Code')
                     ->searchable()
                     ->fontFamily('mono')
-                    ->copyable(),
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->weight('bold')
+                    ->description(fn (Application $r) => $r->created_at?->format('d M Y')),
 
+                // Student name + email
                 Tables\Columns\TextColumn::make('student_name')
                     ->label('Student')
                     ->searchable()
-                    ->description(fn (Application $r) => $r->student_email ?? ''),
+                    ->weight('semibold')
+                    ->description(fn (Application $r) => $r->student_email ?? $r->student_phone ?? '—'),
 
+                // Country + Form name
                 Tables\Columns\TextColumn::make('formTemplate.country')
-                    ->label('Country')
-                    ->badge()
-                    ->color('info'),
+                    ->label('Country / Form')
+                    ->searchable()
+                    ->weight('semibold')
+                    ->description(fn (Application $r) => $r->formTemplate?->name ?? '—'),
 
+                // Intake from form_data
+                Tables\Columns\TextColumn::make('intake')
+                    ->label('Intake')
+                    ->getStateUsing(fn (Application $r) => $r->form_data['intake'] ?? null)
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('—'),
+
+                // Progress bar
+                Tables\Columns\TextColumn::make('progress')
+                    ->label('Progress')
+                    ->suffix('%')
+                    ->badge()
+                    ->color(fn (int $state) => $state >= 80 ? 'success' : ($state >= 40 ? 'warning' : 'danger')),
+
+                // Status badge
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state) => ucfirst($state))
+                    ->color(fn (string $state) => match ($state) {
+                        'accepted'  => 'success',
+                        'submitted' => 'warning',
+                        'rejected'  => 'danger',
+                        default     => 'gray',
+                    }),
+
+                // Submitted by role
                 Tables\Columns\TextColumn::make('submitted_by_role')
-                    ->label('Submitted by')
+                    ->label('Source')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
                         'admin'        => 'purple',
@@ -546,40 +581,29 @@ class ApplicationResource extends Resource
                         'agency'       => 'Agency',
                         'student'      => 'Student',
                         default        => ucfirst($state),
-                    }),
-
-                Tables\Columns\TextColumn::make('progress')
-                    ->label('Progress')
-                    ->suffix('%')
-                    ->badge()
-                    ->color(fn (int $state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'danger')),
-
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'accepted'  => 'success',
-                        'submitted' => 'warning',
-                        'rejected'  => 'danger',
-                        default     => 'gray',
-                    }),
+                    })
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('submitted_at')
                     ->label('Submitted')
                     ->dateTime('d M Y')
                     ->sortable()
-                    ->placeholder('—'),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created')
-                    ->since()
-                    ->sortable()
+                    ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
+            ->paginated([10, 25, 50, 100])
             ->emptyStateHeading('No applications yet')
-            ->emptyStateDescription('Applications submitted from any panel — branch, agency, or student — will appear here.')
+            ->emptyStateDescription('Create the first application by clicking "+ New Application" above.')
             ->emptyStateIcon('heroicon-o-document-text')
+            ->emptyStateActions([
+                Tables\Actions\Action::make('create')
+                    ->label('New Application')
+                    ->icon('heroicon-o-plus')
+                    ->url(fn () => static::getUrl('create'))
+                    ->color('success'),
+            ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
@@ -587,21 +611,37 @@ class ApplicationResource extends Resource
                         'submitted' => 'Submitted',
                         'accepted'  => 'Accepted',
                         'rejected'  => 'Rejected',
-                    ]),
+                    ])
+                    ->native(false),
 
                 Tables\Filters\SelectFilter::make('submitted_by_role')
-                    ->label('Submitted by')
+                    ->label('Source')
                     ->options([
                         'admin'        => 'Admin',
                         'branch_admin' => 'Branch',
                         'agency'       => 'Agency',
                         'student'      => 'Student',
-                    ]),
+                    ])
+                    ->native(false),
 
                 Tables\Filters\SelectFilter::make('form_template_id')
-                    ->label('Form / Country')
-                    ->relationship('formTemplate', 'name'),
+                    ->label('Country / Form')
+                    ->relationship('formTemplate', 'name')
+                    ->native(false),
+
+                Tables\Filters\Filter::make('created_range')
+                    ->label('Date Range')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')->label('From')->native(false),
+                        Forms\Components\DatePicker::make('until')->label('Until')->native(false),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['from'], fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
+                            ->when($data['until'], fn ($q, $d) => $q->whereDate('created_at', '<=', $d));
+                    }),
             ])
+            ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\Action::make('accept')
                     ->label('Accept')

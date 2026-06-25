@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\ApplicationResource\Pages;
 
 use App\Filament\Resources\ApplicationResource;
+use App\Models\Application;
 use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Illuminate\Database\Eloquent\Builder;
 
 class ListApplications extends ListRecords
@@ -73,7 +75,15 @@ class ListApplications extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->label('New Application')
-                ->icon('heroicon-o-plus'),
+                ->icon('heroicon-o-plus')
+                ->color('success'),
+        ];
+    }
+
+    public function getHeaderWidgets(): array
+    {
+        return [
+            \App\Filament\Widgets\ApplicationStatsWidget::class,
         ];
     }
 }
