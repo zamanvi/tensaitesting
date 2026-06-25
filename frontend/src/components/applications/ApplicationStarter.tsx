@@ -125,48 +125,55 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
     <div className="p-4 sm:p-6 space-y-4">
       {err && <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">⚠️ {err}</div>}
 
-      {/* ── Country Form selector ── */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-        <label className={lbl}>Country Form <span className="text-red-500">*</span></label>
-        <select
-          value={selectedId ?? ''}
-          onChange={e => {
-            setSelectedId(e.target.value ? Number(e.target.value) : null);
-            setIntake(''); setFormData({});
-          }}
-          className={inp + ' cursor-pointer mt-1'}>
-          <option value="">Select country / visa type...</option>
-          {templates.map(t => (
-            <option key={t.id} value={t.id}>
-              {t.country} — {t.name}{t.visa_type ? ` (${t.visa_type})` : ''}
-            </option>
-          ))}
-        </select>
+      {/* ── Step 1: Select form (shown only when nothing selected) ── */}
+      {!selectedId && (
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+          <label className={lbl}>Country Form <span className="text-red-500">*</span></label>
+          <select
+            value=""
+            onChange={e => {
+              if (e.target.value) { setSelectedId(Number(e.target.value)); setIntake(''); setFormData({}); }
+            }}
+            className={inp + ' cursor-pointer mt-1'}>
+            <option value="">Select country / visa type...</option>
+            {templates.map(t => (
+              <option key={t.id} value={t.id}>
+                {t.country} — {t.name}{t.visa_type ? ` (${t.visa_type})` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-        {/* Template info */}
-        {selectedId && !detailLoading && selected && detail && (
-          <div className="mt-4 bg-green-50 border border-green-200 rounded-xl p-4">
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="text-xl">{FLAG[selected.country?.toLowerCase()] ?? '🌍'}</span>
-              <span className="font-bold text-slate-800 text-sm">{selected.country}</span>
-              {selected.visa_type && (
-                <span className="text-[10px] font-semibold px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">{selected.visa_type}</span>
-              )}
-            </div>
-            <p className="text-sm font-bold text-slate-800 mb-1">{selected.name}</p>
-            <div className="flex flex-wrap gap-3 text-[11px] text-slate-500">
-              {detail.groups.length > 0 && <span>📋 {detail.groups.length} custom section{detail.groups.length !== 1 ? 's' : ''}</span>}
-              {educations.length > 0 && <span>🎓 {educations.length} education certificate{educations.length !== 1 ? 's' : ''}</span>}
+      {/* ── Loading spinner ── */}
+      {selectedId && detailLoading && (
+        <div className="py-10 text-center">
+          <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" />
+          <p className="text-xs text-slate-400 mt-2">Loading template…</p>
+        </div>
+      )}
+
+      {/* ── Selected form header (replaces dropdown after selection) ── */}
+      {selectedId && !detailLoading && selected && detail && (
+        <div className="flex items-center justify-between gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="text-2xl flex-shrink-0">{FLAG[selected.country?.toLowerCase()] ?? '🌍'}</span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-black text-slate-800 text-sm">{selected.country}</span>
+                {selected.visa_type && (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 bg-white border border-slate-300 rounded-full text-slate-500">{selected.visa_type}</span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 truncate">{selected.name}</p>
             </div>
           </div>
-        )}
-        {selectedId && detailLoading && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
-            <span className="w-4 h-4 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
-            Loading template…
-          </div>
-        )}
-      </div>
+          <button onClick={() => { setSelectedId(null); setIntake(''); setFormData({}); }}
+            className="flex-shrink-0 text-xs font-semibold text-slate-400 hover:text-rose-500 px-2 py-1 rounded-lg hover:bg-rose-50 transition-all">
+            ✕ Change
+          </button>
+        </div>
+      )}
 
       {/* ── Intake ── */}
       {intakeOptions.length > 0 && (
