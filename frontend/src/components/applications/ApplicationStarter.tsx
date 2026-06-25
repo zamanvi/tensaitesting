@@ -309,12 +309,11 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
 
       {/* ── Action bar ── */}
       {detail && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-xl px-5 py-4 shadow-sm">
-          <p className="text-xs text-slate-500">ℹ️ After saving, you can upload certificates on the next page.</p>
+        <div className="flex justify-end bg-white border border-slate-200 rounded-xl px-5 py-4 shadow-sm">
           <button
             onClick={() => createMut.mutate()}
             disabled={createMut.isPending || !canCreate}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-lg disabled:opacity-40 transition-all">
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-lg disabled:opacity-40 transition-all">
             {createMut.isPending
               ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating…</>
               : '✓ Create Application'}

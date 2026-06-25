@@ -284,20 +284,6 @@ export default function BranchApplicantsPage() {
         )}
       </div>
 
-      {/* ── Interviews ── */}
-      <div id="interviews" className="bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <div>
-            <h3 className="font-black text-slate-900 text-sm">Interviews</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Scheduled interviews for your branch students</p>
-          </div>
-          <span className="text-[10px] font-bold px-2.5 py-1 bg-slate-100 text-slate-400 rounded-full">Coming Soon</span>
-        </div>
-        <div className="py-12 text-center px-6">
-          <div className="text-3xl mb-2">🗓️</div>
-          <p className="text-sm font-semibold text-slate-400">Interview scheduling will appear here</p>
-        </div>
-      </div>
 
     </BranchLayout>
   );
