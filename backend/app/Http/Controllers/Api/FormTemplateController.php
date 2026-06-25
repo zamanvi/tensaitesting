@@ -26,7 +26,7 @@ class FormTemplateController extends Controller
             ->where('is_active', true)
             ->orderBy('country')
             ->orderBy('visa_type')
-            ->get(['id', 'country', 'visa_type', 'name', 'intake_options']);
+            ->get(['id', 'country', 'visa_type', 'name', 'intake_options', 'educations']);
 
         return response()->json($templates);
     }

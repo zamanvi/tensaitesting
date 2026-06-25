@@ -7,7 +7,15 @@ import { Application } from './ApplicationFormShared';
 const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
 const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide';
 
-interface Template { id: number; name: string; country: string; visa_type?: string; intake_options?: string[]; }
+interface Template { id: number; name: string; country: string; visa_type?: string; intake_options?: string[]; educations?: { level: string; requirement: string }[]; }
+
+const FLAG: Record<string, string> = {
+  japan: '🇯🇵', uk: '🇬🇧', usa: '🇺🇸', 'united states': '🇺🇸',
+  canada: '🇨🇦', australia: '🇦🇺', germany: '🇩🇪', france: '🇫🇷',
+  'south korea': '🇰🇷', korea: '🇰🇷', china: '🇨🇳', malaysia: '🇲🇾',
+  singapore: '🇸🇬', 'new zealand': '🇳🇿', ireland: '🇮🇪',
+  netherlands: '🇳🇱', sweden: '🇸🇪', bangladesh: '🇧🇩', india: '🇮🇳',
+};
 
 interface Props {
   role: 'branch' | 'agency' | 'admin' | 'student';
@@ -24,6 +32,14 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
     queryKey: ['form-templates-list'],
     queryFn: () => api.get('/form-templates').then(r => r.data),
     staleTime: 60_000,
+  });
+
+  // Fetch full template detail (with educations + groups) when one is selected
+  const { data: selectedDetail } = useQuery<Template & { groups?: unknown[] }>({
+    queryKey: ['form-template-detail', selectedId],
+    queryFn: () => api.get(`/form-templates/${selectedId}`).then(r => r.data),
+    enabled: !!selectedId,
+    staleTime: 300_000,
   });
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -130,9 +146,38 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
             ))}
           </div>
 
+          {/* Template info card */}
           {selected && (
-            <div className="mt-2 px-3 py-2 bg-green-50 border border-green-100 rounded-xl text-xs text-green-800 font-medium">
-              ✅ {selected.country}{selected.visa_type ? ` · ${selected.visa_type}` : ''} — {selected.name}
+            <div className="mt-3 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-4">
+              <div className="flex flex-wrap items-start gap-3">
+                {/* Flag + country */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-2xl leading-none">
+                      {FLAG[selected.country?.toLowerCase()] ?? '🌍'}
+                    </span>
+                    <span className="font-black text-slate-800 text-sm">{selected.country}</span>
+                    {selected.visa_type && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">
+                        {selected.visa_type}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-bold text-slate-700 mt-1">{selected.name}</p>
+                  <div className="flex gap-3 mt-1.5 flex-wrap">
+                    {selectedDetail?.groups && (
+                      <span className="text-[11px] text-slate-500">
+                        📋 {(selectedDetail.groups as unknown[]).length} custom section{(selectedDetail.groups as unknown[]).length !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                    {selectedDetail?.educations && selectedDetail.educations.filter(e => e.requirement !== 'none').length > 0 && (
+                      <span className="text-[11px] text-slate-500">
+                        🎓 {selectedDetail.educations.filter(e => e.requirement !== 'none').length} education certificate{selectedDetail.educations.filter(e => e.requirement !== 'none').length !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
