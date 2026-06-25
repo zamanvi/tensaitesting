@@ -65,10 +65,10 @@ class ApplicationResource extends Resource
                     Forms\Components\Select::make('form_template_id')
                         ->label('Country Form')
                         ->helperText('Select which country this student is applying to.')
-                        ->options(
-                            FormTemplate::where('status', 'published')
+                        ->options(fn () => FormTemplate::where('status', 'published')
                                 ->where('is_active', true)
-                                ->pluck('name', 'id')
+                                ->get()
+                                ->mapWithKeys(fn ($t) => [$t->id => implode(' — ', array_filter([$t->country, $t->name]))])
                         )
                         ->required()
                         ->searchable()
