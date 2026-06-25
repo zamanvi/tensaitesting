@@ -167,7 +167,7 @@ class ApplicationResource extends Resource
         }
 
         $html = "
-        <div style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #a7f3d0;
+        <div class='cap-tpl-card' style='background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #a7f3d0;
             border-radius:12px;padding:16px 20px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;'>
 
             <div style='flex:1;min-width:200px;'>

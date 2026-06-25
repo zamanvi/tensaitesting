@@ -1,5 +1,22 @@
 <x-filament-panels::page>
 <style>
+/* ── Force Filament 2-col grid → 1-col on mobile ─────── */
+@media (max-width: 640px) {
+    .cap-form .fi-fo-grid.grid { grid-template-columns: 1fr !important; }
+    .cap-form .fi-fo-grid.grid > * { grid-column: span 1 !important; }
+    /* Filament uses CSS vars for columns */
+    .cap-form .fi-section-content .grid {
+        --cols-default: 1 !important;
+        --cols-lg: 1 !important;
+        grid-template-columns: 1fr !important;
+    }
+    .cap-form .fi-section-content .grid > * {
+        --col-span-default: 1 !important;
+        grid-column: span 1 / span 1 !important;
+    }
+}
+</style>
+<style>
 /* ── Reset & base ───────────────────────────────────── */
 .cap * { box-sizing: border-box; }
 .cap { font-family: 'Inter', system-ui, sans-serif; max-width: 860px; margin: 0 auto; }
@@ -196,10 +213,10 @@
 /* ── Placeholder Filament fix ───────────────────────── */
 .cap-form .fi-fo-placeholder { padding: 0 !important; }
 
-/* ── Mobile ────────────────────────────────────────── */
-@media (max-width: 720px) {
-    .cap { max-width: 100%; }
-    .cap-hero { padding: 22px 18px 20px; border-radius: 14px; }
+/* ── Mobile ≤ 768px ────────────────────────────────── */
+@media (max-width: 768px) {
+    .cap { max-width: 100%; padding: 0 2px; }
+    .cap-hero { padding: 22px 18px 20px; border-radius: 14px; margin-bottom: 14px; }
     .cap-hero h1 { font-size: 20px; }
     .cap-hero p { font-size: 12.5px; margin-bottom: 14px; }
     .cap-steps { gap: 5px; }
@@ -210,12 +227,52 @@
     .cap-actions-btns { flex-direction: column; }
     .cap-btn-create, .cap-btn-cancel { width: 100%; justify-content: center; }
 }
-@media (max-width: 440px) {
-    .cap-hero { padding: 18px 14px 16px; }
-    .cap-hero h1 { font-size: 17px; }
-    .cap-badge { font-size: 9.5px; }
+
+/* ── Mobile ≤ 520px ────────────────────────────────── */
+@media (max-width: 520px) {
+    .cap { padding: 0; }
+    .cap-hero { padding: 18px 14px 16px; border-radius: 12px; }
+    .cap-hero h1 { font-size: 17px; line-height: 1.25; }
+    .cap-hero p { font-size: 12px; }
+    .cap-badge { font-size: 9.5px; padding: 3px 10px; }
+    /* Steps: 2×2 grid on small screens */
+    .cap-steps {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+    .cap-step { border-radius: 8px; padding: 6px 8px; font-size: 10.5px; justify-content: flex-start; }
+    /* Form field columns collapse to 1 */
+    .cap-form .fi-grid { grid-template-columns: 1fr !important; }
+    .cap-form [class*="col-span"] { grid-column: span 1 !important; }
     .cap-form .fi-section { border-radius: 10px !important; }
-    .cap-actions { border-radius: 10px; }
+    .cap-form .fi-section-content-ctn { padding: 12px !important; }
+    /* Template info card → stack */
+    .cap-tpl-card { flex-direction: column !important; gap: 10px !important; }
+    /* Intake pills wrap */
+    #cap-pill-row { gap: 5px !important; }
+    .cap-pill { font-size: 11.5px !important; padding: 5px 10px !important; }
+    .cap-actions { border-radius: 10px; gap: 10px; }
+    .cap-actions-note { font-size: 11.5px; }
+}
+
+/* ── Mobile ≤ 390px (iPhone SE / small phones) ─────── */
+@media (max-width: 390px) {
+    .cap-hero { padding: 14px 10px 13px; border-radius: 10px; }
+    .cap-hero h1 { font-size: 15px; }
+    .cap-hero p { font-size: 11px; margin-bottom: 12px; }
+    .cap-badge { font-size: 9px; padding: 3px 8px; }
+    .cap-steps { grid-template-columns: 1fr 1fr; gap: 5px; }
+    .cap-step { font-size: 9.5px; padding: 5px 6px; }
+    .cap-step-n { width: 15px; height: 15px; font-size: 8.5px; }
+    .cap-form .fi-section-header-ctn { padding: 10px 12px !important; }
+    .cap-form .fi-section-header-heading { font-size: 12.5px !important; }
+    .cap-form .fi-section-content-ctn { padding: 10px !important; }
+    .cap-form .fi-input { font-size: 13px !important; }
+    .cap-form .fi-fo-field-wrp-label { font-size: 11px !important; }
+    .cap-btn-create { font-size: 13px; padding: 9px 20px; }
+    .cap-btn-cancel { font-size: 13px; padding: 8px 16px; }
+    .cap-actions { padding: 10px 12px; }
 }
 </style>
 
