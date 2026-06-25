@@ -64,10 +64,10 @@ class ApplicationResource extends Resource
                                 $t->id => implode(' — ', array_filter([$t->country, $t->name])),
                             ]))
                         ->required()
-                        ->searchable()
                         ->live()
                         ->disabled(fn (string $operation) => $operation === 'edit')
                         ->dehydrated()
+                        ->native(false)
                         ->columnSpanFull()
                         ->placeholder('Select country / visa type…'),
                 ]),
