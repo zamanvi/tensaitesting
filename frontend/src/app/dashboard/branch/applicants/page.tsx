@@ -146,8 +146,8 @@ export default function BranchApplicantsPage() {
         </div>
       )}
 
-      {/* ── Applications table ── */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-5">
+      {/* ── Applications table (hidden while form is open) ── */}
+      {!showStarter && <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-5">
 
         {/* Header */}
         <div className="px-4 sm:px-6 py-4 border-b border-slate-100">
@@ -284,7 +284,7 @@ export default function BranchApplicantsPage() {
             </table>
           </div>
         )}
-      </div>
+      </div>}
 
 
     </BranchLayout>
