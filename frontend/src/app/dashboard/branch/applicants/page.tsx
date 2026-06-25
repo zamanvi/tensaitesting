@@ -96,35 +96,74 @@ export default function BranchApplicantsPage() {
 
       {activeAppId === null ? (
         <>
-          {/* Header */}
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm mb-6 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-black text-white">Student Applications</h2>
-                <p className="text-green-100 text-xs mt-1">Select a country form and fill student details — submit when ready</p>
+          {/* New Application — full admin-style layout */}
+          {showStarter ? (
+            <div className="mb-6 bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+              {/* Hero banner — exact match admin */}
+              <div className="relative bg-gradient-to-br from-green-800 via-green-700 to-emerald-600 px-8 py-8 overflow-hidden">
+                {/* decorative circles */}
+                <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+                <div className="absolute right-16 bottom-0 w-40 h-40 bg-white/5 rounded-full translate-y-1/2 pointer-events-none" />
+                <div className="relative z-10">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-green-200 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-3">
+                    🔒 NEW APPLICATION
+                  </span>
+                  <h2 className="text-2xl font-black text-white leading-tight">Create a New Student Application</h2>
+                  <p className="text-green-100 text-xs mt-2 mb-5 max-w-lg">
+                    Select a country form, fill in the student&apos;s details, and save to continue editing the full application.
+                  </p>
+                  {/* Step indicators */}
+                  <div className="flex flex-wrap items-center gap-1 text-[11px]">
+                    {[
+                      { n: 1, label: 'Select Country Form' },
+                      { n: 2, label: 'Fill Student Info' },
+                      { n: 3, label: 'Education & Documents' },
+                      { n: 4, label: 'Save & Continue' },
+                    ].map((step, i, arr) => (
+                      <span key={step.n} className="flex items-center gap-1">
+                        <span className="flex items-center gap-1.5 bg-white/15 border border-white/25 text-white font-bold px-3 py-1.5 rounded-full">
+                          <span className="w-4 h-4 bg-white/25 rounded-full text-[9px] flex items-center justify-center font-black">{step.n}</span>
+                          {step.label}
+                        </span>
+                        {i < arr.length - 1 && <span className="text-white/40 font-bold mx-0.5">›</span>}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                {/* Cancel button */}
+                <button onClick={() => setShowStarter(false)}
+                  className="absolute top-5 right-5 flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-bold rounded-xl transition-all">
+                  ✕ Cancel
+                </button>
               </div>
-              <button onClick={() => setShowStarter(s => !s)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold transition-all shadow-md ${showStarter ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-white text-green-800 hover:bg-green-50'}`}>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={showStarter ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'} />
-                </svg>
-                {showStarter ? 'Cancel' : 'New Application'}
-              </button>
-            </div>
-
-            {showStarter ? (
               <ApplicationStarter role="branch" onCreated={handleCreated} queryKey="branch-applications" />
-            ) : (
-              <div className="px-6 py-8 text-center">
-                <div className="w-14 h-14 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-3 text-2xl">📝</div>
+            </div>
+          ) : (
+            /* Collapsed header */
+            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm mb-6 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-5 flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-black text-white">Student Applications</h2>
+                  <p className="text-green-100 text-xs mt-0.5">Manage and track student applications for your branch</p>
+                </div>
+                <button onClick={() => setShowStarter(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold bg-white text-green-800 hover:bg-green-50 transition-all shadow-md">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                  </svg>
+                  New Application
+                </button>
+              </div>
+              <div className="px-6 py-7 text-center">
+                <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">📝</div>
                 <p className="text-sm font-semibold text-slate-600">
                   {isLoading ? 'Loading…' : apps.length === 0
                     ? "No applications yet — click 'New Application' to begin"
                     : 'Select an application from the list below, or start a new one'}
                 </p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Table */}
           <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">

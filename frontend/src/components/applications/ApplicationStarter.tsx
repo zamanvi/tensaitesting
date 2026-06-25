@@ -4,8 +4,9 @@ import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Application } from './ApplicationFormShared';
 
-const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
-const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide uppercase';
+const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500 bg-white transition-all placeholder:text-slate-300';
+const lbl = 'block text-sm font-medium text-slate-700 mb-1';
+const required = <span className="text-red-500 ml-0.5">*</span>;
 
 interface Template {
   id: number; name: string; country: string; visa_type?: string;
@@ -29,19 +30,13 @@ interface Props {
   queryKey: string;
 }
 
-function SectionCard({ n, icon, title, subtitle, children }: {
-  n: number; icon?: string; title: string; subtitle?: string; children: React.ReactNode;
-}) {
+/* Filament-style section card */
+function FiCard({ icon, title, children }: { icon?: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-      <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center gap-3">
-        <div className="w-7 h-7 rounded-xl bg-green-700 text-white text-xs font-black flex items-center justify-center flex-shrink-0">
-          {n}
-        </div>
-        <div>
-          <p className="text-sm font-black text-slate-900">{icon} {title}</p>
-          {subtitle && <p className="text-[11px] text-slate-400 mt-0.5">{subtitle}</p>}
-        </div>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="flex items-center gap-2 px-6 py-4 border-b border-slate-100">
+        {icon && <span className="text-slate-400 text-base">{icon}</span>}
+        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
       </div>
       <div className="px-6 py-5">{children}</div>
     </div>
@@ -79,7 +74,6 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   const selected = templates.find(t => t.id === selectedId) ?? null;
   const needStudentInfo = role !== 'student';
   const canStart = !!selectedId && !!name.trim();
-
   const intakeOptions = (selectedDetail?.intake_options ?? []) as string[];
   const eduCount = (selectedDetail?.educations ?? []).filter(e => e.requirement !== 'none').length;
   const groupCount = (selectedDetail?.groups ?? []).length;
@@ -111,7 +105,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-10 text-center">
         <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" />
       </div>
     );
@@ -119,7 +113,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
 
   if (templates.length === 0) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-10 text-center">
         <div className="text-3xl mb-3">📋</div>
         <p className="text-sm font-semibold text-slate-600">No application forms published yet</p>
         <p className="text-xs text-slate-400 mt-1">Ask the admin to publish a form first</p>
@@ -128,52 +122,51 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
   }
 
   return (
-    <div className="p-6 space-y-4 max-w-2xl">
+    <div className="p-6 space-y-4">
       {err && (
-        <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl text-xs text-rose-600">⚠️ {err}</div>
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">⚠️ {err}</div>
       )}
 
-      {/* Step 1 — Country Form */}
-      <SectionCard n={1} icon="🌏" title="Select Country Form" subtitle="Choose the destination country and visa type">
-        <select
-          value={selectedId ?? ''}
-          onChange={e => { setSelectedId(e.target.value ? Number(e.target.value) : null); setIntake(''); }}
-          className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all text-slate-700">
-          <option value="">— Select a form —</option>
-          {templates.map(t => (
-            <option key={t.id} value={t.id}>
-              {t.country} — {t.name}{t.visa_type ? ` (${t.visa_type})` : ''}
-            </option>
-          ))}
-        </select>
+      {/* Country Form — matches admin card */}
+      <FiCard icon="🌏" title="Country Form">
+        <div>
+          <label className={lbl}>Country Form {required}</label>
+          <select
+            value={selectedId ?? ''}
+            onChange={e => { setSelectedId(e.target.value ? Number(e.target.value) : null); setIntake(''); }}
+            className={inp + ' cursor-pointer'}>
+            <option value="">— Select a country form —</option>
+            {templates.map(t => (
+              <option key={t.id} value={t.id}>
+                {t.country} — {t.name}{t.visa_type ? ` (${t.visa_type})` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* Template info card */}
+        {/* Template info card — same as admin green card */}
         {selectedId && (
           <div className="mt-4">
             {detailLoading ? (
-              <div className="flex items-center gap-2 py-3 text-xs text-slate-400">
+              <div className="flex items-center gap-2 text-xs text-slate-400 py-2">
                 <span className="w-4 h-4 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
                 Loading form details…
               </div>
             ) : selected && (
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl p-4">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className="text-2xl leading-none">{FLAG[selected.country?.toLowerCase()] ?? '🌍'}</span>
-                  <span className="font-black text-slate-800 text-sm">{selected.country}</span>
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="text-xl">{FLAG[selected.country?.toLowerCase()] ?? '🌍'}</span>
+                  <span className="font-bold text-slate-800 text-sm">{selected.country}</span>
                   {selected.visa_type && (
-                    <span className="text-[10px] font-semibold px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 bg-white border border-slate-200 rounded-full text-slate-500">
                       {selected.visa_type}
                     </span>
                   )}
                 </div>
-                <p className="text-xs font-bold text-slate-700 mb-1.5">{selected.name}</p>
-                <div className="flex gap-3 flex-wrap">
-                  {groupCount > 0 && (
-                    <span className="text-[11px] text-slate-500">📋 {groupCount} custom section{groupCount !== 1 ? 's' : ''}</span>
-                  )}
-                  {eduCount > 0 && (
-                    <span className="text-[11px] text-slate-500">🎓 {eduCount} education certificate{eduCount !== 1 ? 's' : ''}</span>
-                  )}
+                <p className="text-sm font-bold text-slate-800 mb-1">{selected.name}</p>
+                <div className="flex gap-3 flex-wrap text-xs text-slate-500">
+                  {groupCount > 0 && <span>{groupCount} custom section{groupCount !== 1 ? 's' : ''}</span>}
+                  {eduCount > 0 && <span>· {eduCount} education certificate{eduCount !== 1 ? 's' : ''}</span>}
                 </div>
               </div>
             )}
@@ -182,33 +175,33 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
 
         {/* Intake pills */}
         {intakeOptions.length > 0 && (
-          <div className="mt-4 bg-blue-50 border border-blue-100 rounded-2xl p-4">
-            <p className="text-xs font-bold text-blue-800 mb-2.5">📅 Select Target Intake</p>
-            <div className="flex flex-wrap gap-2">
+          <div className="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <label className={lbl}>Target Intake</label>
+            <div className="flex flex-wrap gap-2 mt-1">
               {intakeOptions.map(opt => (
                 <button key={opt} type="button"
                   onClick={() => setIntake(prev => prev === opt ? '' : opt)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                     intake === opt
-                      ? 'bg-blue-700 text-white border-blue-700 shadow-sm'
-                      : 'bg-white border-blue-200 text-blue-700 hover:bg-blue-100'
+                      ? 'bg-green-700 text-white border-green-700'
+                      : 'bg-white border-slate-300 text-slate-700 hover:border-green-400 hover:bg-green-50'
                   }`}>
                   {opt}
                 </button>
               ))}
             </div>
-            {intake && <p className="text-[11px] text-blue-700 font-semibold mt-2">✓ Selected: {intake}</p>}
+            {intake && <p className="text-xs text-green-700 font-medium mt-2">✓ {intake}</p>}
           </div>
         )}
-      </SectionCard>
+      </FiCard>
 
-      {/* Step 2 — Personal Information (show after template selected) */}
+      {/* Personal Information — shows after template selected */}
       {selectedId && (
-        <SectionCard n={2} icon="👤" title="Student Information" subtitle="Contact details and identification">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FiCard icon="👤" title="Personal Information">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {needStudentInfo && (
               <div className="sm:col-span-2">
-                <label className={lbl}>Full Name *</label>
+                <label className={lbl}>Full Name {required}</label>
                 <input className={inp} placeholder="e.g. Ahmed Rahman" value={name}
                   onChange={e => setName(e.target.value)} />
               </div>
@@ -221,7 +214,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
               </div>
             )}
             <div>
-              <label className={lbl}>Contact Number</label>
+              <label className={lbl}>Contact Number {required}</label>
               <input className={inp} type="tel" placeholder="+880 1XXX XXXXXX" value={phone}
                 onChange={e => setPhone(e.target.value)} />
             </div>
@@ -246,24 +239,24 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                 onChange={e => setAddress(e.target.value)} />
             </div>
           </div>
-        </SectionCard>
+        </FiCard>
       )}
 
-      {/* Step 3 — Save & Continue */}
+      {/* Save & Continue */}
       {selectedId && (
-        <SectionCard n={3} icon="🚀" title="Save & Continue" subtitle="Create the application and fill in full details">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => startMut.mutate()}
-              disabled={startMut.isPending || !canStart}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-bold rounded-2xl disabled:opacity-50 transition-all shadow-sm">
-              {startMut.isPending
-                ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Creating…</>
-                : '🚀 Open Full Application Form'}
-            </button>
-            {!name.trim() && <p className="text-xs text-slate-400">Fill student name to continue</p>}
-          </div>
-        </SectionCard>
+        <div className="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-6 py-4 shadow-sm">
+          <p className="text-sm text-slate-500">
+            {canStart ? 'Ready to open the full application form' : 'Fill in student name to continue'}
+          </p>
+          <button
+            onClick={() => startMut.mutate()}
+            disabled={startMut.isPending || !canStart}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-bold rounded-lg disabled:opacity-50 transition-all shadow-sm">
+            {startMut.isPending
+              ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Creating…</>
+              : '🚀 Save & Continue'}
+          </button>
+        </div>
       )}
     </div>
   );
