@@ -44,18 +44,20 @@ class AllApplicationsTableWidget extends BaseWidget
                     ->getStateUsing(function (Application $r): string {
                         return match ($r->submitted_by_role) {
                             'branch_admin', 'branch_manager', 'branch' => 'Branch',
-                            'agency'   => 'Agency',
-                            'student'  => 'Student',
+                            'agency'        => 'Agency',
+                            'student'       => 'Student',
+                            'individual'    => 'Individual',
                             'admin', 'super_admin' => 'Admin',
-                            default    => ucfirst($r->submitted_by_role ?? 'Unknown'),
+                            default         => 'Individual',
                         };
                     })
                     ->color(fn (string $state): string => match ($state) {
-                        'Branch'  => 'info',
-                        'Agency'  => 'warning',
-                        'Student' => 'success',
-                        'Admin'   => 'gray',
-                        default   => 'gray',
+                        'Branch'     => 'info',
+                        'Agency'     => 'warning',
+                        'Student'    => 'success',
+                        'Individual' => 'purple',
+                        'Admin'      => 'gray',
+                        default      => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('branch.name')
@@ -105,6 +107,7 @@ class AllApplicationsTableWidget extends BaseWidget
                         'branch_admin'   => 'Branch',
                         'agency'         => 'Agency',
                         'student'        => 'Student',
+                        'individual'     => 'Individual',
                         'admin'          => 'Admin',
                     ]),
 
