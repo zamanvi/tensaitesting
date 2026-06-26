@@ -32,6 +32,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
   const createMut = useMutation({
     mutationFn: () => api.post('/applications', {
       form_template_id: selectedId,
+      student_name: '',
     }),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: [queryKey] });
