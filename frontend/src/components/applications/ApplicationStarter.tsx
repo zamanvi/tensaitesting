@@ -2,7 +2,10 @@
 import { useState } from 'react';
 import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Application, inp, lbl } from './ApplicationFormShared';
+import { Application, inp } from './ApplicationFormShared';
+
+const lbl = 'block text-sm font-medium text-slate-700 mb-1.5';
+const field = 'w-full border border-slate-200 rounded-xl pl-10 pr-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-400';
 
 interface ListTemplate { id: number; name: string; country: string; visa_type?: string; }
 
@@ -82,7 +85,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
           <select
             value={selectedId ?? ''}
             onChange={e => { setSelectedId(e.target.value ? Number(e.target.value) : null); }}
-            className={inp + ' cursor-pointer pr-8 appearance-none'}>
+            className="w-full border border-slate-200 rounded-xl px-3 py-3 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all cursor-pointer appearance-none">
             <option value="">Select country / visa type…</option>
             {templates.map(t => (
               <option key={t.id} value={t.id}>
@@ -109,13 +112,13 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
       {/* ── Personal Information (shows after template selected) ── */}
       {selectedId && (
         <div className="px-5 sm:px-8 py-5 sm:py-6">
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex items-center gap-2 mb-6">
             <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span className="text-sm font-semibold text-slate-700">Personal Information</span>
+            <span className="text-base font-semibold text-slate-800">Personal Information</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {needStudent && (
               <div className="sm:col-span-2">
                 <label className={lbl}>Full Name <span className="text-red-500">*</span></label>
@@ -125,7 +128,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </span>
-                  <input className={inp + ' pl-9'} placeholder="e.g. Ahmed Rahman" value={name} onChange={e => setName(e.target.value)} />
+                  <input className={field} placeholder="e.g. Ahmed Rahman" value={name} onChange={e => setName(e.target.value)} />
                 </div>
               </div>
             )}
@@ -138,7 +141,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </span>
-                  <input className={inp + ' pl-9'} type="email" placeholder="student@email.com" value={email} onChange={e => setEmail(e.target.value)} />
+                  <input className={field} type="email" placeholder="student@email.com" value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
               </div>
             )}
@@ -150,7 +153,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </span>
-                <input className={inp + ' pl-9'} type="tel" placeholder="+880 1XXX XXXXXX" value={phone} onChange={e => setPhone(e.target.value)} />
+                <input className={field} type="tel" placeholder="+880 1XXX XXXXXX" value={phone} onChange={e => setPhone(e.target.value)} />
               </div>
             </div>
             <div>
@@ -162,7 +165,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                     <path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.089 1.512 5.814L.057 23.077a.75.75 0 00.916.925l5.355-1.43A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.663-.523-5.176-1.432l-.372-.222-3.853 1.029 1.056-3.742-.243-.386A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
                   </svg>
                 </span>
-                <input className={inp + ' pl-9'} type="tel" placeholder="+880 1XXX XXXXXX" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} />
+                <input className={field} type="tel" placeholder="+880 1XXX XXXXXX" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} />
               </div>
             </div>
             <div>
@@ -173,7 +176,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </span>
-                <input className={inp + ' pl-9'} type="date" value={dob} onChange={e => setDob(e.target.value)} />
+                <input className={field} type="date" value={dob} onChange={e => setDob(e.target.value)} />
               </div>
             </div>
             <div>
@@ -184,7 +187,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                   </svg>
                 </span>
-                <input className={inp + ' pl-9'} placeholder="e.g. AB1234567" value={passport} onChange={e => setPassport(e.target.value)} />
+                <input className={field} placeholder="e.g. AB1234567" value={passport} onChange={e => setPassport(e.target.value)} />
               </div>
             </div>
           </div>
