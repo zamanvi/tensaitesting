@@ -28,8 +28,8 @@ export default function AgencyAddApplicationPage() {
   });
   const approved = profileData?.vetting_status === 'approved';
 
-  const [activeAppId, setActiveAppId] = useState<number | null>(null);
-  const [showNew,     setShowNew]     = useState(false);
+  const [activeApp, setActiveApp] = useState<Application | null>(null);
+  const [showNew,   setShowNew]   = useState(false);
 
   const queryKey = ['agency-applications'];
 
@@ -38,8 +38,7 @@ export default function AgencyAddApplicationPage() {
     queryFn: () => api.get('/applications').then(r => r.data),
     enabled: !!isAgency && !!approved,
   });
-  const apps      = appsData?.data ?? [];
-  const activeApp = apps.find(a => a.id === activeAppId) ?? null;
+  const apps = appsData?.data ?? [];
 
   const { data: template } = useQuery<FormTemplateData | null>({
     queryKey: ['form-template', activeApp?.form_template_id],
@@ -53,29 +52,22 @@ export default function AgencyAddApplicationPage() {
   function handleCreated(app: Application) {
     qc.invalidateQueries({ queryKey });
     setShowNew(false);
-    setActiveAppId(app.id);
+    setActiveApp(app);
   }
 
   function updateApps(updated: Application) {
+    setActiveApp(prev => prev ? { ...prev, ...updated } : prev);
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a => a.id === updated.id ? { ...a, ...updated } : a),
     }));
   }
 
   function handleDocUploaded(doc: AppDoc, progress: number) {
-    qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
-      ...old, data: (old?.data ?? []).map(a =>
-        a.id === activeAppId ? { ...a, progress, documents: [...a.documents.filter(d => d.doc_type !== doc.doc_type), doc] } : a
-      ),
-    }));
+    setActiveApp(prev => prev ? { ...prev, progress, documents: [...(prev.documents ?? []).filter(d => d.doc_type !== doc.doc_type), doc] } : prev);
   }
 
   function handleDocDeleted(docId: number, progress: number) {
-    qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
-      ...old, data: (old?.data ?? []).map(a =>
-        a.id === activeAppId ? { ...a, progress, documents: a.documents.filter(d => d.id !== docId) } : a
-      ),
-    }));
+    setActiveApp(prev => prev ? { ...prev, progress, documents: (prev.documents ?? []).filter(d => d.id !== docId) } : prev);
   }
 
   if (!user || !isAgency) return null;
@@ -93,14 +85,14 @@ export default function AgencyAddApplicationPage() {
   );
 
   /* ── Application edit view ── */
-  if (activeAppId !== null && activeApp) return (
+  if (activeApp !== null) return (
     <DashboardLayout title="Applications">
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         <ApplicationFormBody
           app={activeApp} template={template ?? null}
           onSaved={updateApps} onSubmitted={updateApps}
           onDocUploaded={handleDocUploaded} onDocDeleted={handleDocDeleted}
-          onClose={() => setActiveAppId(null)}
+          onClose={() => setActiveApp(null)}
         />
       </div>
     </DashboardLayout>
