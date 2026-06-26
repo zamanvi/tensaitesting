@@ -60,15 +60,15 @@ export default function ApplicationStarter({ role, studentName, onCreated, onCan
   );
 
   return (
-    <div className="px-5 sm:px-8 py-6 space-y-5">
-      {err && <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">⚠️ {err}</div>}
+    <div className="divide-y divide-slate-100">
+      {err && <div className="px-5 sm:px-8 pt-5"><div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">⚠️ {err}</div></div>}
 
-      {/* Country Form */}
-      <div>
+      {/* Country Form — green tint card */}
+      <div className="px-5 sm:px-8 py-5 sm:py-6 bg-green-50/60">
         <label className="block text-sm font-medium text-slate-700 mb-1.5">
           Country Form <span className="text-red-500">*</span>
         </label>
-        <div className="relative">
+        <div className="relative mt-1">
           <select
             value={selectedId ?? ''}
             onChange={e => setSelectedId(e.target.value ? Number(e.target.value) : null)}
@@ -96,13 +96,13 @@ export default function ApplicationStarter({ role, studentName, onCreated, onCan
         </div>
       </div>
 
-      {/* Student Name (only for non-student roles) */}
+      {/* Student Name — only for non-student roles */}
       {needStudent && (
-        <div>
+        <div className="px-5 sm:px-8 py-5 sm:py-6 bg-green-50/30">
           <label className="block text-sm font-medium text-slate-700 mb-1.5">
             Student Full Name <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
+          <div className="relative mt-1">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -115,31 +115,28 @@ export default function ApplicationStarter({ role, studentName, onCreated, onCan
               onChange={e => setName(e.target.value)}
             />
           </div>
-          <p className="text-xs text-slate-400 mt-1.5">
-            All other fields (contact, passport, education, etc.) will be filled in the application form after creation.
-          </p>
         </div>
       )}
 
       {/* Action bar */}
-      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+      <div className="px-5 sm:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <p className="text-xs text-slate-400 flex items-center gap-1.5">
           <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          The full form loads after creation.
+          After saving, you can fill in all remaining fields on the edit page.
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           {onCancel && (
             <button onClick={onCancel}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+              className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
               Cancel
             </button>
           )}
           <button
             onClick={() => createMut.mutate()}
             disabled={createMut.isPending || !canCreate}
-            className="flex items-center gap-2 px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-lg disabled:opacity-40 transition-all">
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-lg disabled:opacity-40 transition-all">
             {createMut.isPending
               ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating…</>
               : '✓ Create Application'}
