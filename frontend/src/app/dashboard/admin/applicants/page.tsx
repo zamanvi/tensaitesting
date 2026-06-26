@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
+import NewApplicationHero from '@/components/applications/NewApplicationHero';
 
 const STATUS_COLOR: Record<string, string> = {
   draft:     'bg-slate-100 text-slate-500',
@@ -154,16 +155,11 @@ export default function AdminApplicantsPage() {
             + New Application
           </button>
         ) : (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-black text-white">New Application</h2>
-                <p className="text-green-100 text-xs mt-0.5">Select a published form, enter student details and fill the application</p>
-              </div>
-              <button onClick={() => setShowNew(false)}
-                className="text-white/60 hover:text-white text-xl leading-none transition-colors">✕</button>
+          <div className="max-w-[860px]">
+            <NewApplicationHero />
+            <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+              <ApplicationStarter role="admin" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="admin-applications" />
             </div>
-            <ApplicationStarter role="admin" onCreated={handleCreated} queryKey="admin-applications" />
           </div>
         )}
       </div>

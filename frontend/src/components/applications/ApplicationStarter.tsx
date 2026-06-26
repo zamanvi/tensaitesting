@@ -118,28 +118,29 @@ export default function ApplicationStarter({ role, studentName, onCreated, onCan
         </div>
       )}
 
-      {/* Action bar */}
-      <div className="px-5 sm:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <p className="text-xs text-slate-400 flex items-center gap-1.5">
-          <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      {/* Action bar — matches .cap-actions from blade */}
+      <div className="mx-0 mt-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-5 sm:px-6 py-[18px] border-t border-slate-200 bg-white">
+        <div className="flex items-center gap-2 text-[12.5px] text-slate-500">
+          <svg className="w-3.5 h-3.5 flex-shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           After saving, you can fill in all remaining fields on the edit page.
-        </p>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2.5">
           {onCancel && (
             <button onClick={onCancel}
-              className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+              className="px-[18px] py-[9px] rounded-[9px] border border-slate-200 bg-white text-[13.5px] font-semibold text-slate-500 hover:border-slate-300 hover:text-slate-700 transition-all text-center">
               Cancel
             </button>
           )}
           <button
             onClick={() => createMut.mutate()}
             disabled={createMut.isPending || !canCreate}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-lg disabled:opacity-40 transition-all">
+            className="flex items-center justify-center gap-2 px-7 py-[10px] rounded-[9px] text-[14px] font-bold text-white disabled:opacity-40 transition-all"
+            style={{ background: '#16a34a', boxShadow: '0 2px 8px rgba(22,163,74,.3)' }}>
             {createMut.isPending
               ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Creating…</>
-              : '✓ Create Application'}
+              : <><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg> Create Application</>}
           </button>
         </div>
       </div>

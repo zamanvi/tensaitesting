@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
+import NewApplicationHero from '@/components/applications/NewApplicationHero';
 
 const STATUS_COLOR: Record<string, string> = {
   draft:     'bg-slate-100 text-slate-500',
@@ -120,39 +121,11 @@ export default function AgencyAddApplicationPage() {
 
       {/* ── New Application hero + form ── */}
       {showNew && (
-        <div className="mb-5 bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="relative bg-gradient-to-br from-green-800 via-green-700 to-emerald-600 px-5 sm:px-8 py-7 sm:py-9 overflow-hidden">
-            <div className="absolute right-0 top-0 w-56 h-56 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/4 pointer-events-none" />
-            <div className="absolute right-12 bottom-0 w-36 h-36 bg-white/5 rounded-full translate-y-1/2 pointer-events-none" />
-            <div className="relative z-10">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-green-200 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-3">
-                🔒 NEW APPLICATION
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
-                Create a New Student Application
-              </h2>
-              <p className="text-green-100 text-xs mt-1.5 mb-5 max-w-md">
-                Select a country form, fill in the student&apos;s details, and save to continue editing the full application.
-              </p>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {[
-                  { n: 1, label: 'Select Country Form' },
-                  { n: 2, label: 'Fill Student Info' },
-                  { n: 3, label: 'Education & Documents' },
-                  { n: 4, label: 'Save & Continue' },
-                ].map((step, i, arr) => (
-                  <span key={step.n} className="flex items-center gap-1">
-                    <span className="flex items-center gap-1.5 bg-white/15 border border-white/25 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
-                      <span className="w-4 h-4 bg-white/30 rounded-full text-[9px] flex items-center justify-center font-black flex-shrink-0">{step.n}</span>
-                      <span className="hidden sm:inline">{step.label}</span>
-                    </span>
-                    {i < arr.length - 1 && <span className="text-white/30 text-xs">›</span>}
-                  </span>
-                ))}
-              </div>
-            </div>
+        <div className="mb-5 max-w-[860px]">
+          <NewApplicationHero />
+          <div className="bg-white rounded-[14px] border border-slate-200 shadow-sm overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+            <ApplicationStarter role="agency" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="agency-applications" />
           </div>
-          <ApplicationStarter role="agency" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="agency-applications" />
         </div>
       )}
 
