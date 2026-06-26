@@ -100,28 +100,55 @@ export default function BranchApplicantsPage() {
   return (
     <BranchLayout title="Applications">
 
-      {/* ── New Application button / expand ── */}
-      <div className="mb-5">
-        {!showNew ? (
+      {/* ── New Application hero + form ── */}
+      {showNew && (
+        <div className="mb-5 bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          {/* Hero */}
+          <div className="relative bg-gradient-to-br from-green-800 via-green-700 to-emerald-600 px-5 sm:px-8 py-7 sm:py-9 overflow-hidden">
+            <div className="absolute right-0 top-0 w-56 h-56 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/4 pointer-events-none" />
+            <div className="absolute right-12 bottom-0 w-36 h-36 bg-white/5 rounded-full translate-y-1/2 pointer-events-none" />
+            <div className="relative z-10">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-green-200 bg-white/10 border border-white/20 px-3 py-1 rounded-full mb-3">
+                🔒 NEW APPLICATION
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                Create a New Student Application
+              </h2>
+              <p className="text-green-100 text-xs mt-1.5 mb-5 max-w-md">
+                Select a country form, fill in the student&apos;s details, and save to continue editing the full application.
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {[
+                  { n: 1, label: 'Select Country Form' },
+                  { n: 2, label: 'Fill Student Info' },
+                  { n: 3, label: 'Education & Documents' },
+                  { n: 4, label: 'Save & Continue' },
+                ].map((step, i, arr) => (
+                  <span key={step.n} className="flex items-center gap-1">
+                    <span className="flex items-center gap-1.5 bg-white/15 border border-white/25 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                      <span className="w-4 h-4 bg-white/30 rounded-full text-[9px] flex items-center justify-center font-black flex-shrink-0">{step.n}</span>
+                      <span className="hidden sm:inline">{step.label}</span>
+                    </span>
+                    {i < arr.length - 1 && <span className="text-white/30 text-xs">›</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <ApplicationStarter role="branch" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="branch-applications" />
+        </div>
+      )}
+
+      {/* ── New Application button (shown when form is closed) ── */}
+      {!showNew && (
+        <div className="mb-5">
           <button
             onClick={() => setShowNew(true)}
             className="flex items-center gap-2 px-5 py-3 bg-green-700 hover:bg-green-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-green-700/20 transition-all">
             + New Application
           </button>
-        ) : (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-6 py-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-black text-white">New Application</h2>
-                <p className="text-green-100 text-xs mt-0.5">Select a published form, enter student details and fill the application</p>
-              </div>
-              <button onClick={() => setShowNew(false)}
-                className="text-white/60 hover:text-white text-xl leading-none transition-colors">✕</button>
-            </div>
-            <ApplicationStarter role="branch" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="branch-applications" />
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ── Stats strip ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">

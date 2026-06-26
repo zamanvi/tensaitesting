@@ -119,8 +119,9 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
             <span className="text-base font-semibold text-slate-800">Personal Information</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Row 1: Full Name + Email */}
             {needStudent && (
-              <div className="sm:col-span-2">
+              <div>
                 <label className={lbl}>Full Name <span className="text-red-500">*</span></label>
                 <div className="relative mt-1">
                   <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -145,6 +146,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                 </div>
               </div>
             )}
+            {/* Row 2: Contact + WhatsApp */}
             <div>
               <label className={lbl}>Contact Number <span className="text-red-500">*</span></label>
               <div className="relative mt-1">
@@ -168,6 +170,7 @@ export default function ApplicationStarter({ role, studentName, studentEmail, on
                 <input className={field} type="tel" placeholder="+880 1XXX XXXXXX" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} />
               </div>
             </div>
+            {/* Row 3: DOB + Passport */}
             <div>
               <label className={lbl}>Date of Birth</label>
               <div className="relative mt-1">
