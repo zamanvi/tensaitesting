@@ -96,9 +96,9 @@ export default function ApplicationStarter({ role, studentName, onCreated, onCan
         </div>
       </div>
 
-      {/* Student Name — only for non-student roles */}
+      {/* Student Name — only for non-student roles, same card as country form */}
       {needStudent && (
-        <div className="px-5 sm:px-8 py-5 sm:py-6 bg-green-50/30">
+        <div className="px-5 sm:px-8 py-5 sm:py-6 bg-green-50/60">
           <label className="block text-sm font-medium text-slate-700 mb-1.5">
             Student Full Name <span className="text-red-500">*</span>
           </label>
