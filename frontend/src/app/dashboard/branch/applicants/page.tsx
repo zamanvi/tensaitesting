@@ -101,28 +101,28 @@ export default function BranchApplicantsPage() {
   return (
     <BranchLayout title="Applications">
 
-      {/* ── New Application hero + form ── */}
+      {/* ── New Application hero + form (centered, hides everything else) ── */}
       {showNew && (
-        <div className="mb-5 max-w-[860px]">
-          <NewApplicationHero />
-          <div className="bg-white rounded-[14px] border border-slate-200 shadow-sm overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
-            <ApplicationStarter role="branch" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="branch-applications" />
+        <div className="flex justify-center">
+          <div className="w-full max-w-[860px]">
+            <NewApplicationHero />
+            <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+              <ApplicationStarter role="branch" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="branch-applications" />
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── New Application button (shown when form is closed) ── */}
-      {!showNew && (
-        <div className="mb-5">
-          <button
-            onClick={() => setShowNew(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-green-700 hover:bg-green-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-green-700/20 transition-all">
-            + New Application
-          </button>
-        </div>
-      )}
+      {/* ── New Application button + stats + table (hidden when form open) ── */}
+      {!showNew && <div>
 
-      {/* ── Stats strip ── */}
+      <div className="mb-5">
+        <button onClick={() => setShowNew(true)}
+          className="flex items-center gap-2 px-5 py-3 bg-green-700 hover:bg-green-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-green-700/20 transition-all">
+          + New Application
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         {[
           { label: 'Total',     value: apps.length,                                    color: 'text-slate-800',   bg: 'bg-slate-50' },
@@ -222,6 +222,8 @@ export default function BranchApplicantsPage() {
           </div>
         )}
       </div>
+
+      </div>}
 
     </BranchLayout>
   );
