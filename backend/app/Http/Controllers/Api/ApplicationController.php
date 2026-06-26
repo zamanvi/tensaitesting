@@ -42,7 +42,7 @@ class ApplicationController extends Controller
         $user = $request->user();
         $data = $request->validate([
             'form_template_id' => 'required|exists:form_templates,id',
-            'student_name'     => 'required|string|max:255',
+            'student_name'     => 'nullable|string|max:255',
             'student_email'    => 'nullable|email|max:255',
             'student_phone'    => 'nullable|string|max:50',
             'whatsapp_no'      => 'nullable|string|max:50',
@@ -65,7 +65,7 @@ class ApplicationController extends Controller
             'user_id'           => $user->id,
             'submitted_by_role' => $this->roleOf($user),
             'branch_id'         => $user->hasRole(['branch_admin', 'branch_manager']) ? $user->branch_id : null,
-            'student_name'      => $data['student_name'],
+            'student_name'      => $data['student_name'] ?? null,
             'student_email'     => $data['student_email'] ?? null,
             'student_phone'     => $data['student_phone'] ?? null,
             'whatsapp_no'       => $data['whatsapp_no'] ?? null,

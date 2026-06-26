@@ -15,7 +15,7 @@ interface Props {
   queryKey: string;
 }
 
-export default function ApplicationStarter({ role, studentName, onCreated, onCancel, queryKey }: Props) {
+export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Props) {
   const qc = useQueryClient();
 
   const { data: templates = [], isLoading } = useQuery<ListTemplate[]>({
@@ -25,16 +25,13 @@ export default function ApplicationStarter({ role, studentName, onCreated, onCan
   });
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [name,       setName]       = useState(studentName ?? '');
   const [err,        setErr]        = useState('');
 
-  const needStudent = role !== 'student';
-  const canCreate   = !!selectedId && (needStudent ? !!name.trim() : true);
+  const canCreate = !!selectedId;
 
   const createMut = useMutation({
     mutationFn: () => api.post('/applications', {
       form_template_id: selectedId,
-      student_name: needStudent ? name.trim() : (studentName ?? ''),
     }),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: [queryKey] });
@@ -96,27 +93,6 @@ export default function ApplicationStarter({ role, studentName, onCreated, onCan
         </div>
       </div>
 
-      {/* Student Name — only for non-student roles, same card as country form */}
-      {needStudent && (
-        <div className="px-5 sm:px-8 py-5 sm:py-6 bg-green-50/60">
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
-            Student Full Name <span className="text-red-500">*</span>
-          </label>
-          <div className="relative mt-1">
-            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </span>
-            <input
-              className="w-full border border-slate-200 rounded-xl pl-10 pr-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-400"
-              placeholder="e.g. Ahmed Rahman"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Action bar — matches .cap-actions from blade */}
       <div className="mx-0 mt-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-5 sm:px-6 py-[18px] border-t border-slate-200 bg-white">
