@@ -326,10 +326,9 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                             </span>
                           )}
                         </div>
-                        <div className="w-full border border-gray-200 rounded-lg bg-white py-5 text-center text-sm text-gray-400">
+                        <div className="w-full border border-gray-200 rounded-lg bg-white py-7 text-center text-sm text-gray-400">
                           Drag &amp; Drop your files or{' '}
                           <span className="text-gray-400 underline cursor-not-allowed">Browse</span>
-                          <p className="text-xs text-gray-300 mt-1">Available after clicking Save &amp; Continue</p>
                         </div>
                       </div>
                     </div>
@@ -341,25 +340,31 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
         </div>
       )}
 
-      {/* ── Error ── */}
-      {err && <p className="text-sm text-red-500">{err}</p>}
-
-      {/* ── Action bar ── */}
+      {/* ── Action bar — matches admin's bottom bar exactly ── */}
       {template && (
-        <div className="flex items-center justify-between pt-2">
-          {onCancel && (
-            <button type="button" onClick={onCancel}
-              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              Cancel
+        <div className="flex items-center justify-between gap-3 pt-3 mt-2 border-t border-gray-100">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400 min-w-0">
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="truncate">After saving, you can fill in all remaining fields on the edit page.</span>
+          </div>
+          {err && <p className="text-xs text-red-500 flex-shrink-0">{err}</p>}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {onCancel && (
+              <button type="button" onClick={onCancel}
+                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+            )}
+            <button type="button" onClick={() => { if (validate()) createMut.mutate(); }} disabled={createMut.isPending}
+              className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50 transition-colors shadow-sm">
+              {createMut.isPending
+                ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
+              Create Application
             </button>
-          )}
-          <button type="button" onClick={() => { if (validate()) createMut.mutate(); }} disabled={createMut.isPending}
-            className="ml-auto flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50 transition-colors shadow-sm">
-            {createMut.isPending
-              ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
-            Save & Continue
-          </button>
+          </div>
         </div>
       )}
     </div>
