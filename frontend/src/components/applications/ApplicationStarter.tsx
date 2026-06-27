@@ -281,8 +281,11 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                   <button type="button" onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !p[edu.level] }))}
                     className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors">
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badgeColor}`}>{badge}</span>
                       <span className="text-sm font-medium text-gray-800">{label}</span>
+                      {edu.requirement === 'mandatory'
+                        ? <span className="text-red-500 text-sm">🔴</span>
+                        : null}
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badgeColor}`}>{badge}</span>
                     </div>
                     <svg className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -308,19 +311,25 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                             value={formData[`edu_${i}_year`] ?? ''} onChange={e => set(`edu_${i}_year`, e.target.value)} />
                         </div>
                       </div>
-                      {/* Certificate upload placeholder — matches admin layout, enabled after save */}
+                      {/* Certificate upload placeholder — matches admin layout exactly */}
                       <div className="px-4 pb-4">
-                        <label className={`${fl} flex items-center gap-1.5`}>
-                          Certificate / Transcript
+                        <div className="flex items-center justify-between mb-1">
+                          <label className={fl}>
+                            Certificate / Transcript{edu.requirement === 'mandatory' ? ' — Required' : ' — Optional'}
+                          </label>
                           {edu.requirement === 'mandatory' && (
-                            <span className="text-red-500 text-xs font-normal">— Must be uploaded before submitting</span>
+                            <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
+                              Must be uploaded before submitting
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </span>
                           )}
-                        </label>
-                        <div className="flex items-center gap-2 w-full px-4 py-3 border border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-400 text-sm">
-                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                          </svg>
-                          Upload available after saving — click Save &amp; Continue below
+                        </div>
+                        <div className="w-full border border-gray-200 rounded-lg bg-white py-5 text-center text-sm text-gray-400">
+                          Drag &amp; Drop your files or{' '}
+                          <span className="text-gray-400 underline cursor-not-allowed">Browse</span>
+                          <p className="text-xs text-gray-300 mt-1">Available after clicking Save &amp; Continue</p>
                         </div>
                       </div>
                     </div>
