@@ -201,7 +201,11 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                 <div>
                   <label className={lbl}>WhatsApp Number</label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 text-sm font-bold">W</span>
+                    <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </span>
                     <input className={`${inp} pl-10`} type="tel" placeholder="+880..."
                       value={studentInfo.whatsapp_no} onChange={e => si('whatsapp_no', e.target.value)} />
                   </div>
@@ -235,7 +239,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
 
                 {/* Intake */}
                 {template.intake_options?.length > 0 && (
-                  <div className="sm:col-span-2">
+                  <div>
                     <label className={lbl}>Select Intake</label>
                     <select className={inp} value={formData.intake ?? ''} onChange={e => set('intake', e.target.value)}>
                       <option value="">Choose intake...</option>
