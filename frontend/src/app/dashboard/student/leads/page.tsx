@@ -48,7 +48,7 @@ export default function StudentApplicationPage() {
   function handleDocUploaded(doc: AppDoc, progress: number) {
     qc.setQueryData(['student-application'], (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a =>
-        a.id === myApp?.id ? { ...a, progress, documents: [...a.documents.filter(d => d.doc_type !== doc.doc_type), doc] } : a
+        a.id === myApp?.id ? { ...a, progress, documents: [...(a.documents ?? []).filter(d => d.doc_type !== doc.doc_type), doc] } : a
       ),
     }));
   }
@@ -56,7 +56,7 @@ export default function StudentApplicationPage() {
   function handleDocDeleted(docId: number, progress: number) {
     qc.setQueryData(['student-application'], (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a =>
-        a.id === myApp?.id ? { ...a, progress, documents: a.documents.filter(d => d.id !== docId) } : a
+        a.id === myApp?.id ? { ...a, progress, documents: (a.documents ?? []).filter(d => d.id !== docId) } : a
       ),
     }));
   }

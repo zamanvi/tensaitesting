@@ -102,7 +102,7 @@ export default function AdminApplicantsPage() {
   function handleDocUploaded(doc: AppDoc, progress: number) {
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a =>
-        a.id === activeAppId ? { ...a, progress, documents: [...a.documents.filter(d => d.doc_type !== doc.doc_type), doc] } : a
+        a.id === activeAppId ? { ...a, progress, documents: [...(a.documents ?? []).filter(d => d.doc_type !== doc.doc_type), doc] } : a
       ),
     }));
   }
@@ -110,7 +110,7 @@ export default function AdminApplicantsPage() {
   function handleDocDeleted(docId: number, progress: number) {
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a =>
-        a.id === activeAppId ? { ...a, progress, documents: a.documents.filter(d => d.id !== docId) } : a
+        a.id === activeAppId ? { ...a, progress, documents: (a.documents ?? []).filter(d => d.id !== docId) } : a
       ),
     }));
   }
