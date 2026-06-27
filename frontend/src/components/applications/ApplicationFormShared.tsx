@@ -49,7 +49,7 @@ export interface Application {
   form_template: { id: number; name: string; country: string; visa_type?: string; intake_options: string[] } | null;
   student_name: string; student_email: string; student_phone: string;
   whatsapp_no?: string; permanent_address?: string;
-  form_data: Record<string, string>;
+  form_data: Record<string, string | number | null>;
   progress: number; status: 'draft' | 'submitted' | 'accepted' | 'rejected';
   submitted_by_role: string;
   submitter_name?: string;
@@ -57,7 +57,7 @@ export interface Application {
   branch_id: number | null;
   branch_name?: string;
   submitted_at: string | null; created_at: string; updated_at: string;
-  documents: AppDoc[];
+  documents?: AppDoc[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

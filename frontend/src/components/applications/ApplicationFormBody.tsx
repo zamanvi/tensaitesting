@@ -36,6 +36,9 @@ export default function ApplicationFormBody({
   const [liveProgress, setLiveProgress] = useState(app.progress);
   const [hasChanges, setHasChanges] = useState(false);
 
+  // Sync progress when parent updates app after doc upload
+  useEffect(() => { setLiveProgress(app.progress); }, [app.progress]);
+
   const draftKey = `app_draft_${app.id}`;
 
   // Restore draft from localStorage on mount
@@ -255,7 +258,7 @@ export default function ApplicationFormBody({
                 <select className={inp} value={formData.intake ?? ''} disabled={!isEditable}
                   onChange={e => set('intake', e.target.value)}>
                   <option value="">Choose intake…</option>
-                  {template.intake_options.map(o => <option key={o} value={o}>{o}</option>)}
+                  {(template.intake_options ?? []).map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
               </div>
             )}
@@ -321,7 +324,7 @@ export default function ApplicationFormBody({
               <span className="text-sm font-semibold text-gray-900">Education Certificates</span>
             </div>
             <div className="p-6 space-y-3">
-              {template.educations.filter(e => e.requirement !== 'none').map((edu, i) => {
+              {(template.educations ?? []).filter(e => e.requirement !== 'none').map((edu, i) => {
                 const levelLabels: Record<string, string> = {
                   ssc: 'SSC / O-Level', hsc: 'HSC / A-Level', diploma: 'Diploma',
                   bachelors: "Bachelor's Degree", masters: "Master's Degree",

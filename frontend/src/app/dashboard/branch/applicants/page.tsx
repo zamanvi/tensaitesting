@@ -21,6 +21,7 @@ export default function BranchApplicantsPage() {
   }, [user, isBranchAdmin, router]);
 
   const [activeApp, setActiveApp] = useState<Application | null>(null);
+  const [starterKey, setStarterKey] = useState(0);
   const queryKey = ['branch-applications'];
 
   const { data: template } = useQuery<FormTemplateData | null>({
@@ -77,7 +78,8 @@ export default function BranchApplicantsPage() {
         <div className="w-full max-w-[860px]">
           <NewApplicationHero />
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
-            <ApplicationStarter onCreated={handleCreated} queryKey="branch-applications" />
+            <ApplicationStarter key={starterKey} onCreated={handleCreated} queryKey="branch-applications"
+              onCancel={() => setStarterKey(k => k + 1)} />
           </div>
         </div>
       </div>

@@ -8,8 +8,6 @@ interface ListTemplate { id: number; name: string; country: string; visa_type?: 
 
 interface Props {
   role?: string;
-  studentName?: string;
-  studentEmail?: string;
   onCreated: (app: Application) => void;
   onCancel?: () => void;
   queryKey: string;
@@ -68,7 +66,11 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: [queryKey] });
       const app = res.data?.application ?? res.data;
-      if (app?.id) onCreated(app);
+      if (app?.id) {
+        onCreated(app);
+      } else {
+        setErr('Application created but no ID returned. Please refresh and try again.');
+      }
     },
     onError: () => setErr('Failed to create. Please try again.'),
   });
@@ -190,7 +192,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                   <label className={fl}>Select Intake</label>
                   <select className={fi} value={formData.intake ?? ''} onChange={e => set('intake', e.target.value)}>
                     <option value="">Choose intake…</option>
-                    {template.intake_options.map(o => <option key={o} value={o}>{o}</option>)}
+                    {(template.intake_options ?? []).map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
               )}
@@ -233,7 +235,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                         {field.field_type === 'select' ? (
                           <select className={fi} value={formData[field.field_key] ?? ''} onChange={e => set(field.field_key, e.target.value)}>
                             <option value="">{field.placeholder || 'Select…'}</option>
-                            {field.options.map(o => <option key={o} value={o}>{o}</option>)}
+                            {(field.options ?? []).map(o => <option key={o} value={o}>{o}</option>)}
                           </select>
                         ) : field.field_type === 'textarea' ? (
                           <textarea className={`${fi} resize-none`} rows={3} value={formData[field.field_key] ?? ''}

@@ -194,6 +194,8 @@ class ApplicationController extends Controller
             // unrestricted
         } elseif ($user->hasRole(['branch_admin', 'branch_manager'])) {
             $q->where('branch_id', $user->branch_id);
+        } elseif ($user->hasRole('agency')) {
+            $q->where('submitted_by_role', 'agency')->where('user_id', $user->id);
         } else {
             $q->where('user_id', $user->id);
         }
