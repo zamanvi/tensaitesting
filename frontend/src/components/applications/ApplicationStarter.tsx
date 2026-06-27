@@ -49,6 +49,12 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
     staleTime: 300_000,
   });
 
+  function validate() {
+    if (!studentInfo.student_name.trim()) { setErr('Full Name is required.'); return false; }
+    if (!studentInfo.student_phone.trim()) { setErr('Contact Number is required.'); return false; }
+    return true;
+  }
+
   const createMut = useMutation({
     mutationFn: () => api.post('/applications', {
       form_template_id: selectedId,
@@ -203,7 +209,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       {template && template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
         g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData) && f.field_type !== 'file'))
       ).map(group => (
-        <div key={group.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div key={group.id} className="bg-[#f0fdf4] border border-green-100 rounded-xl overflow-hidden">
           <div className="flex items-center gap-2.5 px-6 py-4 border-b border-green-100">
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -314,7 +320,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
               Cancel
             </button>
           )}
-          <button type="button" onClick={() => createMut.mutate()} disabled={createMut.isPending}
+          <button type="button" onClick={() => { if (validate()) createMut.mutate(); }} disabled={createMut.isPending}
             className="ml-auto flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50 transition-colors shadow-sm">
             {createMut.isPending
               ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
