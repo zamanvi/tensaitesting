@@ -40,11 +40,12 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
   function set(key: string, val: string) { setFormData(p => ({ ...p, [key]: val })); }
   function si(k: keyof typeof studentInfo, v: string) { setStudentInfo(p => ({ ...p, [k]: v })); }
 
-  const { data: template, isLoading: loadingTemplate } = useQuery<FormTemplateData | null>({
-    queryKey: ['form-template', selectedId],
-    queryFn: () => selectedId ? api.get(`/form-templates/${selectedId}`).then(r => r.data) : Promise.resolve(null),
+  const { data: template, isLoading: loadingTemplate, isError: templateError } = useQuery<FormTemplateData | null>({
+    queryKey: ['starter-template', selectedId],
+    queryFn: () => api.get(`/form-templates/${selectedId}`).then(r => r.data),
     enabled: !!selectedId,
     staleTime: 300_000,
+    retry: 1,
   });
 
   const createMut = useMutation({
@@ -123,7 +124,17 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       {/* ── Loading ── */}
       {selectedId && loadingTemplate && (
         <div className="py-8 text-center border-b border-slate-100">
-          <span className="w-5 h-5 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" />
+          <span className="w-5 h-5 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block mr-2" />
+          <span className="text-sm text-slate-400">Loading form…</span>
+        </div>
+      )}
+
+      {/* ── Template error ── */}
+      {selectedId && templateError && !loadingTemplate && (
+        <div className="px-5 sm:px-8 py-5 border-b border-slate-100">
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-600">
+            ⚠️ Could not load form template. Please try selecting again.
+          </div>
         </div>
       )}
 
