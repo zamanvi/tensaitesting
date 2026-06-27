@@ -22,7 +22,9 @@ interface Props {
 export default function ApplicationFormBody({
   app, template, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose,
 }: Props) {
-  const [formData,   setFormData]   = useState<Record<string, string>>(app.form_data ?? {});
+  const [formData,   setFormData]   = useState<Record<string, string>>(
+    Object.fromEntries(Object.entries(app.form_data ?? {}).map(([k, v]) => [k, v == null ? '' : String(v)]))
+  );
   const [studentInfo, setStudentInfo] = useState({
     student_email:     app.student_email ?? '',
     student_phone:     app.student_phone ?? '',
