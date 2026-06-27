@@ -254,8 +254,10 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
             </div>
           </div>
 
-          {/* Dynamic template groups (exclude 'Application Form Info' — admin excludes it too) */}
-          {template.groups.filter(g => g.label !== 'Application Form Info').map((group) => (
+          {/* Dynamic template groups (exclude 'Application Form Info' and empty groups) */}
+          {template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
+            g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData) && f.field_type !== 'file'))
+          ).map((group) => (
             <div key={group.id} className="border-b border-slate-100 px-5 sm:px-8 py-5">
               <SectionHead title={group.label} subtitle={group.hint} />
               <div className="space-y-6 mt-4">
