@@ -275,7 +275,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
               const label = EDU_LABELS[edu.level] ?? edu.level;
               const badge = edu.requirement === 'mandatory' ? 'Mandatory' : 'Optional';
               const badgeColor = edu.requirement === 'mandatory' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500';
-              const isOpen = openEdu[edu.level] ?? false;
+              const isOpen = openEdu[edu.level] ?? (i === 0);
               return (
                 <div key={edu.level} className="border border-gray-200 rounded-lg overflow-hidden">
                   <button type="button" onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !p[edu.level] }))}
@@ -289,21 +289,39 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                     </svg>
                   </button>
                   {isOpen && (
-                    <div className="px-4 py-4 grid grid-cols-3 gap-3 border-t border-gray-100">
-                      <div>
-                        <label className={fl}>Institution / Board</label>
-                        <input className={fi} placeholder="e.g. Dhaka Board"
-                          value={formData[`edu_${i}_institution`] ?? ''} onChange={e => set(`edu_${i}_institution`, e.target.value)} />
+                    <div className="border-t border-gray-100">
+                      {/* 3 text fields — same layout as admin */}
+                      <div className="px-4 pt-4 pb-3 grid grid-cols-3 gap-3">
+                        <div>
+                          <label className={fl}>Institution / Board</label>
+                          <input className={fi} placeholder="e.g. Dhaka Board"
+                            value={formData[`edu_${i}_institution`] ?? ''} onChange={e => set(`edu_${i}_institution`, e.target.value)} />
+                        </div>
+                        <div>
+                          <label className={fl}>GPA / Grade</label>
+                          <input className={fi} placeholder="e.g. 5.00"
+                            value={formData[`edu_${i}_gpa`] ?? ''} onChange={e => set(`edu_${i}_gpa`, e.target.value)} />
+                        </div>
+                        <div>
+                          <label className={fl}>Passing Year</label>
+                          <input className={fi} placeholder="e.g. 2020"
+                            value={formData[`edu_${i}_year`] ?? ''} onChange={e => set(`edu_${i}_year`, e.target.value)} />
+                        </div>
                       </div>
-                      <div>
-                        <label className={fl}>GPA / Grade</label>
-                        <input className={fi} placeholder="e.g. 5.00"
-                          value={formData[`edu_${i}_gpa`] ?? ''} onChange={e => set(`edu_${i}_gpa`, e.target.value)} />
-                      </div>
-                      <div>
-                        <label className={fl}>Passing Year</label>
-                        <input className={fi} placeholder="e.g. 2020"
-                          value={formData[`edu_${i}_year`] ?? ''} onChange={e => set(`edu_${i}_year`, e.target.value)} />
+                      {/* Certificate upload placeholder — matches admin layout, enabled after save */}
+                      <div className="px-4 pb-4">
+                        <label className={`${fl} flex items-center gap-1.5`}>
+                          Certificate / Transcript
+                          {edu.requirement === 'mandatory' && (
+                            <span className="text-red-500 text-xs font-normal">— Must be uploaded before submitting</span>
+                          )}
+                        </label>
+                        <div className="flex items-center gap-2 w-full px-4 py-3 border border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-400 text-sm">
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                          </svg>
+                          Upload available after saving — click Save &amp; Continue below
+                        </div>
                       </div>
                     </div>
                   )}
