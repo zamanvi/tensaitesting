@@ -147,10 +147,11 @@ export function InlineDoc({
   const ref = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [deleting,  setDeleting]  = useState(false);
+  const [uploadErr, setUploadErr] = useState('');
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
-    setUploading(true);
+    setUploading(true); setUploadErr('');
     const fd = new FormData();
     fd.append('doc_type', fieldKey);
     fd.append('field_key', fieldKey);
@@ -159,7 +160,10 @@ export function InlineDoc({
     try {
       const res = await api.post(`/applications/${appId}/documents`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       onUploaded(res.data.document, res.data.progress);
-    } catch { /* noop */ }
+    } catch {
+      setUploadErr('Upload failed — please try again.');
+      setTimeout(() => setUploadErr(''), 5000);
+    }
     setUploading(false); e.target.value = '';
   }
 
@@ -168,13 +172,17 @@ export function InlineDoc({
     try {
       const res = await api.delete(`/applications/${appId}/documents/${existingDoc.id}`);
       onDeleted(existingDoc.id, res.data.progress);
-    } catch { /* noop */ }
+    } catch {
+      setUploadErr('Delete failed — please try again.');
+      setTimeout(() => setUploadErr(''), 5000);
+    }
     setDeleting(false);
   }
 
   return (
     <div className="mt-2">
       <input ref={ref} type="file" accept="image/*,application/pdf" className="hidden" onChange={handleFile} />
+      {uploadErr && <p aria-live="assertive" className="text-xs text-rose-500 mb-1">{uploadErr}</p>}
       {existingDoc ? (
         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
           <div className="w-8 h-8 rounded-lg bg-white border border-emerald-200 flex items-center justify-center shrink-0 text-xs font-bold overflow-hidden">

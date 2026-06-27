@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import api from '@/lib/api';
 import {
   Application, AppDoc, FormTemplateData, TemplateField,
@@ -34,6 +34,34 @@ export default function ApplicationFormBody({
   const [msg,        setMsg]        = useState('');
   const [err,        setErr]        = useState('');
   const [liveProgress, setLiveProgress] = useState(app.progress);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const draftKey = `app_draft_${app.id}`;
+
+  // Restore draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        const { formData: fd, studentInfo: si } = JSON.parse(saved);
+        if (fd) { setFormData(fd); setHasChanges(true); }
+        if (si) { setStudentInfo(si); setHasChanges(true); }
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [app.id]);
+
+  // Auto-save draft to localStorage (debounced 3s)
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!hasChanges) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      try { localStorage.setItem(draftKey, JSON.stringify({ formData, studentInfo })); } catch { /* ignore */ }
+    }, 3000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData, studentInfo]);
 
   const progress   = liveProgress;
   const isEditable = !['accepted', 'rejected'].includes(app.status);
@@ -42,6 +70,7 @@ export default function ApplicationFormBody({
 
   function set(key: string, val: string) {
     setFormData(p => ({ ...p, [key]: val }));
+    setHasChanges(true);
   }
 
   async function handleSave() {
@@ -53,22 +82,33 @@ export default function ApplicationFormBody({
       });
       onSaved(res.data);
       if (res.data?.progress !== undefined) setLiveProgress(res.data.progress);
+      setHasChanges(false);
+      try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
       setMsg('Saved ✓'); setTimeout(() => setMsg(''), 2500);
-    } catch { setErr('Save failed.'); }
+    } catch { setErr('Save failed — please try again.'); setTimeout(() => setErr(''), 6000); }
     setSaving(false);
   }
 
   async function handleSubmit() {
+    if (!window.confirm('Submit this application?\n\nAfter submitting, you can still resubmit if needed, but the form will be locked for review.')) return;
     setSubmitting(true); setErr('');
     try {
       const res = await api.post(`/applications/${app.id}/submit`);
       onSubmitted(res.data);
+      try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
       setMsg('Submitted successfully ✓');
     } catch (e: unknown) {
       const ax = e as { response?: { data?: { message?: string } } };
-      setErr(ax.response?.data?.message ?? 'Submit failed.');
+      setErr(ax.response?.data?.message ?? 'Submit failed — please try again.');
+      setTimeout(() => setErr(''), 6000);
     }
     setSubmitting(false);
+  }
+
+  function handleClose() {
+    if (hasChanges && !window.confirm('You have unsaved changes. Discard them and go back?')) return;
+    try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
+    onClose?.();
   }
 
   return (
@@ -78,7 +118,8 @@ export default function ApplicationFormBody({
         <div className="flex items-center justify-between gap-2 mb-2.5">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {onClose && (
-              <button onClick={onClose} className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors flex-shrink-0">
+              <button onClick={handleClose} aria-label="Go back"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors flex-shrink-0">
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
@@ -89,34 +130,48 @@ export default function ApplicationFormBody({
               <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">{app.application_code} · {app.form_template?.country ?? ''}</p>
             </div>
             {app.status === 'submitted' && (
-              <span className="hidden sm:inline text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full flex-shrink-0">✓ SUBMITTED</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full flex-shrink-0">✓ SUBMITTED</span>
             )}
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            {msg && <span className="hidden sm:inline text-xs font-bold text-emerald-600 animate-pulse">{msg}</span>}
-            {err && <span className="hidden sm:inline text-xs text-rose-500">{err}</span>}
             {isEditable && (
-              <button onClick={handleSave} disabled={saving}
+              <button onClick={handleSave} disabled={saving} aria-label="Save progress"
                 className="px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg sm:rounded-xl disabled:opacity-50 transition-colors">
                 {saving ? '…' : '💾 Save'}
               </button>
             )}
             {canSubmit && (
-              <button onClick={handleSubmit} disabled={submitting}
+              <button onClick={handleSubmit} disabled={submitting} aria-label="Submit application"
                 className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-xs font-bold rounded-lg sm:rounded-xl disabled:opacity-50 transition-all shadow-sm flex items-center gap-1">
                 {submitting && <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
-                <span className="hidden sm:inline">🚀 Submit</span>
-                <span className="inline sm:hidden">Submit</span>
+                🚀 Submit
               </button>
             )}
           </div>
         </div>
-        <ProgressBar value={progress} />
-        {msg && <p className="text-[11px] font-bold text-emerald-600 animate-pulse mt-1 sm:hidden">{msg}</p>}
+        {progress === 0
+          ? <p className="text-xs text-slate-400">Fill in the form below to track your progress.</p>
+          : <ProgressBar value={progress} />
+        }
+        {msg && <p aria-live="polite" className="text-[11px] font-bold text-emerald-600 mt-1">{msg}</p>}
+        {err && <p aria-live="assertive" className="text-[11px] text-rose-500 mt-1">{err}</p>}
+        {hasChanges && !saving && !msg && (
+          <p className="text-[10px] text-amber-500 mt-0.5">Unsaved changes — click Save to keep your work.</p>
+        )}
       </div>
 
+      {/* Template loading skeleton */}
+      {!template && (
+        <div className="px-4 sm:px-6 py-10 space-y-4 animate-pulse">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-gray-100 rounded-xl h-24" />
+          ))}
+          <p className="text-center text-xs text-gray-400">Loading form template…</p>
+        </div>
+      )}
+
       {/* Form body */}
-      <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
+      {template && <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
 
         {/* Personal Information — exact admin layout */}
         <section className="bg-[#f0fdf4] border border-green-100 rounded-xl overflow-hidden">
@@ -146,7 +201,7 @@ export default function ApplicationFormBody({
                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                 </span>
                 <input className={`${inp} pl-10`} type="email" value={studentInfo.student_email}
-                  readOnly={!isEditable} onChange={e => setStudentInfo(p => ({ ...p, student_email: e.target.value }))} />
+                  readOnly={!isEditable} onChange={e => { setStudentInfo(p => ({ ...p, student_email: e.target.value })); setHasChanges(true); }} />
               </div>
             </div>
             {/* Contact Number */}
@@ -157,7 +212,7 @@ export default function ApplicationFormBody({
                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                 </span>
                 <input className={`${inp} pl-10`} type="tel" value={studentInfo.student_phone}
-                  readOnly={!isEditable} onChange={e => setStudentInfo(p => ({ ...p, student_phone: e.target.value }))} />
+                  readOnly={!isEditable} onChange={e => { setStudentInfo(p => ({ ...p, student_phone: e.target.value })); setHasChanges(true); }} />
               </div>
             </div>
             {/* WhatsApp */}
@@ -168,7 +223,7 @@ export default function ApplicationFormBody({
                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                 </span>
                 <input className={`${inp} pl-10`} type="tel" value={studentInfo.whatsapp_no}
-                  readOnly={!isEditable} onChange={e => setStudentInfo(p => ({ ...p, whatsapp_no: e.target.value }))} />
+                  readOnly={!isEditable} onChange={e => { setStudentInfo(p => ({ ...p, whatsapp_no: e.target.value })); setHasChanges(true); }} />
               </div>
             </div>
             {/* Date of Birth */}
@@ -209,7 +264,7 @@ export default function ApplicationFormBody({
               <label className={lbl}>Permanent Address</label>
               <textarea className={`${inp} resize-none`} rows={2} placeholder="House, Road, Area, City, Postcode"
                 value={studentInfo.permanent_address} readOnly={!isEditable}
-                onChange={e => setStudentInfo(p => ({ ...p, permanent_address: e.target.value }))} />
+                onChange={e => { setStudentInfo(p => ({ ...p, permanent_address: e.target.value })); setHasChanges(true); }} />
             </div>
           </div>
           </div>
@@ -219,7 +274,7 @@ export default function ApplicationFormBody({
 
         {/* Dynamic template groups (exclude 'Application Form Info' and empty groups) */}
         {template && template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
-          g.boxes.some(b => b.fields.length > 0)
+          g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData)))
         ).map((group, gi) => (
           <div key={group.id}>
             <section>
@@ -352,8 +407,10 @@ export default function ApplicationFormBody({
                 {app.status === 'submitted' ? '🔄 Resubmit Application' : '🚀 Submit Application'}
               </button>
             ) : (
-              <div className="flex-1 py-3 sm:py-3.5 bg-slate-50 border border-dashed border-slate-200 text-slate-400 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-center flex items-center justify-center">
-                Submit unlocks at 50% — currently {progress}%
+              <div className="flex-1 py-3 sm:py-3.5 bg-slate-50 border border-dashed border-slate-200 rounded-xl sm:rounded-2xl text-center flex flex-col items-center justify-center gap-0.5"
+                title={`Submit unlocks at 50% — currently ${progress}%`}>
+                <span className="text-xs font-semibold text-slate-400">Submit unlocks at 50%</span>
+                <span className="text-[11px] text-slate-400">Fill required fields &amp; upload education docs to reach {progress}% → 50%</span>
               </div>
             )}
           </div>
@@ -368,7 +425,7 @@ export default function ApplicationFormBody({
             <p className="text-xs text-slate-400 mt-1">This application is locked and can no longer be edited.</p>
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
