@@ -55,6 +55,9 @@ class Application extends Model
 
         if (!$template) return 0;
 
+        $data = $this->form_data ?? [];
+
+        // ── Template fields ───────────────────────────────────────────────────
         $allFields = collect();
         foreach ($template->activeFieldGroups as $group) {
             foreach ($group->activeBoxes as $box) {
@@ -64,15 +67,37 @@ class Application extends Model
             }
         }
 
-        $total = $allFields->count();
-        if ($total === 0) return 0;
+        $total  = $allFields->count();
+        $filled = $allFields->filter(fn ($f) => isset($data[$f->field_key]) && $data[$f->field_key] !== '')->count();
 
-        $data          = $this->form_data ?? [];
-        $filled        = $allFields->filter(fn ($f) => isset($data[$f->field_key]) && $data[$f->field_key] !== '')->count();
-        $uploadedKeys  = $this->documents()->pluck('field_key')->toArray();
-        $docFields     = $allFields->filter(fn ($f) => $f->requires_document);
-        $totalDocs     = $docFields->count();
-        $filledDocs    = $docFields->filter(fn ($f) => in_array($f->field_key, $uploadedKeys))->count();
+        $uploadedKeys = $this->documents()->pluck('field_key')->toArray();
+        $docFields    = $allFields->filter(fn ($f) => $f->requires_document);
+        $totalDocs    = $docFields->count();
+        $filledDocs   = $docFields->filter(fn ($f) => in_array($f->field_key, $uploadedKeys))->count();
+
+        // ── Education entries (non-none) count toward progress ────────────────
+        $educations = collect($template->educations ?? [])
+            ->filter(fn ($e) => ($e['requirement'] ?? 'none') !== 'none')
+            ->values();
+
+        foreach ($educations as $i => $edu) {
+            $total++;
+            // institution field = the primary fill indicator
+            if (isset($data["edu_{$i}_institution"]) && $data["edu_{$i}_institution"] !== '') {
+                $filled++;
+            }
+
+            // Each education entry counts as a document slot
+            $docKey = "edu_{$i}";
+            $totalDocs++;
+            // Uploaded via API (application_documents table) OR via admin (form_data.edu_N_document)
+            if (in_array($docKey, $uploadedKeys) ||
+                (isset($data["{$docKey}_document"]) && $data["{$docKey}_document"] !== '')) {
+                $filledDocs++;
+            }
+        }
+
+        if ($total === 0) return 0;
 
         $fieldPct = ($filled / $total) * ($totalDocs > 0 ? 70 : 100);
         $docPct   = $totalDocs > 0 ? ($filledDocs / $totalDocs) * 30 : 0;

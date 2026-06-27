@@ -240,7 +240,13 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                             placeholder={field.placeholder ?? ''} onChange={e => set(field.field_key, e.target.value)} />
                         ) : (
                           <input className={fi}
-                            type={field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : 'text'}
+                            type={
+                              field.field_type === 'number' ? 'number' :
+                              field.field_type === 'date'   ? 'date' :
+                              field.field_type === 'email'  ? 'email' :
+                              field.field_type === 'tel'    ? 'tel' :
+                              'text'
+                            }
                             value={formData[field.field_key] ?? ''} placeholder={field.placeholder ?? ''}
                             onChange={e => set(field.field_key, e.target.value)} />
                         )}

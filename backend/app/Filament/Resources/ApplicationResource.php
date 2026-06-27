@@ -334,7 +334,8 @@ class ApplicationResource extends Resource
                             ->options(collect($field->options ?? [])->mapWithKeys(fn ($o) => [$o => $o]))
                             ->placeholder($field->placeholder ?? 'Choose…')
                             ->required((bool) $field->is_required)
-                            ->native(false),
+                            ->native(false)
+                            ->live(),
 
                         'date' => Forms\Components\DatePicker::make("form_data.{$field->field_key}")
                             ->label($field->label)
@@ -373,6 +374,21 @@ class ApplicationResource extends Resource
                             ->placeholder($field->placeholder ?? '')
                             ->required((bool) $field->is_required),
                     };
+
+                    // Apply conditional visibility matching frontend isFieldVisible() logic
+                    if ($field->conditional_field_key && $field->conditional_operator) {
+                        $condKey = "form_data.{$field->conditional_field_key}";
+                        $condOp  = $field->conditional_operator;
+                        $condVal = $field->conditional_value ?? '';
+
+                        $comp = $comp->visible(fn (Forms\Get $get) => match ($condOp) {
+                            'is'           => ($get($condKey) ?? '') === $condVal,
+                            'is_not'       => ($get($condKey) ?? '') !== $condVal,
+                            'is_empty'     => ! filled($get($condKey)),
+                            'is_not_empty' => filled($get($condKey)),
+                            default        => true,
+                        });
+                    }
 
                     // Map box_size → column span in a 2-col grid
                     $boxFields[] = $comp->columnSpan(

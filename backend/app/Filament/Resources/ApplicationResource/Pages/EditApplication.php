@@ -4,9 +4,11 @@ namespace App\Filament\Resources\ApplicationResource\Pages;
 
 use App\Filament\Resources\ApplicationResource;
 use App\Models\Application;
+use App\Models\ApplicationDocument;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Storage;
 
 class EditApplication extends EditRecord
 {
@@ -20,9 +22,47 @@ class EditApplication extends EditRecord
 
     protected function afterSave(): void
     {
-        $record   = $this->getRecord();
+        $record = $this->getRecord();
+        $this->syncFilamentDocuments($record);
         $progress = $record->recalculateProgress();
         $record->update(['progress' => $progress]);
+    }
+
+    protected function syncFilamentDocuments(Application $app): void
+    {
+        $formData = $app->form_data ?? [];
+        $disk     = Storage::disk('public');
+
+        foreach ($formData as $key => $value) {
+            if (! $value || ! is_string($value)) continue;
+
+            // Matches: edu_0_document, edu_1_document, ...
+            if (preg_match('/^edu_(\d+)_document$/', $key, $m)) {
+                $docType = "edu_{$m[1]}";
+                $label   = "Education Document";
+            }
+            // Matches: boxdoc_123
+            elseif (preg_match('/^boxdoc_(\d+)$/', $key, $m)) {
+                $docType = "boxdoc_{$m[1]}";
+                $label   = "Supporting Document";
+            } else {
+                continue;
+            }
+
+            if (! $disk->exists($value)) continue;
+
+            ApplicationDocument::updateOrCreate(
+                ['application_id' => $app->id, 'doc_type' => $docType],
+                [
+                    'field_key'     => $docType,
+                    'label'         => $label,
+                    'file_path'     => $value,
+                    'original_name' => basename($value),
+                    'file_size'     => $disk->size($value),
+                    'mime_type'     => $disk->mimeType($value) ?? 'application/octet-stream',
+                ]
+            );
+        }
     }
 
     protected function getHeaderActions(): array

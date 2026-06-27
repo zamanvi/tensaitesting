@@ -12,7 +12,7 @@ export interface AppDoc {
 
 export interface TemplateField {
   id: number; field_key: string; label: string;
-  field_type: 'text' | 'number' | 'date' | 'select' | 'textarea' | 'file';
+  field_type: 'text' | 'number' | 'date' | 'select' | 'textarea' | 'file' | 'email' | 'tel';
   box_size: 'small' | 'middle' | 'full';
   is_required: boolean; requires_document: boolean; document_required?: boolean;
   options: string[]; placeholder: string; helper_text: string;
@@ -242,7 +242,13 @@ export function DynamicField({
           placeholder={field.placeholder ?? ''} onChange={e => onChange(e.target.value)} />
       ) : (
         <input className={inp}
-          type={field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : 'text'}
+          type={
+            field.field_type === 'number' ? 'number' :
+            field.field_type === 'date'   ? 'date' :
+            field.field_type === 'email'  ? 'email' :
+            field.field_type === 'tel'    ? 'tel' :
+            'text'
+          }
           value={value} placeholder={field.placeholder ?? ''} onChange={e => onChange(e.target.value)} />
       )}
 
