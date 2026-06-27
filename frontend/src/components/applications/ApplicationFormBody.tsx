@@ -179,8 +179,8 @@ export default function ApplicationFormBody({
 
         <hr className="border-slate-100" />
 
-        {/* Dynamic template groups */}
-        {template && template.groups.map((group, gi) => (
+        {/* Dynamic template groups (exclude 'Application Form Info' — admin excludes it too) */}
+        {template && template.groups.filter(g => g.label !== 'Application Form Info').map((group, gi) => (
           <div key={group.id}>
             <section>
               <SectionHead n={gi + 2} title={group.label} subtitle={group.hint} />

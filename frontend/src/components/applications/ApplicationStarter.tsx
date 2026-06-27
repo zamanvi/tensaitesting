@@ -254,8 +254,8 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
             </div>
           </div>
 
-          {/* Dynamic template groups */}
-          {template.groups.map((group) => (
+          {/* Dynamic template groups (exclude 'Application Form Info' — admin excludes it too) */}
+          {template.groups.filter(g => g.label !== 'Application Form Info').map((group) => (
             <div key={group.id} className="border-b border-slate-100 px-5 sm:px-8 py-5">
               <SectionHead title={group.label} subtitle={group.hint} />
               <div className="space-y-6 mt-4">
