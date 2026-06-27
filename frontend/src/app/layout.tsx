@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Sora } from "next/font/google";
 import Providers from "@/components/shared/Providers";
 import "./globals.css";
 
-const jakartaSans = Plus_Jakarta_Sans({
+const sora = Sora({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
-  weight: ["400", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${jakartaSans.variable} min-h-full bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
+      <body className={`${sora.variable} min-h-full bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>
