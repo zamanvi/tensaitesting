@@ -81,7 +81,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
     <div className="p-6 space-y-5 bg-white">
 
       {/* ── Country Form card ── */}
-      <div className="bg-[#f0fdf4] border border-green-100 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <div className="px-6 py-4">
           <label className={fl}>Country Form <span className="text-red-500">*</span></label>
           <select
