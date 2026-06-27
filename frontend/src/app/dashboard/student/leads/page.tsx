@@ -95,8 +95,6 @@ export default function StudentApplicationPage() {
             </div>
             <ApplicationStarter
               role="student"
-              studentName={user.name}
-              studentEmail={user.email}
               onCreated={handleCreated}
               queryKey="student-application"
             />
