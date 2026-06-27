@@ -130,7 +130,7 @@ export default function ApplicationFormBody({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Full Name */}
             <div>
-              <label className={lbl}>Full Name {app.student_name ? '' : ''}</label>
+              <label className={lbl}>Full Name</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -258,14 +258,15 @@ export default function ApplicationFormBody({
 
         {/* Education Certificates */}
         {template && template.educations?.length > 0 && (
-          <section>
-            <SectionHead
-              icon="🎓"
-              title="Education Certificates"
-              subtitle="Upload your academic certificates and transcripts"
-            />
-            <div className="space-y-4">
-              {template.educations.filter(e => e.requirement !== 'none').map((edu) => {
+          <section className="bg-[#f0fdf4] border border-green-100 rounded-xl overflow-hidden">
+            <div className="flex items-center gap-2.5 px-6 py-4 border-b border-green-100">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+              </svg>
+              <span className="text-sm font-semibold text-gray-900">Education Certificates</span>
+            </div>
+            <div className="p-6 space-y-3">
+              {template.educations.filter(e => e.requirement !== 'none').map((edu, i) => {
                 const levelLabels: Record<string, string> = {
                   ssc: 'SSC / O-Level', hsc: 'HSC / A-Level', diploma: 'Diploma',
                   bachelors: "Bachelor's Degree", masters: "Master's Degree",
@@ -273,18 +274,21 @@ export default function ApplicationFormBody({
                 };
                 const label = levelLabels[edu.level] ?? edu.level;
                 const mandatory = edu.requirement === 'mandatory';
-                const docKey = `edu_${edu.level}`;
+                const docKey = `edu_${i}`;
                 const existingDoc = docs.find(d => d.field_key === docKey || d.doc_type === docKey);
 
+                const badgeColor = mandatory ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500';
                 return (
-                  <div key={edu.level} className={`rounded-2xl border p-4 ${mandatory ? 'border-red-100 bg-red-50/40' : 'border-amber-100 bg-amber-50/40'}`}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${mandatory ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-700'}`}>
-                        {mandatory ? '🔴 Required' : '📎 Optional'}
+                  <div key={edu.level} className="border border-gray-200 rounded-lg overflow-hidden">
+                    {/* Header */}
+                    <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badgeColor}`}>
+                        {mandatory ? 'Mandatory' : 'Optional'}
                       </span>
-                      <span className="text-xs font-bold text-slate-700">{label}</span>
+                      <span className="text-sm font-medium text-gray-800">{label}</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                    {/* Fields */}
+                    <div className="px-4 py-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
                         <label className={lbl}>Institution / Board</label>
                         <input className={inp} placeholder="e.g. Dhaka Education Board"
@@ -308,19 +312,23 @@ export default function ApplicationFormBody({
                       </div>
                     </div>
                     {isEditable && (
-                      <InlineDoc
-                        fieldKey={docKey}
-                        fieldLabel={`${label} Certificate`}
-                        appId={app.id}
-                        mandatory={mandatory}
-                        existingDoc={existingDoc}
-                        onUploaded={onDocUploaded}
-                        onDeleted={onDocDeleted}
-                      />
+                      <div className="px-4 pb-4">
+                        <InlineDoc
+                          fieldKey={docKey}
+                          fieldLabel={`${label} Certificate`}
+                          appId={app.id}
+                          mandatory={mandatory}
+                          existingDoc={existingDoc}
+                          onUploaded={onDocUploaded}
+                          onDeleted={onDocDeleted}
+                        />
+                      </div>
                     )}
                     {!isEditable && existingDoc && (
-                      <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mt-1">
-                        <span className="text-emerald-600 text-xs font-semibold">📄 {existingDoc.original_name}</span>
+                      <div className="px-4 pb-4">
+                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                          <span className="text-emerald-600 text-xs font-semibold">📄 {existingDoc.original_name}</span>
+                        </div>
                       </div>
                     )}
                   </div>
