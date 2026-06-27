@@ -21,8 +21,6 @@ export default function BranchApplicantsPage() {
   }, [user, isBranchAdmin, router]);
 
   const [activeApp, setActiveApp] = useState<Application | null>(null);
-  const [showNew,   setShowNew]   = useState(false);
-
   const queryKey = ['branch-applications'];
 
   const { data: template } = useQuery<FormTemplateData | null>({
@@ -36,7 +34,6 @@ export default function BranchApplicantsPage() {
 
   function handleCreated(app: Application) {
     qc.invalidateQueries({ queryKey });
-    setShowNew(false);
     setActiveApp(app);
   }
 
@@ -73,28 +70,17 @@ export default function BranchApplicantsPage() {
     );
   }
 
+  // ── Create form — always visible, no button ────────────────────────────────
   return (
     <BranchLayout title="Applications">
-
-      {/* ── New Application form (centered) ── */}
-      {showNew ? (
-        <div className="flex justify-center">
-          <div className="w-full max-w-[860px]">
-            <NewApplicationHero />
-            <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
-              <ApplicationStarter role="branch" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="branch-applications" />
-            </div>
+      <div className="flex justify-center">
+        <div className="w-full max-w-[860px]">
+          <NewApplicationHero />
+          <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+            <ApplicationStarter onCreated={handleCreated} queryKey="branch-applications" />
           </div>
         </div>
-      ) : (
-        <div>
-          <button onClick={() => setShowNew(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-green-700 hover:bg-green-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-green-700/20 transition-all">
-            + New Application
-          </button>
-        </div>
-      )}
-
+      </div>
     </BranchLayout>
   );
 }
