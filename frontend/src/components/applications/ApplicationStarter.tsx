@@ -78,7 +78,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
   const visibleEdu = (template?.educations ?? []).filter(e => e.requirement !== 'none');
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="py-5 px-0 space-y-5">
 
       {/* ── Country Form card ── */}
       <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
