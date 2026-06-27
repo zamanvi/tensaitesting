@@ -35,14 +35,19 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       student_name: '',
     }),
     onSuccess: (res) => {
+      console.log('[Starter] onSuccess:', res.data);
       qc.invalidateQueries({ queryKey: [queryKey] });
       const app = res.data?.application ?? res.data;
+      console.log('[Starter] app:', app);
       if (app?.id) onCreated(app);
+      else setErr('Created but response missing application id. Check console.');
     },
     onError: (e: unknown) => {
+      console.error('[Starter] onError:', e);
       const ax = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
       const errs = ax.response?.data?.errors;
-      setErr(errs ? Object.values(errs).flat().join(' ') : ax.response?.data?.message ?? 'Failed.');
+      const msg = errs ? Object.values(errs).flat().join(' ') : ax.response?.data?.message ?? 'Failed.';
+      setErr(msg);
     },
   });
 
