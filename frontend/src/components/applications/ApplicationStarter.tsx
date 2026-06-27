@@ -297,17 +297,17 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                       <div className="px-4 pt-4 pb-3 grid grid-cols-3 gap-3">
                         <div>
                           <label className={fl}>Institution / Board</label>
-                          <input className={fi} placeholder="e.g. Dhaka Board"
+                          <input className={fi} placeholder="e.g. Dhaka Education Board"
                             value={formData[`edu_${i}_institution`] ?? ''} onChange={e => set(`edu_${i}_institution`, e.target.value)} />
                         </div>
                         <div>
                           <label className={fl}>GPA / Grade</label>
-                          <input className={fi} placeholder="e.g. 5.00"
+                          <input className={fi} placeholder="e.g. 5.00 / A+"
                             value={formData[`edu_${i}_gpa`] ?? ''} onChange={e => set(`edu_${i}_gpa`, e.target.value)} />
                         </div>
                         <div>
                           <label className={fl}>Passing Year</label>
-                          <input className={fi} placeholder="e.g. 2020"
+                          <input className={fi} placeholder="e.g. 2022"
                             value={formData[`edu_${i}_year`] ?? ''} onChange={e => set(`edu_${i}_year`, e.target.value)} />
                         </div>
                       </div>
@@ -317,9 +317,16 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                           <label className={fl}>
                             Certificate / Transcript{edu.requirement === 'mandatory' ? ' — Required' : ' — Optional'}
                           </label>
-                          {edu.requirement === 'mandatory' && (
+                          {edu.requirement === 'mandatory' ? (
                             <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
                               Must be uploaded before submitting
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-xs text-amber-500 font-medium">
+                              Optional — upload if available
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
