@@ -14,7 +14,7 @@ const STEPS = [
 export default function NewApplicationHero() {
   return (
     <div
-      className="relative rounded-[20px] overflow-hidden mb-[14px] px-6 sm:px-9 py-8 sm:py-[32px]"
+      className="relative rounded-t-[20px] overflow-hidden px-6 sm:px-9 py-8 sm:py-[32px]"
       style={{ background: 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%)' }}
     >
       {/* bg circles */}

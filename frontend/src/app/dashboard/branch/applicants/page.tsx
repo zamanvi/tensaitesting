@@ -77,7 +77,7 @@ export default function BranchApplicantsPage() {
       <div className="flex justify-center">
         <div className="w-full max-w-[860px]">
           <NewApplicationHero />
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+          <div className="bg-white rounded-b-xl border border-t-0 border-gray-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
             <ApplicationStarter key={starterKey} onCreated={handleCreated} queryKey="branch-applications"
               onCancel={() => setStarterKey(k => k + 1)} />
           </div>
