@@ -118,60 +118,91 @@ export default function ApplicationFormBody({
       {/* Form body */}
       <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
 
-        {/* Student info */}
+        {/* Personal Information — exact admin layout */}
         <section>
-          <SectionHead n={1} title="Student Information" subtitle={isEditable ? 'Contact details can be updated and saved' : undefined} />
+          <SectionHead icon="👤" title="Personal Information" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Name — always read-only */}
+            {/* Full Name */}
             <div>
-              <label className={lbl}>Full Name</label>
-              <input className={`${inp} bg-slate-50`} value={app.student_name} readOnly />
+              <label className={lbl}>Full Name {app.student_name ? '' : ''}</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </span>
+                <input className={`${inp} pl-10 bg-slate-50`} value={app.student_name ?? ''} readOnly />
+              </div>
             </div>
-            {/* Country — always read-only */}
-            <div>
-              <label className={lbl}>Target Country</label>
-              <input className={`${inp} bg-slate-50`} value={app.form_template?.country ?? ''} readOnly />
-            </div>
-            {/* Editable contact fields */}
+            {/* Email */}
             <div>
               <label className={lbl}>Email Address</label>
-              <input className={inp} type="email" value={studentInfo.student_email}
-                readOnly={!isEditable}
-                onChange={e => setStudentInfo(p => ({ ...p, student_email: e.target.value }))} />
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </span>
+                <input className={`${inp} pl-10`} type="email" value={studentInfo.student_email}
+                  readOnly={!isEditable} onChange={e => setStudentInfo(p => ({ ...p, student_email: e.target.value }))} />
+              </div>
             </div>
+            {/* Contact Number */}
             <div>
-              <label className={lbl}>Contact Phone</label>
-              <input className={inp} type="tel" value={studentInfo.student_phone}
-                readOnly={!isEditable}
-                onChange={e => setStudentInfo(p => ({ ...p, student_phone: e.target.value }))} />
+              <label className={lbl}>Contact Number</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                </span>
+                <input className={`${inp} pl-10`} type="tel" value={studentInfo.student_phone}
+                  readOnly={!isEditable} onChange={e => setStudentInfo(p => ({ ...p, student_phone: e.target.value }))} />
+              </div>
             </div>
+            {/* WhatsApp */}
             <div>
               <label className={lbl}>WhatsApp Number</label>
-              <input className={inp} type="tel" value={studentInfo.whatsapp_no}
-                readOnly={!isEditable}
-                onChange={e => setStudentInfo(p => ({ ...p, whatsapp_no: e.target.value }))} />
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                </span>
+                <input className={`${inp} pl-10`} type="tel" value={studentInfo.whatsapp_no}
+                  readOnly={!isEditable} onChange={e => setStudentInfo(p => ({ ...p, whatsapp_no: e.target.value }))} />
+              </div>
             </div>
-            {/* DOB from form_data */}
+            {/* Date of Birth */}
             <div>
               <label className={lbl}>Date of Birth</label>
-              <input className={inp} type="date"
-                value={formData.birth_date ?? ''}
-                readOnly={!isEditable}
-                onChange={e => set('birth_date', e.target.value)} />
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </span>
+                <input className={`${inp} pl-10`} type="date" value={formData.birth_date ?? ''}
+                  readOnly={!isEditable} onChange={e => set('birth_date', e.target.value)} />
+              </div>
             </div>
-            {/* Passport from form_data */}
+            {/* Passport */}
             <div>
               <label className={lbl}>Passport Number</label>
-              <input className={inp} placeholder="e.g. AB1234567"
-                value={formData.passport_no ?? ''}
-                readOnly={!isEditable}
-                onChange={e => set('passport_no', e.target.value)} />
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                </span>
+                <input className={`${inp} pl-10`} placeholder="e.g. AB1234567" value={formData.passport_no ?? ''}
+                  readOnly={!isEditable} onChange={e => set('passport_no', e.target.value)} />
+              </div>
             </div>
+            {/* Intake — dropdown like admin */}
+            {template && template.intake_options?.length > 0 && (
+              <div>
+                <label className={lbl}>Select Intake</label>
+                <select className={inp} value={formData.intake ?? ''} disabled={!isEditable}
+                  onChange={e => set('intake', e.target.value)}>
+                  <option value="">Choose intake…</option>
+                  {template.intake_options.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+            )}
+            {/* Permanent Address */}
             <div className="sm:col-span-2">
               <label className={lbl}>Permanent Address</label>
-              <textarea className={`${inp} resize-none`} rows={2}
-                value={studentInfo.permanent_address}
-                readOnly={!isEditable}
+              <textarea className={`${inp} resize-none`} rows={2} placeholder="House, Road, Area, City, Postcode"
+                value={studentInfo.permanent_address} readOnly={!isEditable}
                 onChange={e => setStudentInfo(p => ({ ...p, permanent_address: e.target.value }))} />
             </div>
           </div>
@@ -217,25 +248,6 @@ export default function ApplicationFormBody({
           </div>
         ))}
 
-        {/* Intake picker */}
-        {template && template.intake_options?.length > 0 && (
-          <div className="bg-green-50 border border-green-100 rounded-2xl px-5 py-4">
-            <p className="text-xs font-bold text-green-800 mb-3">📅 Select Intake — {app.form_template?.country}</p>
-            <div className="flex flex-wrap gap-2">
-              {template.intake_options.map(opt => (
-                <button key={opt} type="button"
-                  onClick={() => isEditable && set('intake', opt)}
-                  disabled={!isEditable}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${formData.intake === opt ? 'bg-green-700 text-white border-green-700 shadow-sm' : 'bg-white border-green-200 text-green-700 hover:bg-green-100'} disabled:opacity-60 disabled:cursor-default`}>
-                  {opt}
-                </button>
-              ))}
-            </div>
-            {formData.intake && (
-              <p className="text-[11px] text-green-700 font-semibold mt-2">✓ Selected: {formData.intake}</p>
-            )}
-          </div>
-        )}
 
         {/* Education Certificates */}
         {template && template.educations?.length > 0 && (
