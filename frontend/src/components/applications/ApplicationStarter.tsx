@@ -8,6 +8,8 @@ interface ListTemplate { id: number; name: string; country: string; visa_type?: 
 
 interface Props {
   role?: string;
+  studentName?: string;
+  studentEmail?: string;
   onCreated: (app: Application) => void;
   onCancel?: () => void;
   queryKey: string;
