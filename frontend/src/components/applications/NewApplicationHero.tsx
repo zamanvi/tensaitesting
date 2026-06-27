@@ -14,7 +14,7 @@ const STEPS = [
 export default function NewApplicationHero() {
   return (
     <div
-      className="relative rounded-t-[20px] overflow-hidden px-6 sm:px-9 py-8 sm:py-[32px]"
+      className="relative rounded-t-[20px] overflow-hidden px-7 sm:px-10 py-10 sm:py-12"
       style={{ background: 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%)' }}
     >
       {/* bg circles */}
@@ -23,9 +23,9 @@ export default function NewApplicationHero() {
 
       <div className="relative z-10">
         {/* Badge */}
-        <div className="inline-flex items-center gap-1.5 mb-3 px-[13px] py-1 rounded-full text-[10.5px] font-bold uppercase tracking-[.08em]"
-          style={{ background: 'rgba(255,255,255,.18)', border: '1px solid rgba(255,255,255,.25)', color: 'rgba(255,255,255,.95)' }}>
-          <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="inline-flex items-center gap-2 mb-4 px-3.5 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-[.05em]"
+          style={{ background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.3)', color: 'rgba(255,255,255,.95)' }}>
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -33,27 +33,27 @@ export default function NewApplicationHero() {
         </div>
 
         {/* Title */}
-        <h1 className="text-[26px] font-extrabold text-white leading-tight mb-2">
+        <h1 className="text-[28px] font-extrabold text-white leading-snug mb-3">
           Create a New Student Application
         </h1>
-        <p className="text-[13px] leading-relaxed mb-5 max-w-[480px]" style={{ color: 'rgba(255,255,255,.72)' }}>
+        <p className="text-[14px] leading-relaxed mb-6 max-w-[480px]" style={{ color: 'rgba(255,255,255,.78)' }}>
           Select a country form, fill in the student&apos;s details, and save to continue editing the full application.
         </p>
 
         {/* Steps */}
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
           {STEPS.map((step, i) => (
-            <div key={step.n} className="flex items-center gap-1.5">
-              <div className="flex items-center gap-1.5 px-[13px] py-[6px] rounded-lg text-[11.5px] font-medium"
-                style={{ background: 'rgba(255,255,255,.13)', border: '1px solid rgba(255,255,255,.18)', color: 'rgba(255,255,255,.88)' }}>
-                <span className="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-black text-white flex-shrink-0"
-                  style={{ background: 'rgba(255,255,255,.28)' }}>
+            <div key={step.n} className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-[11.5px] font-semibold"
+                style={{ background: 'rgba(255,255,255,.13)', border: '1px solid rgba(255,255,255,.2)', color: 'rgba(255,255,255,.9)' }}>
+                <span className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
+                  style={{ background: 'rgba(255,255,255,.25)' }}>
                   {step.n}
                 </span>
                 <span className="hidden sm:inline">{step.label}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <span className="hidden sm:inline text-sm" style={{ color: 'rgba(255,255,255,.3)' }}>›</span>
+                <span className="hidden sm:inline text-base font-light" style={{ color: 'rgba(255,255,255,.35)' }}>›</span>
               )}
             </div>
           ))}
