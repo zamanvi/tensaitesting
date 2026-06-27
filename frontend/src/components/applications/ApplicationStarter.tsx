@@ -36,7 +36,8 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
     }),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: [queryKey] });
-      onCreated(res.data.application);
+      const app = res.data?.application ?? res.data;
+      if (app?.id) onCreated(app);
     },
     onError: (e: unknown) => {
       const ax = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };

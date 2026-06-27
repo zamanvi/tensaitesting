@@ -33,13 +33,6 @@ export default function AgencyAddApplicationPage() {
 
   const queryKey = ['agency-applications'];
 
-  const { data: appsData } = useQuery<{ data: Application[] }>({
-    queryKey,
-    queryFn: () => api.get('/applications').then(r => r.data),
-    enabled: !!isAgency && !!approved,
-  });
-  const apps = appsData?.data ?? [];
-
   const { data: template } = useQuery<FormTemplateData | null>({
     queryKey: ['form-template', activeApp?.form_template_id],
     queryFn: () => activeApp?.form_template_id
