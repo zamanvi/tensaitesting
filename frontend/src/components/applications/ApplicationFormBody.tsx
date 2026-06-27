@@ -179,8 +179,8 @@ export default function ApplicationFormBody({
       {template && <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
 
         {/* Personal Information — exact admin layout */}
-        <section className="bg-[#f0fdf4] border border-green-100 rounded-xl overflow-hidden">
-          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-green-100">
+        <section className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-gray-100">
             <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
