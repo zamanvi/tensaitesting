@@ -87,7 +87,8 @@ class ApplicationResource extends Resource
                 ->schema(fn (Forms\Get $get): array => self::buildTemplateFieldSections(
                     filled($get('form_template_id')) ? (int) $get('form_template_id') : null
                 ))
-                ->visible(fn (Forms\Get $get) => filled($get('form_template_id'))),
+                ->visible(fn (Forms\Get $get) => filled($get('form_template_id')))
+                ->columnSpanFull(),
 
             // ── Education Certificates ────────────────────────────────────────
             Forms\Components\Section::make('Education Certificates')
