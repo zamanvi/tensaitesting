@@ -34,16 +34,10 @@ export default function NewApplicationHero() {
           </span>
         </div>
 
-        {/* Title + subtitle — full width, two-column layout */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:gap-10 mb-6">
-          <h1 className="text-[22px] sm:text-[26px] font-black text-white leading-[1.12] tracking-[-0.02em] sm:flex-shrink-0">
-            Create a New Student Application
-          </h1>
-          <p className="mt-2 sm:mt-0 text-[12.5px] leading-relaxed font-light w-full"
-            style={{ color: 'rgba(255,255,255,.5)' }}>
-            Select a country form, fill in the student&apos;s details, and save to continue editing the full application.
-          </p>
-        </div>
+        {/* Title */}
+        <h1 className="text-[22px] sm:text-[26px] font-black text-white leading-[1.12] tracking-[-0.02em] mb-6">
+          Create a New Student Application
+        </h1>
 
         {/* Steps — premium box row, full width */}
         <div className="w-full rounded-xl flex items-stretch overflow-hidden"
