@@ -4,11 +4,34 @@ import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
 import NewApplicationHero from '@/components/applications/NewApplicationHero';
+
+// ── Constants ──────────────────────────────────────────────────────────────────
+
+const STATUS_BADGE: Record<string, string> = {
+  draft:     'bg-slate-100 text-slate-500',
+  submitted: 'bg-amber-100 text-amber-700',
+  accepted:  'bg-emerald-100 text-emerald-700',
+  rejected:  'bg-rose-100 text-rose-600',
+};
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function BranchApplicantsPage() {
   const { user } = useAuthStore();
@@ -20,9 +43,32 @@ export default function BranchApplicantsPage() {
     if (user && !isBranchAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isBranchAdmin, router]);
 
-  const [activeApp, setActiveApp] = useState<Application | null>(null);
-  const [starterKey, setStarterKey] = useState(0);
+  const [activeAppId, setActiveAppId] = useState<number | null>(null);
+  const [showNew,     setShowNew]     = useState(false);
+  const [search,      setSearch]      = useState('');
+
   const queryKey = ['branch-applications'];
+
+  const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
+    queryKey,
+    queryFn: () => api.get('/applications').then(r => r.data),
+    enabled: !!isBranchAdmin,
+  });
+
+  const apps = appsData?.data ?? [];
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return apps;
+    return apps.filter(a =>
+      a.student_name?.toLowerCase().includes(q) ||
+      a.student_email?.toLowerCase().includes(q) ||
+      a.application_code?.toLowerCase().includes(q) ||
+      a.form_template?.country?.toLowerCase().includes(q)
+    );
+  }, [apps, search]);
+
+  const activeApp = apps.find(a => a.id === activeAppId) ?? null;
 
   const { data: template, isLoading: templateLoading } = useQuery<FormTemplateData | null>({
     queryKey: ['form-template', activeApp?.form_template_id],
@@ -35,28 +81,36 @@ export default function BranchApplicantsPage() {
 
   function handleCreated(app: Application) {
     qc.invalidateQueries({ queryKey });
-    setActiveApp(app);
+    setShowNew(false);
+    setActiveAppId(app.id);
   }
 
   function updateApps(updated: Application) {
-    setActiveApp(prev => prev ? { ...prev, ...updated } : prev);
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a => a.id === updated.id ? { ...a, ...updated } : a),
     }));
   }
 
   function handleDocUploaded(doc: AppDoc, progress: number) {
-    setActiveApp(prev => prev ? { ...prev, progress, documents: [...(prev.documents ?? []).filter(d => d.doc_type !== doc.doc_type), doc] } : prev);
+    qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
+      ...old, data: (old?.data ?? []).map(a =>
+        a.id === activeAppId ? { ...a, progress, documents: [...(a.documents ?? []).filter(d => d.doc_type !== doc.doc_type), doc] } : a
+      ),
+    }));
   }
 
   function handleDocDeleted(docId: number, progress: number) {
-    setActiveApp(prev => prev ? { ...prev, progress, documents: (prev.documents ?? []).filter(d => d.id !== docId) } : prev);
+    qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
+      ...old, data: (old?.data ?? []).map(a =>
+        a.id === activeAppId ? { ...a, progress, documents: (a.documents ?? []).filter(d => d.id !== docId) } : a
+      ),
+    }));
   }
 
   if (!user || !isBranchAdmin) return null;
 
-  // ── Application edit view ─────────────────────────────────────────────────
-  if (activeApp !== null) {
+  // ── Active form view ────────────────────────────────────────────────────────
+  if (activeAppId !== null && activeApp) {
     return (
       <BranchLayout title="Applications">
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
@@ -64,22 +118,210 @@ export default function BranchApplicantsPage() {
             app={activeApp} template={template ?? null} templateLoading={templateLoading}
             onSaved={updateApps} onSubmitted={updateApps}
             onDocUploaded={handleDocUploaded} onDocDeleted={handleDocDeleted}
-            onClose={() => setActiveApp(null)}
+            onClose={() => setActiveAppId(null)}
           />
         </div>
       </BranchLayout>
     );
   }
 
-  // ── Create form — always visible, no button ────────────────────────────────
+  const total     = apps.length;
+  const submitted = apps.filter(a => a.status === 'submitted').length;
+  const accepted  = apps.filter(a => a.status === 'accepted').length;
+  const rejected  = apps.filter(a => a.status === 'rejected').length;
+
   return (
     <BranchLayout title="Applications">
-      <div className="mx-auto max-w-[860px]">
-        <NewApplicationHero />
-        <div className="overflow-hidden">
-          <ApplicationStarter key={starterKey} onCreated={handleCreated} queryKey="branch-applications"
-            onCancel={() => setStarterKey(k => k + 1)} />
+
+      {/* ── New Application ── */}
+      <div className="mb-6">
+        {!showNew ? (
+          <button onClick={() => setShowNew(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-green-700/20 transition-all focus:outline-none focus:ring-2 focus:ring-green-500/40">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Application
+          </button>
+        ) : (
+          <div className="max-w-[860px]">
+            <NewApplicationHero />
+            <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden shadow-sm">
+              <ApplicationStarter role="branch" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="branch-applications" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Stats strip ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        {[
+          { label: 'Total',     value: total,     color: 'text-slate-800',    bg: 'bg-white',       border: 'border-slate-200',   dot: 'bg-slate-400'  },
+          { label: 'Submitted', value: submitted,  color: 'text-amber-700',   bg: 'bg-amber-50',    border: 'border-amber-200',   dot: 'bg-amber-400'  },
+          { label: 'Accepted',  value: accepted,   color: 'text-emerald-700', bg: 'bg-emerald-50',  border: 'border-emerald-200', dot: 'bg-emerald-500'},
+          { label: 'Rejected',  value: rejected,   color: 'text-rose-600',    bg: 'bg-rose-50',     border: 'border-rose-200',    dot: 'bg-rose-400'   },
+        ].map(s => (
+          <div key={s.label} className={`${s.bg} border ${s.border} rounded-2xl px-5 py-4 flex items-center gap-3`}>
+            <div className={`w-2.5 h-2.5 rounded-full ${s.dot} shrink-0`} />
+            <div>
+              <div className={`text-2xl font-black ${s.color} leading-none`}>{s.value}</div>
+              <div className="text-xs text-slate-400 font-medium mt-1">{s.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Table card ── */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+
+        {/* Header: title + search */}
+        <div className="px-5 sm:px-6 py-4 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex-1">
+              <h3 className="font-black text-slate-900 text-sm">Branch Applications</h3>
+              <p className="text-xs text-slate-400 mt-0.5">All applications submitted by your branch</p>
+            </div>
+            {/* Search */}
+            <div className="relative w-full sm:w-64">
+              <svg className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
+              </svg>
+              <input
+                type="search" placeholder="Search name, code, country…"
+                value={search} onChange={e => setSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all placeholder:text-slate-300"
+              />
+            </div>
+            {search && (
+              <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-green-50 border border-green-200 text-green-700 shrink-0">
+                {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* Table body */}
+        {isLoading ? (
+          <div className="py-24 flex flex-col items-center gap-3">
+            <span className="w-8 h-8 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+            <p className="text-xs text-slate-400">Loading applications…</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="py-24 flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+              <svg className="w-7 h-7 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-bold text-slate-500">{search ? 'No results found' : 'No applications yet'}</p>
+              <p className="text-xs text-slate-400 mt-1">
+                {search ? `No match for "${search}"` : 'Click "New Application" above to get started.'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <th className="text-left px-5 py-3">Code</th>
+                    <th className="text-left px-4 py-3">Student</th>
+                    <th className="text-left px-4 py-3">Country / Form</th>
+                    <th className="text-left px-4 py-3">Progress</th>
+                    <th className="text-left px-4 py-3">Status</th>
+                    <th className="text-left px-4 py-3">Date</th>
+                    <th className="px-4 py-3" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filtered.map(app => (
+                    <tr key={app.id}
+                      onClick={() => setActiveAppId(app.id)}
+                      className="hover:bg-green-50/40 cursor-pointer transition-colors group">
+                      <td className="px-5 py-3.5">
+                        <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
+                          {app.application_code}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <p className="font-semibold text-slate-800 text-xs">{app.student_name}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{app.student_email || '—'}</p>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <p className="text-xs font-semibold text-slate-700">{app.form_template?.country ?? '—'}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[180px]">{app.form_template?.name ?? ''}</p>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                              style={{ width: `${app.progress}%` }}
+                            />
+                          </div>
+                          <span className="text-xs font-bold text-slate-600 tabular-nums">{app.progress}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
+                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
+                        {timeAgo(app.created_at)}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-green-100 group-hover:text-green-700 text-slate-400 transition-colors">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="md:hidden divide-y divide-slate-50">
+              {filtered.map(app => (
+                <div key={app.id}
+                  onClick={() => setActiveAppId(app.id)}
+                  className="px-4 py-4 flex items-start gap-3 hover:bg-slate-50 cursor-pointer transition-colors active:bg-slate-100">
+                  <div className="shrink-0 w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                    <span className={`text-xs font-black ${app.progress >= 80 ? 'text-emerald-600' : app.progress >= 50 ? 'text-amber-600' : 'text-rose-500'}`}>
+                      {app.progress}%
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-xs font-bold text-slate-900 truncate">{app.student_name}</p>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status]}`}>
+                        {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">{app.form_template?.country ?? '—'} · {app.application_code}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(app.created_at)}</p>
+                  </div>
+                  <svg className="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 sm:px-6 py-3 border-t border-slate-50 bg-slate-50/50">
+              <p className="text-[11px] text-slate-400">
+                Showing <span className="font-bold text-slate-600">{filtered.length}</span> of <span className="font-bold text-slate-600">{total}</span> applications
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </BranchLayout>
   );
