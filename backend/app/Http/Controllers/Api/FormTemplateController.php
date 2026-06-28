@@ -42,6 +42,9 @@ class FormTemplateController extends Controller
                 'id'                 => $box->id,
                 'name'               => $box->name,
                 'requires_document'  => $box->requires_document,
+                'document_required'  => $box->document_required ?? false,
+                'doc_key'            => $box->doc_key ?? null,
+                'doc_label'          => $box->doc_label ?? null,
                 'fields'             => $box->activeFields->map(fn ($f) => $this->formatField($f))->values(),
             ])->values(),
         ])->values();

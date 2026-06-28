@@ -406,6 +406,17 @@ export default function ApplicationFormBody({
                             </div>
                           ))}
                         </div>
+                        {box.requires_document && box.doc_key && isEditable && (
+                          <InlineDoc
+                            fieldKey={box.doc_key}
+                            fieldLabel={box.doc_label || box.name || 'Document'}
+                            appId={app.id}
+                            mandatory={box.document_required}
+                            existingDoc={docs.find(d => d.field_key === box.doc_key || d.doc_type === box.doc_key)}
+                            onUploaded={onDocUploaded}
+                            onDeleted={onDocDeleted}
+                          />
+                        )}
                       </div>
                     );
                   })}
@@ -425,10 +436,10 @@ export default function ApplicationFormBody({
                 <span className="text-sm font-semibold text-gray-900">Education Certificates</span>
               </div>
               <div className="px-4 sm:px-6 py-5 space-y-3">
-                {(template.educations ?? []).filter(e => e.requirement !== 'none').map((edu, i) => {
+                {(template.educations ?? []).filter(e => e.requirement !== 'none').map((edu) => {
                   const label     = EDU_LABELS[edu.level] ?? edu.level;
                   const mandatory = edu.requirement === 'mandatory';
-                  const docKey    = `edu_${i}`;
+                  const docKey    = `edu_${edu.level}`;
                   const existingDoc = docs.find(d => d.field_key === docKey || d.doc_type === docKey);
                   return (
                     <div key={edu.level} className="border border-gray-200 rounded-xl overflow-hidden">

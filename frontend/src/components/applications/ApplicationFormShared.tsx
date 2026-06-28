@@ -21,7 +21,9 @@ export interface TemplateField {
 }
 
 export interface TemplateBox {
-  id: number; name: string; requires_document: boolean;
+  id: number; name: string;
+  requires_document: boolean; document_required?: boolean;
+  doc_key?: string; doc_label?: string;
   fields: TemplateField[];
 }
 
