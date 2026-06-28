@@ -57,6 +57,11 @@ class Application extends Model
 
         $data = $this->form_data ?? [];
 
+        // ── Core personal-info fields (stored as top-level columns) ───────────
+        $coreFields = ['student_name', 'student_phone'];
+        $totalCore  = count($coreFields);
+        $filledCore = collect($coreFields)->filter(fn ($col) => !empty($this->$col))->count();
+
         // ── Template fields ───────────────────────────────────────────────────
         $allFields = collect();
         foreach ($template->activeFieldGroups as $group) {
@@ -96,6 +101,9 @@ class Application extends Model
                 $filledDocs++;
             }
         }
+
+        $total  += $totalCore;
+        $filled += $filledCore;
 
         if ($total === 0) return 0;
 

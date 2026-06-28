@@ -71,6 +71,7 @@ class FormTemplateController extends Controller
             'box_size'               => $f->box_size ?? 'middle',
             'is_required'            => $f->is_required,
             'requires_document'      => $f->requires_document,
+            'document_required'      => $f->document_required,
             'options'                => $f->options ?? [],
             'placeholder'            => $f->placeholder,
             'helper_text'            => $f->helper_text,
