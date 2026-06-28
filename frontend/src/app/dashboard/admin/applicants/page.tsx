@@ -151,13 +151,13 @@ export default function AdminApplicantsPage() {
         {!showNew ? (
           <button
             onClick={() => setShowNew(true)}
-            className="flex items-center gap-2 px-5 py-3 bg-green-700 hover:bg-green-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-green-700/20 transition-all">
+            className="flex items-center gap-2 px-5 py-3 bg-green-700 hover:bg-green-800 text-white rounded-2xl font-bold text-sm shadow-md shadow-green-700/20 transition-all">
             + New Application
           </button>
         ) : (
           <div className="max-w-[860px]">
             <NewApplicationHero />
-            <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden" style={{ boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+            <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden shadow-sm">
               <ApplicationStarter role="admin" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="admin-applications" />
             </div>
           </div>
@@ -172,8 +172,8 @@ export default function AdminApplicantsPage() {
           { label: 'Accepted',  value: acceptedCount,   color: 'text-emerald-700', bg: 'bg-emerald-50' },
           { label: 'Rejected',  value: apps.filter(a => a.status === 'rejected').length, color: 'text-rose-600', bg: 'bg-rose-50' },
         ].map(s => (
-          <div key={s.label} className={`${s.bg} rounded-2xl px-4 py-3 border border-slate-100`}>
-            <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
+          <div key={s.label} className={`${s.bg} rounded-2xl px-4 py-3 border border-slate-200`}>
+            <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
             <div className="text-xs text-slate-500 font-medium mt-0.5">{s.label}</div>
           </div>
         ))}

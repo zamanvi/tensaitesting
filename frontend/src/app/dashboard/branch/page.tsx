@@ -139,7 +139,7 @@ export default function BranchAdminDashboard() {
             <div key={s.label} className={`rounded-2xl border border-slate-100 p-5 ${s.color} shadow-sm hover:shadow-md transition-shadow`}>
               <div className="text-2xl mb-2">{s.icon}</div>
               <div className="text-3xl sm:text-4xl font-black leading-none">{s.value}</div>
-              <div className="text-xs font-semibold mt-1.5 opacity-60 uppercase tracking-wide">{s.label}</div>
+              <div className="text-xs font-semibold mt-1.5 text-slate-500 uppercase tracking-wide">{s.label}</div>
             </div>
           ))}
         </div>
@@ -148,7 +148,7 @@ export default function BranchAdminDashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {quickLinks.map(q => (
             <Link key={q.href} href={q.href}
-              className="bg-white rounded-2xl border border-slate-100 p-5 hover:bg-green-50/30 hover:border-green-200 hover:shadow-md transition-all duration-200 group">
+              className="bg-white rounded-2xl border border-slate-100 p-5 hover:bg-green-50 hover:border-green-300 hover:shadow-md transition-all duration-200 group">
               <div className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-200 inline-block">{q.icon}</div>
               <div className="text-sm font-bold text-slate-800 group-hover:text-green-700 transition-colors">{q.label}</div>
               <div className="text-xs text-slate-400 mt-1 leading-relaxed">{q.desc}</div>
@@ -164,19 +164,19 @@ export default function BranchAdminDashboard() {
             </h2>
             {!editing && !isLoading && (
               <button onClick={() => setEditing(true)}
-                className="text-xs font-semibold text-green-700 hover:text-white hover:bg-green-600 transition-all px-3 py-1.5 rounded-lg bg-green-50 border border-green-100">
+                className="text-xs font-semibold text-green-700 hover:text-white hover:bg-green-600 transition-all px-3 py-1.5 rounded-lg bg-green-50 border border-green-100 focus:outline-none focus:ring-2 focus:ring-green-500">
                 ✏️ {ja ? '編集' : bn ? 'সম্পাদনা' : 'Edit'}
               </button>
             )}
           </div>
 
           {saved && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-100 rounded-xl text-xs text-green-700 font-medium">
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-xs text-green-900 font-medium">
               ✅ {ja ? '連絡先情報を保存しました' : bn ? 'সংরক্ষিত হয়েছে' : 'Contact info saved successfully'}
             </div>
           )}
           {saveErr && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {saveErr}</div>
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">⚠️ {saveErr}</div>
           )}
 
           {isLoading ? (

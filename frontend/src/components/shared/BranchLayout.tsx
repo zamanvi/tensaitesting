@@ -104,9 +104,9 @@ export default function BranchLayout({ children, title }: Props) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto">
-        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest px-3 mb-2">Branch</p>
-        <ul className="space-y-0.5">
+      <nav className="flex-1 px-3 py-6 overflow-y-auto">
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 mb-2">Branch</p>
+        <ul className="space-y-1">
           {NAV.map(item => {
             const active = pathname === item.href || (item.href !== '/dashboard/branch' && pathname.startsWith(item.href));
             return (
@@ -115,11 +115,11 @@ export default function BranchLayout({ children, title }: Props) {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     active
-                      ? 'bg-green-50 text-green-800 border border-green-100'
+                      ? 'bg-green-100 text-green-900 border border-green-300'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
-                  <svg className={`w-4 h-4 shrink-0 ${active ? 'text-green-700' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-5 h-5 shrink-0 ${active ? 'text-green-700' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={item.icon} />
                   </svg>
                   {item.label}
@@ -194,7 +194,7 @@ export default function BranchLayout({ children, title }: Props) {
       <div className="flex-1 md:ml-56 flex flex-col min-h-screen">
 
         {/* Top bar */}
-        <header className="bg-white border-b border-slate-100 sticky top-0 z-10 h-14 flex items-center justify-between px-4 sm:px-6 shrink-0">
+        <header className="bg-white border-b border-slate-100 sticky top-0 z-10 h-14 flex items-center justify-between px-6 sm:px-8 shrink-0">
           <div className="flex items-center gap-3">
             {/* Mobile hamburger */}
             <button
@@ -213,14 +213,14 @@ export default function BranchLayout({ children, title }: Props) {
             {/* Notification bell */}
             <button
               onClick={() => { if (unreadCount > 0) markAllRead.mutate(); }}
-              className="relative p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+              className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
               aria-label="Notifications"
             >
-              <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-green-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 z-10 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -260,8 +260,8 @@ export default function BranchLayout({ children, title }: Props) {
 
               {/* Contact */}
               <div>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Contact</p>
-                <div className="space-y-1.5">
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Contact</p>
+                <div className="space-y-2.5">
                   {branchInfo.phone && (
                     <p className="text-xs text-slate-600 flex items-center gap-1.5">
                       <span className="text-slate-400">📞</span>{branchInfo.phone}
@@ -291,7 +291,7 @@ export default function BranchLayout({ children, title }: Props) {
               <div>
                 {branchInfo.working_hours && Object.keys(branchInfo.working_hours).length > 0 && (
                   <>
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Working Hours</p>
+                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-2">Working Hours</p>
                     <div className="space-y-1 mb-3">
                       {Object.entries(branchInfo.working_hours).map(([day, hrs]) => (
                         <div key={day} className="flex justify-between text-xs text-slate-600">
@@ -315,8 +315,8 @@ export default function BranchLayout({ children, title }: Props) {
               </div>
             </div>
           )}
-          <div className="px-6 py-4 bg-slate-50 flex items-center justify-between">
-            <p className="text-[11px] text-slate-400">© 2026 Tensai. All rights reserved.</p>
+          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+            <p className="text-xs text-slate-400">© 2026 Tensai. All rights reserved.</p>
             <div className="flex gap-4 text-[11px] text-slate-400">
               <span>Powered by Tensai</span>
             </div>

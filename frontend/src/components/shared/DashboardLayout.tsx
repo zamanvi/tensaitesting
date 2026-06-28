@@ -179,12 +179,12 @@ export default function DashboardLayout({ children, title }: Props) {
                     key={l.href}
                     href={l.href}
                     className={`relative flex items-center h-full px-3 text-sm transition-colors whitespace-nowrap ${
-                      active ? 'text-green-800 font-medium' : 'text-slate-500 hover:text-slate-900'
+                      active ? 'text-green-800 font-medium' : 'text-slate-600 hover:text-slate-800'
                     }`}
                   >
                     {l.label}
                     {active && (
-                      <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-green-600 rounded-t-full" />
+                      <span className="absolute inset-x-0 bottom-0 h-[3px] bg-green-600 rounded-t-full" />
                     )}
                   </Link>
                 );
@@ -196,7 +196,7 @@ export default function DashboardLayout({ children, title }: Props) {
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={toggle}
-              className="text-xs font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors shrink-0"
+              className="text-xs font-medium px-3 py-1.5 rounded-full border border-slate-300 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors shrink-0"
             >
               {lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English'}
             </button>
@@ -205,14 +205,14 @@ export default function DashboardLayout({ children, title }: Props) {
             <div className="relative hidden sm:block" ref={notifRef}>
               <button
                 onClick={() => { setNotifOpen(o => !o); if (!notifOpen && unreadCount > 0) markAllRead.mutate(); }}
-                className="relative p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+                className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
                 aria-label={lang === 'ja' ? '通知' : lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
               >
-                <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 bg-green-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 z-10 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -260,7 +260,7 @@ export default function DashboardLayout({ children, title }: Props) {
             <div className="relative hidden sm:block" ref={userMenuRef}>
               <button
                 onClick={() => setUserMenuOpen((o) => !o)}
-                className="flex items-center gap-2 rounded-full pl-1 pr-2.5 py-1 hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-slate-100 transition-colors"
               >
                 <div className="w-7 h-7 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold shrink-0 select-none">
                   {userInitial}
@@ -311,9 +311,9 @@ export default function DashboardLayout({ children, title }: Props) {
               aria-label={lang === 'ja' ? 'メニュー' : lang === 'bn' ? 'মেনু' : 'Menu'}
               aria-expanded={menuOpen}
             >
-              <span className={`block w-5 h-0.5 bg-slate-600 transition-transform ${menuOpen ? 'translate-y-2 rotate-45' : ''}`} />
-              <span className={`block w-5 h-0.5 bg-slate-600 transition-opacity ${menuOpen ? 'opacity-0' : ''}`} />
-              <span className={`block w-5 h-0.5 bg-slate-600 transition-transform ${menuOpen ? '-translate-y-2 -rotate-45' : ''}`} />
+              <span className={`block w-5 h-0.5 bg-slate-600 transition-all duration-300 ${menuOpen ? 'translate-y-2 rotate-45' : ''}`} />
+              <span className={`block w-5 h-0.5 bg-slate-600 transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
+              <span className={`block w-5 h-0.5 bg-slate-600 transition-all duration-300 ${menuOpen ? '-translate-y-2 -rotate-45' : ''}`} />
             </button>
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function DashboardLayout({ children, title }: Props) {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`block px-3 py-2.5 rounded-xl text-sm transition-colors ${
+                className={`block px-4 py-3 rounded-xl text-sm transition-colors ${
                   pathname === l.href
                     ? 'bg-green-50 text-green-800 font-medium'
                     : 'text-slate-700 hover:bg-slate-100'
@@ -336,7 +336,7 @@ export default function DashboardLayout({ children, title }: Props) {
             ))}
             <div className="border-t border-slate-100 pt-3 mt-2 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center text-white text-sm font-bold shrink-0 select-none">
+                <div className="w-7 h-7 rounded-full bg-green-700 flex items-center justify-center text-white text-sm font-bold shrink-0 select-none">
                   {userInitial}
                 </div>
                 <div className="min-w-0">
@@ -354,7 +354,7 @@ export default function DashboardLayout({ children, title }: Props) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                   {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 bg-green-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 z-10 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
