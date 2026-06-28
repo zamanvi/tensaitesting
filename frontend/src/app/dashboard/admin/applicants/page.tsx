@@ -159,6 +159,8 @@ export default function AdminApplicantsPage() {
     );
   }
 
+  const total = apps.length;
+
   return (
     <DashboardLayout title="All Applications">
 
@@ -258,6 +260,7 @@ export default function AdminApplicantsPage() {
                     <th className="text-left px-4 py-3">Country / Form</th>
                     <th className="text-left px-4 py-3">Progress</th>
                     <th className="text-left px-4 py-3">Status</th>
+                    <th className="text-left px-4 py-3">Live</th>
                     <th className="text-left px-4 py-3">Date</th>
                     <th className="px-4 py-3" />
                   </tr>
@@ -312,6 +315,16 @@ export default function AdminApplicantsPage() {
                             {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                           </span>
                         </td>
+                        <td className="px-4 py-3.5">
+                          {app.live_to_school ? (
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                              Live
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-slate-300">—</span>
+                          )}
+                        </td>
                         <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
                           {timeAgo(app.created_at)}
                         </td>
@@ -355,6 +368,12 @@ export default function AdminApplicantsPage() {
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${ROLE_BADGE[roleKey]}`}>
                           {ROLE_LABEL[roleKey] ?? 'Individual'}
                         </span>
+                        {app.live_to_school && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                            Live
+                          </span>
+                        )}
                         <span className="text-[11px] text-slate-400">{timeAgo(app.created_at)}</span>
                       </div>
                     </div>
