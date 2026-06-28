@@ -54,13 +54,16 @@ class FormTemplateController extends Controller
             ->values();
 
         return [
-            'id'             => $template->id,
-            'country'        => $template->country,
-            'visa_type'      => $template->visa_type,
-            'name'           => $template->name,
-            'intake_options' => $template->intake_options ?? [],
-            'groups'         => $groups,
-            'educations'     => $educations,
+            'id'                        => $template->id,
+            'country'                   => $template->country,
+            'visa_type'                 => $template->visa_type,
+            'name'                      => $template->name,
+            'intake_options'            => $template->intake_options ?? [],
+            'groups'                    => $groups,
+            'educations'                => $educations,
+            'admission_manager_name'    => $template->admission_manager_name,
+            'admission_manager_phone'   => $template->admission_manager_phone,
+            'admission_manager_whatsapp'=> $template->admission_manager_whatsapp,
         ];
     }
 

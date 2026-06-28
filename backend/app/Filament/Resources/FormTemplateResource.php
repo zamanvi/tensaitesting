@@ -151,6 +151,23 @@ class FormTemplateResource extends Resource
                             ->reorderable()
                             ->columnSpanFull(),
 
+                        Forms\Components\Section::make('Admission Manager Contact')
+                            ->description('Shown to students when their application is accepted.')
+                            ->schema([
+                                Forms\Components\TextInput::make('admission_manager_name')
+                                    ->label('Manager Name')
+                                    ->placeholder('e.g. Mr. Karim Hossain'),
+                                Forms\Components\TextInput::make('admission_manager_phone')
+                                    ->label('Phone Number')
+                                    ->placeholder('+880 1700 000000'),
+                                Forms\Components\TextInput::make('admission_manager_whatsapp')
+                                    ->label('WhatsApp Number')
+                                    ->placeholder('+880 1700 000000'),
+                            ])
+                            ->columns(3)
+                            ->columnSpanFull()
+                            ->collapsible(),
+
                         Forms\Components\Textarea::make('notes')
                             ->rows(2)
                             ->label('Internal Notes')

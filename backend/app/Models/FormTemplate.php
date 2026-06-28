@@ -11,6 +11,7 @@ class FormTemplate extends Model
         'country', 'visa_type', 'name', 'intake_options', 'birth_date',
         'student_name', 'passport_no', 'educations',
         'is_active', 'status', 'notes',
+        'admission_manager_name', 'admission_manager_phone', 'admission_manager_whatsapp',
     ];
 
     protected $casts = [

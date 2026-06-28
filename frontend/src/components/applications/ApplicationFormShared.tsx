@@ -42,6 +42,9 @@ export interface FormTemplateData {
   intake_options: string[];
   groups: TemplateGroup[];
   educations: TemplateEducation[];
+  admission_manager_name?: string;
+  admission_manager_phone?: string;
+  admission_manager_whatsapp?: string;
 }
 
 export interface Application {
