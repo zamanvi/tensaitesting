@@ -65,7 +65,7 @@ class ApplicationResource extends Resource
                                 $t->id => implode(' — ', array_filter([$t->country, $t->name])),
                             ]))
                         ->required()
-                        ->searchable()
+                        ->native(true)
                         ->live()
                         ->disabled(fn (string $operation) => $operation === 'edit')
                         ->dehydrated()
