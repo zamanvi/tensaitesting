@@ -259,7 +259,8 @@ export function DynamicField({
           : <span className="font-normal text-slate-300 ml-1 text-xs">(optional)</span>}
       </label>
 
-      {field.field_type === 'select' ? (
+      {field.field_type === 'file' ? null
+      : field.field_type === 'select' ? (
         <select className={inp} value={value} onChange={e => onChange(e.target.value)}>
           <option value="">{field.placeholder || 'Select…'}</option>
           {(field.options ?? []).map(o => <option key={o} value={o}>{o}</option>)}

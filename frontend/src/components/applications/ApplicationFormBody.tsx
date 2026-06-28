@@ -149,6 +149,7 @@ export default function ApplicationFormBody({
       onSubmitted(res.data);
       try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
       setSaveMsg('Submitted successfully');
+      setTimeout(() => setSaveMsg(''), 4000);
     } catch (e: unknown) {
       const ax = e as { response?: { data?: { message?: string } } };
       setErr(ax.response?.data?.message ?? 'Submit failed — please try again.');
