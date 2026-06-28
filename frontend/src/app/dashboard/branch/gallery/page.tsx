@@ -102,13 +102,17 @@ export default function BranchGalleryPage() {
   return (
     <BranchLayout title="Gallery">
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between mb-5">
-        <p className="text-sm text-slate-500">
-          {isLoading ? '…' : `${items.length} image${items.length !== 1 ? 's' : ''}`}
-        </p>
+      {/* Page header */}
+      <div className="flex items-end justify-between mb-8">
+        <div>
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.12em] mb-1.5">Branch Portal</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Gallery</h1>
+          <p className="text-sm text-slate-500 mt-1.5">
+            {isLoading ? '…' : `${items.length} image${items.length !== 1 ? 's' : ''}`} in your branch gallery
+          </p>
+        </div>
         <button onClick={openAdd}
-          className="flex items-center gap-1.5 px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
+          className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm hover:shadow-md">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -124,53 +128,50 @@ export default function BranchGalleryPage() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-50 to-slate-50 border border-slate-100 flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <p className="text-slate-500 font-medium mb-1">No gallery images yet</p>
-          <p className="text-slate-400 text-sm mb-4">Upload your first photo to get started</p>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">No gallery images yet</h3>
+          <p className="text-sm text-slate-500 mb-8 max-w-xs leading-relaxed">Upload photos of your branch office, team, and facilities to build trust with prospective students.</p>
           <button onClick={openAdd}
-            className="px-5 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
+            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
             Upload First Image
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
           {items.map(item => (
-            <div key={item.id} className="group relative bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200">
+            <div key={item.id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:border-slate-200 transition-all duration-200">
               {/* Image */}
-              <div className="aspect-square bg-slate-50 relative overflow-hidden">
+              <div className="aspect-square bg-slate-50 relative overflow-hidden group">
                 {item.display_image_url
                   // eslint-disable-next-line @next/next/no-img-element
                   ? <img src={item.display_image_url} alt={item.title ?? ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   : <div className="w-full h-full flex items-center justify-center text-slate-200 text-4xl">🖼️</div>}
                 {!item.is_active && (
-                  <span className="absolute top-2 left-2 text-[10px] font-bold bg-slate-700/80 text-white px-2 py-0.5 rounded-full">Hidden</span>
+                  <span className="absolute top-3 left-3 text-[10px] font-semibold bg-slate-800/90 text-white px-2.5 py-1 rounded-full">Hidden</span>
                 )}
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex gap-1 w-full">
-                    <button onClick={() => openEdit(item)}
-                      className="flex-1 py-1.5 bg-white/90 hover:bg-white text-slate-800 text-xs font-semibold rounded-md transition-colors">
-                      Edit
-                    </button>
-                    <button onClick={() => { if (confirm('Delete this image?')) del.mutate(item.id); }}
-                      className="py-1.5 px-2.5 bg-red-500/90 hover:bg-red-500 text-white text-xs font-semibold rounded-md transition-colors">
-                      ✕
-                    </button>
-                  </div>
+              </div>
+              {/* Info + always-visible actions */}
+              <div className="p-4">
+                {(item.title ?? item.caption) && (
+                  <p className="text-xs font-semibold text-slate-900 truncate mb-0.5">{item.title ?? item.caption}</p>
+                )}
+                {item.description && <p className="text-[10px] text-slate-400 truncate">{item.description}</p>}
+                <div className="flex gap-2 mt-3">
+                  <button onClick={() => openEdit(item)}
+                    className="flex-1 py-2 bg-slate-100 hover:bg-green-50 hover:text-green-700 text-slate-600 text-xs font-semibold rounded-lg transition-colors">
+                    Edit
+                  </button>
+                  <button onClick={() => { if (confirm('Delete this image?')) del.mutate(item.id); }}
+                    className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-lg transition-colors">
+                    Delete
+                  </button>
                 </div>
               </div>
-              {/* Info */}
-              {(item.title ?? item.caption) && (
-                <div className="px-3 py-2 border-t border-slate-50">
-                  <p className="text-xs font-semibold text-slate-700 truncate">{item.title ?? item.caption}</p>
-                  {item.description && <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.description}</p>}
-                </div>
-              )}
             </div>
           ))}
         </div>

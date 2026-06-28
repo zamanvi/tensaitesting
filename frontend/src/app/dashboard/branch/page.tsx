@@ -94,10 +94,10 @@ export default function BranchAdminDashboard() {
   const accepted  = leads.filter(l => l.submission_status === 'accepted').length;
 
   const stats = [
-    { label: ja ? '合計' : bn ? 'মোট' : 'Total',         value: total,     color: 'bg-slate-100 text-slate-700',   icon: '👥' },
-    { label: ja ? '下書き' : bn ? 'ড্রাফট' : 'Draft',     value: draft,     color: 'bg-amber-50 text-amber-700',    icon: '📝' },
-    { label: ja ? '選択済' : bn ? 'সাবমিট' : 'Submitted', value: submitted, color: 'bg-blue-50 text-blue-700',      icon: '📌' },
-    { label: ja ? '承認済' : bn ? 'অনুমোদিত' : 'Accepted', value: accepted,  color: 'bg-green-50 text-green-700',    icon: '✅' },
+    { label: ja ? '合計' : bn ? 'মোট' : 'Total',         value: total,     iconBg: 'bg-slate-100',   iconColor: 'text-slate-500',   icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
+    { label: ja ? '下書き' : bn ? 'ড্রাফট' : 'Draft',     value: draft,     iconBg: 'bg-amber-50',    iconColor: 'text-amber-500',   icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
+    { label: ja ? '選択済' : bn ? 'সাবমিট' : 'Submitted', value: submitted, iconBg: 'bg-blue-50',     iconColor: 'text-blue-500',    icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+    { label: ja ? '承認済' : bn ? 'অনুমোদিত' : 'Accepted', value: accepted,  iconBg: 'bg-green-50',    iconColor: 'text-green-600',   icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
   ];
 
   const quickLinks = [
@@ -134,26 +134,33 @@ export default function BranchAdminDashboard() {
         </div>
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
           {stats.map(s => (
-            <div key={s.label} className={`rounded-2xl border border-slate-100 p-5 ${s.color} shadow-sm hover:shadow-md transition-shadow`}>
-              <div className="text-2xl mb-2">{s.icon}</div>
-              <div className="text-3xl sm:text-4xl font-black leading-none">{s.value}</div>
-              <div className="text-xs font-semibold mt-1.5 text-slate-500 uppercase tracking-wide">{s.label}</div>
+            <div key={s.label} className="rounded-2xl border border-slate-100 bg-white p-5 sm:p-6 hover:shadow-lg hover:border-slate-200 transition-all duration-200">
+              <div className={`w-10 h-10 rounded-xl ${s.iconBg} flex items-center justify-center mb-4`}>
+                <svg className={`w-5 h-5 ${s.iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={s.icon} />
+                </svg>
+              </div>
+              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.1em] mb-1">{s.label}</p>
+              <p className="text-3xl sm:text-4xl font-black text-slate-900 leading-none">{s.value}</p>
             </div>
           ))}
         </div>
 
         {/* ── Quick links ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          {quickLinks.map(q => (
-            <Link key={q.href} href={q.href}
-              className="bg-white rounded-2xl border border-slate-100 p-5 hover:bg-green-50 hover:border-green-300 hover:shadow-md transition-all duration-200 group">
-              <div className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-200 inline-block">{q.icon}</div>
-              <div className="text-sm font-bold text-slate-800 group-hover:text-green-700 transition-colors">{q.label}</div>
-              <div className="text-xs text-slate-400 mt-1 leading-relaxed">{q.desc}</div>
-            </Link>
-          ))}
+        <div>
+          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-[0.12em] mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
+            {quickLinks.map(q => (
+              <Link key={q.href} href={q.href}
+                className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6 hover:shadow-lg hover:border-slate-200 hover:-translate-y-0.5 transition-all duration-200 group">
+                <div className="text-2xl mb-4">{q.icon}</div>
+                <div className="text-sm font-bold text-slate-900 group-hover:text-green-700 transition-colors leading-tight">{q.label}</div>
+                <div className="text-xs text-slate-400 mt-1.5 leading-relaxed">{q.desc}</div>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* ── Contact info card ── */}

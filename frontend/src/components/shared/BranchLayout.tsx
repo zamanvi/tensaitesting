@@ -105,25 +105,24 @@ export default function BranchLayout({ children, title }: Props) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-6 overflow-y-auto">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide px-3 mb-2">Branch</p>
-        <ul className="space-y-1">
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.12em] px-3.5 mb-2">Navigation</p>
+        <ul className="space-y-0.5">
           {NAV.map(item => {
             const active = pathname === item.href || (item.href !== '/dashboard/branch' && pathname.startsWith(item.href));
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex items-center gap-3 py-2.5 pr-3 rounded-lg text-sm font-medium transition-all ${
                     active
-                      ? 'bg-green-100 text-green-900 border border-green-300'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'pl-2.5 border-l-2 border-green-600 bg-green-50/60 text-green-700'
+                      : 'pl-3.5 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
-                  <svg className={`w-5 h-5 shrink-0 ${active ? 'text-green-700' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4.5 h-4.5 w-[18px] h-[18px] shrink-0 ${active ? 'text-green-600' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={item.icon} />
                   </svg>
                   {item.label}
-                  {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-green-500" />}
                 </Link>
               </li>
             );
@@ -194,19 +193,24 @@ export default function BranchLayout({ children, title }: Props) {
       <div className="flex-1 md:ml-56 flex flex-col min-h-screen">
 
         {/* Top bar */}
-        <header className="bg-white border-b border-slate-100 sticky top-0 z-10 h-14 flex items-center justify-between px-6 sm:px-8 shrink-0">
-          <div className="flex items-center gap-3">
+        <header className="bg-white border-b border-slate-100 sticky top-0 z-20 h-16 flex items-center justify-between px-5 sm:px-8 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
             {/* Mobile hamburger */}
             <button
               onClick={() => setSidebarOpen(o => !o)}
-              className="md:hidden p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+              className="md:hidden p-2.5 rounded-lg hover:bg-slate-100 transition-colors shrink-0"
               aria-label="Open menu"
             >
               <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            {title && <h1 className="text-base font-bold text-slate-900">{title}</h1>}
+            {title && (
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.12em] hidden sm:block">Branch Portal</p>
+                <h1 className="text-sm sm:text-base font-bold text-slate-900 truncate">{title}</h1>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -234,7 +238,7 @@ export default function BranchLayout({ children, title }: Props) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 px-4 sm:px-6 py-6">
+        <main className="flex-1 px-5 sm:px-8 py-8">
           {children}
         </main>
 
