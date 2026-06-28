@@ -282,6 +282,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
               const label     = EDU_LABELS[edu.level] ?? edu.level;
               const mandatory = edu.requirement === 'mandatory';
               const isOpen    = openEdu[edu.level] ?? (i === 0);
+              const docKey    = `edu_${edu.level}`;
               return (
                 <div key={edu.level} className="border border-gray-200 rounded-xl overflow-hidden">
                   <button type="button" onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !(p[edu.level] ?? (i === 0)) }))}
@@ -303,17 +304,17 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                         <div>
                           <label className={lbl}>Institution / Board</label>
                           <input className={inp} placeholder="e.g. Dhaka Education Board"
-                            value={formData[`edu_${i}_institution`] ?? ''} onChange={e => set(`edu_${i}_institution`, e.target.value)} />
+                            value={formData[`${docKey}_institution`] ?? ''} onChange={e => set(`${docKey}_institution`, e.target.value)} />
                         </div>
                         <div>
                           <label className={lbl}>GPA / Grade</label>
                           <input className={inp} placeholder="e.g. 5.00 / A+"
-                            value={formData[`edu_${i}_gpa`] ?? ''} onChange={e => set(`edu_${i}_gpa`, e.target.value)} />
+                            value={formData[`${docKey}_gpa`] ?? ''} onChange={e => set(`${docKey}_gpa`, e.target.value)} />
                         </div>
                         <div>
                           <label className={lbl}>Passing Year</label>
                           <input className={inp} placeholder="e.g. 2022"
-                            value={formData[`edu_${i}_year`] ?? ''} onChange={e => set(`edu_${i}_year`, e.target.value)} />
+                            value={formData[`${docKey}_year`] ?? ''} onChange={e => set(`${docKey}_year`, e.target.value)} />
                         </div>
                       </div>
                       <div className="px-4 pb-4">
