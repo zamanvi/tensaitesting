@@ -39,12 +39,34 @@ export default function NewApplicationHero() {
           Create a New Student Application
         </h1>
 
-        {/* Steps — premium box row, full width */}
-        <div className="w-full rounded-xl flex items-stretch overflow-hidden"
+        {/* Steps — mobile: numbered dots row; sm+: full label box */}
+        {/* Mobile compact */}
+        <div className="flex sm:hidden items-center gap-2">
+          {STEPS.map((step, i) => (
+            <div key={step.n} className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg"
+                style={{ background: 'rgba(0,0,0,.2)', border: '1px solid rgba(255,255,255,.1)' }}>
+                <span className="w-[17px] h-[17px] rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
+                  style={{ background: 'rgba(167,243,208,.2)', border: '1px solid rgba(167,243,208,.35)', color: 'rgb(167,243,208)' }}>
+                  {step.n}
+                </span>
+                <span className="text-[10px] font-semibold whitespace-nowrap" style={{ color: 'rgba(255,255,255,.75)' }}>
+                  {step.label.split(' ')[0]}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <svg className="w-2.5 h-2.5 flex-shrink-0" fill="none" stroke="rgba(255,255,255,.2)" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
+            </div>
+          ))}
+        </div>
+        {/* Desktop full-width box */}
+        <div className="hidden sm:flex w-full rounded-xl items-stretch overflow-hidden"
           style={{ background: 'rgba(0,0,0,.18)', border: '1px solid rgba(255,255,255,.1)' }}>
           {STEPS.map((step, i) => (
             <div key={step.n} className="flex-1 flex items-center gap-2.5 px-4 py-3 relative">
-              {/* divider */}
               {i > 0 && (
                 <div className="absolute left-0 top-2 bottom-2 w-px" style={{ background: 'rgba(255,255,255,.1)' }} />
               )}
@@ -52,8 +74,7 @@ export default function NewApplicationHero() {
                 style={{ background: 'rgba(167,243,208,.2)', border: '1px solid rgba(167,243,208,.35)', color: 'rgb(167,243,208)' }}>
                 {step.n}
               </span>
-              <span className="text-[11px] font-semibold leading-tight"
-                style={{ color: 'rgba(255,255,255,.78)' }}>
+              <span className="text-[11px] font-semibold leading-tight" style={{ color: 'rgba(255,255,255,.78)' }}>
                 {step.label}
               </span>
               {i < STEPS.length - 1 && (

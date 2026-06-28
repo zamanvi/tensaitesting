@@ -284,7 +284,8 @@ export function isFieldVisible(field: TemplateField, formData: Record<string, st
 }
 
 export function colSpan(size: TemplateField['box_size']) {
-  if (size === 'small') return 'col-span-6 sm:col-span-2';
-  if (size === 'full')  return 'col-span-6';
-  return 'col-span-6 sm:col-span-3';
+  // grid is cols-2 / sm:cols-4 / lg:cols-6
+  if (size === 'small') return 'col-span-2 sm:col-span-2 lg:col-span-2';
+  if (size === 'full')  return 'col-span-2 sm:col-span-4 lg:col-span-6';
+  return 'col-span-2 sm:col-span-2 lg:col-span-3';
 }

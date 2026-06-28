@@ -15,6 +15,7 @@ interface Props {
 
 const fi = 'w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm text-gray-900 bg-white placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/25 focus:border-green-500 transition-all';
 const fl = 'block text-[13px] font-medium text-gray-600 mb-1.5';
+const cardPad = 'px-4 sm:px-6';
 
 const EDU_LABELS: Record<string, string> = {
   ssc: 'SSC / O-Level', hsc: 'HSC / A-Level', diploma: 'Diploma',
@@ -81,7 +82,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
 
       {/* ── Country Form card ── */}
       <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4">
+        <div className={`${cardPad} py-4`}>
           <label className={fl}>Country Form <span className="text-red-500">*</span></label>
           <select
             className={fi}
@@ -111,13 +112,13 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       {/* ── Personal Information card ── */}
       {template && (
         <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
+            <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
             <span className="text-[15px] font-semibold text-gray-900">Personal Information</span>
           </div>
-          <div className="p-6">
+          <div className={`${cardPad} py-5`}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Full Name */}
               <div>
@@ -211,21 +212,21 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
         g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData) && f.field_type !== 'file'))
       ).map(group => (
         <div key={group.id} className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
+            <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
             <span className="text-[15px] font-semibold text-gray-900">{group.label}</span>
-            {group.hint && <span className="text-xs text-gray-400">{group.hint}</span>}
+            {group.hint && <span className="text-xs text-gray-400 hidden sm:inline">{group.hint}</span>}
           </div>
-          <div className="p-6 space-y-4">
+          <div className={`${cardPad} py-5 space-y-4`}>
             {group.boxes.map(box => {
               const visible = box.fields.filter(f => isFieldVisible(f, formData) && f.field_type !== 'file');
               if (visible.length === 0) return null;
               return (
                 <div key={box.id}>
                   {box.name && <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{box.name}</p>}
-                  <div className="grid grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
                     {visible.map(field => (
                       <div key={field.field_key} className={colSpan(field.box_size)}>
                         <label className={fl}>
@@ -265,13 +266,13 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       {/* ── Education Certificates card ── */}
       {template && visibleEdu.length > 0 && (
         <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
+            <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
             </svg>
             <span className="text-[15px] font-semibold text-gray-900">Education Certificates</span>
           </div>
-          <div className="p-6 space-y-3">
+          <div className={`${cardPad} py-5 space-y-3`}>
             {visibleEdu.map((edu, i) => {
               const label = EDU_LABELS[edu.level] ?? edu.level;
               const badge = edu.requirement === 'mandatory' ? 'Mandatory' : 'Optional';
@@ -280,7 +281,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
               return (
                 <div key={edu.level} className="border border-gray-200 rounded-lg overflow-hidden">
                   <button type="button" onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !p[edu.level] }))}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                    className="w-full flex items-center justify-between px-3 sm:px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-gray-800">{label}</span>
                       {edu.requirement === 'mandatory'
@@ -295,7 +296,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                   {isOpen && (
                     <div className="border-t border-gray-100">
                       {/* 3 text fields — same layout as admin */}
-                      <div className="px-4 pt-4 pb-3 grid grid-cols-3 gap-3">
+                      <div className="px-3 sm:px-4 pt-4 pb-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                           <label className={fl}>Institution / Board</label>
                           <input className={fi} placeholder="e.g. Dhaka Education Board"
@@ -313,7 +314,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                         </div>
                       </div>
                       {/* Certificate upload placeholder — matches admin layout exactly */}
-                      <div className="px-4 pb-4">
+                      <div className="px-3 sm:px-4 pb-4">
                         <div className="flex items-center justify-between mb-1">
                           <label className={fl}>
                             Certificate / Transcript{edu.requirement === 'mandatory' ? ' — Required' : ' — Optional'}
@@ -348,25 +349,25 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
         </div>
       )}
 
-      {/* ── Action bar — matches admin's bottom bar exactly ── */}
+      {/* ── Action bar ── */}
       {template && (
-        <div className="flex items-center justify-between gap-3 pt-5 mt-1 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
-            <svg className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 mt-1 border-t border-gray-100">
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="truncate">After saving, you can fill in all remaining fields.</span>
+            <span>After saving, you can fill in all remaining fields.</span>
           </div>
-          {err && <p className="text-xs text-red-500 flex-shrink-0">{err}</p>}
-          <div className="flex items-center gap-2.5 flex-shrink-0">
+          {err && <p className="text-xs text-red-500">{err}</p>}
+          <div className="flex items-center gap-2.5">
             {onCancel && (
               <button type="button" onClick={onCancel}
-                className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50 shadow-sm transition-all">
+                className="flex-1 sm:flex-none px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50 shadow-sm transition-all text-center">
                 Cancel
               </button>
             )}
             <button type="button" onClick={() => { if (validate()) createMut.mutate(); }} disabled={createMut.isPending}
-              className="flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-sm font-semibold rounded-lg disabled:opacity-50 transition-all shadow-md hover:shadow-lg">
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-sm font-semibold rounded-lg disabled:opacity-50 transition-all shadow-md hover:shadow-lg">
               {createMut.isPending
                 ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
