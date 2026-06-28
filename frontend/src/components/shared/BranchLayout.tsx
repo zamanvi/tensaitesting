@@ -240,7 +240,7 @@ export default function BranchLayout({ children, title }: Props) {
 
         <footer className="border-t border-slate-100 bg-white mt-auto">
           {branchInfo && (
-            <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-6 border-b border-slate-50">
+            <div className="px-6 py-8 grid grid-cols-1 sm:grid-cols-3 gap-8 border-b border-slate-100">
 
               {/* Branch identity */}
               <div>
@@ -279,7 +279,10 @@ export default function BranchLayout({ children, title }: Props) {
                     </a>
                   )}
                   {!branchInfo.phone && !branchInfo.whatsapp && !branchInfo.google_maps_url && (
-                    <p className="text-xs text-slate-300">No contact info set.</p>
+                    <p className="text-xs text-slate-400">
+                      <Link href="/dashboard/branch/settings" className="text-green-600 hover:text-green-700 font-medium underline underline-offset-2">Add contact details</Link>
+                      {' '}to display here
+                    </p>
                   )}
                 </div>
               </div>
@@ -312,8 +315,11 @@ export default function BranchLayout({ children, title }: Props) {
               </div>
             </div>
           )}
-          <div className="px-6 py-3">
-            <p className="text-[11px] text-slate-400 text-center">© 2026 Tensai. All rights reserved.</p>
+          <div className="px-6 py-4 bg-slate-50 flex items-center justify-between">
+            <p className="text-[11px] text-slate-400">© 2026 Tensai. All rights reserved.</p>
+            <div className="flex gap-4 text-[11px] text-slate-400">
+              <span>Powered by Tensai</span>
+            </div>
           </div>
         </footer>
       </div>

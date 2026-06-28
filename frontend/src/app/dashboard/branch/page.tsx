@@ -109,62 +109,62 @@ export default function BranchAdminDashboard() {
 
   return (
     <BranchLayout>
-      <div className="max-w-4xl space-y-6">
+      <div className="max-w-5xl space-y-6 sm:space-y-8">
 
         {/* ── Header ── */}
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">
+            <p className="text-[10px] text-slate-500 uppercase tracking-[0.15em] font-semibold mb-2">
               {ja ? '管理中の支局' : bn ? 'আপনার শাখা' : 'Your Branch'}
             </p>
-            <h1 className="text-2xl font-black text-slate-900">
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
               {isLoading ? <span className="text-slate-300">…</span> : branch?.name ?? '—'}
             </h1>
             {branch?.city && (
-              <p className="text-sm text-slate-500 mt-0.5 flex items-center gap-1">
+              <p className="text-sm text-slate-500 mt-1 flex items-center gap-1.5">
                 <span>📍</span>
                 {branch.city}{branch.country ? `, ${branch.country}` : ''}
               </p>
             )}
           </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-xs font-semibold text-green-700">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-green-50 border border-green-100 text-xs font-semibold text-green-700">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
             {ja ? 'アクティブ' : bn ? 'সক্রিয়' : 'Active'}
           </span>
         </div>
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {stats.map(s => (
-            <div key={s.label} className={`rounded-2xl border border-slate-100 p-4 ${s.color} bg-opacity-60`}>
-              <div className="text-2xl mb-1">{s.icon}</div>
-              <div className="text-2xl font-black">{s.value}</div>
-              <div className="text-xs font-medium mt-0.5 opacity-70">{s.label}</div>
+            <div key={s.label} className={`rounded-2xl border border-slate-100 p-5 ${s.color} shadow-sm hover:shadow-md transition-shadow`}>
+              <div className="text-2xl mb-2">{s.icon}</div>
+              <div className="text-3xl sm:text-4xl font-black leading-none">{s.value}</div>
+              <div className="text-xs font-semibold mt-1.5 opacity-60 uppercase tracking-wide">{s.label}</div>
             </div>
           ))}
         </div>
 
         {/* ── Quick links ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {quickLinks.map(q => (
             <Link key={q.href} href={q.href}
-              className="bg-white rounded-2xl border border-slate-100 p-4 hover:border-green-200 hover:shadow-sm transition-all group">
-              <div className="text-2xl mb-2">{q.icon}</div>
+              className="bg-white rounded-2xl border border-slate-100 p-5 hover:bg-green-50/30 hover:border-green-200 hover:shadow-md transition-all duration-200 group">
+              <div className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-200 inline-block">{q.icon}</div>
               <div className="text-sm font-bold text-slate-800 group-hover:text-green-700 transition-colors">{q.label}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{q.desc}</div>
+              <div className="text-xs text-slate-400 mt-1 leading-relaxed">{q.desc}</div>
             </Link>
           ))}
         </div>
 
         {/* ── Contact info card ── */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">
+        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-100 p-5 sm:p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-bold text-slate-900 text-sm">
+            <h2 className="font-bold text-slate-900 text-base">
               {ja ? '連絡先情報' : bn ? 'যোগাযোগের তথ্য' : 'Contact Information'}
             </h2>
             {!editing && !isLoading && (
               <button onClick={() => setEditing(true)}
-                className="text-xs font-semibold text-green-700 hover:text-green-800 transition-colors px-3 py-1 rounded-lg hover:bg-green-50">
+                className="text-xs font-semibold text-green-700 hover:text-white hover:bg-green-600 transition-all px-3 py-1.5 rounded-lg bg-green-50 border border-green-100">
                 ✏️ {ja ? '編集' : bn ? 'সম্পাদনা' : 'Edit'}
               </button>
             )}
