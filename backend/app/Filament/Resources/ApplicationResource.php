@@ -59,15 +59,16 @@ class ApplicationResource extends Resource
                         ->label('Country Form')
                         ->options(fn () => FormTemplate::where('status', 'published')
                             ->where('is_active', true)
+                            ->orderBy('country')
                             ->get()
                             ->mapWithKeys(fn ($t) => [
                                 $t->id => implode(' — ', array_filter([$t->country, $t->name])),
                             ]))
                         ->required()
+                        ->searchable()
                         ->live()
                         ->disabled(fn (string $operation) => $operation === 'edit')
                         ->dehydrated()
-                        ->native(false)
                         ->columnSpanFull()
                         ->placeholder('Select country / visa type…'),
                 ]),

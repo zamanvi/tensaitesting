@@ -19,7 +19,9 @@ class CreateApplication extends CreateRecord
     {
         $data['user_id']           = auth()->id();
         $data['submitted_by_role'] = 'admin';
-        $data['form_data']         = [];
+        // Preserve any form_data already filled on the create page (birth_date,
+        // passport_no, dynamic fields, education). Don't wipe it.
+        $data['form_data']         = $data['form_data'] ?? [];
         $data['progress']          = 0;
         return $data;
     }
