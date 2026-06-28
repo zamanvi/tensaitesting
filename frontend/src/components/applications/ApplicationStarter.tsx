@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Application, FormTemplateData, isFieldVisible, colSpan, inp, lbl } from './ApplicationFormShared';
+import { Application, FormTemplateData, isFieldVisible, colSpan, inp, lbl, EDU_LABELS } from './ApplicationFormShared';
 
 interface ListTemplate { id: number; name: string; country: string; visa_type?: string; }
 
@@ -15,12 +15,6 @@ interface Props {
 
 const cardPad = 'px-4 sm:px-6';
 
-const EDU_LABELS: Record<string, string> = {
-  ssc: 'SSC / O-Level', hsc: 'HSC / A-Level', diploma: 'Diploma',
-  bachelors: "Bachelor's Degree", masters: "Master's Degree",
-  phd: 'PhD / Doctorate', other: 'Other',
-};
-
 export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Props) {
   const qc = useQueryClient();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -32,7 +26,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
   function set(k: string, v: string) { setFormData(p => ({ ...p, [k]: v })); }
   function si(k: keyof typeof studentInfo, v: string) { setStudentInfo(p => ({ ...p, [k]: v })); }
 
-  const { data: templates = [], isLoading: loadingTemplates } = useQuery<ListTemplate[]>({
+  const { data: templates = [], isLoading: loadingTemplates, isError: templatesError } = useQuery<ListTemplate[]>({
     queryKey: ['form-templates-list'],
     queryFn: () => api.get('/form-templates').then(r => r.data),
     staleTime: 60_000,
@@ -71,7 +65,10 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
         setErr('Application created but no ID returned. Please refresh and try again.');
       }
     },
-    onError: () => setErr('Failed to create. Please try again.'),
+    onError: (e: unknown) => {
+      const ax = e as { response?: { data?: { message?: string } } };
+      setErr(ax.response?.data?.message ?? 'Failed to create — please try again.');
+    },
   });
 
   const visibleEdu = (template?.educations ?? []).filter(e => e.requirement !== 'none');
@@ -83,7 +80,12 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
         <div className={`${cardPad} py-4`}>
           <label className={lbl}>Country Form <span className="text-rose-400">*</span></label>
-          {!loadingTemplates && templates.length === 0 ? (
+          {templatesError ? (
+            <div className="flex items-center gap-2.5 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mt-1">
+              <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <p className="text-xs font-semibold text-rose-700">Could not load country forms — check your connection and refresh.</p>
+            </div>
+          ) : !loadingTemplates && templates.length === 0 ? (
             <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-1">
               <svg className="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -111,14 +113,17 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
 
       {/* ── Loading ── */}
       {selectedId && loadingTemplate && (
-        <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
-          <span className="w-4 h-4 border-2 border-gray-200 border-t-green-600 rounded-full animate-spin" />
-          Loading form…
+        <div className="space-y-4 animate-pulse">
+          {[1, 2].map(i => <div key={i} className="bg-slate-100 rounded-xl h-20" />)}
+          <div className="flex items-center gap-2 text-xs text-gray-400 justify-center py-2">
+            <span className="w-3.5 h-3.5 border-2 border-gray-200 border-t-green-600 rounded-full animate-spin" />
+            Loading form…
+          </div>
         </div>
       )}
 
       {/* ── Personal Information card ── */}
-      {template && (
+      {template && !loadingTemplate && (
         <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
           <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
             <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,7 +213,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       )}
 
       {/* ── Dynamic template groups ── */}
-      {template && template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
+      {template && !loadingTemplate && template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
         g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData) && f.field_type !== 'file'))
       ).map(group => (
         <div key={group.id} className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
@@ -264,7 +269,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       ))}
 
       {/* ── Education Certificates card ── */}
-      {template && visibleEdu.length > 0 && (
+      {template && !loadingTemplate && visibleEdu.length > 0 && (
         <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
           <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
             <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +284,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
               const isOpen    = openEdu[edu.level] ?? (i === 0);
               return (
                 <div key={edu.level} className="border border-gray-200 rounded-xl overflow-hidden">
-                  <button type="button" onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !isOpen }))}
+                  <button type="button" onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !(p[edu.level] ?? (i === 0)) }))}
                     className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors min-h-[44px] focus:outline-none focus:ring-2 focus:ring-green-500/40"
                     aria-expanded={isOpen}>
                     <div className="flex items-center gap-2">
@@ -332,7 +337,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       )}
 
       {/* ── Action bar ── */}
-      {template && (
+      {template && !loadingTemplate && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 mt-1 border-t border-gray-100">
           {err
             ? <p aria-live="assertive" className="text-xs text-rose-500 font-semibold flex items-center gap-1">

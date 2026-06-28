@@ -1,6 +1,5 @@
 'use client';
 import api from '@/lib/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -67,6 +66,7 @@ export async function compressImage(file: File): Promise<File> {
     if (!file.type.startsWith('image/')) { resolve(file); return; }
     const img = new Image();
     const url = URL.createObjectURL(file);
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.onload = () => {
       const MAX = 1200;
       let { width, height } = img;
@@ -85,6 +85,15 @@ export async function compressImage(file: File): Promise<File> {
     img.src = url;
   });
 }
+
+export const ALLOWED_DOC_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+export const MAX_DOC_BYTES = 10 * 1024 * 1024;
+
+export const EDU_LABELS: Record<string, string> = {
+  ssc: 'SSC / O-Level', hsc: 'HSC / A-Level', diploma: 'Diploma',
+  bachelors: "Bachelor's Degree", masters: "Master's Degree",
+  phd: 'PhD / Doctorate', other: 'Other',
+};
 
 export const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 bg-white transition-all placeholder:text-slate-300';
 export const lbl = 'block text-xs font-semibold text-slate-500 mb-1.5 tracking-wide';
@@ -149,17 +158,14 @@ export function InlineDoc({
   const [deleting,  setDeleting]  = useState(false);
   const [uploadErr, setUploadErr] = useState('');
 
-  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-  const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
-
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!ALLOWED_DOC_TYPES.includes(file.type)) {
       setUploadErr('Only JPG, PNG, WebP, or PDF files are accepted.');
       setTimeout(() => setUploadErr(''), 5000);
       e.target.value = ''; return;
     }
-    if (file.size > MAX_BYTES) {
+    if (file.size > MAX_DOC_BYTES) {
       setUploadErr('File must be under 10 MB.');
       setTimeout(() => setUploadErr(''), 5000);
       e.target.value = ''; return;
