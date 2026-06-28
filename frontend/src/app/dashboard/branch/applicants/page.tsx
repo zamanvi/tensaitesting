@@ -74,13 +74,11 @@ export default function BranchApplicantsPage() {
   // ── Create form — always visible, no button ────────────────────────────────
   return (
     <BranchLayout title="Applications">
-      <div className="flex justify-center">
-        <div className="w-full max-w-[860px]">
-          <NewApplicationHero />
-          <div className="overflow-hidden">
-            <ApplicationStarter key={starterKey} onCreated={handleCreated} queryKey="branch-applications"
-              onCancel={() => setStarterKey(k => k + 1)} />
-          </div>
+      <div className="mx-auto max-w-[860px]">
+        <NewApplicationHero />
+        <div className="overflow-hidden">
+          <ApplicationStarter key={starterKey} onCreated={handleCreated} queryKey="branch-applications"
+            onCancel={() => setStarterKey(k => k + 1)} />
         </div>
       </div>
     </BranchLayout>

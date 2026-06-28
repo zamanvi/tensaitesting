@@ -76,8 +76,8 @@ export default function BranchTeamPage() {
 
   return (
     <BranchLayout title={title}>
-      <div className="flex items-center justify-between mb-5">
-        <p className="text-xs text-slate-500">{members.length} {ja ? '名' : bn ? 'জন সদস্য' : `member${members.length !== 1 ? 's' : ''}`}</p>
+      <div className="flex items-center justify-between mb-6">
+        <p className="text-sm text-slate-600 font-medium">{members.length} {ja ? '名' : bn ? 'জন সদস্য' : `member${members.length !== 1 ? 's' : ''}`}</p>
         <button onClick={openAdd} className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
           {ja ? '+ メンバー追加' : bn ? '+ সদস্য যোগ করুন' : '+ Add Member'}
         </button>
@@ -98,7 +98,7 @@ export default function BranchTeamPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {members.map(m => (
-            <div key={m.id} className={`bg-white rounded-2xl border shadow-sm p-4 flex gap-4 ${!m.is_active ? 'opacity-60' : 'border-slate-100'}`}>
+            <div key={m.id} className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex gap-3 sm:gap-4 ${!m.is_active ? 'opacity-60' : ''}`}>
               <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-lg font-bold shrink-0">
                 {m.photo_url
                   // eslint-disable-next-line @next/next/no-img-element
@@ -111,7 +111,7 @@ export default function BranchTeamPage() {
                     <p className="font-semibold text-slate-800 text-sm">{m.name}</p>
                     <p className="text-xs text-green-700 font-medium">{m.role}</p>
                   </div>
-                  {!m.is_active && <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full shrink-0">Hidden</span>}
+                  {!m.is_active && <span className="text-[10px] bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded-full shrink-0">Hidden</span>}
                 </div>
                 {m.bio && <p className="text-xs text-slate-500 mt-1 line-clamp-2">{m.bio}</p>}
                 <div className="flex gap-3 mt-2">
@@ -137,10 +137,10 @@ export default function BranchTeamPage() {
                 <h3 className="font-bold text-slate-900">
                   {modal === 'add' ? (ja ? 'メンバー追加' : bn ? 'সদস্য যোগ করুন' : 'Add Member') : (ja ? 'メンバー編集' : bn ? 'সদস্য সম্পাদনা' : 'Edit Member')}
                 </h3>
-                <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
+                <button onClick={closeModal} className="w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors text-lg leading-none">×</button>
               </div>
 
-              {err && <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {err}</div>}
+              {err && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">⚠️ {err}</div>}
 
               <form onSubmit={e => { e.preventDefault(); save.mutate(form); }} className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

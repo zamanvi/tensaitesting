@@ -98,7 +98,7 @@ export default function BranchLayout({ children, title }: Props) {
           <Image src="/tensai-logo.png" alt="Tensai" width={30} height={30} className="rounded-full object-contain shrink-0" />
           <div>
             <div className="text-sm font-bold text-slate-900 leading-tight">Tensai</div>
-            <div className="text-[9px] text-slate-400 tracking-widest uppercase">Branch Portal</div>
+            <div className="text-[10px] text-slate-400 tracking-wide uppercase">Branch Portal</div>
           </div>
         </Link>
       </div>
@@ -135,7 +135,7 @@ export default function BranchLayout({ children, title }: Props) {
       <div className="px-3 py-4 border-t border-slate-100" ref={userMenuRef}>
         <button
           onClick={() => setUserMenuOpen(o => !o)}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors text-left"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 transition-colors text-left"
         >
           <div className="w-7 h-7 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold shrink-0">
             {initial}
@@ -144,7 +144,7 @@ export default function BranchLayout({ children, title }: Props) {
             <div className="text-xs font-semibold text-slate-800 truncate">{user.name}</div>
             <div className="text-[10px] text-slate-400 truncate">Branch Manager</div>
           </div>
-          <svg className={`w-3 h-3 text-slate-400 shrink-0 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>

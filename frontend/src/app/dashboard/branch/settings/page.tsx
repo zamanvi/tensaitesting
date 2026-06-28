@@ -15,7 +15,7 @@ interface BranchSettings {
   social_links: Record<string, string> | null;
 }
 
-const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white';
+const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white';
 
 export default function BranchSettingsPage() {
   const { user } = useAuthStore();
@@ -87,21 +87,21 @@ export default function BranchSettingsPage() {
       {isLoading ? (
         <div className="py-12 text-center text-slate-400 text-sm">Loading…</div>
       ) : (
-        <form onSubmit={e => { e.preventDefault(); save.mutate(); }} className="max-w-xl space-y-4">
+        <form onSubmit={e => { e.preventDefault(); save.mutate(); }} className="max-w-2xl space-y-4">
 
           {saved && (
-            <div className="p-3 bg-green-50 border border-green-100 rounded-lg text-sm text-green-700">
+            <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-900 font-medium">
               ✅ Settings saved successfully
             </div>
           )}
           {saveErr && (
-            <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-600">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">
               ⚠️ {saveErr}
             </div>
           )}
 
           {/* Contact */}
-          <div className="bg-white border border-slate-100 rounded-xl p-5">
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
             <h2 className="text-sm font-semibold text-slate-800 mb-4">Contact</h2>
             <div className="space-y-3">
               <div>
@@ -131,11 +131,11 @@ export default function BranchSettingsPage() {
           </div>
 
           {/* Working Hours */}
-          <div className="bg-white border border-slate-100 rounded-xl p-5">
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-slate-800">Working Hours</h2>
               <button type="button" onClick={addHourRow}
-                className="text-xs font-semibold text-green-700 hover:text-green-800 px-2 py-1 rounded hover:bg-green-50 transition-colors">
+                className="text-xs font-semibold text-green-700 hover:text-green-800 px-3 py-1.5 rounded-lg hover:bg-green-50 transition-colors">
                 + Add row
               </button>
             </div>
@@ -147,21 +147,21 @@ export default function BranchSettingsPage() {
                   <input className={`${inp} flex-1`} value={hours} placeholder="Hours"
                     onChange={e => updateHourVal(day, e.target.value)} />
                   <button type="button" onClick={() => removeHourRow(day)}
-                    className="text-slate-300 hover:text-red-400 text-xl leading-none w-6 shrink-0">×</button>
+                    className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0 text-lg">×</button>
                 </div>
               ))}
               {Object.keys(workingHours).length === 0 && (
-                <p className="text-xs text-slate-400">No hours set. Click + Add row.</p>
+                <p className="text-xs text-slate-500 py-1">No hours set. Click + Add row.</p>
               )}
             </div>
           </div>
 
           {/* Social Links */}
-          <div className="bg-white border border-slate-100 rounded-xl p-5">
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-slate-800">Social Links</h2>
               <button type="button" onClick={addSocialRow}
-                className="text-xs font-semibold text-green-700 hover:text-green-800 px-2 py-1 rounded hover:bg-green-50 transition-colors">
+                className="text-xs font-semibold text-green-700 hover:text-green-800 px-3 py-1.5 rounded-lg hover:bg-green-50 transition-colors">
                 + Add link
               </button>
             </div>
@@ -173,11 +173,11 @@ export default function BranchSettingsPage() {
                   <input className={`${inp} flex-1`} value={url} placeholder="https://…"
                     onChange={e => updateSocialVal(platform, e.target.value)} />
                   <button type="button" onClick={() => removeSocialRow(platform)}
-                    className="text-slate-300 hover:text-red-400 text-xl leading-none w-6 shrink-0">×</button>
+                    className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0 text-lg">×</button>
                 </div>
               ))}
               {Object.keys(socialLinks).length === 0 && (
-                <p className="text-xs text-slate-400">No social links yet. Click + Add link.</p>
+                <p className="text-xs text-slate-500 py-1">No social links yet. Click + Add link.</p>
               )}
             </div>
           </div>

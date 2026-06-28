@@ -16,7 +16,7 @@ interface GalleryItem {
   sort_order: number;
 }
 
-const inp = 'w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white';
+const inp = 'w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white';
 
 export default function BranchGalleryPage() {
   const { user } = useAuthStore();
@@ -108,7 +108,7 @@ export default function BranchGalleryPage() {
           {isLoading ? '…' : `${items.length} image${items.length !== 1 ? 's' : ''}`}
         </p>
         <button onClick={openAdd}
-          className="flex items-center gap-1.5 px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-lg transition-colors">
+          className="flex items-center gap-1.5 px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -133,14 +133,14 @@ export default function BranchGalleryPage() {
           <p className="text-slate-500 font-medium mb-1">No gallery images yet</p>
           <p className="text-slate-400 text-sm mb-4">Upload your first photo to get started</p>
           <button onClick={openAdd}
-            className="px-5 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-lg transition-colors">
+            className="px-5 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors">
             Upload First Image
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {items.map(item => (
-            <div key={item.id} className="group relative bg-white border border-slate-100 rounded-xl overflow-hidden">
+            <div key={item.id} className="group relative bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200">
               {/* Image */}
               <div className="aspect-square bg-slate-50 relative overflow-hidden">
                 {item.display_image_url
@@ -151,7 +151,7 @@ export default function BranchGalleryPage() {
                   <span className="absolute top-2 left-2 text-[10px] font-bold bg-slate-700/80 text-white px-2 py-0.5 rounded-full">Hidden</span>
                 )}
                 {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-end p-2 opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="flex gap-1 w-full">
                     <button onClick={() => openEdit(item)}
                       className="flex-1 py-1.5 bg-white/90 hover:bg-white text-slate-800 text-xs font-semibold rounded-md transition-colors">
@@ -195,7 +195,7 @@ export default function BranchGalleryPage() {
 
             <form onSubmit={handleSubmit} className="px-6 py-6 space-y-5">
               {err && (
-                <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">⚠️ {err}</div>
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">⚠️ {err}</div>
               )}
 
               {/* Upload zone — full width, taller */}
