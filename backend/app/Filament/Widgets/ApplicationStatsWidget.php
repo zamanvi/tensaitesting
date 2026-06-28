@@ -13,10 +13,9 @@ class ApplicationStatsWidget extends BaseWidget
     protected function getStats(): array
     {
         $total     = Application::count();
-        $drafts    = Application::where('status', 'draft')->count();
         $submitted = Application::where('status', 'submitted')->count();
         $accepted  = Application::where('status', 'accepted')->count();
-        $rejected  = Application::where('status', 'rejected')->count();
+        $rate      = $total > 0 ? round($accepted / $total * 100) : 0;
 
         return [
             Stat::make('Total Applications', $total)
@@ -30,13 +29,13 @@ class ApplicationStatsWidget extends BaseWidget
                 ->color('warning'),
 
             Stat::make('Accepted', $accepted)
-                ->description($total > 0 ? round($accepted / $total * 100) . '% success rate' : 'No applications yet')
+                ->description("{$rate}% acceptance rate")
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
 
-            Stat::make('Drafts', $drafts)
-                ->description('Incomplete applications')
-                ->descriptionIcon('heroicon-o-pencil-square')
+            Stat::make('This Month', Application::whereMonth('created_at', now()->month)->count())
+                ->description('New applications')
+                ->descriptionIcon('heroicon-o-calendar-days')
                 ->color('info'),
         ];
     }

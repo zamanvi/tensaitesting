@@ -556,14 +556,15 @@ class ApplicationResource extends Resource
                     ->color('info')
                     ->placeholder('—'),
 
-                // Progress bar
+                // Progress
                 Tables\Columns\TextColumn::make('progress')
                     ->label('Progress')
                     ->suffix('%')
                     ->badge()
-                    ->color(fn (int $state) => $state >= 80 ? 'success' : ($state >= 40 ? 'warning' : 'danger')),
+                    ->color(fn (int $state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'danger'))
+                    ->sortable(),
 
-                // Status badge
+                // Status badge (display only — no editing here)
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state) => ucfirst($state))
@@ -574,38 +575,36 @@ class ApplicationResource extends Resource
                         default     => 'gray',
                     }),
 
-                // Submitted by role
+                // Source
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'admin'        => 'purple',
-                        'branch_admin' => 'info',
+                        'admin', 'super_admin' => 'gray',
+                        'branch_admin', 'branch_manager' => 'info',
                         'agency'       => 'warning',
                         'student'      => 'success',
                         default        => 'gray',
                     })
                     ->formatStateUsing(fn (string $state) => match ($state) {
-                        'admin'        => 'Admin',
-                        'branch_admin' => 'Branch',
-                        'agency'       => 'Agency',
-                        'student'      => 'Student',
-                        default        => ucfirst($state),
-                    })
-                    ->toggleable(),
+                        'admin', 'super_admin'            => 'Admin',
+                        'branch_admin', 'branch_manager'  => 'Branch',
+                        'agency'                          => 'Agency',
+                        'student'                         => 'Student',
+                        default                           => ucfirst($state),
+                    }),
 
-                Tables\Columns\TextColumn::make('submitted_at')
-                    ->label('Submitted')
-                    ->dateTime('d M Y')
+                // Created date
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Date')
+                    ->since()
                     ->sortable()
-                    ->placeholder('—')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')
-            ->striped()
-            ->paginated([10, 25, 50, 100])
+            ->paginated([15, 25, 50, 100])
             ->emptyStateHeading('No applications yet')
-            ->emptyStateDescription('Create the first application by clicking "+ New Application" above.')
+            ->emptyStateDescription('Create the first application using the button above.')
             ->emptyStateIcon('heroicon-o-document-text')
             ->emptyStateActions([
                 Tables\Actions\Action::make('create')
@@ -615,15 +614,6 @@ class ApplicationResource extends Resource
                     ->color('success'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        'draft'     => 'Draft',
-                        'submitted' => 'Submitted',
-                        'accepted'  => 'Accepted',
-                        'rejected'  => 'Rejected',
-                    ])
-                    ->native(false),
-
                 Tables\Filters\SelectFilter::make('submitted_by_role')
                     ->label('Source')
                     ->options([
@@ -651,7 +641,7 @@ class ApplicationResource extends Resource
                             ->when($data['until'], fn ($q, $d) => $q->whereDate('created_at', '<=', $d));
                     }),
             ])
-            ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent)
+            ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->actions([
                 Tables\Actions\Action::make('accept')
                     ->label('Accept')
