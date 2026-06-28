@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import api from '@/lib/api';
 import {
   Application, AppDoc, FormTemplateData,
-  DynamicField, InlineDoc, SectionHead, ProgressBar,
+  DynamicField, InlineDoc, ProgressBar,
   isFieldVisible, colSpan, EDU_LABELS,
   inp, lbl,
 } from './ApplicationFormShared';
@@ -382,48 +382,53 @@ export default function ApplicationFormBody({
           {/* Dynamic template groups */}
           {template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
             g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData)))
-          ).map((group, gi) => (
-            <div key={group.id}>
-              <section>
-                <SectionHead n={gi + 2} title={group.label} subtitle={group.hint} />
-                <div className="space-y-6">
-                  {group.boxes.map((box, bi) => {
-                    const visibleFields = box.fields.filter(f => isFieldVisible(f, formData));
-                    if (visibleFields.length === 0) return null;
-                    return (
-                      <div key={box.id} className={bi > 0 ? 'pt-4 border-t border-slate-100' : ''}>
-                        {box.name && <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">{box.name}</p>}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-                          {visibleFields.map(field => (
-                            <div key={field.field_key} className={colSpan(field.box_size)}>
-                              <DynamicField
-                                field={field} appId={app.id}
-                                value={formData[field.field_key] ?? ''}
-                                existingDoc={docs.find(d => d.field_key === field.field_key || d.doc_type === field.field_key)}
-                                onDocUploaded={onDocUploaded} onDocDeleted={onDocDeleted}
-                                onChange={val => set(field.field_key, val)}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                        {box.requires_document && box.doc_key && isEditable && (
-                          <InlineDoc
-                            fieldKey={box.doc_key}
-                            fieldLabel={box.doc_label || box.name || 'Document'}
-                            appId={app.id}
-                            mandatory={box.document_required}
-                            existingDoc={docs.find(d => d.field_key === box.doc_key || d.doc_type === box.doc_key)}
-                            onUploaded={onDocUploaded}
-                            onDeleted={onDocDeleted}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
+          ).map((group) => (
+            <section key={group.id} className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
+              <div className="flex items-center gap-2.5 px-4 sm:px-6 py-4 border-b border-gray-100">
+                <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <div>
+                  <span className="text-sm font-semibold text-gray-900">{group.label}</span>
+                  {group.hint && <p className="text-xs text-slate-400 mt-0.5">{group.hint}</p>}
                 </div>
-              </section>
-              <hr className="border-slate-100 mt-10" />
-            </div>
+              </div>
+              <div className="px-4 sm:px-6 py-5 space-y-6">
+                {group.boxes.map((box, bi) => {
+                  const visibleFields = box.fields.filter(f => isFieldVisible(f, formData));
+                  if (visibleFields.length === 0) return null;
+                  return (
+                    <div key={box.id} className={bi > 0 ? 'pt-4 border-t border-slate-100' : ''}>
+                      {box.name && <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">{box.name}</p>}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+                        {visibleFields.map(field => (
+                          <div key={field.field_key} className={colSpan(field.box_size)}>
+                            <DynamicField
+                              field={field} appId={app.id}
+                              value={formData[field.field_key] ?? ''}
+                              existingDoc={docs.find(d => d.field_key === field.field_key || d.doc_type === field.field_key)}
+                              onDocUploaded={onDocUploaded} onDocDeleted={onDocDeleted}
+                              onChange={val => set(field.field_key, val)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      {box.requires_document && box.doc_key && isEditable && (
+                        <InlineDoc
+                          fieldKey={box.doc_key}
+                          fieldLabel={box.doc_label || box.name || 'Document'}
+                          appId={app.id}
+                          mandatory={box.document_required}
+                          existingDoc={docs.find(d => d.field_key === box.doc_key || d.doc_type === box.doc_key)}
+                          onUploaded={onDocUploaded}
+                          onDeleted={onDocDeleted}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
           ))}
 
           {/* Education Certificates */}
