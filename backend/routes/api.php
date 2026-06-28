@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/applications/{id}',                            [ApplicationController::class, 'show']);
     Route::patch('/applications/{id}',                          [ApplicationController::class, 'update']);
     Route::post('/applications/{id}/submit',                    [ApplicationController::class, 'submit']);
+    Route::post('/applications/{id}/live-to-school',           [ApplicationController::class, 'liveToSchool']);
     Route::post('/applications/{id}/documents',                 [ApplicationController::class, 'uploadDocument']);
     Route::delete('/applications/{id}/documents/{docId}',       [ApplicationController::class, 'deleteDocument']);
 

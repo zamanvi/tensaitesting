@@ -57,7 +57,10 @@ export interface Application {
   submitter_email?: string;
   branch_id: number | null;
   branch_name?: string;
-  submitted_at: string | null; created_at: string; updated_at: string;
+  submitted_at: string | null;
+  live_to_school: boolean;
+  live_to_school_at: string | null;
+  created_at: string; updated_at: string;
   documents?: AppDoc[];
 }
 

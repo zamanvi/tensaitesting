@@ -136,6 +136,19 @@ class ApplicationController extends Controller
         return response()->json($this->format($app));
     }
 
+    public function liveToSchool(Request $request, int $id): JsonResponse
+    {
+        $app = $this->findOwned($request, $id);
+        if ($app->status !== 'submitted') {
+            return response()->json(['message' => 'Only submitted applications can be sent live to school.'], 422);
+        }
+        $app->update([
+            'live_to_school'    => true,
+            'live_to_school_at' => now(),
+        ]);
+        return response()->json($this->format($app->fresh()));
+    }
+
     public function updateStatus(Request $request, int $id): JsonResponse
     {
         $app  = Application::findOrFail($id);
@@ -247,6 +260,8 @@ class ApplicationController extends Controller
             'progress'          => $app->progress,
             'status'            => $app->status,
             'submitted_at'      => $app->submitted_at?->toISOString(),
+            'live_to_school'    => (bool) $app->live_to_school,
+            'live_to_school_at' => $app->live_to_school_at?->toISOString(),
             'created_at'        => $app->created_at->toISOString(),
             'updated_at'        => $app->updated_at->toISOString(),
             'documents'         => $app->documents->map(fn ($d) => [

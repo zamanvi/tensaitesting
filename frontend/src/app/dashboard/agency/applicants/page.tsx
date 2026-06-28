@@ -1,8 +1,8 @@
 'use client';
-import BranchLayout from '@/components/shared/BranchLayout';
+import DashboardLayout from '@/components/shared/DashboardLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
@@ -33,27 +33,26 @@ function timeAgo(dateStr: string): string {
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
-export default function BranchApplicantsPage() {
+export default function AgencyApplicantsPage() {
   const { user } = useAuthStore();
   const router = useRouter();
   const qc = useQueryClient();
 
-  const isBranchAdmin = user?.roles?.some(r => r === 'branch_admin' || r === 'branch_manager');
+  const isAgency = user?.roles?.some(r => r === 'agency');
   useEffect(() => {
-    if (user && !isBranchAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
-  }, [user, isBranchAdmin, router]);
+    if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
+  }, [user, isAgency, router]);
 
   const [activeAppId, setActiveAppId] = useState<number | null>(null);
   const [showNew,     setShowNew]     = useState(false);
   const [search,      setSearch]      = useState('');
-  const [confirmLiveId, setConfirmLiveId] = useState<number | null>(null);
 
-  const queryKey = ['branch-applications'];
+  const queryKey = ['agency-applications'];
 
   const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
     queryKey,
     queryFn: () => api.get('/applications').then(r => r.data),
-    enabled: !!isBranchAdmin,
+    enabled: !!isAgency,
   });
 
   const apps = appsData?.data ?? [];
@@ -78,16 +77,6 @@ export default function BranchApplicantsPage() {
       : Promise.resolve(null),
     enabled: !!activeApp?.form_template_id,
     staleTime: 300_000,
-  });
-
-  const liveToSchoolMutation = useMutation({
-    mutationFn: (appId: number) => api.post(`/applications/${appId}/live-to-school`).then(r => r.data),
-    onSuccess: (updated: Application) => {
-      qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
-        ...old, data: (old?.data ?? []).map(a => a.id === updated.id ? { ...a, ...updated } : a),
-      }));
-      setConfirmLiveId(null);
-    },
   });
 
   function handleCreated(app: Application) {
@@ -118,12 +107,12 @@ export default function BranchApplicantsPage() {
     }));
   }
 
-  if (!user || !isBranchAdmin) return null;
+  if (!user || !isAgency) return null;
 
   // ── Active form view ────────────────────────────────────────────────────────
   if (activeAppId !== null && activeApp) {
     return (
-      <BranchLayout title="Applications">
+      <DashboardLayout title="Applications">
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           <ApplicationFormBody
             app={activeApp} template={template ?? null} templateLoading={templateLoading}
@@ -132,14 +121,14 @@ export default function BranchApplicantsPage() {
             onClose={() => setActiveAppId(null)}
           />
         </div>
-      </BranchLayout>
+      </DashboardLayout>
     );
   }
 
   const total = apps.length;
 
   return (
-    <BranchLayout title="Applications">
+    <DashboardLayout title="Applications">
 
       {/* ── New Application ── */}
       <div className="mb-6">
@@ -155,58 +144,21 @@ export default function BranchApplicantsPage() {
           <div className="max-w-[860px]">
             <NewApplicationHero />
             <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden shadow-sm">
-              <ApplicationStarter role="branch" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="branch-applications" />
+              <ApplicationStarter role="agency" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="agency-applications" />
             </div>
           </div>
         )}
       </div>
 
-      {/* ── Live-to-School confirm dialog ── */}
-      {confirmLiveId !== null && (() => {
-        const app = apps.find(a => a.id === confirmLiveId);
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-bold text-slate-900 text-sm">Send Live to School?</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{app?.student_name}</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-500 mb-5">
-                This will forward the application to the school and make it visible to the admin team. This action cannot be undone.
-              </p>
-              <div className="flex gap-2">
-                <button onClick={() => setConfirmLiveId(null)}
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-                  Cancel
-                </button>
-                <button
-                  onClick={() => liveToSchoolMutation.mutate(confirmLiveId)}
-                  disabled={liveToSchoolMutation.isPending}
-                  className="flex-1 px-4 py-2 rounded-xl bg-green-700 hover:bg-green-800 text-white text-sm font-bold transition-colors disabled:opacity-50">
-                  {liveToSchoolMutation.isPending ? 'Sending…' : 'Confirm'}
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* ── Table card ── */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
-        {/* Header: title + search */}
+        {/* Header */}
         <div className="px-5 sm:px-6 py-4 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex-1">
-              <h3 className="font-black text-slate-900 text-sm">Branch Applications</h3>
-              <p className="text-xs text-slate-400 mt-0.5">All applications submitted by your branch</p>
+              <h3 className="font-black text-slate-900 text-sm">Agency Applications</h3>
+              <p className="text-xs text-slate-400 mt-0.5">All applications submitted by your agency</p>
             </div>
             <div className="relative w-full sm:w-64">
               <svg className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +210,6 @@ export default function BranchApplicantsPage() {
                     <th className="text-left px-4 py-3">Country / Form</th>
                     <th className="text-left px-4 py-3">Progress</th>
                     <th className="text-left px-4 py-3">Status</th>
-                    <th className="text-left px-4 py-3">Live to School</th>
                     <th className="text-left px-4 py-3">Date</th>
                     <th className="px-4 py-3" />
                   </tr>
@@ -297,22 +248,6 @@ export default function BranchApplicantsPage() {
                           {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
-                        {app.live_to_school ? (
-                          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                            Live
-                          </span>
-                        ) : app.status === 'submitted' ? (
-                          <button
-                            onClick={() => setConfirmLiveId(app.id)}
-                            className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-green-700 hover:text-white text-slate-500 transition-all border border-transparent hover:border-green-700">
-                            Send Live
-                          </button>
-                        ) : (
-                          <span className="text-[11px] text-slate-300">—</span>
-                        )}
-                      </td>
                       <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
                         {timeAgo(app.created_at)}
                       </td>
@@ -348,21 +283,7 @@ export default function BranchApplicantsPage() {
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-400">{app.form_template?.country ?? '—'} · {app.application_code}</p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      {app.live_to_school ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                          Live
-                        </span>
-                      ) : app.status === 'submitted' ? (
-                        <button
-                          onClick={e => { e.stopPropagation(); setConfirmLiveId(app.id); }}
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
-                          Send Live
-                        </button>
-                      ) : null}
-                      <span className="text-[11px] text-slate-400">{timeAgo(app.created_at)}</span>
-                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(app.created_at)}</p>
                   </div>
                   <svg className="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -380,6 +301,6 @@ export default function BranchApplicantsPage() {
           </>
         )}
       </div>
-    </BranchLayout>
+    </DashboardLayout>
   );
 }
