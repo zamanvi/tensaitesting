@@ -26,7 +26,7 @@ export default function StudentApplicationPage() {
   });
   const myApp = appsData?.data?.[0] ?? null;
 
-  const { data: template } = useQuery<FormTemplateData | null>({
+  const { data: template, isLoading: templateLoading } = useQuery<FormTemplateData | null>({
     queryKey: ['form-template', myApp?.form_template_id],
     queryFn: () => myApp?.form_template_id
       ? api.get(`/form-templates/${myApp.form_template_id}`).then(r => r.data)
@@ -81,7 +81,7 @@ export default function StudentApplicationPage() {
             </div>
           )}
           <ApplicationFormBody
-            app={myApp} template={template ?? null}
+            app={myApp} template={template ?? null} templateLoading={templateLoading}
             onSaved={updateApp} onSubmitted={updateApp}
             onDocUploaded={handleDocUploaded} onDocDeleted={handleDocDeleted}
           />

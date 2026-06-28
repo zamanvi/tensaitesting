@@ -11,6 +11,7 @@ import {
 interface Props {
   app: Application;
   template: FormTemplateData | null;
+  templateLoading?: boolean;
   onSaved: (app: Application) => void;
   onSubmitted: (app: Application) => void;
   onDocUploaded: (doc: AppDoc, progress: number) => void;
@@ -51,7 +52,7 @@ function ConfirmDialog({ message, detail, confirmLabel, onConfirm, onCancel, dan
 }
 
 export default function ApplicationFormBody({
-  app, template, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose,
+  app, template, templateLoading = true, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose,
 }: Props) {
   const toFormData = (src: Application) =>
     Object.fromEntries(Object.entries(src.form_data ?? {}).map(([k, v]) => [k, v == null ? '' : String(v)]));
@@ -255,13 +256,24 @@ export default function ApplicationFormBody({
         )}
       </div>
 
-      {/* ── Template loading skeleton ── */}
-      {!template && (
+      {/* ── Template loading / error ── */}
+      {!template && templateLoading && (
         <div className="px-4 sm:px-6 py-10 space-y-4 animate-pulse">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="bg-slate-100 rounded-xl h-24" />
-          ))}
+          {[1, 2, 3].map(i => <div key={i} className="bg-slate-100 rounded-xl h-24" />)}
           <p className="text-center text-xs text-slate-400">Loading form template…</p>
+        </div>
+      )}
+      {!template && !templateLoading && (
+        <div className="px-4 sm:px-6 py-10">
+          <div className="flex items-start gap-3 bg-rose-50 border border-rose-200 rounded-2xl px-5 py-4">
+            <svg className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-sm font-bold text-rose-800">Form template unavailable</p>
+              <p className="text-xs text-rose-600 mt-1">The template for this application could not be loaded. It may have been removed by an administrator. You can still view saved data above, but editing is unavailable.</p>
+            </div>
+          </div>
         </div>
       )}
 

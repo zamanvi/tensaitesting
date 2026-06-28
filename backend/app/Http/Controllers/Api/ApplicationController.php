@@ -40,6 +40,13 @@ class ApplicationController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
+
+        // Only roles that are permitted to create applications
+        $allowed = ['super_admin', 'admin', 'branch_admin', 'branch_manager', 'agency', 'student'];
+        if (!$user->hasRole($allowed)) {
+            return response()->json(['message' => 'Your account type cannot create applications.'], 403);
+        }
+
         $data = $request->validate([
             'form_template_id' => 'required|exists:form_templates,id',
             'student_name'     => 'nullable|string|max:255',

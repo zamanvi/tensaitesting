@@ -11,8 +11,9 @@ class FormTemplateController extends Controller
     // GET /api/form-templates/{id}  — fetch by template ID (unambiguous with multiple per country)
     public function show(int $id): JsonResponse
     {
+        // No status filter — existing applications may reference templates that were
+        // later unpublished. New-application creation is gated in store() separately.
         $template = FormTemplate::with(['activeFieldGroups.activeBoxes.activeFields'])
-            ->where('status', 'published')
             ->where('is_active', true)
             ->findOrFail($id);
 

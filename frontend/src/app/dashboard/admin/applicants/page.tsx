@@ -78,7 +78,7 @@ export default function AdminApplicantsPage() {
   const apps = appsData?.data ?? [];
   const activeApp = apps.find(a => a.id === activeAppId) ?? null;
 
-  const { data: template } = useQuery<FormTemplateData | null>({
+  const { data: template, isLoading: templateLoading } = useQuery<FormTemplateData | null>({
     queryKey: ['form-template', activeApp?.form_template_id],
     queryFn: () => activeApp?.form_template_id
       ? api.get(`/form-templates/${activeApp.form_template_id}`).then(r => r.data)
@@ -130,7 +130,7 @@ export default function AdminApplicantsPage() {
       <DashboardLayout title="All Applications">
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           <ApplicationFormBody
-            app={activeApp} template={template ?? null}
+            app={activeApp} template={template ?? null} templateLoading={templateLoading}
             onSaved={updateApps} onSubmitted={updateApps}
             onDocUploaded={handleDocUploaded} onDocDeleted={handleDocDeleted}
             onClose={() => setActiveAppId(null)}
