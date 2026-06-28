@@ -10,13 +10,13 @@ const STEPS = [
 export default function NewApplicationHero() {
   return (
     <div
-      className="relative rounded-t-2xl overflow-hidden px-8 sm:px-10 py-7 sm:py-8"
+      className="relative rounded-t-2xl overflow-hidden px-4 sm:px-8 md:px-10 py-7 sm:py-8"
       style={{ background: 'linear-gradient(135deg, #052e1c 0%, #064e3b 45%, #065f46 100%)' }}
     >
       {/* Ambient orbs */}
-      <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
+      <div className="absolute -top-16 -right-16 w-48 sm:w-64 h-48 sm:h-64 rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(16,185,129,.18) 0%, transparent 70%)' }} />
-      <div className="absolute -bottom-20 -left-8 w-56 h-56 rounded-full pointer-events-none"
+      <div className="absolute -bottom-20 -left-8 w-44 sm:w-56 h-44 sm:h-56 rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(5,150,105,.12) 0%, transparent 70%)' }} />
       <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
         style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />

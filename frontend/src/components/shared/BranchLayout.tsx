@@ -244,7 +244,7 @@ export default function BranchLayout({ children, title }: Props) {
 
         <footer className="border-t border-slate-100 bg-white mt-auto">
           {branchInfo && (
-            <div className="px-6 py-8 grid grid-cols-1 sm:grid-cols-3 gap-8 border-b border-slate-100">
+            <div className="px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8 border-b border-slate-100">
 
               {/* Branch identity */}
               <div>
@@ -310,7 +310,7 @@ export default function BranchLayout({ children, title }: Props) {
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(branchInfo.social_links).map(([platform, url]) => (
                       <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
-                        className="text-[10px] font-medium px-2.5 py-1 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors">
+                        className="text-xs font-medium px-3 py-1.5 rounded-full border border-slate-200 text-slate-500 hover:border-green-300 hover:text-green-700 transition-colors capitalize">
                         {platform}
                       </a>
                     ))}
