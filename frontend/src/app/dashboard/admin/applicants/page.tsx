@@ -159,11 +159,6 @@ export default function AdminApplicantsPage() {
     );
   }
 
-  const total     = apps.length;
-  const submitted = apps.filter(a => a.status === 'submitted').length;
-  const accepted  = apps.filter(a => a.status === 'accepted').length;
-  const rejected  = apps.filter(a => a.status === 'rejected').length;
-
   return (
     <DashboardLayout title="All Applications">
 
@@ -185,24 +180,6 @@ export default function AdminApplicantsPage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* ── Stats strip ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        {[
-          { label: 'Total',     value: total,     color: 'text-slate-800',   bg: 'bg-white',       border: 'border-slate-200', dot: 'bg-slate-400' },
-          { label: 'Submitted', value: submitted,  color: 'text-amber-700',  bg: 'bg-amber-50',    border: 'border-amber-200', dot: 'bg-amber-400' },
-          { label: 'Accepted',  value: accepted,   color: 'text-emerald-700',bg: 'bg-emerald-50',  border: 'border-emerald-200', dot: 'bg-emerald-500' },
-          { label: 'Rejected',  value: rejected,   color: 'text-rose-600',   bg: 'bg-rose-50',     border: 'border-rose-200', dot: 'bg-rose-400' },
-        ].map(s => (
-          <div key={s.label} className={`${s.bg} border ${s.border} rounded-2xl px-5 py-4 flex items-center gap-3`}>
-            <div className={`w-2.5 h-2.5 rounded-full ${s.dot} shrink-0`} />
-            <div>
-              <div className={`text-2xl font-black ${s.color} leading-none`}>{s.value}</div>
-              <div className="text-xs text-slate-400 font-medium mt-1">{s.label}</div>
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* ── Table card ── */}
