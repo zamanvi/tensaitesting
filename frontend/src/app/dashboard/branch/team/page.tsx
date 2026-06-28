@@ -79,7 +79,7 @@ export default function BranchTeamPage() {
       {/* Page header */}
       <div className="flex items-end justify-between mb-8">
         <div>
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.12em] mb-1.5">Branch Portal</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-[0.12em] mb-1.5">Branch Portal</p>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             {ja ? 'チーム管理' : bn ? 'টিম ম্যানেজমেন্ট' : 'Team'}
           </h1>
@@ -132,7 +132,7 @@ export default function BranchTeamPage() {
                         <p className="font-semibold text-slate-900 text-sm leading-tight truncate">{m.name}</p>
                         <p className="text-xs text-green-600 font-medium mt-0.5">{m.role}</p>
                       </div>
-                      {!m.is_active && <span className="text-[10px] bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded-full shrink-0">Hidden</span>}
+                      {!m.is_active && <span className="text-xs bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded-full shrink-0">Hidden</span>}
                     </div>
                     {m.bio && <p className="text-xs text-slate-500 mt-2 leading-relaxed line-clamp-2">{m.bio}</p>}
                   </div>
@@ -174,7 +174,7 @@ export default function BranchTeamPage() {
 
             {/* Scrollable body */}
             <form id="team-form" onSubmit={e => { e.preventDefault(); save.mutate(form); }} className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
-              {err && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">⚠️ {err}</div>}
+              {err && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium">⚠️ {err}</div>}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -187,7 +187,7 @@ export default function BranchTeamPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5">{ja ? '自己紹介' : bn ? 'পরিচয়' : 'Bio'} <span className="text-slate-300 font-normal">{ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'}</span></label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5">{ja ? '自己紹介' : bn ? 'পরিচয়' : 'Bio'} <span className="text-slate-400 font-normal">{ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'}</span></label>
                 <textarea className={`${inputCls} resize-none`} rows={3} value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} placeholder={ja ? '短い紹介文...' : bn ? 'সংক্ষিপ্ত পরিচয়...' : 'Short bio about this team member...'} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

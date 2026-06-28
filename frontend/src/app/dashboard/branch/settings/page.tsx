@@ -87,9 +87,10 @@ export default function BranchSettingsPage() {
       {isLoading ? (
         <div className="py-12 text-center text-slate-400 text-sm">Loading…</div>
       ) : (
+        <>
         {/* Page header */}
         <div className="mb-8">
-          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.12em] mb-1.5">Branch Portal</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-[0.12em] mb-1.5">Branch Portal</p>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Settings</h1>
           <p className="text-sm text-slate-500 mt-1.5">Manage your branch contact info, working hours and social links</p>
         </div>
@@ -115,27 +116,27 @@ export default function BranchSettingsPage() {
               <h2 className="text-sm font-bold text-slate-900 uppercase tracking-[0.08em]">Contact</h2>
               <p className="text-xs text-slate-400 mt-1">Your branch&apos;s public-facing contact information</p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Address</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5">Address</label>
                 <textarea className={`${inp} resize-none`} rows={2}
                   value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                   placeholder="Branch office address" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Phone</label>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">Phone</label>
                   <input className={inp} placeholder="+880 1XXX XXXXXX"
                     value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">WhatsApp</label>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">WhatsApp</label>
                   <input className={inp} placeholder="8801XXXXXXXXX"
                     value={form.whatsapp} onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">Google Maps URL</label>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5">Google Maps URL</label>
                 <input className={inp} type="url" placeholder="https://maps.google.com/…"
                   value={form.google_maps_url} onChange={e => setForm(f => ({ ...f, google_maps_url: e.target.value }))} />
               </div>
@@ -186,7 +187,7 @@ export default function BranchSettingsPage() {
             <div className="space-y-2">
               {Object.entries(socialLinks).map(([platform, url]) => (
                 <div key={platform} className="flex gap-2 items-center">
-                  <input className={`${inp} w-28 shrink-0`} value={platform} placeholder="Platform"
+                  <input className={`${inp} w-32 shrink-0`} value={platform} placeholder="Platform"
                     onChange={e => updateSocialKey(platform, e.target.value)} />
                   <input className={`${inp} flex-1`} value={url} placeholder="https://…"
                     onChange={e => updateSocialVal(platform, e.target.value)} />
@@ -208,6 +209,7 @@ export default function BranchSettingsPage() {
           </div>
 
         </form>
+        </>
       )}
     </BranchLayout>
   );

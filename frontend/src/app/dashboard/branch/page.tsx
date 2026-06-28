@@ -114,7 +114,7 @@ export default function BranchAdminDashboard() {
         {/* ── Header ── */}
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-[0.15em] font-semibold mb-2">
+            <p className="text-xs text-slate-500 uppercase tracking-[0.15em] font-semibold mb-2">
               {ja ? '管理中の支局' : bn ? 'আপনার শাখা' : 'Your Branch'}
             </p>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
@@ -142,7 +142,7 @@ export default function BranchAdminDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={s.icon} />
                 </svg>
               </div>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.1em] mb-1">{s.label}</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-[0.1em] mb-1">{s.label}</p>
               <p className="text-3xl sm:text-4xl font-black text-slate-900 leading-none">{s.value}</p>
             </div>
           ))}
@@ -150,7 +150,7 @@ export default function BranchAdminDashboard() {
 
         {/* ── Quick links ── */}
         <div>
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-[0.12em] mb-4">Quick Actions</h2>
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-[0.12em] mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5">
             {quickLinks.map(q => (
               <Link key={q.href} href={q.href}
@@ -187,12 +187,12 @@ export default function BranchAdminDashboard() {
           )}
 
           {isLoading ? (
-            <div className="text-center py-6 text-slate-300 text-sm">…</div>
+            <div className="text-center py-6 text-slate-400 text-sm">…</div>
           ) : editing ? (
             <form onSubmit={e => { e.preventDefault(); update.mutate(form); }} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">
                     {ja ? '電話番号' : bn ? 'ফোন নম্বর' : 'Phone Number'}
                   </label>
                   <input type="tel" value={form.phone}
@@ -201,7 +201,7 @@ export default function BranchAdminDashboard() {
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5">WhatsApp</label>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">WhatsApp</label>
                   <input type="tel" value={form.whatsapp}
                     onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))}
                     placeholder="+880 1XXX XXXXXX"
