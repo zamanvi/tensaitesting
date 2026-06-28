@@ -427,7 +427,8 @@ class ApplicationResource extends Resource
                     ->description($group->hint ?: null)
                     ->schema($groupContent)
                     ->collapsible()
-                    ->collapsed(false);
+                    ->collapsed(false)
+                    ->columnSpanFull();
             }
         }
 
