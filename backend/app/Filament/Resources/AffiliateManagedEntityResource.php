@@ -18,6 +18,7 @@ class AffiliateManagedEntityResource extends Resource
     protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?string $navigationLabel = 'Managed Entities';
     protected static ?int    $navigationSort  = 5;
+    protected static bool    $shouldRegisterNavigation = false;
 
     public static function canAccess(): bool
     {

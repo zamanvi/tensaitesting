@@ -72,27 +72,24 @@ export default function DashboardLayout({ children, title }: Props) {
 
   const NAV_LINKS: Record<string, { label: string; href: string }[]> = useMemo(() => ({
     admin: [
-      { label: lang === 'ja' ? '申請者' : lang === 'bn' ? 'আবেদনকারী' : 'Applicants', href: '/dashboard/admin/applicants' },
-      { label: lang === 'ja' ? 'ギャラリー管理' : lang === 'bn' ? 'গ্যালারি ম্যানেজ' : 'Gallery', href: '/dashboard/admin/gallery' },
-      { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার ম্যানেজ' : 'Users', href: '/dashboard/admin/users' },
-      { label: lang === 'ja' ? 'エージェンシー審査' : lang === 'bn' ? 'এজেন্সি অ্যাপ্রুভাল' : 'Agency Vetting', href: '/dashboard/admin/agencies' },
+      { label: lang === 'ja' ? '申請者' : lang === 'bn' ? 'আবেদনকারী' : 'Applications', href: '/dashboard/admin/applicants' },
+      { label: lang === 'ja' ? '支局管理' : lang === 'bn' ? 'শাখা' : 'Branches',         href: '/dashboard/admin/branches' },
+      { label: lang === 'ja' ? 'エージェンシー' : lang === 'bn' ? 'এজেন্সি' : 'Agencies', href: '/dashboard/admin/agencies' },
+      { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার' : 'Users',        href: '/dashboard/admin/users' },
       { label: lang === 'ja' ? '機関管理' : lang === 'bn' ? 'ইনস্টিটিউশন' : 'Institutions', href: '/dashboard/admin/institutions' },
-      { label: lang === 'ja' ? '選択済み申請' : lang === 'bn' ? 'নির্বাচিত আবেদন' : 'Selected', href: '/dashboard/admin/selected' },
       { label: lang === 'ja' ? 'アフィリエイト' : lang === 'bn' ? 'অ্যাফিলিয়েট' : 'Affiliates', href: '/dashboard/admin/affiliates' },
-      { label: lang === 'ja' ? '支局管理' : lang === 'bn' ? 'শাখা ম্যানেজ' : 'Branches', href: '/dashboard/admin/branches' },
-      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/admin/settings' },
+      { label: lang === 'ja' ? 'ギャラリー' : lang === 'bn' ? 'গ্যালারি' : 'Gallery',     href: '/dashboard/admin/gallery' },
+      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings',            href: '/dashboard/admin/settings' },
     ],
     student: [
-      { label: lang === 'ja' ? '申請' : lang === 'bn' ? 'আবেদন' : 'Application', href: '/dashboard/student' },
-      { label: lang === 'ja' ? '紹介' : lang === 'bn' ? 'রেফারেল' : 'Referral', href: '/dashboard/student/referral' },
-      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/student/settings' },
+      { label: lang === 'ja' ? '申請' : lang === 'bn' ? 'আবেদন' : 'My Application', href: '/dashboard/student/leads' },
+      { label: lang === 'ja' ? '紹介' : lang === 'bn' ? 'রেফারেল' : 'Referral',      href: '/dashboard/student/referral' },
+      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings',       href: '/dashboard/student/settings' },
     ],
     agency: [
-      { label: t.nav.overview, href: '/dashboard/agency' },
-      { label: lang === 'ja' ? '申請を追加' : lang === 'bn' ? 'আবেদন যোগ করুন' : 'Add Application', href: '/dashboard/agency/add-application' },
-      { label: lang === 'ja' ? 'マイアプリケーション' : lang === 'bn' ? 'আমার আবেদন' : 'My Applications', href: '/dashboard/agency/vault' },
-      { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Agency Profile', href: '/dashboard/agency/profile' },
-      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/agency/settings' },
+      { label: lang === 'ja' ? '申請' : lang === 'bn' ? 'আবেদন' : 'Applications',        href: '/dashboard/agency/applicants' },
+      { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile',  href: '/dashboard/agency/profile' },
+      { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings',            href: '/dashboard/agency/settings' },
     ],
     institution: [
       { label: t.nav.institutionProfile, href: '/dashboard/institution/profile' },
@@ -167,7 +164,7 @@ export default function DashboardLayout({ children, title }: Props) {
 
           {/* Left: logo + desktop nav */}
           <div className="flex items-center min-w-0">
-            <Link href={isAdmin ? '/dashboard/admin/gallery' : isBranchAdmin ? '/dashboard/branch' : `/dashboard/${user.gateway_type}`} className="flex items-center gap-2 shrink-0 mr-4">
+            <Link href={isAdmin ? '/dashboard/admin/applicants' : isBranchAdmin ? '/dashboard/branch' : `/dashboard/${user.gateway_type}`} className="flex items-center gap-2 shrink-0 mr-4">
               <Image src="/tensai-logo.png" alt="Tensai" width={30} height={30} className="rounded-full object-contain" />
               <span className="font-bold text-green-800 tracking-tight">Tensai</span>
             </Link>
