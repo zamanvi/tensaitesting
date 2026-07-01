@@ -155,6 +155,15 @@ export default function AgencyDashboard() {
       {/* New Application inline form */}
       {showNew ? (
         <div className="mb-6 max-w-[860px]">
+          <button
+            onClick={() => setShowNew(false)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900 mb-4 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            {ja ? '戻る' : bn ? 'পিছনে' : 'Back'}
+          </button>
           <NewApplicationHero />
           <div className="bg-white rounded-[14px] border border-slate-200 overflow-hidden shadow-sm">
             <ApplicationStarter role="agency" onCreated={handleCreated} onCancel={() => setShowNew(false)} queryKey="agency-applications" />
