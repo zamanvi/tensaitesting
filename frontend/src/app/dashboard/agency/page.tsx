@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
@@ -7,6 +7,17 @@ import api from '@/lib/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return d < 30 ? `${d}d ago` : new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
+}
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import NewApplicationHero from '@/components/applications/NewApplicationHero';
@@ -29,8 +40,10 @@ export default function AgencyDashboard() {
   const qc = useQueryClient();
   const isAgency = user?.gateway_type === 'agency';
 
-  const [showNew,     setShowNew]     = useState(false);
-  const [activeAppId, setActiveAppId] = useState<number | null>(null);
+  const [showNew,      setShowNew]      = useState(false);
+  const [activeAppId,  setActiveAppId]  = useState<number | null>(null);
+  const [search,       setSearch]       = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
@@ -70,6 +83,19 @@ export default function AgencyDashboard() {
   const active   = apps.filter(a => a.status === 'submitted').length;
   const accepted = apps.filter(a => a.status === 'accepted').length;
   const activeApp = apps.find(a => a.id === activeAppId) ?? null;
+
+  const filtered = useMemo(() => {
+    let list = apps;
+    if (statusFilter) list = list.filter(a => a.status === statusFilter);
+    const q = search.trim().toLowerCase();
+    if (q) list = list.filter(a =>
+      a.student_name?.toLowerCase().includes(q) ||
+      a.student_email?.toLowerCase().includes(q) ||
+      a.application_code?.toLowerCase().includes(q) ||
+      a.form_template?.country?.toLowerCase().includes(q)
+    );
+    return list;
+  }, [apps, search, statusFilter]);
 
   function handleCreated(app: Application) {
     qc.invalidateQueries({ queryKey });
@@ -197,60 +223,174 @@ export default function AgencyDashboard() {
             ))}
           </div>
 
-          {/* Recent Applications preview */}
-          <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-slate-900 text-sm">
-                {ja ? '最近の申請' : bn ? 'সাম্প্রতিক আবেদন' : 'Recent Applications'}
-              </h2>
-              <Link href="/dashboard/agency/applicants"
-                className="text-xs text-green-700 hover:underline font-semibold">
-                {t.common.viewAll}
-              </Link>
+          {/* All Applications table */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+
+            {/* Table header / toolbar */}
+            <div className="px-5 sm:px-6 py-4 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1">
+                  <h3 className="font-black text-slate-900 text-sm">
+                    {ja ? 'すべての申請' : bn ? 'সকল আবেদন' : 'All Applications'}
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {ja ? '代理店が管理する申請一覧' : bn ? 'এজেন্সির সকল আবেদনের তালিকা' : 'All applications managed by your agency'}
+                  </p>
+                </div>
+
+                {/* Status filter */}
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                >
+                  <option value="">All Status</option>
+                  <option value="draft">Draft</option>
+                  <option value="submitted">Submitted</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+
+                {/* Search */}
+                <div className="relative w-full sm:w-60">
+                  <svg className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
+                  </svg>
+                  <input
+                    type="search" placeholder="Search name, code, country…"
+                    value={search} onChange={e => setSearch(e.target.value)}
+                    className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all placeholder:text-slate-300"
+                  />
+                </div>
+              </div>
             </div>
 
+            {/* Body */}
             {isLoading ? (
-              <div className="py-6 flex justify-center">
-                <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+              <div className="py-20 flex flex-col items-center gap-3">
+                <span className="w-8 h-8 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+                <p className="text-xs text-slate-400">Loading…</p>
               </div>
-            ) : apps.length === 0 ? (
-              <div className="py-8 text-center">
-                <p className="text-sm text-slate-400">
-                  {ja ? 'まだ申請がありません' : bn ? 'এখনো কোনো আবেদন নেই' : 'No applications yet.'}
-                </p>
-                <button
-                  onClick={() => setShowNew(true)}
-                  className="mt-3 text-xs font-semibold text-green-700 hover:text-green-800"
-                >
-                  {ja ? '最初の申請を作成 →' : bn ? 'প্রথম আবেদন তৈরি করুন →' : 'Create your first application →'}
-                </button>
+            ) : filtered.length === 0 ? (
+              <div className="py-20 flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                  <svg className="w-7 h-7 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-slate-500">
+                    {search || statusFilter ? 'No results found' : (ja ? 'まだ申請がありません' : bn ? 'এখনো কোনো আবেদন নেই' : 'No applications yet')}
+                  </p>
+                  {!search && !statusFilter && (
+                    <button onClick={() => setShowNew(true)}
+                      className="mt-2 text-xs font-semibold text-green-700 hover:text-green-800">
+                      {ja ? '最初の申請を作成 →' : bn ? 'প্রথম আবেদন তৈরি করুন →' : 'Create your first application →'}
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
-              <div className="space-y-2">
-                {apps.slice(0, 5).map(app => (
-                  <button key={app.id}
-                    onClick={() => setActiveAppId(app.id)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors group text-left">
-                    <div className="shrink-0 w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-white flex items-center justify-center">
-                      <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              <>
+                {/* Desktop table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <th className="text-left px-5 py-3">Code</th>
+                        <th className="text-left px-4 py-3">Student</th>
+                        <th className="text-left px-4 py-3">Country / Form</th>
+                        <th className="text-left px-4 py-3">Progress</th>
+                        <th className="text-left px-4 py-3">Status</th>
+                        <th className="text-left px-4 py-3">Date</th>
+                        <th className="px-4 py-3" />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filtered.map(app => (
+                        <tr key={app.id}
+                          onClick={() => setActiveAppId(app.id)}
+                          className="hover:bg-green-50/40 cursor-pointer transition-colors group">
+                          <td className="px-5 py-3.5">
+                            <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
+                              {app.application_code}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <p className="font-semibold text-slate-800 text-xs">{app.student_name}</p>
+                            <p className="text-[11px] text-slate-400 mt-0.5">{app.student_email || '—'}</p>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <p className="text-xs font-semibold text-slate-700">{app.form_template?.country ?? '—'}</p>
+                            <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[160px]">{app.form_template?.name ?? ''}</p>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                  style={{ width: `${app.progress ?? 0}%` }}
+                                />
+                              </div>
+                              <span className="text-xs font-bold text-slate-600 tabular-nums">{app.progress ?? 0}%</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
+                              {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
+                            {timeAgo(app.created_at)}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-green-100 group-hover:text-green-700 text-slate-400 transition-colors">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="md:hidden divide-y divide-slate-50">
+                  {filtered.map(app => (
+                    <div key={app.id}
+                      onClick={() => setActiveAppId(app.id)}
+                      className="px-4 py-4 flex items-start gap-3 hover:bg-slate-50 cursor-pointer transition-colors active:bg-slate-100">
+                      <div className="shrink-0 w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <span className={`text-xs font-black ${(app.progress ?? 0) >= 80 ? 'text-emerald-600' : (app.progress ?? 0) >= 50 ? 'text-amber-600' : 'text-rose-500'}`}>
+                          {app.progress ?? 0}%
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className="text-xs font-bold text-slate-900 truncate">{app.student_name}</p>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status]}`}>
+                            {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400">{app.form_template?.country ?? '—'} · {app.application_code}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(app.created_at)}</p>
+                      </div>
+                      <svg className="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-800 truncate">{app.student_name}</p>
-                      <p className="text-[11px] text-slate-400">
-                        {app.form_template?.country ?? '—'} · <span className="font-mono">{app.application_code}</span>
-                      </p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                      {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                    </span>
-                  </button>
-                ))}
-                {apps.length > 5 && (
-                  <p className="text-xs text-slate-400 text-center pt-1">+{apps.length - 5} more</p>
-                )}
-              </div>
+                  ))}
+                </div>
+
+                {/* Footer */}
+                <div className="px-5 sm:px-6 py-3 border-t border-slate-50 bg-slate-50/50">
+                  <p className="text-[11px] text-slate-400">
+                    Showing <span className="font-bold text-slate-600">{filtered.length}</span> of <span className="font-bold text-slate-600">{total}</span> applications
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </>
