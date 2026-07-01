@@ -7,17 +7,6 @@ import api from '@/lib/api';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1)  return 'just now';
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.floor(h / 24);
-  return d < 30 ? `${d}d ago` : new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
-}
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import NewApplicationHero from '@/components/applications/NewApplicationHero';
@@ -29,6 +18,17 @@ const STATUS_BADGE: Record<string, string> = {
   accepted:  'bg-emerald-100 text-emerald-700',
   rejected:  'bg-rose-100 text-rose-600',
 };
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return d < 30 ? `${d}d ago` : new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
+}
 
 export default function AgencyDashboard() {
   const { t, lang } = useLang();
@@ -64,25 +64,21 @@ export default function AgencyDashboard() {
     enabled: !!isAgency,
   });
 
+  const apps = appsData?.data ?? [];
+  const activeApp = apps.find(a => a.id === activeAppId) ?? null;
+
   const { data: template, isLoading: templateLoading } = useQuery<FormTemplateData | null>({
-    queryKey: ['form-template', activeAppId],
-    queryFn: () => {
-      const app = apps.find(a => a.id === activeAppId);
-      return app?.form_template_id
-        ? api.get(`/form-templates/${app.form_template_id}`).then(r => r.data)
-        : Promise.resolve(null);
-    },
-    enabled: !!activeAppId,
+    queryKey: ['form-template', activeApp?.form_template_id],
+    queryFn: () => activeApp?.form_template_id
+      ? api.get(`/form-templates/${activeApp.form_template_id}`).then(r => r.data)
+      : Promise.resolve(null),
+    enabled: !!activeApp?.form_template_id,
     staleTime: 300_000,
   });
 
-  if (!user || !isAgency) return null;
-
-  const apps = appsData?.data ?? [];
   const total    = apps.length;
   const active   = apps.filter(a => a.status === 'submitted').length;
   const accepted = apps.filter(a => a.status === 'accepted').length;
-  const activeApp = apps.find(a => a.id === activeAppId) ?? null;
 
   const filtered = useMemo(() => {
     let list = apps;
@@ -125,7 +121,8 @@ export default function AgencyDashboard() {
     }));
   }
 
-  // ── Profile status banner config ──────────────────────────────────────────
+  if (!user || !isAgency) return null;
+
   const profileBanners: Record<string, { bg: string; icon: string; title: string; desc: string; cta?: string }> = {
     none:         { bg: 'bg-amber-50 border-amber-300',   icon: '📋', title: ja ? 'プロフィールを完成させてください' : bn ? 'প্রোফাইল পূরণ করুন' : 'Complete Your Agency Profile', desc: ja ? 'プラットフォームへのフルアクセスには審査が必要です。' : bn ? 'সম্পূর্ণ অ্যাক্সেসের জন্য প্রোফাইল জমা দিন।' : 'Submit your profile for admin review to unlock full platform access.', cta: ja ? 'プロフィールを設定する →' : bn ? 'প্রোফাইল সেটআপ করুন →' : 'Set Up Profile →' },
     pending:      { bg: 'bg-blue-50 border-blue-200',     icon: '⏳', title: ja ? 'プロフィール審査中' : bn ? 'প্রোফাইল যাচাই হচ্ছে' : 'Profile Under Review', desc: ja ? '管理者が確認中です。通常24〜48時間かかります。' : bn ? 'অ্যাডমিন যাচাই করছেন। ২৪-৪৮ ঘন্টা লাগে।' : 'Admin is reviewing your profile. Usually takes 24–48 hours.' },
@@ -197,7 +194,7 @@ export default function AgencyDashboard() {
         </div>
       ) : (
         <>
-          {/* Header row with Add Applicant button */}
+          {/* Header row */}
           <div className="flex items-center justify-between mb-5 sm:mb-6">
             <div />
             <button
@@ -226,7 +223,7 @@ export default function AgencyDashboard() {
           {/* All Applications table */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
-            {/* Table header / toolbar */}
+            {/* Toolbar */}
             <div className="px-5 sm:px-6 py-4 border-b border-slate-100">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex-1">
@@ -237,8 +234,6 @@ export default function AgencyDashboard() {
                     {ja ? '代理店が管理する申請一覧' : bn ? 'এজেন্সির সকল আবেদনের তালিকা' : 'All applications managed by your agency'}
                   </p>
                 </div>
-
-                {/* Status filter */}
                 <select
                   value={statusFilter}
                   onChange={e => setStatusFilter(e.target.value)}
@@ -250,8 +245,6 @@ export default function AgencyDashboard() {
                   <option value="accepted">Accepted</option>
                   <option value="rejected">Rejected</option>
                 </select>
-
-                {/* Search */}
                 <div className="relative w-full sm:w-60">
                   <svg className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
@@ -328,7 +321,7 @@ export default function AgencyDashboard() {
                             <div className="flex items-center gap-2">
                               <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full rounded-full ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                  className={`h-full rounded-full ${(app.progress ?? 0) >= 80 ? 'bg-emerald-500' : (app.progress ?? 0) >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
                                   style={{ width: `${app.progress ?? 0}%` }}
                                 />
                               </div>
