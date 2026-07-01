@@ -31,8 +31,7 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function AgencyDashboard() {
-  const { t, lang } = useLang();
-  const a = t.agencyDash;
+  const { lang } = useLang();
   const ja = lang === 'ja';
   const bn = lang === 'bn';
   const { user } = useAuthStore();
