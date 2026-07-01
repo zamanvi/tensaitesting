@@ -7,6 +7,8 @@ use App\Models\Application;
 use App\Models\FormTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -520,6 +522,194 @@ class ApplicationResource extends Resource
 
     // ── Table ─────────────────────────────────────────────────────────────────
 
+    // ── Infolist (View page) ──────────────────────────────────────────────────
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+
+            // ── Left column: main info ────────────────────────────────────────
+            Infolists\Components\Group::make([
+
+                // Application summary
+                Infolists\Components\Section::make('Application')
+                    ->icon('heroicon-o-document-text')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('application_code')
+                            ->label('Code')
+                            ->fontFamily('mono')
+                            ->weight('bold')
+                            ->copyable(),
+
+                        Infolists\Components\TextEntry::make('status')
+                            ->badge()
+                            ->formatStateUsing(fn ($state) => ucfirst($state))
+                            ->color(fn ($state) => match ($state) {
+                                'accepted'  => 'success',
+                                'submitted' => 'warning',
+                                'rejected'  => 'danger',
+                                default     => 'gray',
+                            }),
+
+                        Infolists\Components\TextEntry::make('progress')
+                            ->suffix('%')
+                            ->badge()
+                            ->color(fn ($state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'danger')),
+
+                        Infolists\Components\TextEntry::make('submitted_by_role')
+                            ->label('Source')
+                            ->badge()
+                            ->color(fn ($state) => match ($state) {
+                                'branch_admin', 'branch_manager' => 'info',
+                                'agency'   => 'warning',
+                                'student'  => 'success',
+                                default    => 'gray',
+                            })
+                            ->formatStateUsing(fn ($state) => match ($state) {
+                                'admin', 'super_admin'           => 'Admin',
+                                'branch_admin', 'branch_manager' => 'Branch',
+                                'agency'  => 'Agency',
+                                'student' => 'Student',
+                                default   => ucfirst($state),
+                            }),
+
+                        Infolists\Components\IconEntry::make('live_to_school')
+                            ->label('Live to School')
+                            ->boolean(),
+
+                        Infolists\Components\TextEntry::make('live_to_school_at')
+                            ->label('Sent Live At')
+                            ->dateTime('d M Y, H:i')
+                            ->placeholder('—'),
+
+                        Infolists\Components\TextEntry::make('submitted_at')
+                            ->label('Submitted At')
+                            ->dateTime('d M Y, H:i')
+                            ->placeholder('—'),
+
+                        Infolists\Components\TextEntry::make('created_at')
+                            ->label('Created')
+                            ->since(),
+                    ])
+                    ->columns(2),
+
+                // Student personal info
+                Infolists\Components\Section::make('Student Information')
+                    ->icon('heroicon-o-user')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('student_name')
+                            ->label('Full Name')
+                            ->weight('semibold'),
+
+                        Infolists\Components\TextEntry::make('student_email')
+                            ->label('Email')
+                            ->copyable()
+                            ->placeholder('—'),
+
+                        Infolists\Components\TextEntry::make('student_phone')
+                            ->label('Phone')
+                            ->copyable()
+                            ->placeholder('—'),
+
+                        Infolists\Components\TextEntry::make('whatsapp_no')
+                            ->label('WhatsApp')
+                            ->copyable()
+                            ->placeholder('—'),
+
+                        Infolists\Components\TextEntry::make('permanent_address')
+                            ->label('Address')
+                            ->columnSpanFull()
+                            ->placeholder('—'),
+                    ])
+                    ->columns(2),
+
+                // Country / Form
+                Infolists\Components\Section::make('Country & Form')
+                    ->icon('heroicon-o-globe-alt')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('formTemplate.country')
+                            ->label('Country')
+                            ->weight('semibold'),
+
+                        Infolists\Components\TextEntry::make('formTemplate.name')
+                            ->label('Form Name'),
+
+                        Infolists\Components\TextEntry::make('intake')
+                            ->label('Intake')
+                            ->getStateUsing(fn (Application $r) => $r->form_data['intake'] ?? null)
+                            ->badge()
+                            ->color('info')
+                            ->placeholder('—'),
+                    ])
+                    ->columns(3),
+
+            ])->columnSpan(2),
+
+            // ── Right column: student account + branch + docs ─────────────────
+            Infolists\Components\Group::make([
+
+                // Linked student account
+                Infolists\Components\Section::make('Student Account')
+                    ->icon('heroicon-o-identification')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('user.name')
+                            ->label('Username')
+                            ->badge()
+                            ->color('success')
+                            ->placeholder('No account linked'),
+
+                        Infolists\Components\TextEntry::make('user.email')
+                            ->label('Account Email')
+                            ->copyable()
+                            ->placeholder('—'),
+
+                        Infolists\Components\TextEntry::make('user.gateway_type')
+                            ->label('Account Type')
+                            ->badge()
+                            ->color('gray')
+                            ->placeholder('—'),
+                    ]),
+
+                // Branch
+                Infolists\Components\Section::make('Branch')
+                    ->icon('heroicon-o-building-storefront')
+                    ->schema([
+                        Infolists\Components\TextEntry::make('branch.name')
+                            ->label('Branch Name')
+                            ->placeholder('—'),
+
+                        Infolists\Components\TextEntry::make('branch.city')
+                            ->label('City')
+                            ->placeholder('—'),
+                    ])
+                    ->columns(2),
+
+                // Documents
+                Infolists\Components\Section::make('Documents')
+                    ->icon('heroicon-o-paper-clip')
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('documents')
+                            ->label('')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('doc_type')
+                                    ->label('Type')
+                                    ->badge()
+                                    ->color('gray'),
+
+                                Infolists\Components\TextEntry::make('original_name')
+                                    ->label('File')
+                                    ->url(fn ($record) => $record->url ?? null)
+                                    ->openUrlInNewTab()
+                                    ->placeholder('—'),
+                            ])
+                            ->columns(2),
+                    ]),
+
+            ])->columnSpan(1),
+
+        ])->columns(3);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -540,6 +730,15 @@ class ApplicationResource extends Resource
                     ->searchable()
                     ->weight('semibold')
                     ->description(fn (Application $r) => $r->student_email ?? $r->student_phone ?? '—'),
+
+                // Linked user account
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Account')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->badge()
+                    ->color('success')
+                    ->description(fn (Application $r) => $r->user?->email),
 
                 // Country + Form name
                 Tables\Columns\TextColumn::make('formTemplate.country')
