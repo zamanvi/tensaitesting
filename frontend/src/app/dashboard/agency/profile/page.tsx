@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -119,7 +119,7 @@ export default function AgencyProfilePage() {
   const banner = status ? STATUS_BANNER[status] : null;
 
   return (
-    <DashboardLayout title={ja ? 'エージェンシープロフィール' : bn ? 'এজেন্সি প্রোফাইল' : 'Agency Profile'}>
+    <AgencyLayout title={ja ? 'エージェンシープロフィール' : bn ? 'এজেন্সি প্রোফাইল' : 'Agency Profile'}>
 
       {/* Status banner */}
       {banner && (
@@ -301,6 +301,6 @@ export default function AgencyProfilePage() {
           </button>
         )}
       </form>
-    </DashboardLayout>
+    </AgencyLayout>
   );
 }

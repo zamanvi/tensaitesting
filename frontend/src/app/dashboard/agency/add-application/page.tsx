@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import AgencyLayout from '@/components/shared/AgencyLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -67,19 +67,19 @@ export default function AgencyAddApplicationPage() {
 
   /* ── Not approved ── */
   if (profileData && !approved) return (
-    <DashboardLayout title="Applications">
+    <AgencyLayout title="Applications">
       <div className="max-w-lg mx-auto mt-10 bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
         <div className="text-4xl mb-3">⏳</div>
         <p className="font-bold text-slate-900 mb-2">Agency Approval Required</p>
         <p className="text-sm text-slate-600 mb-4">Your agency profile must be approved before you can submit applications.</p>
         <Link href="/dashboard/agency/profile" className="inline-block px-5 py-2.5 bg-green-700 text-white text-sm font-bold rounded-xl">View Profile</Link>
       </div>
-    </DashboardLayout>
+    </AgencyLayout>
   );
 
   /* ── Application edit view ── */
   if (activeApp !== null) return (
-    <DashboardLayout title="Applications">
+    <AgencyLayout title="Applications">
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         <ApplicationFormBody
           app={activeApp} template={template ?? null} templateLoading={templateLoading}
@@ -88,11 +88,11 @@ export default function AgencyAddApplicationPage() {
           onClose={() => setActiveApp(null)}
         />
       </div>
-    </DashboardLayout>
+    </AgencyLayout>
   );
 
   return (
-    <DashboardLayout title="Applications">
+    <AgencyLayout title="Applications">
 
       {/* ── New Application form (centered) ── */}
       {showNew ? (
@@ -113,6 +113,6 @@ export default function AgencyAddApplicationPage() {
         </div>
       )}
 
-    </DashboardLayout>
+    </AgencyLayout>
   );
 }

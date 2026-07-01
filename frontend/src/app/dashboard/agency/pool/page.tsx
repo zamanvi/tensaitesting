@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -50,7 +50,7 @@ export default function OpenPool() {
   const leads: PoolLead[] = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
 
   return (
-    <DashboardLayout title={ap.title}>
+    <AgencyLayout title={ap.title}>
       <div className="mb-4 p-3 sm:p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800">
         🌐 {ap.banner}
       </div>
@@ -111,6 +111,6 @@ export default function OpenPool() {
           ))}
         </div>
       )}
-    </DashboardLayout>
+    </AgencyLayout>
   );
 }

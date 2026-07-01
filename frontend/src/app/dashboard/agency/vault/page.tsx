@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -140,7 +140,7 @@ export default function PrivateVault() {
   };
 
   return (
-    <DashboardLayout title={av.title}>
+    <AgencyLayout title={av.title}>
       <div className="mb-4 p-3 sm:p-4 bg-green-50 border border-green-100 rounded-xl text-sm text-green-800">
         🔒 {av.banner}
       </div>
@@ -328,6 +328,6 @@ export default function PrivateVault() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </AgencyLayout>
   );
 }

@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -95,7 +95,7 @@ export default function AgencySettingsPage() {
   if (!user || user.gateway_type !== 'agency') return null;
 
   return (
-    <DashboardLayout title={ja ? 'アカウント設定' : bn ? 'অ্যাকাউন্ট সেটিংস' : 'Account Settings'}>
+    <AgencyLayout title={ja ? 'アカウント設定' : bn ? 'অ্যাকাউন্ট সেটিংস' : 'Account Settings'}>
       <div className="max-w-xl space-y-5">
 
         {/* Avatar */}
@@ -177,6 +177,6 @@ export default function AgencySettingsPage() {
         </div>
 
       </div>
-    </DashboardLayout>
+    </AgencyLayout>
   );
 }

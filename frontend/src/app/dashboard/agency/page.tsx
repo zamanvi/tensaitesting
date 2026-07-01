@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -110,7 +110,7 @@ export default function AgencyDashboard() {
   const banner = showBanner ? profileBanners[profileStatus] : null;
 
   return (
-    <DashboardLayout>
+    <AgencyLayout>
       {/* Profile status banner */}
       {banner && (
         <div className={`rounded-2xl border p-4 mb-5 flex items-start justify-between gap-3 ${banner.bg}`}>
@@ -429,6 +429,6 @@ export default function AgencyDashboard() {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </AgencyLayout>
   );
 }

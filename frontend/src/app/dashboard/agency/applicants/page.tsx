@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import AgencyLayout from '@/components/shared/AgencyLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -112,7 +112,7 @@ export default function AgencyApplicantsPage() {
   // ── Active form view ────────────────────────────────────────────────────────
   if (activeAppId !== null && activeApp) {
     return (
-      <DashboardLayout title="Applications">
+      <AgencyLayout title="Applications">
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           <ApplicationFormBody
             app={activeApp} template={template ?? null} templateLoading={templateLoading}
@@ -121,14 +121,14 @@ export default function AgencyApplicantsPage() {
             onClose={() => setActiveAppId(null)}
           />
         </div>
-      </DashboardLayout>
+      </AgencyLayout>
     );
   }
 
   const total = apps.length;
 
   return (
-    <DashboardLayout title="Applications">
+    <AgencyLayout title="Applications">
 
       {/* ── New Application ── */}
       <div className="mb-6">
@@ -301,6 +301,6 @@ export default function AgencyApplicantsPage() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </AgencyLayout>
   );
 }
