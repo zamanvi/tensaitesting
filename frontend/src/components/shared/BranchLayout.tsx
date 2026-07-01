@@ -27,7 +27,6 @@ interface BranchInfo {
 const NAV = [
   { label: 'Dashboard',    href: '/dashboard/branch',            icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
   { label: 'Applications', href: '/dashboard/branch/applicants', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-  { label: 'Interviews',   href: '/dashboard/branch/applicants#interviews', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
   { label: 'Team',         href: '/dashboard/branch/team',       icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
   { label: 'Gallery',      href: '/dashboard/branch/gallery',    icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
   { label: 'Settings',     href: '/dashboard/branch/settings',   icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
@@ -41,7 +40,9 @@ export default function BranchLayout({ children, title }: Props) {
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   const { data: branchInfo } = useQuery<BranchInfo>({
     queryKey: ['branch-settings'],
@@ -58,6 +59,8 @@ export default function BranchLayout({ children, title }: Props) {
     enabled: !!mounted,
   });
   const unreadCount: number = notifData?.unread_count ?? 0;
+  const notifications: { id: number; title: string; body: string; action_url?: string; read_at: string | null; created_at: string }[] =
+    notifData?.notifications ?? notifData?.data ?? [];
   const markAllRead = useMutation({
     mutationFn: () => api.post('/notifications/read-all'),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
@@ -65,10 +68,11 @@ export default function BranchLayout({ children, title }: Props) {
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (mounted && !user) router.push('/auth/branch-login'); }, [mounted, user, router]);
-  useEffect(() => { setSidebarOpen(false); setUserMenuOpen(false); }, [pathname]);
+  useEffect(() => { setSidebarOpen(false); setUserMenuOpen(false); setNotifOpen(false); }, [pathname]);
   useEffect(() => {
     function h(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
     }
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
@@ -214,21 +218,62 @@ export default function BranchLayout({ children, title }: Props) {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Notification bell */}
-            <button
-              onClick={() => { if (unreadCount > 0) markAllRead.mutate(); }}
-              className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
-              aria-label="Notifications"
-            >
-              <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 z-10 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
+            {/* Notification bell + dropdown */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => {
+                  setNotifOpen(o => !o);
+                  if (!notifOpen && unreadCount > 0) markAllRead.mutate();
+                }}
+                className="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                aria-label="Notifications"
+              >
+                <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 z-10 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 top-12 z-50 w-80 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                    <p className="text-sm font-bold text-slate-900">Notifications</p>
+                    {unreadCount > 0 && (
+                      <span className="text-xs text-slate-400">{unreadCount} unread</span>
+                    )}
+                  </div>
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                    {notifications.length === 0 ? (
+                      <div className="py-10 text-center">
+                        <p className="text-sm text-slate-400">No notifications yet</p>
+                      </div>
+                    ) : notifications.slice(0, 20).map(n => (
+                      <div
+                        key={n.id}
+                        onClick={() => { setNotifOpen(false); }}
+                        className={`px-4 py-3 cursor-default ${!n.read_at ? 'bg-green-50/60' : ''}`}
+                      >
+                        {n.action_url ? (
+                          <Link href={n.action_url} onClick={() => setNotifOpen(false)} className="block">
+                            <p className="text-xs font-semibold text-slate-800 leading-snug">{n.title}</p>
+                            {n.body && <p className="text-xs text-slate-500 mt-0.5 leading-relaxed line-clamp-2">{n.body}</p>}
+                          </Link>
+                        ) : (
+                          <>
+                            <p className="text-xs font-semibold text-slate-800 leading-snug">{n.title}</p>
+                            {n.body && <p className="text-xs text-slate-500 mt-0.5 leading-relaxed line-clamp-2">{n.body}</p>}
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
 
             {/* Mobile user avatar */}
             <div className="md:hidden w-7 h-7 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold">

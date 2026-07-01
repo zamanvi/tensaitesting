@@ -1,10 +1,10 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import BranchLayout from '@/components/shared/BranchLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -20,14 +20,9 @@ interface Branch {
   email: string | null;
 }
 
-interface Lead {
+interface Application {
   id: number;
-  lead_code: string;
-  status: string;
-  submission_status: string | null;
-  target_country: string | null;
-  created_at: string;
-  student: { id: number; name: string; email: string } | null;
+  status: 'draft' | 'submitted' | 'accepted' | 'rejected';
 }
 
 export default function BranchAdminDashboard() {
@@ -36,14 +31,8 @@ export default function BranchAdminDashboard() {
   const bn = lang === 'bn';
   const { user } = useAuthStore();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const isBranchAdmin = user?.roles?.some(r => r === 'branch_admin' || r === 'branch_manager');
-
-  const [form, setForm] = useState({ phone: '', whatsapp: '', address: '' });
-  const [editing, setEditing] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [saveErr, setSaveErr] = useState('');
 
   useEffect(() => {
     if (user && !isBranchAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
@@ -55,43 +44,20 @@ export default function BranchAdminDashboard() {
     enabled: !!isBranchAdmin,
   });
 
-  const { data: leads = [] } = useQuery<Lead[]>({
-    queryKey: ['branch-leads-summary'],
-    queryFn: () => api.get('/branch-admin/leads').then(r => r.data),
+  const { data: appsData } = useQuery<{ data: Application[] }>({
+    queryKey: ['branch-applications'],
+    queryFn: () => api.get('/applications').then(r => r.data),
     enabled: !!isBranchAdmin,
-  });
-
-  useEffect(() => {
-    if (branch) {
-      setForm({
-        phone:    branch.phone    ?? '',
-        whatsapp: branch.whatsapp ?? '',
-        address:  branch.address  ?? '',
-      });
-    }
-  }, [branch]);
-
-  const update = useMutation({
-    mutationFn: (data: typeof form) => api.patch('/branch-admin/contact', data),
-    onSuccess: () => {
-      setSaved(true); setSaveErr(''); setEditing(false);
-      queryClient.invalidateQueries({ queryKey: ['my-branch'] });
-      queryClient.invalidateQueries({ queryKey: ['branch-settings'] });
-      setTimeout(() => setSaved(false), 3000);
-    },
-    onError: (e: unknown) => {
-      const err = e as { response?: { data?: { message?: string } } };
-      setSaveErr(err.response?.data?.message ?? 'Failed to save.');
-    },
+    staleTime: 300_000,
   });
 
   if (!user || !isBranchAdmin) return null;
 
-  // Stats
-  const total     = leads.length;
-  const draft     = leads.filter(l => l.submission_status === 'draft').length;
-  const submitted = leads.filter(l => l.submission_status === 'submitted').length;
-  const accepted  = leads.filter(l => l.submission_status === 'accepted').length;
+  const apps = appsData?.data ?? [];
+  const total     = apps.length;
+  const draft     = apps.filter(a => a.status === 'draft').length;
+  const submitted = apps.filter(a => a.status === 'submitted').length;
+  const accepted  = apps.filter(a => a.status === 'accepted').length;
 
   const stats = [
     { label: ja ? '合計' : bn ? 'মোট' : 'Total',         value: total,     iconBg: 'bg-slate-100',   iconColor: 'text-slate-500',   icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
@@ -163,83 +129,33 @@ export default function BranchAdminDashboard() {
           </div>
         </div>
 
-        {/* ── Contact info card ── */}
-        <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-100 p-5 sm:p-6 shadow-sm">
+        {/* ── Contact info card (read-only) ── */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-bold text-slate-900 text-base">
               {ja ? '連絡先情報' : bn ? 'যোগাযোগের তথ্য' : 'Contact Information'}
             </h2>
-            {!editing && !isLoading && (
-              <button onClick={() => setEditing(true)}
-                className="text-xs font-semibold text-green-700 hover:text-white hover:bg-green-600 transition-all px-3 py-1.5 rounded-lg bg-green-50 border border-green-100 focus:outline-none focus:ring-2 focus:ring-green-500">
-                ✏️ {ja ? '編集' : bn ? 'সম্পাদনা' : 'Edit'}
-              </button>
-            )}
+            <Link href="/dashboard/branch/settings"
+              className="text-xs font-semibold text-green-700 hover:text-green-800 px-3 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 border border-green-100 transition-colors">
+              {ja ? '設定で編集' : bn ? 'সেটিংসে সম্পাদনা' : 'Edit in Settings →'}
+            </Link>
           </div>
-
-          {saved && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl text-xs text-green-900 font-medium">
-              ✅ {ja ? '連絡先情報を保存しました' : bn ? 'সংরক্ষিত হয়েছে' : 'Contact info saved successfully'}
-            </div>
-          )}
-          {saveErr && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium">⚠️ {saveErr}</div>
-          )}
-
           {isLoading ? (
-            <div className="text-center py-6 text-slate-400 text-sm">…</div>
-          ) : editing ? (
-            <form onSubmit={e => { e.preventDefault(); update.mutate(form); }} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">
-                    {ja ? '電話番号' : bn ? 'ফোন নম্বর' : 'Phone Number'}
-                  </label>
-                  <input type="tel" value={form.phone}
-                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    placeholder="+880 1XXX XXXXXX"
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">WhatsApp</label>
-                  <input type="tel" value={form.whatsapp}
-                    onChange={e => setForm(f => ({ ...f, whatsapp: e.target.value }))}
-                    placeholder="+880 1XXX XXXXXX"
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                  {ja ? '住所' : bn ? 'ঠিকানা' : 'Office Address'}
-                </label>
-                <textarea value={form.address}
-                  onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                  rows={3} placeholder={ja ? '支局の住所を入力してください' : bn ? 'শাখার ঠিকানা লিখুন' : 'Enter branch office address'}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
-              </div>
-              <div className="flex gap-2 pt-1">
-                <button type="submit" disabled={update.isPending}
-                  className="flex-1 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50">
-                  {update.isPending ? '…' : (ja ? '保存する' : bn ? 'সংরক্ষণ করুন' : 'Save Changes')}
-                </button>
-                <button type="button" onClick={() => { setForm({ phone: branch?.phone ?? '', whatsapp: branch?.whatsapp ?? '', address: branch?.address ?? '' }); setEditing(false); }}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors">
-                  {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
-                </button>
-              </div>
-            </form>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => <div key={i} className="h-10 bg-slate-100 rounded-xl animate-pulse" />)}
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
-                { label: ja ? '電話番号' : bn ? 'ফোন' : 'Phone',     value: branch?.phone,    icon: '📞' },
-                { label: 'WhatsApp',                                   value: branch?.whatsapp, icon: '💬' },
-                { label: ja ? '住所' : bn ? 'ঠিকানা' : 'Address',    value: branch?.address,  icon: '📍' },
+                { label: ja ? '電話番号' : bn ? 'ফোন' : 'Phone',   value: branch?.phone,    icon: '📞' },
+                { label: 'WhatsApp',                                 value: branch?.whatsapp, icon: '💬' },
+                { label: ja ? '住所' : bn ? 'ঠিকানা' : 'Address',  value: branch?.address,  icon: '📍' },
               ].map(item => (
-                <div key={item.label} className="flex gap-3">
+                <div key={item.label} className="flex gap-3 p-3 rounded-xl bg-slate-50">
                   <span className="text-base shrink-0 mt-0.5">{item.icon}</span>
-                  <div>
-                    <p className="text-xs text-slate-400 mb-0.5">{item.label}</p>
-                    <p className="text-sm text-slate-800 font-medium">
+                  <div className="min-w-0">
+                    <p className="text-[11px] text-slate-400 mb-0.5">{item.label}</p>
+                    <p className="text-sm text-slate-800 font-medium truncate">
                       {item.value || <span className="text-slate-300 font-normal">{ja ? '未設定' : bn ? 'সেট করা হয়নি' : 'Not set'}</span>}
                     </p>
                   </div>
@@ -248,12 +164,6 @@ export default function BranchAdminDashboard() {
             </div>
           )}
         </div>
-
-        <p className="text-xs text-slate-400 text-center">
-          {ja ? 'ロゴ・カバー画像・その他はシステム管理者にお問い合わせください。'
-            : bn ? 'লোগো, কভার ইমেজ ও অন্যান্য তথ্যের জন্য সিস্টেম অ্যাডমিনের সাথে যোগাযোগ করুন।'
-            : 'To update logo, cover image, or other details — contact system admin.'}
-        </p>
 
       </div>
     </BranchLayout>
