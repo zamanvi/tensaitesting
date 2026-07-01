@@ -4,7 +4,7 @@ import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
@@ -86,6 +86,15 @@ export default function AgencyDashboard() {
       ),
     }));
   }
+
+  const liveMutation = useMutation({
+    mutationFn: (appId: number) => api.post(`/applications/${appId}/live-to-school`).then(r => r.data),
+    onSuccess: (data: { application: Application }) => {
+      qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
+        ...old, data: (old?.data ?? []).map(a => a.id === data.application.id ? { ...a, ...data.application } : a),
+      }));
+    },
+  });
 
   function handleDocDeleted(docId: number, progress: number) {
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
@@ -249,30 +258,45 @@ export default function AgencyDashboard() {
           ) : (
             <div className="divide-y divide-slate-50">
               {apps.slice(0, 6).map(app => (
-                <button key={app.id} onClick={() => setActiveAppId(app.id)}
-                  className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-green-50/40 transition-colors group text-left">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs font-bold text-slate-800 truncate">{app.student_name}</p>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                        {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                      </span>
+                <div key={app.id} className="flex items-center gap-2 px-5 py-3.5 hover:bg-green-50/40 transition-colors group">
+                  <button onClick={() => setActiveAppId(app.id)} className="flex-1 min-w-0 flex items-center gap-3 text-left">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-bold text-slate-800 truncate">{app.student_name}</p>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
+                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        {app.form_template?.country ?? '—'} · <span className="font-mono">{app.application_code}</span>
+                      </p>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      {app.form_template?.country ?? '—'} · <span className="font-mono">{app.application_code}</span>
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <div className="w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${(app.progress ?? 0) >= 80 ? 'bg-emerald-500' : (app.progress ?? 0) >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
-                        style={{ width: `${app.progress ?? 0}%` }} />
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <div className="w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${(app.progress ?? 0) >= 80 ? 'bg-emerald-500' : (app.progress ?? 0) >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                          style={{ width: `${app.progress ?? 0}%` }} />
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-500 w-8 tabular-nums">{app.progress ?? 0}%</span>
                     </div>
-                    <span className="text-[11px] font-bold text-slate-500 w-8 tabular-nums">{app.progress ?? 0}%</span>
-                  </div>
-                  <svg className="w-3.5 h-3.5 text-slate-300 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  </button>
+                  {/* Live toggle */}
+                  <button
+                    onClick={() => liveMutation.mutate(app.id)}
+                    disabled={liveMutation.isPending}
+                    title={app.live_to_school ? 'Remove from Lead Live' : 'Add to Lead Live'}
+                    className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors disabled:opacity-50 ${
+                      app.live_to_school
+                        ? 'bg-green-100 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
+                        : 'bg-slate-50 text-slate-400 border-slate-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${app.live_to_school ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
+                    Live
+                  </button>
+                  <svg className="w-3.5 h-3.5 text-slate-300 group-hover:text-green-600 transition-colors shrink-0 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" onClick={() => setActiveAppId(app.id)}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </button>
+                </div>
               ))}
               {apps.length > 6 && (
                 <div className="px-5 py-3 bg-slate-50/50 border-t border-slate-50">
@@ -295,7 +319,7 @@ export default function AgencyDashboard() {
           {[
             { label: ja ? '新規申請を作成' : bn ? 'নতুন আবেদন তৈরি' : 'New Application', desc: ja ? '学生申請を開始' : bn ? 'নতুন ছাত্রের আবেদন শুরু করুন' : 'Start a new student application', icon: 'M12 4v16m8-8H4', action: () => setShowNew(true), href: null },
             { label: ja ? 'すべての申請を見る' : bn ? 'সব আবেদন দেখুন' : 'View Applications', desc: ja ? '申請リストと詳細' : bn ? 'আবেদনের তালিকা ও বিস্তারিত' : 'Full list with search & filters', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', action: null, href: '/dashboard/agency/applicants' },
-            { label: ja ? 'プライベートボルト' : bn ? 'প্রাইভেট ভল্ট' : 'Private Vault',   desc: ja ? 'エージェンシー専用リスト' : bn ? 'শুধু এজেন্সির নিজস্ব তালিকা' : 'Agency-private applicants', icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z', action: null, href: '/dashboard/agency/vault' },
+            { label: ja ? 'リードライブ' : bn ? 'লিড লাইভ' : 'Lead Live',   desc: ja ? 'ライブマークした申請' : bn ? 'লাইভ চিহ্নিত আবেদন' : 'Applications marked as live', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', action: null, href: '/dashboard/agency/pool' },
             { label: ja ? 'プロフィール設定' : bn ? 'প্রোফাইল সেটিং' : 'Agency Profile',   desc: ja ? 'プロフィールを更新・提出' : bn ? 'প্রোফাইল আপডেট ও জমা দিন' : 'Update and submit for review', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', action: null, href: '/dashboard/agency/profile' },
           ].map(item => {
             const inner = (

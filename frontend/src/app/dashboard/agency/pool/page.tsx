@@ -1,116 +1,284 @@
 'use client';
 import AgencyLayout from '@/components/shared/AgencyLayout';
-import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
+import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
 
-interface PoolLead {
-  id: number;
-  lead_code: string;
-  status: string;
-  target_country: string;
-  target_course: string | null;
-  unlock_fee: number;
-  is_locked: boolean;
-  student_summary: {
-    jlpt_level: string | null;
-    nat_level: string | null;
-    gpa: number | null;
-    highest_qualification: string | null;
-  } | null;
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return d < 30 ? `${d}d ago` : new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
 }
 
-export default function OpenPool() {
-  const queryClient = useQueryClient();
-  const { t } = useLang();
-  const ap = t.agencyPool;
-  const statuses = t.statuses;
+export default function LeadLivePage() {
   const { user } = useAuthStore();
-  const router = useRouter();
+  const router   = useRouter();
+  const qc       = useQueryClient();
   const isAgency = user?.gateway_type === 'agency';
 
+  const [activeAppId, setActiveAppId] = useState<number | null>(null);
+
   useEffect(() => {
-    if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type}`);
+    if (user && !isAgency) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isAgency, router]);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['open-pool'],
-    queryFn: () => api.get('/agency/leads/open-pool').then((r) => r.data),
-    enabled: isAgency,
+  const queryKey = ['agency-applications'];
+
+  const { data: appsData, isLoading } = useQuery<{ data: Application[] }>({
+    queryKey,
+    queryFn: () => api.get('/applications').then(r => r.data),
+    staleTime: 60_000,
+    enabled: !!isAgency,
   });
 
-  const unlock = useMutation({
-    mutationFn: (leadId: number) => api.post(`/agency/leads/${leadId}/unlock`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['open-pool'] }),
+  const allApps  = appsData?.data ?? [];
+  const liveApps = allApps.filter(a => a.live_to_school);
+  const activeApp = liveApps.find(a => a.id === activeAppId) ?? null;
+
+  const { data: template, isLoading: templateLoading } = useQuery<FormTemplateData | null>({
+    queryKey: ['form-template', activeApp?.form_template_id],
+    queryFn: () => activeApp?.form_template_id
+      ? api.get(`/form-templates/${activeApp.form_template_id}`).then(r => r.data)
+      : Promise.resolve(null),
+    enabled: !!activeApp?.form_template_id,
+    staleTime: 300_000,
   });
 
-  const leads: PoolLead[] = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
+  const liveMutation = useMutation({
+    mutationFn: (appId: number) => api.post(`/applications/${appId}/live-to-school`).then(r => r.data),
+    onSuccess: (data: { application: Application }) => {
+      qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
+        ...old, data: (old?.data ?? []).map(a => a.id === data.application.id ? { ...a, ...data.application } : a),
+      }));
+    },
+  });
+
+  function updateApps(updated: Application) {
+    qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
+      ...old, data: (old?.data ?? []).map(a => a.id === updated.id ? { ...a, ...updated } : a),
+    }));
+  }
+
+  function handleDocUploaded(doc: AppDoc, progress: number) {
+    qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
+      ...old, data: (old?.data ?? []).map(a =>
+        a.id === activeAppId ? { ...a, progress, documents: [...(a.documents ?? []).filter(d => d.doc_type !== doc.doc_type), doc] } : a
+      ),
+    }));
+  }
+
+  function handleDocDeleted(docId: number, progress: number) {
+    qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
+      ...old, data: (old?.data ?? []).map(a =>
+        a.id === activeAppId ? { ...a, progress, documents: (a.documents ?? []).filter(d => d.id !== docId) } : a
+      ),
+    }));
+  }
+
+  if (!user || !isAgency) return null;
+
+  // ── Active form view ──────────────────────────────────────────────────────────
+  if (activeAppId !== null && activeApp) {
+    return (
+      <AgencyLayout>
+        <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+          <ApplicationFormBody
+            app={activeApp} template={template ?? null} templateLoading={templateLoading}
+            onSaved={updateApps} onSubmitted={updateApps}
+            onDocUploaded={handleDocUploaded} onDocDeleted={handleDocDeleted}
+            onClose={() => setActiveAppId(null)}
+          />
+        </div>
+      </AgencyLayout>
+    );
+  }
 
   return (
-    <AgencyLayout title={ap.title}>
-      <div className="mb-4 p-3 sm:p-4 bg-amber-50 border border-amber-100 rounded-xl text-sm text-amber-800">
-        🌐 {ap.banner}
-      </div>
+    <AgencyLayout>
+      <div className="max-w-5xl space-y-6">
 
-      {isLoading ? (
-        <div className="text-center py-16 text-slate-400">{t.common.loading}</div>
-      ) : leads.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-10 sm:p-16 text-center text-slate-400">
-          <div className="text-4xl mb-3">🌐</div>
-          <div className="font-medium text-slate-600">{ap.emptyTitle}</div>
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xs text-slate-500 uppercase tracking-[0.15em] font-semibold mb-2">
+              Agency Portal
+            </p>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              Lead Live
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Applications marked as live — visible to schools and partners.
+            </p>
+          </div>
+          {liveApps.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-green-50 border border-green-100 text-xs font-bold text-green-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              {liveApps.length} Live
+            </span>
+          )}
         </div>
-      ) : (
-        <div className="space-y-3">
-          {leads.map((lead) => (
-            <div key={lead.id} className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5">
-              <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <span className="font-mono text-xs text-slate-400">{lead.lead_code}</span>
-                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
-                  {statuses[lead.status as keyof typeof statuses] ?? lead.status.replace(/_/g, ' ')}
-                </span>
-              </div>
 
-              <div className="font-semibold text-sm text-slate-900 mb-1">
-                {lead.target_country}{lead.target_course ? ` — ${lead.target_course}` : ''}
-              </div>
+        {/* Table card */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
-              {lead.student_summary && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {lead.student_summary.jlpt_level && (
-                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full text-xs">JLPT {lead.student_summary.jlpt_level}</span>
-                  )}
-                  {lead.student_summary.nat_level && (
-                    <span className="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full text-xs">NAT {lead.student_summary.nat_level}</span>
-                  )}
-                  {lead.student_summary.gpa && (
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">GPA {lead.student_summary.gpa}</span>
-                  )}
-                  {lead.student_summary.highest_qualification && (
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">{lead.student_summary.highest_qualification}</span>
-                  )}
-                </div>
-              )}
-
-              {lead.is_locked ? (
-                <button
-                  onClick={() => unlock.mutate(lead.id)}
-                  disabled={unlock.isPending}
-                  className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-                >
-                  {ap.unlockBtn} — ৳{(lead.unlock_fee ?? 10000).toLocaleString()}
-                </button>
-              ) : (
-                <span className="inline-block px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium">
-                  {ap.unlocked}
-                </span>
-              )}
+          <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h3 className="font-black text-slate-900 text-sm">Live Applications</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Toggle Live on any application from the Overview to add it here</p>
             </div>
-          ))}
+            {liveApps.length > 0 && (
+              <span className="text-xs font-bold text-green-600 bg-green-50 border border-green-100 px-3 py-1 rounded-xl">
+                {liveApps.length} total
+              </span>
+            )}
+          </div>
+
+          {isLoading ? (
+            <div className="py-20 flex flex-col items-center gap-3">
+              <span className="w-8 h-8 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+              <p className="text-xs text-slate-400">Loading…</p>
+            </div>
+          ) : liveApps.length === 0 ? (
+            <div className="py-20 flex flex-col items-center gap-3 text-center px-6">
+              <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-500">No live applications yet</p>
+                <p className="text-xs text-slate-400 mt-1">Go to Overview and click the <span className="font-bold text-green-700">Live</span> button on any application to add it here.</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50/80 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <th className="text-left px-5 py-3">Code</th>
+                      <th className="text-left px-4 py-3">Student</th>
+                      <th className="text-left px-4 py-3">Country / Form</th>
+                      <th className="text-left px-4 py-3">Progress</th>
+                      <th className="text-left px-4 py-3">Status</th>
+                      <th className="text-left px-4 py-3">Live Since</th>
+                      <th className="text-left px-4 py-3">Live</th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {liveApps.map(app => (
+                      <tr key={app.id} className="hover:bg-green-50/30 transition-colors group">
+                        <td className="px-5 py-3.5">
+                          <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
+                            {app.application_code}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 cursor-pointer" onClick={() => setActiveAppId(app.id)}>
+                          <p className="font-semibold text-slate-800 text-xs">{app.student_name}</p>
+                          <p className="text-[11px] text-slate-400 mt-0.5">{app.student_email || '—'}</p>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <p className="text-xs font-semibold text-slate-700">{app.form_template?.country ?? '—'}</p>
+                          <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[160px]">{app.form_template?.name ?? ''}</p>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full rounded-full bg-green-500"
+                                style={{ width: `${app.progress ?? 0}%` }} />
+                            </div>
+                            <span className="text-xs font-bold text-slate-600 tabular-nums">{app.progress ?? 0}%</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                            app.status === 'accepted' ? 'bg-emerald-100 text-emerald-700' :
+                            app.status === 'submitted' ? 'bg-amber-100 text-amber-700' :
+                            app.status === 'rejected' ? 'bg-rose-100 text-rose-600' :
+                            'bg-slate-100 text-slate-500'
+                          }`}>
+                            {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
+                          {app.live_to_school_at ? timeAgo(app.live_to_school_at) : '—'}
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <button
+                            onClick={() => liveMutation.mutate(app.id)}
+                            disabled={liveMutation.isPending}
+                            title="Remove from Lead Live"
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-green-100 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors disabled:opacity-50"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                            Live
+                          </button>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span onClick={() => setActiveAppId(app.id)}
+                            className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-green-100 group-hover:text-green-700 text-slate-400 transition-colors cursor-pointer">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="md:hidden divide-y divide-slate-50">
+                {liveApps.map(app => (
+                  <div key={app.id} className="px-4 py-4 flex items-start gap-3">
+                    <div className="shrink-0 w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+                      <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                    </div>
+                    <div className="flex-1 min-w-0" onClick={() => setActiveAppId(app.id)}>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="text-xs font-bold text-slate-900 truncate">{app.student_name}</p>
+                      </div>
+                      <p className="text-[11px] text-slate-400">{app.form_template?.country ?? '—'} · {app.application_code}</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Live {app.live_to_school_at ? timeAgo(app.live_to_school_at) : ''}</p>
+                    </div>
+                    <button
+                      onClick={() => liveMutation.mutate(app.id)}
+                      disabled={liveMutation.isPending}
+                      className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-green-100 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors disabled:opacity-50"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      Live
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer */}
+              <div className="px-5 sm:px-6 py-3 border-t border-slate-50 bg-slate-50/50">
+                <p className="text-[11px] text-slate-400">
+                  <span className="font-bold text-slate-600">{liveApps.length}</span> live application{liveApps.length !== 1 ? 's' : ''}
+                  {allApps.length > liveApps.length && (
+                    <> · <span className="font-bold text-slate-600">{allApps.length}</span> total across all statuses</>
+                  )}
+                </p>
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </AgencyLayout>
   );
 }
