@@ -42,8 +42,10 @@ class ApplicationController extends Controller
         $user = $request->user();
 
         // Only roles that are permitted to create applications
+        // Fall back to gateway_type in case Spatie role wasn't assigned on older accounts
         $allowed = ['super_admin', 'admin', 'branch_admin', 'branch_manager', 'agency', 'student'];
-        if (!$user->hasRole($allowed)) {
+        $allowedGateway = ['agency', 'student', 'institution'];
+        if (!$user->hasRole($allowed) && !in_array($user->gateway_type, $allowedGateway)) {
             return response()->json(['message' => 'Your account type cannot create applications.'], 403);
         }
 
@@ -227,7 +229,7 @@ class ApplicationController extends Controller
     {
         if ($user->hasRole(['super_admin', 'admin'])) return 'admin';
         if ($user->hasRole(['branch_admin', 'branch_manager'])) return 'branch_admin';
-        if ($user->hasRole('agency')) return 'agency';
+        if ($user->hasRole('agency') || $user->gateway_type === 'agency') return 'agency';
         return 'student';
     }
 
