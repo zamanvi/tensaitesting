@@ -265,7 +265,7 @@ export default function AgencyDashboard() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {STATS.map(s => (
             <Link key={s.label} href="/dashboard/agency/applicants"
               className="bg-white rounded-2xl border border-slate-100 px-4 py-4 hover:border-green-200 hover:shadow-sm transition-all group">
@@ -325,7 +325,8 @@ export default function AgencyDashboard() {
               </div>
             ) : (
               <>
-                <div className="divide-y divide-slate-50">
+                <div className="overflow-x-auto">
+                <div className="divide-y divide-slate-50 min-w-[480px]">
                   {apps.slice(0, 6).map(app => {
                     const badge = STATUS_BADGE[app.status] ?? { cls: 'bg-slate-100 text-slate-500', label: app.status };
                     return (
@@ -406,6 +407,7 @@ export default function AgencyDashboard() {
                   })}
                 </div>
 
+                </div>
                 {apps.length > 6 && (
                   <div className="px-5 py-3 border-t border-slate-50 bg-slate-50/40">
                     <Link href="/dashboard/agency/applicants"

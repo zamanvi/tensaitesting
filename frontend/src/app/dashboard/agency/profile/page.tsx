@@ -182,7 +182,7 @@ export default function AgencyProfilePage() {
           <span className="w-8 h-8 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
 
           {/* Agency Info */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
