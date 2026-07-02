@@ -2,7 +2,7 @@
 import AgencyLayout from '@/components/shared/AgencyLayout';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
@@ -51,16 +51,6 @@ export default function LeadLivePage() {
       : Promise.resolve(null),
     enabled: !!activeApp?.form_template_id,
     staleTime: 300_000,
-  });
-
-  const liveMutation = useMutation({
-    mutationFn: (appId: number) => api.post(`/applications/${appId}/live-to-school`).then(r => r.data),
-    onSuccess: (data: Application) => {
-      qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
-        ...old, data: (old?.data ?? []).map(a => a.id === data.id ? { ...a, ...data } : a),
-      }));
-    },
-    onError: () => qc.invalidateQueries({ queryKey }),
   });
 
   function updateApps(updated: Application) {
@@ -174,7 +164,6 @@ export default function LeadLivePage() {
                       <th className="text-left px-4 py-3">Progress</th>
                       <th className="text-left px-4 py-3">Status</th>
                       <th className="text-left px-4 py-3">Live Since</th>
-                      <th className="text-left px-4 py-3">Live</th>
                       <th className="px-4 py-3" />
                     </tr>
                   </thead>
@@ -217,17 +206,6 @@ export default function LeadLivePage() {
                           {app.live_to_school_at ? timeAgo(app.live_to_school_at) : '—'}
                         </td>
                         <td className="px-4 py-3.5">
-                          <button
-                            onClick={() => liveMutation.mutate(app.id)}
-                            disabled={liveMutation.isPending}
-                            title="Remove from Lead Live"
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-green-100 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors disabled:opacity-50"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                            Live
-                          </button>
-                        </td>
-                        <td className="px-4 py-3.5">
                           <span onClick={() => setActiveAppId(app.id)}
                             className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-green-100 group-hover:text-green-700 text-slate-400 transition-colors cursor-pointer">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,14 +233,10 @@ export default function LeadLivePage() {
                       <p className="text-[11px] text-slate-400">{app.form_template?.country ?? '—'} · {app.application_code}</p>
                       <p className="text-[11px] text-slate-400 mt-0.5">Live {app.live_to_school_at ? timeAgo(app.live_to_school_at) : ''}</p>
                     </div>
-                    <button
-                      onClick={() => liveMutation.mutate(app.id)}
-                      disabled={liveMutation.isPending}
-                      className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-green-100 text-green-700 border-green-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors disabled:opacity-50"
-                    >
+                    <span className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-green-100 text-green-700 border-green-200">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                       Live
-                    </button>
+                    </span>
                   </div>
                 ))}
               </div>
