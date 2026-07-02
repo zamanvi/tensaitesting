@@ -12,6 +12,7 @@ interface User {
   status: 'pending' | 'active' | 'suspended';
   affiliate_code?: string;
   roles?: string[];
+  email_verified_at?: string | null;
 }
 
 interface AuthState {
