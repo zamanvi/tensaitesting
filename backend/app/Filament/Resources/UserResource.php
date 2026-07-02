@@ -65,11 +65,9 @@ class UserResource extends Resource
                 Forms\Components\DateTimePicker::make('email_verified_at')
                     ->label('Email Verified At')
                     ->disabled(),
-                Forms\Components\TextInput::make('referred_by_display')
+                Forms\Components\Placeholder::make('referred_by_display')
                     ->label('Referred By')
-                    ->getStateUsing(fn ($record) => $record?->referrer?->name ?? '—')
-                    ->disabled()
-                    ->dehydrated(false),
+                    ->content(fn ($record) => $record?->referrer?->name ?? '—'),
             ])->columns(3),
         ]);
     }
