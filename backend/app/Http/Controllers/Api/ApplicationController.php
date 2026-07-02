@@ -18,10 +18,11 @@ class ApplicationController extends Controller
         $q    = Application::with(['formTemplate:id,name,country,visa_type,intake_options', 'documents', 'user:id,name,email', 'branch:id,name'])->latest();
 
         if ($user->hasRole(['super_admin', 'admin'])) {
-            // Exclude agency drafts — they are private until the agency submits (makes live)
+            // Show non-agency apps freely; agency apps only when submitted or explicitly marked live
             $q->where(function ($sub) {
                 $sub->where('submitted_by_role', '!=', 'agency')
-                    ->orWhere('status', '!=', 'draft');
+                    ->orWhere('status', '!=', 'draft')
+                    ->orWhere('live_to_school', true);
             });
         } elseif ($user->hasRole(['branch_admin', 'branch_manager'])) {
             $q->where('branch_id', $user->branch_id);
