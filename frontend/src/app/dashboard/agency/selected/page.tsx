@@ -180,8 +180,17 @@ export default function AgencySelectedPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3.5">
-                          <p className="font-semibold text-slate-800 text-xs">{app.student_name}</p>
-                          <p className="text-[11px] text-slate-400 mt-0.5">{app.student_email || '—'}</p>
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-emerald-50 group-hover:bg-emerald-100 flex items-center justify-center shrink-0 transition-colors">
+                              <span className="text-xs font-black text-emerald-600">
+                                {app.student_name?.charAt(0)?.toUpperCase() ?? '?'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-slate-800 text-xs">{app.student_name}</p>
+                              <p className="text-[11px] text-slate-400 mt-0.5">{app.student_email || '—'}</p>
+                            </div>
+                          </div>
                         </td>
                         <td className="px-4 py-3.5">
                           <p className="text-xs font-semibold text-slate-700">{app.form_template?.country ?? '—'}</p>
@@ -202,7 +211,7 @@ export default function AgencySelectedPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
-                          {timeAgo(app.created_at)}
+                          {timeAgo(app.updated_at ?? app.created_at)}
                         </td>
                         <td className="px-4 py-3.5">
                           <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-emerald-100 group-hover:text-emerald-700 text-slate-400 transition-colors">

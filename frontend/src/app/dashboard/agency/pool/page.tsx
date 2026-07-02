@@ -124,7 +124,7 @@ export default function LeadLivePage() {
           <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div>
               <h3 className="font-black text-slate-900 text-sm">Live Applications</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Toggle Live on any application from the Overview to add it here</p>
+              <p className="text-xs text-slate-400 mt-0.5">Toggle Live on any application from Applications or Overview to add it here</p>
             </div>
             {liveApps.length > 0 && (
               <span className="text-xs font-bold text-green-600 bg-green-50 border border-green-100 px-3 py-1 rounded-xl">

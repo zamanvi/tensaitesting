@@ -20,7 +20,7 @@ function timeAgo(dateStr: string): string {
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
-  return d < 30 ? `${d}d ago` : new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  return d < 30 ? `${d}d ago` : new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
 }
 
 const STATUS_BADGE: Record<string, { cls: string; label: string }> = {
@@ -79,14 +79,23 @@ export default function AgencyDashboard() {
   const accepted  = apps.filter(a => a.status === 'accepted').length;
   const live      = apps.filter(a => a.live_to_school).length;
 
+  const [pendingLive, setPendingLive] = useState<Set<number>>(new Set());
+
   const liveMutation = useMutation({
-    mutationFn: (appId: number) => api.post(`/applications/${appId}/live-to-school`).then(r => r.data),
+    mutationFn: (appId: number) => {
+      setPendingLive(s => new Set(s).add(appId));
+      return api.post(`/applications/${appId}/live-to-school`).then(r => r.data);
+    },
     onSuccess: (data: Application) => {
+      setPendingLive(s => { const n = new Set(s); n.delete(data.id); return n; });
       qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
         ...old, data: (old?.data ?? []).map(a => a.id === data.id ? { ...a, ...data } : a),
       }));
     },
-    onError: () => qc.invalidateQueries({ queryKey }),
+    onError: (_err, appId) => {
+      setPendingLive(s => { const n = new Set(s); n.delete(appId); return n; });
+      qc.invalidateQueries({ queryKey });
+    },
   });
 
   function handleCreated(app: Application) {
@@ -282,7 +291,7 @@ export default function AgencyDashboard() {
                   {ja ? '最近の申請' : bn ? 'সাম্প্রতিক আবেদন' : 'Recent Applications'}
                 </h2>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  {ja ? '最新6件' : bn ? 'সর্বশেষ ৬টি' : 'Latest 6 · toggle Live to add to Lead Live'}
+                  {ja ? '最新6件' : bn ? 'সর্বশেষ ৬টি' : 'Latest 6 · toggle Live to add to Live Applications'}
                 </p>
               </div>
               <Link href="/dashboard/agency/applicants"
@@ -371,7 +380,7 @@ export default function AgencyDashboard() {
                         {/* Live toggle */}
                         <button
                           onClick={() => liveMutation.mutate(app.id)}
-                          disabled={liveMutation.isPending}
+                          disabled={pendingLive.has(app.id)}
                           title={app.live_to_school ? 'Remove from Lead Live' : 'Add to Lead Live'}
                           className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all disabled:opacity-40 ${
                             app.live_to_school
@@ -431,7 +440,7 @@ export default function AgencyDashboard() {
                 action: null, href: '/dashboard/agency/applicants',
               },
               {
-                label: ja ? 'リードライブ' : bn ? 'লিড লাইভ' : 'Lead Live',
+                label: ja ? 'ライブ申請' : bn ? 'লাইভ আবেদন' : 'Live Applications',
                 desc:  ja ? 'ライブマークした申請' : bn ? 'লাইভ চিহ্নিত আবেদন' : `${live} application${live !== 1 ? 's' : ''} currently live`,
                 icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
                 accent: 'bg-green-100 text-green-700',
