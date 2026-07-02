@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -329,13 +329,13 @@ export default function StudentApplicationPage() {
   };
 
   return (
-    <DashboardLayout title="My Application">
+    <StudentLayout title="My Application">
       <div className="flex flex-col md:flex-row gap-5 items-start">
         <Sidebar />
         {view === 'start' && <MainStart />}
         {view === 'form'  && myApp && <MainForm />}
         {view === 'detail' && myApp && <MainDetail />}
       </div>
-    </DashboardLayout>
+    </StudentLayout>
   );
 }

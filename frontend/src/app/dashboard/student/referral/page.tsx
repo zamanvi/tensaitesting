@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -83,7 +83,7 @@ export default function StudentReferralPage() {
   const hasFees = Object.keys(fees).length > 0;
 
   return (
-    <DashboardLayout title={title}>
+    <StudentLayout title={title}>
       <div className="max-w-2xl space-y-5">
 
         {/* ── Referral link card ── */}
@@ -330,6 +330,6 @@ export default function StudentReferralPage() {
         </div>
 
       </div>
-    </DashboardLayout>
+    </StudentLayout>
   );
 }

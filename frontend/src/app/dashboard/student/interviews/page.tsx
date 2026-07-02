@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
@@ -30,7 +30,7 @@ export default function StudentInterviews() {
   const interviews: Interview[] = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
 
   return (
-    <DashboardLayout title={si.title}>
+    <StudentLayout title={si.title}>
       {isLoading ? (
         <div className="text-center py-16 text-slate-400">{t.common.loading}</div>
       ) : interviews.length === 0 ? (
@@ -71,6 +71,6 @@ export default function StudentInterviews() {
           ))}
         </div>
       )}
-    </DashboardLayout>
+    </StudentLayout>
   );
 }

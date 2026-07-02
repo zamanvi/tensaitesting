@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -95,9 +95,9 @@ export default function StudentProfilePage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout title={p.title}>
+      <StudentLayout title={p.title}>
         <div className="text-center py-16 text-slate-400 text-sm">{t.common.loading}</div>
-      </DashboardLayout>
+      </StudentLayout>
     );
   }
 
@@ -109,7 +109,7 @@ export default function StudentProfilePage() {
     }`;
 
   return (
-    <DashboardLayout title={p.title}>
+    <StudentLayout title={p.title}>
 
       {locked && (
         <div className="mb-5 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-700">
@@ -223,7 +223,7 @@ export default function StudentProfilePage() {
         </div>
       )}
 
-    </DashboardLayout>
+    </StudentLayout>
   );
 }
 

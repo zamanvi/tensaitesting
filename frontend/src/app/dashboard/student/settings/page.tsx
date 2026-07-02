@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -108,7 +108,7 @@ export default function StudentSettingsPage() {
   };
 
   return (
-    <DashboardLayout title={ja ? '設定' : bn ? 'সেটিংস' : 'Settings'}>
+    <StudentLayout title={ja ? '設定' : bn ? 'সেটিংস' : 'Settings'}>
       <div className="max-w-5xl flex gap-5 items-start">
 
         {/* ── Sidebar — Filament-style ── */}
@@ -391,7 +391,7 @@ export default function StudentSettingsPage() {
 
         </div>
       </div>
-    </DashboardLayout>
+    </StudentLayout>
   );
 }
 
