@@ -104,7 +104,7 @@ export default function LeadLivePage() {
               Agency Portal
             </p>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-              Lead Live
+              Live Applications
             </h1>
             <p className="text-sm text-slate-500 mt-1">
               Applications marked as live — visible to schools and partners.
