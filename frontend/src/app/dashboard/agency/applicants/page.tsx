@@ -246,16 +246,18 @@ export default function AgencyApplicantsPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {filtered.map(app => (
-                      <tr key={app.id} className="hover:bg-green-50/30 cursor-pointer transition-colors group">
-                        <td className="px-5 py-3.5" onClick={() => setActiveAppId(app.id)}>
+                      <tr key={app.id}
+                        onClick={() => setActiveAppId(app.id)}
+                        className="hover:bg-green-50/30 cursor-pointer transition-colors group">
+                        <td className="px-5 py-3.5">
                           <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
                             {app.application_code}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5" onClick={() => setActiveAppId(app.id)}>
+                        <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-green-100 flex items-center justify-center shrink-0 transition-colors">
-                              <span className="text-[11px] font-black text-slate-500 group-hover:text-green-700 transition-colors">
+                            <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-green-100 flex items-center justify-center shrink-0 transition-colors">
+                              <span className="text-xs font-black text-slate-500 group-hover:text-green-700 transition-colors">
                                 {app.student_name?.charAt(0)?.toUpperCase() ?? '?'}
                               </span>
                             </div>
@@ -265,27 +267,30 @@ export default function AgencyApplicantsPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5" onClick={() => setActiveAppId(app.id)}>
+                        <td className="px-4 py-3.5">
                           <p className="text-xs font-semibold text-slate-700">{app.form_template?.country ?? '—'}</p>
                           <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[160px]">{app.form_template?.name ?? ''}</p>
                         </td>
-                        <td className="px-4 py-3.5" onClick={() => setActiveAppId(app.id)}>
+                        <td className="px-4 py-3.5">
                           <div className="flex items-center gap-2">
                             <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                               <div
-                                className={`h-full rounded-full transition-all ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                className={`h-full rounded-full transition-all ${
+                                  app.progress >= 80 ? 'bg-emerald-500' :
+                                  app.progress >= 30 ? 'bg-amber-400' : 'bg-rose-400'
+                                }`}
                                 style={{ width: `${app.progress}%` }}
                               />
                             </div>
                             <span className="text-xs font-bold text-slate-600 tabular-nums w-8">{app.progress}%</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3.5" onClick={() => setActiveAppId(app.id)}>
+                        <td className="px-4 py-3.5">
                           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
                             {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
                           <button
                             onClick={() => liveMutation.mutate(app.id)}
                             disabled={liveMutation.isPending}
@@ -300,10 +305,10 @@ export default function AgencyApplicantsPage() {
                             Live
                           </button>
                         </td>
-                        <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap" onClick={() => setActiveAppId(app.id)}>
+                        <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
                           {timeAgo(app.created_at)}
                         </td>
-                        <td className="px-4 py-3.5" onClick={() => setActiveAppId(app.id)}>
+                        <td className="px-4 py-3.5">
                           <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-green-100 group-hover:text-green-700 text-slate-400 transition-colors">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

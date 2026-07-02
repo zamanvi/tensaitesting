@@ -356,7 +356,7 @@ export default function AgencyDashboard() {
                               <div
                                 className={`h-full rounded-full transition-all ${
                                   (app.progress ?? 0) >= 80 ? 'bg-emerald-500' :
-                                  (app.progress ?? 0) >= 40 ? 'bg-amber-400' : 'bg-rose-400'
+                                  (app.progress ?? 0) >= 30 ? 'bg-amber-400' : 'bg-rose-400'
                                 }`}
                                 style={{ width: `${app.progress ?? 0}%` }}
                               />
