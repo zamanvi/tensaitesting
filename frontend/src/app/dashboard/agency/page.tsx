@@ -200,11 +200,11 @@ export default function AgencyDashboard() {
 
   // ── Stats config ─────────────────────────────────────────────────────────────
   const STATS = [
-    { label: ja ? '合計' : bn ? 'মোট'        : 'Total',     value: total,     accent: 'bg-slate-100',   num: 'text-slate-900' },
-    { label: ja ? '下書き' : bn ? 'ড্রাফট'   : 'Draft',     value: draft,     accent: 'bg-slate-100',   num: 'text-slate-600' },
-    { label: ja ? '提出済み' : bn ? 'সাবমিট'  : 'Submitted', value: submitted, accent: 'bg-amber-100',   num: 'text-amber-700' },
-    { label: ja ? '承認済み' : bn ? 'অনুমোদিত': 'Accepted',  value: accepted,  accent: 'bg-emerald-100', num: 'text-emerald-700' },
-    { label: ja ? 'ライブ'  : bn ? 'লাইভ'     : 'Live',      value: live,      accent: 'bg-green-100',   num: 'text-green-700'   },
+    { label: ja ? '合計' : bn ? 'মোট'        : 'Total',     value: total,     dot: 'bg-slate-400',    num: 'text-slate-900'   },
+    { label: ja ? '下書き' : bn ? 'ড্রাফট'   : 'Draft',     value: draft,     dot: 'bg-slate-400',    num: 'text-slate-600'   },
+    { label: ja ? '提出済み' : bn ? 'সাবমিট'  : 'Submitted', value: submitted, dot: 'bg-amber-400',    num: 'text-amber-700'   },
+    { label: ja ? '承認済み' : bn ? 'অনুমোদিত': 'Accepted',  value: accepted,  dot: 'bg-emerald-500',  num: 'text-emerald-700' },
+    { label: ja ? 'ライブ'  : bn ? 'লাইভ'     : 'Live',      value: live,      dot: 'bg-green-500',    num: 'text-green-700'   },
   ];
 
   // ── Main overview ────────────────────────────────────────────────────────────
@@ -263,7 +263,7 @@ export default function AgencyDashboard() {
                 {isLoading ? '—' : s.value}
               </p>
               <div className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${s.accent.replace('bg-', 'bg-').replace('100', '400')}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">{s.label}</p>
               </div>
             </Link>
