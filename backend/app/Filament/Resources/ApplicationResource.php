@@ -36,7 +36,14 @@ class ApplicationResource extends Resource
         $user  = auth()->user();
         $query = parent::getEloquentQuery();
 
-        if ($user->hasRole(['super_admin', 'admin'])) return $query;
+        if ($user->hasRole(['super_admin', 'admin'])) {
+            // Hide agency drafts unless explicitly marked live
+            return $query->where(function ($sub) {
+                $sub->where('submitted_by_role', '!=', 'agency')
+                    ->orWhere('status', '!=', 'draft')
+                    ->orWhere('live_to_school', true);
+            });
+        }
         if ($user->hasRole('branch_admin')) return $query->where('branch_id', $user->branch_id);
 
         return $query->whereRaw('0 = 1');
