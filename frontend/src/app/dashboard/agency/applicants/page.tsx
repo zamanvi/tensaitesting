@@ -89,9 +89,11 @@ export default function AgencyApplicantsPage() {
         ...old, data: (old?.data ?? []).map(a => a.id === data.id ? { ...a, ...data } : a),
       }));
     },
-    onError: (_err, appId) => {
+    onError: (err: unknown, appId) => {
       setPendingLive(s => { const n = new Set(s); n.delete(appId); return n; });
       qc.invalidateQueries({ queryKey });
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to update live status';
+      alert(msg);
     },
   });
 
