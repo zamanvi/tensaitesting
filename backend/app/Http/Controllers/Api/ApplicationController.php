@@ -141,12 +141,9 @@ class ApplicationController extends Controller
     public function liveToSchool(Request $request, int $id): JsonResponse
     {
         $app = $this->findOwned($request, $id);
-        if ($app->status !== 'submitted') {
-            return response()->json(['message' => 'Only submitted applications can be sent live to school.'], 422);
-        }
         $app->update([
-            'live_to_school'    => true,
-            'live_to_school_at' => now(),
+            'live_to_school'    => !$app->live_to_school,
+            'live_to_school_at' => $app->live_to_school ? null : now(),
         ]);
         return response()->json($this->format($app->fresh()));
     }

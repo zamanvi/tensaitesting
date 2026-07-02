@@ -291,30 +291,19 @@ export default function AgencyApplicantsPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
-                          {app.live_to_school ? (
-                            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-green-100 text-green-700 border-green-200">
-                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shrink-0" />
-                              Live
-                            </span>
-                          ) : app.status === 'submitted' ? (
-                            <button
-                              onClick={() => liveMutation.mutate(app.id)}
-                              disabled={liveMutation.isPending}
-                              title="Mark as live to share with schools"
-                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-white text-slate-400 border-slate-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200 transition-all disabled:opacity-40"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
-                              Live
-                            </button>
-                          ) : (
-                            <span
-                              title={`Submit the application first to mark as live`}
-                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-slate-200 shrink-0" />
-                              Live
-                            </span>
-                          )}
+                          <button
+                            onClick={() => liveMutation.mutate(app.id)}
+                            disabled={liveMutation.isPending}
+                            title={app.live_to_school ? 'Remove from Lead Live' : 'Add to Lead Live'}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all disabled:opacity-40 ${
+                              app.live_to_school
+                                ? 'bg-green-100 text-green-700 border-green-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200'
+                                : 'bg-white text-slate-400 border-slate-200 hover:bg-green-50 hover:text-green-700 hover:border-green-200'
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${app.live_to_school ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}`} />
+                            Live
+                          </button>
                         </td>
                         <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
                           {timeAgo(app.created_at)}
