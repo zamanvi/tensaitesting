@@ -55,11 +55,12 @@ export default function LeadLivePage() {
 
   const liveMutation = useMutation({
     mutationFn: (appId: number) => api.post(`/applications/${appId}/live-to-school`).then(r => r.data),
-    onSuccess: (data: { application: Application }) => {
+    onSuccess: (data: Application) => {
       qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
-        ...old, data: (old?.data ?? []).map(a => a.id === data.application.id ? { ...a, ...data.application } : a),
+        ...old, data: (old?.data ?? []).map(a => a.id === data.id ? { ...a, ...data } : a),
       }));
     },
+    onError: () => qc.invalidateQueries({ queryKey }),
   });
 
   function updateApps(updated: Application) {

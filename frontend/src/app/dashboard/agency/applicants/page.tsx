@@ -76,12 +76,22 @@ export default function AgencyApplicantsPage() {
     staleTime: 300_000,
   });
 
+  const [pendingLive, setPendingLive] = useState<Set<number>>(new Set());
+
   const liveMutation = useMutation({
-    mutationFn: (appId: number) => api.post(`/applications/${appId}/live-to-school`).then(r => r.data),
-    onSuccess: (data: { application: Application }) => {
+    mutationFn: (appId: number) => {
+      setPendingLive(s => new Set(s).add(appId));
+      return api.post(`/applications/${appId}/live-to-school`).then(r => r.data);
+    },
+    onSuccess: (data: Application) => {
+      setPendingLive(s => { const n = new Set(s); n.delete(data.id); return n; });
       qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
-        ...old, data: (old?.data ?? []).map(a => a.id === data.application.id ? { ...a, ...data.application } : a),
+        ...old, data: (old?.data ?? []).map(a => a.id === data.id ? { ...a, ...data } : a),
       }));
+    },
+    onError: (_err, appId) => {
+      setPendingLive(s => { const n = new Set(s); n.delete(appId); return n; });
+      qc.invalidateQueries({ queryKey });
     },
   });
 
@@ -293,7 +303,7 @@ export default function AgencyApplicantsPage() {
                         <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
                           <button
                             onClick={() => liveMutation.mutate(app.id)}
-                            disabled={liveMutation.isPending}
+                            disabled={pendingLive.has(app.id)}
                             title={app.live_to_school ? 'Remove from Lead Live' : 'Add to Lead Live'}
                             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all disabled:opacity-40 ${
                               app.live_to_school
