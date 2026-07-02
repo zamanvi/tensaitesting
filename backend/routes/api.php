@@ -115,13 +115,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Agency gateway
-    Route::prefix('agency')->middleware('role:agency')->group(function () {
+    Route::prefix('agency')->middleware('agency.access')->group(function () {
         Route::get('/profile',  [AgencyProfileController::class, 'show']);
         Route::post('/profile', [AgencyProfileController::class, 'upsert']);
         Route::get('/settings',          [AccountController::class, 'agencySettings']);
         Route::patch('/settings',        [AccountController::class, 'agencySettings']);
         Route::post('/avatar',           [AccountController::class, 'avatar']);
-        Route::patch('/change-password', [AccountController::class, 'changePassword']);
+        Route::post('/change-password',  [AccountController::class, 'changePassword']);
         Route::post('/leads', [LeadController::class, 'addLead']);
         Route::get('/leads/private-vault', [LeadController::class, 'privateVault']);
         Route::get('/leads/open-pool', [LeadController::class, 'openPool']);

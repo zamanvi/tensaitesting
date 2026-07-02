@@ -52,12 +52,13 @@ class AccountController extends Controller
         return response()->json(['avatar_url' => Storage::disk($disk)->url($path)]);
     }
 
-    // GET/PATCH for agency settings (name, description, website)
+    // GET/PATCH for agency settings
     public function agencySettings(Request $request): JsonResponse
     {
-        $profile = $request->user()->agencyProfile;
+        $user    = $request->user();
+        $profile = $user->agencyProfile;
         if ($request->isMethod('GET')) {
-            return response()->json($profile);
+            return response()->json(['user' => $user, 'profile' => $profile]);
         }
         $data = $request->validate([
             'agency_name'  => 'sometimes|string|max:255',
@@ -65,8 +66,13 @@ class AccountController extends Controller
             'website'      => 'sometimes|nullable|url',
             'phone'        => 'sometimes|nullable|string|max:30',
         ]);
-        $profile?->update($data);
-        return response()->json($profile?->fresh());
+        // Phone belongs to the user model, not the profile
+        if (array_key_exists('phone', $data)) {
+            $user->update(['phone' => $data['phone']]);
+            unset($data['phone']);
+        }
+        if (!empty($data)) $profile?->update($data);
+        return response()->json(['message' => 'Settings saved.', 'user' => $user->fresh()]);
     }
 
     // POST /affiliate/change-password  (same logic, alias)
