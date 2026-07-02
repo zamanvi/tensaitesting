@@ -20,6 +20,24 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
+const NAV_ITEMS = [
+  {
+    id: 'profile',
+    labelEn: 'Profile',    labelJa: 'プロフィール', labelBn: 'প্রোফাইল',
+    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />,
+  },
+  {
+    id: 'account',
+    labelEn: 'Account',    labelJa: 'アカウント',   labelBn: 'অ্যাকাউন্ট',
+    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
+  },
+  {
+    id: 'security',
+    labelEn: 'Security',   labelJa: 'セキュリティ', labelBn: 'নিরাপত্তা',
+    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />,
+  },
+];
+
 export default function StudentSettingsPage() {
   const { lang } = useLang();
   const { user, fetchMe } = useAuthStore();
@@ -44,6 +62,23 @@ export default function StudentSettingsPage() {
   const [pwSaved, setPwSaved] = useState(false);
   const [pwErr, setPwErr] = useState('');
   const [showPw, setShowPw] = useState({ current: false, new: false, confirm: false });
+
+  // Scroll-spy: track which section is in view
+  const [activeSection, setActiveSection] = useState('profile');
+  useEffect(() => {
+    const ids = ['profile', 'account', 'security'];
+    const observers = ids.map(id => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
+        { rootMargin: '-20% 0px -60% 0px', threshold: 0 }
+      );
+      obs.observe(el);
+      return obs;
+    });
+    return () => observers.forEach(o => o?.disconnect());
+  }, []);
 
   const uploadAvatar = useMutation({
     mutationFn: (file: File) => {
@@ -101,22 +136,20 @@ export default function StudentSettingsPage() {
 
   if (!user) return null;
 
-  const t = {
-    profile:   ja ? 'プロフィール' : bn ? 'প্রোফাইল' : 'Profile',
-    account:   ja ? 'アカウント'   : bn ? 'অ্যাকাউন্ট' : 'Account',
-    security:  ja ? 'セキュリティ' : bn ? 'নিরাপত্তা'  : 'Security',
-  };
+  const label = (en: string, ja_: string, bn_: string) => ja ? ja_ : bn ? bn_ : en;
+
+  const pwStrength = [/[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter(r => r.test(pw.password)).length + 1;
 
   return (
-    <StudentLayout title={ja ? '設定' : bn ? 'সেটিংস' : 'Settings'}>
+    <StudentLayout title={label('Settings', '設定', 'সেটিংস')}>
       <div className="max-w-5xl flex gap-5 items-start">
 
-        {/* ── Sidebar — Filament-style ── */}
-        <aside className="hidden sm:flex flex-col w-56 shrink-0 sticky top-6 gap-0">
+        {/* ── Settings mini-sidebar ── */}
+        <aside className="hidden sm:flex flex-col w-56 shrink-0 sticky top-6">
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
 
-            {/* User identity block */}
-            <div className="flex items-center gap-3 px-4 py-4 bg-slate-50 border-b border-slate-200">
+            {/* User identity */}
+            <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-100">
               {avatarSrc ? (
                 <img src={avatarSrc} alt="avatar" className="w-9 h-9 rounded-lg object-cover border border-slate-200 shrink-0" />
               ) : (
@@ -131,36 +164,36 @@ export default function StudentSettingsPage() {
             </div>
 
             {/* Nav group */}
-            <div className="py-1">
-              <p className="px-4 pt-3 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                {ja ? '設定' : bn ? 'সেটিংস' : 'Settings'}
+            <div className="py-2">
+              <p className="px-4 pt-2 pb-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                {label('Settings', '設定', 'সেটিংস')}
               </p>
-              {[
-                {
-                  id: 'profile', label: t.profile,
-                  icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />,
-                },
-                {
-                  id: 'account', label: t.account,
-                  icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
-                },
-                {
-                  id: 'security', label: t.security,
-                  icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />,
-                },
-              ].map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollTo(item.id)}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-green-50 hover:text-green-700 transition-colors text-left group"
-                >
-                  <svg className="w-4 h-4 text-slate-400 group-hover:text-green-600 shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {item.icon}
-                  </svg>
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-              <div className="h-2" />
+              {NAV_ITEMS.map(item => {
+                const isActive = activeSection === item.id;
+                const lbl = label(item.labelEn, item.labelJa, item.labelBn);
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollTo(item.id)}
+                    className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition-colors text-left relative ${
+                      isActive
+                        ? 'bg-green-50 text-green-800'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute left-0 top-1 bottom-1 w-0.5 bg-green-600 rounded-r" />
+                    )}
+                    <svg
+                      className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-green-600' : 'text-slate-400'}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      {item.icon}
+                    </svg>
+                    {lbl}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </aside>
@@ -170,13 +203,14 @@ export default function StudentSettingsPage() {
 
           {/* Profile Picture */}
           <section id="profile" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-6">
-            <div className="px-6 py-3.5 border-b border-slate-200 bg-slate-50">
+            <div className="px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
+              <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <h2 className="text-sm font-semibold text-slate-800">
-                {ja ? 'プロフィール写真' : bn ? 'প্রোফাইল ছবি' : 'Profile Picture'}
+                {label('Profile Picture', 'プロフィール写真', 'প্রোফাইল ছবি')}
               </h2>
             </div>
             <div className="px-6 py-5">
-              {avatarSaved && <Alert type="success" msg={ja ? '写真を更新しました' : bn ? 'ছবি আপডেট হয়েছে' : 'Photo updated successfully'} />}
+              {avatarSaved && <Alert type="success" msg={label('Photo updated successfully', '写真を更新しました', 'ছবি আপডেট হয়েছে')} />}
               {avatarErr && <Alert type="error" msg={avatarErr} />}
               <div className="flex items-center gap-5">
                 <div className="shrink-0 relative">
@@ -193,18 +227,28 @@ export default function StudentSettingsPage() {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="space-y-2">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadAvatar.isPending}
-                    className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
                   >
-                    {uploadAvatar.isPending
-                      ? (ja ? 'アップロード中…' : bn ? 'আপলোড হচ্ছে…' : 'Uploading…')
-                      : (ja ? '写真を変更する' : bn ? 'ছবি পরিবর্তন করুন' : 'Change Photo')}
+                    {uploadAvatar.isPending ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        {label('Uploading…', 'アップロード中…', 'আপলোড হচ্ছে…')}
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        {label('Change Photo', '写真を変更する', 'ছবি পরিবর্তন করুন')}
+                      </>
+                    )}
                   </button>
-                  <p className="text-[11px] text-slate-400 mt-2">JPG, PNG or WebP · max 2 MB</p>
+                  <p className="text-[11px] text-slate-400">JPG, PNG or WebP · max 2 MB</p>
                   <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFileChange} />
                 </div>
               </div>
@@ -213,18 +257,19 @@ export default function StudentSettingsPage() {
 
           {/* Account Info */}
           <section id="account" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-6">
-            <div className="px-6 py-3.5 border-b border-slate-200 bg-slate-50">
+            <div className="px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
+              <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <h2 className="text-sm font-semibold text-slate-800">
-                {ja ? 'アカウント情報' : bn ? 'অ্যাকাউন্টের তথ্য' : 'Account Info'}
+                {label('Account Info', 'アカウント情報', 'অ্যাকাউন্টের তথ্য')}
               </h2>
             </div>
             <div className="px-6 py-5 space-y-5">
 
-              {/* Name + Email — 2 col */}
+              {/* Name + Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5">
-                    {ja ? '氏名' : bn ? 'নাম' : 'Name'}
+                    {label('Name', '氏名', 'নাম')}
                   </label>
                   <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600">
                     <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,12 +278,12 @@ export default function StudentSettingsPage() {
                     {user.name}
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">
-                    {ja ? '変更はサポートへ' : bn ? 'পরিবর্তনের জন্য সাপোর্টে যোগাযোগ করুন' : 'Contact support to change'}
+                    {label('Contact support to change', '変更はサポートへ', 'পরিবর্তনের জন্য সাপোর্টে যোগাযোগ করুন')}
                   </p>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5">
-                    {ja ? 'メールアドレス' : bn ? 'ইমেইল' : 'Email Address'}
+                    {label('Email Address', 'メールアドレス', 'ইমেইল')}
                   </label>
                   <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600">
                     <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,17 +295,17 @@ export default function StudentSettingsPage() {
                     )}
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">
-                    {ja ? '変更はサポートへ' : bn ? 'পরিবর্তনের জন্য সাপোর্টে যোগাযোগ করুন' : 'Contact support to change'}
+                    {label('Contact support to change', '変更はサポートへ', 'পরিবর্তনের জন্য সাপোর্টে যোগাযোগ করুন')}
                   </p>
                 </div>
               </div>
 
               {/* Phone */}
               <div>
-                {contactSaved && <Alert type="success" msg={ja ? '保存しました' : bn ? 'সংরক্ষিত হয়েছে' : 'Phone number saved'} />}
+                {contactSaved && <Alert type="success" msg={label('Phone number saved', '保存しました', 'সংরক্ষিত হয়েছে')} />}
                 {contactErr && <Alert type="error" msg={contactErr} />}
                 <label className="block text-xs font-semibold text-slate-500 mb-1.5">
-                  {ja ? '電話番号' : bn ? 'ফোন নম্বর' : 'Phone Number'}
+                  {label('Phone Number', '電話番号', 'ফোন নম্বর')}
                 </label>
                 <form onSubmit={e => { e.preventDefault(); saveContact.mutate(); }} className="flex gap-2">
                   <div className="relative flex-1">
@@ -282,29 +327,30 @@ export default function StudentSettingsPage() {
                     disabled={saveContact.isPending}
                     className="px-4 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
-                    {saveContact.isPending ? '…' : (ja ? '保存' : bn ? 'সংরক্ষণ' : 'Save')}
+                    {saveContact.isPending ? '…' : label('Save', '保存', 'সংরক্ষণ')}
                   </button>
                 </form>
               </div>
             </div>
           </section>
 
-          {/* Security */}
+          {/* Security / Change Password */}
           <section id="security" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-6">
-            <div className="px-6 py-3.5 border-b border-slate-200 bg-slate-50">
+            <div className="px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
+              <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <h2 className="text-sm font-semibold text-slate-800">
-                {ja ? 'パスワード変更' : bn ? 'পাসওয়ার্ড পরিবর্তন' : 'Change Password'}
+                {label('Change Password', 'パスワード変更', 'পাসওয়ার্ড পরিবর্তন')}
               </h2>
             </div>
             <div className="px-6 py-5">
-              {pwSaved && <Alert type="success" msg={ja ? 'パスワードを更新しました' : bn ? 'পাসওয়ার্ড আপডেট হয়েছে' : 'Password updated successfully'} />}
+              {pwSaved && <Alert type="success" msg={label('Password updated successfully', 'パスワードを更新しました', 'পাসওয়ার্ড আপডেট হয়েছে')} />}
               {pwErr && <Alert type="error" msg={pwErr} />}
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {(
                     [
-                      { key: 'current_password', label: ja ? '現在のパスワード' : bn ? 'বর্তমান পাসওয়ার্ড' : 'Current Password', show: showPw.current, toggle: () => setShowPw(s => ({ ...s, current: !s.current })) },
-                      { key: 'password',          label: ja ? '新しいパスワード'   : bn ? 'নতুন পাসওয়ার্ড'       : 'New Password',      show: showPw.new,     toggle: () => setShowPw(s => ({ ...s, new: !s.new })) },
+                      { key: 'current_password', label: label('Current Password', '現在のパスワード', 'বর্তমান পাসওয়ার্ড'), show: showPw.current, toggle: () => setShowPw(s => ({ ...s, current: !s.current })) },
+                      { key: 'password',          label: label('New Password', '新しいパスワード', 'নতুন পাসওয়ার্ড'),       show: showPw.new,     toggle: () => setShowPw(s => ({ ...s, new: !s.new })) },
                     ] as { key: keyof typeof pw; label: string; show: boolean; toggle: () => void }[]
                   ).map(field => (
                     <div key={field.key}>
@@ -329,16 +375,18 @@ export default function StudentSettingsPage() {
                   ))}
                 </div>
 
-                {/* Confirm password full width */}
-                <div className="sm:w-1/2 sm:pr-2">
+                {/* Confirm — full width */}
+                <div>
                   <label className="block text-xs font-semibold text-slate-500 mb-1.5">
-                    {ja ? 'パスワード確認' : bn ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm New Password'}
+                    {label('Confirm New Password', 'パスワード確認', 'পাসওয়ার্ড নিশ্চিত করুন')}
                   </label>
-                  <div className="relative">
+                  <div className="relative sm:w-1/2">
                     <input
                       type={showPw.confirm ? 'text' : 'password'}
                       className={`w-full border rounded-lg px-3 py-2.5 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white ${
-                        pw.password_confirmation && pw.password !== pw.password_confirmation ? 'border-red-300 focus:ring-red-400' : 'border-slate-200'
+                        pw.password_confirmation && pw.password !== pw.password_confirmation
+                          ? 'border-red-300 focus:ring-red-400'
+                          : 'border-slate-200'
                       }`}
                       value={pw.password_confirmation}
                       onChange={e => setPw(p => ({ ...p, password_confirmation: e.target.value }))}
@@ -351,21 +399,23 @@ export default function StudentSettingsPage() {
                   </div>
                   {pw.password_confirmation && pw.password !== pw.password_confirmation && (
                     <p className="text-[11px] text-red-500 mt-1">
-                      {ja ? 'パスワードが一致しません' : bn ? 'পাসওয়ার্ড মিলছে না' : 'Passwords do not match'}
+                      {label('Passwords do not match', 'パスワードが一致しません', 'পাসওয়ার্ড মিলছে না')}
                     </p>
                   )}
                 </div>
 
+                {/* Strength bar */}
                 {pw.password && pw.password.length >= 8 && (
                   <div className="flex items-center gap-2">
-                    {(() => {
-                      const strength = [/[A-Z]/, /[0-9]/, /[^A-Za-z0-9]/].filter(r => r.test(pw.password)).length + 1;
-                      return [...Array(4)].map((_, i) => (
-                        <div key={i} className={`w-8 h-1.5 rounded-full ${i < strength ? (strength <= 2 ? 'bg-amber-400' : 'bg-green-500') : 'bg-slate-200'}`} />
-                      ));
-                    })()}
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className={`w-10 h-1.5 rounded-full transition-colors ${
+                        i < pwStrength
+                          ? pwStrength <= 2 ? 'bg-amber-400' : 'bg-green-500'
+                          : 'bg-slate-200'
+                      }`} />
+                    ))}
                     <span className="text-[11px] text-slate-400">
-                      {ja ? 'パスワード強度' : bn ? 'পাসওয়ার্ড শক্তি' : 'Password strength'}
+                      {label('Password strength', 'パスワード強度', 'পাসওয়ার্ড শক্তি')}
                     </span>
                   </div>
                 )}
@@ -377,12 +427,15 @@ export default function StudentSettingsPage() {
                     className="px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
                   >
                     {savePassword.isPending
-                      ? (ja ? '更新中…' : bn ? 'আপডেট হচ্ছে…' : 'Updating…')
-                      : (ja ? 'パスワードを変更する' : bn ? 'পাসওয়ার্ড পরিবর্তন করুন' : 'Update Password')}
+                      ? label('Updating…', '更新中…', 'আপডেট হচ্ছে…')
+                      : label('Update Password', 'パスワードを変更する', 'পাসওয়ার্ড পরিবর্তন করুন')}
                   </button>
-                  <button type="button" onClick={() => setPw({ current_password: '', password: '', password_confirmation: '' })}
-                    className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors">
-                    {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
+                  <button
+                    type="button"
+                    onClick={() => setPw({ current_password: '', password: '', password_confirmation: '' })}
+                    className="px-4 py-2.5 text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors"
+                  >
+                    {label('Cancel', 'キャンセル', 'বাতিল')}
                   </button>
                 </div>
               </form>
@@ -399,7 +452,9 @@ function Alert({ type, msg }: { type: 'success' | 'error'; msg: string }) {
   if (!msg) return null;
   return (
     <div className={`mb-4 flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium border ${
-      type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-600'
+      type === 'success'
+        ? 'bg-green-50 border-green-200 text-green-700'
+        : 'bg-red-50 border-red-200 text-red-600'
     }`}>
       {type === 'success'
         ? <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
