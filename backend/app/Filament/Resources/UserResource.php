@@ -67,7 +67,7 @@ class UserResource extends Resource
                     ->disabled(),
                 Forms\Components\TextInput::make('referred_by_display')
                     ->label('Referred By')
-                    ->getStateUsing(fn ($record) => $record?->referredBy?->name ?? '—')
+                    ->getStateUsing(fn ($record) => $record?->referrer?->name ?? '—')
                     ->disabled()
                     ->dehydrated(false),
             ])->columns(3),
@@ -112,7 +112,7 @@ class UserResource extends Resource
                     ->label('Verified')
                     ->boolean()
                     ->getStateUsing(fn ($record) => !is_null($record->email_verified_at)),
-                Tables\Columns\TextColumn::make('referredBy.name')
+                Tables\Columns\TextColumn::make('referrer.name')
                     ->label('Referred By')
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
