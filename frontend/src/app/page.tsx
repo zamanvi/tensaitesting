@@ -342,20 +342,6 @@ export default function HomePage() {
                   >
                     {l.ctaStudent}
                   </Link>
-                  <div className="flex gap-2.5">
-                    <Link
-                      href="/auth/register?type=agency"
-                      className="flex-1 text-center glass-card text-white/75 hover:text-white px-4 py-3 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-                    >
-                      {l.ctaAgency}
-                    </Link>
-                    <Link
-                      href="/auth/register?type=institution"
-                      className="flex-1 text-center glass-card text-white/75 hover:text-white px-4 py-3 rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-white/22 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-                    >
-                      {l.ctaInstitution}
-                    </Link>
-                  </div>
                 </div>
 
                 {/* Stats strip */}
@@ -987,6 +973,10 @@ export default function HomePage() {
                 <Link href="/gallery"  className="hover:text-white/65 transition-colors">{l.gallery}</Link>
                 <Link href="/branches" className="hover:text-white/65 transition-colors">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
                 <Link href="/auth/register?type=affiliate" className="hover:text-white/65 transition-colors">{l.gateways.affiliateTitle}</Link>
+                <span className="text-white/[0.12]">·</span>
+                <Link href="/auth/register?type=agency"      className="hover:text-white/65 transition-colors">{l.ctaAgency}</Link>
+                <Link href="/auth/register?type=institution" className="hover:text-white/65 transition-colors">{l.ctaInstitution}</Link>
+                <span className="text-white/[0.12]">·</span>
                 <Link href="/terms"    className="hover:text-white/65 transition-colors">{termsText}</Link>
                 <Link href="/privacy"  className="hover:text-white/65 transition-colors">{privText}</Link>
               </div>
