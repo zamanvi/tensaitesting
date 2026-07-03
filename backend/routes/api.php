@@ -96,6 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/applications/{id}/live-to-school',           [ApplicationController::class, 'liveToSchool']);
     Route::post('/applications/{id}/documents',                 [ApplicationController::class, 'uploadDocument']);
     Route::delete('/applications/{id}/documents/{docId}',       [ApplicationController::class, 'deleteDocument']);
+    Route::delete('/applications/{id}',                          [ApplicationController::class, 'destroy']);
 
     // Student gateway
     Route::prefix('student')->middleware('role:student')->group(function () {

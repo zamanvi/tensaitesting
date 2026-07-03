@@ -190,6 +190,29 @@ class ApplicationController extends Controller
         return response()->json(['document' => $doc->append('url'), 'progress' => $app->progress]);
     }
 
+    public function destroy(Request $request, int $id): JsonResponse
+    {
+        $app = $this->findOwned($request, $id);
+
+        // Students may only delete their own draft applications
+        $user = $request->user();
+        if (!$user->hasRole(['super_admin', 'admin', 'branch_admin', 'branch_manager'])) {
+            if ($app->status !== 'draft') {
+                return response()->json(['message' => 'Only draft applications can be deleted.'], 403);
+            }
+        }
+
+        // Delete all associated documents from storage
+        $disk = app()->environment('production') ? 'r2' : 'public';
+        foreach ($app->documents ?? [] as $doc) {
+            try { Storage::disk($disk)->delete($doc->file_path); } catch (\Throwable) {}
+        }
+        $app->documents()->delete();
+        $app->delete();
+
+        return response()->json(['message' => 'Application deleted.']);
+    }
+
     public function deleteDocument(Request $request, int $id, int $docId): JsonResponse
     {
         $app = $this->findOwned($request, $id);
