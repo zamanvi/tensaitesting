@@ -132,18 +132,19 @@ export default function StudentLayout({ children, title }: Props) {
         </p>
         <nav className="space-y-0.5">
           {NAV.map(item => {
-            const active = pathname === item.href || (item.href !== '/dashboard/student/leads' && pathname.startsWith(item.href));
+            const active = pathname === item.href || pathname.startsWith(item.href + '/');
             const label = lang === 'ja' ? item.label.ja : lang === 'bn' ? item.label.bn : item.label.en;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   active
                     ? 'bg-green-50 text-green-800'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
+                {active && <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-green-600 rounded-r" />}
                 <span className={active ? 'text-green-700' : 'text-slate-400'}>{item.icon}</span>
                 {label}
               </Link>

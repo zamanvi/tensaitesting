@@ -282,12 +282,13 @@ export default function ApplicationFormBody({
         <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
 
           {/* Personal Information */}
-          <section className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-            <div className="flex items-center gap-2.5 px-4 sm:px-6 py-4 border-b border-gray-100">
-              <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+            <div className="flex items-center gap-3 px-4 sm:px-6 py-3.5 border-b border-slate-100">
+              <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+              <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span className="text-sm font-semibold text-gray-900">Personal Information</span>
+              <span className="text-sm font-semibold text-slate-800">Personal Information</span>
             </div>
             <div className="px-4 sm:px-6 py-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -383,13 +384,14 @@ export default function ApplicationFormBody({
           {template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
             g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData)))
           ).map((group) => (
-            <section key={group.id} className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-              <div className="flex items-center gap-2.5 px-4 sm:px-6 py-4 border-b border-gray-100">
-                <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <section key={group.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3 px-4 sm:px-6 py-3.5 border-b border-slate-100">
+                <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+                <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <div>
-                  <span className="text-sm font-semibold text-gray-900">{group.label}</span>
+                  <span className="text-sm font-semibold text-slate-800">{group.label}</span>
                   {group.hint && <p className="text-xs text-slate-400 mt-0.5">{group.hint}</p>}
                 </div>
               </div>
@@ -433,12 +435,13 @@ export default function ApplicationFormBody({
 
           {/* Education Certificates */}
           {template.educations?.length > 0 && (
-            <section className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-              <div className="flex items-center gap-2.5 px-4 sm:px-6 py-4 border-b border-gray-100">
-                <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+            <section className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3 px-4 sm:px-6 py-3.5 border-b border-slate-100">
+                <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+                <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                 </svg>
-                <span className="text-sm font-semibold text-gray-900">Education Certificates</span>
+                <span className="text-sm font-semibold text-slate-800">Education Certificates</span>
               </div>
               <div className="px-4 sm:px-6 py-5 space-y-3">
                 {(template.educations ?? []).filter(e => e.requirement !== 'none').map((edu) => {
@@ -447,8 +450,8 @@ export default function ApplicationFormBody({
                   const docKey    = `edu_${edu.level}`;
                   const existingDoc = docs.find(d => d.field_key === docKey || d.doc_type === docKey);
                   return (
-                    <div key={edu.level} className="border border-gray-200 rounded-xl overflow-hidden">
-                      <div className="flex items-center gap-2.5 px-4 py-3 bg-gray-50 border-b border-gray-100">
+                    <div key={edu.level} className="border border-slate-200 rounded-xl overflow-hidden">
+                      <div className="flex items-center gap-2.5 px-4 py-3 bg-slate-50 border-b border-slate-100">
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${mandatory ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-500'}`}>
                           {mandatory ? 'Required' : 'Optional'}
                         </span>
