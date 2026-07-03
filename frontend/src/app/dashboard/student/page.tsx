@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -95,7 +95,7 @@ export default function StudentApplicationPage() {
   const title = ja ? '申請' : bn ? 'আবেদন' : 'Application';
 
   return (
-    <DashboardLayout title={title}>
+    <StudentLayout title={title}>
 
       {/* Header row */}
       <div className="flex items-center justify-between mb-5">
@@ -300,6 +300,6 @@ export default function StudentApplicationPage() {
           })}
         </div>
       )}
-    </DashboardLayout>
+    </StudentLayout>
   );
 }

@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/lib/api';
@@ -247,7 +247,7 @@ export default function DocumentsPage() {
 
 
   return (
-    <DashboardLayout title={sd.title}>
+    <StudentLayout title={sd.title}>
 
       {/* Required docs progress */}
       {(() => {
@@ -560,6 +560,6 @@ export default function DocumentsPage() {
       </div>
 
 
-    </DashboardLayout>
+    </StudentLayout>
   );
 }

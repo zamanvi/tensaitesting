@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
@@ -209,17 +209,17 @@ export default function StudentLeadDetailPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout title={title}>
+      <StudentLayout title={title}>
         <div className="text-center py-16 text-slate-400 text-sm">
           {ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}
         </div>
-      </DashboardLayout>
+      </StudentLayout>
     );
   }
 
   if (!lead) {
     return (
-      <DashboardLayout title={title}>
+      <StudentLayout title={title}>
         <div className="text-center py-16">
           <p className="text-4xl mb-3">🔍</p>
           <p className="text-slate-400 text-sm mb-4">
@@ -230,7 +230,7 @@ export default function StudentLeadDetailPage() {
             {ja ? '← 一覧に戻る' : bn ? '← তালিকায় ফিরুন' : '← Back to list'}
           </Link>
         </div>
-      </DashboardLayout>
+      </StudentLayout>
     );
   }
 
@@ -262,7 +262,7 @@ export default function StudentLeadDetailPage() {
   ];
 
   return (
-    <DashboardLayout title={title}>
+    <StudentLayout title={title}>
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-5 flex-wrap">
@@ -728,6 +728,6 @@ export default function StudentLeadDetailPage() {
         </div>
       )}
 
-    </DashboardLayout>
+    </StudentLayout>
   );
 }

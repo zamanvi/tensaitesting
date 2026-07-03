@@ -1,5 +1,5 @@
 'use client';
-import DashboardLayout from '@/components/shared/DashboardLayout';
+import StudentLayout from '@/components/shared/StudentLayout';
 import StudentInfoForm from '@/components/student/StudentInfoForm';
 import { useLang } from '@/context/LanguageContext';
 import api from '@/lib/api';
@@ -20,7 +20,7 @@ export default function StudentInfoPage() {
     'Submit Your Information';
 
   return (
-    <DashboardLayout title={title}>
+    <StudentLayout title={title}>
 
       {/* Header */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 mb-6 flex items-start gap-4">
@@ -43,6 +43,6 @@ export default function StudentInfoPage() {
         onSaved={() => refetch()}
       />
 
-    </DashboardLayout>
+    </StudentLayout>
   );
 }
