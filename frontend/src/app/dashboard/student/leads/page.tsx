@@ -372,6 +372,7 @@ export default function StudentApplicationPage() {
                     onSubmitted={updated => { updateApp(updated); }}
                     onDocUploaded={handleDocUploaded}
                     onDocDeleted={handleDocDeleted}
+                    onClose={() => setSelectedAppId(null)}
                   />
                 </div>
               )}

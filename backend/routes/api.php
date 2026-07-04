@@ -52,9 +52,14 @@ Route::get('/settings/public', function () {
         'linkedin_url', 'twitter_url',
         'support_whatsapp', 'support_phone', 'support_email', 'office_address',
         'copyright_en', 'copyright_ja', 'copyright_bn',
-        'target_countries',
+        'target_countries', 'referral_fees',
     ];
-    $settings = \App\Models\Setting::whereIn('key', $keys)->pluck('value', 'key');
+    $settings = \App\Models\Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+    foreach (['target_countries', 'referral_fees'] as $jsonKey) {
+        if (isset($settings[$jsonKey]) && is_string($settings[$jsonKey])) {
+            $settings[$jsonKey] = json_decode($settings[$jsonKey], true);
+        }
+    }
     return response()->json($settings);
 });
 
@@ -230,7 +235,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/gallery/{gallery}',               [AdminGalleryController::class, 'update']);
         Route::post('/gallery/{gallery}/toggle',        [AdminGalleryController::class, 'toggle']);
         Route::delete('/gallery/{gallery}',             [AdminGalleryController::class, 'destroy']);
-        // Admin applications (full list + PATCH status)
+        // Admin applications (full list + status control)
+        Route::get('/applications',                     [ApplicationController::class, 'index']);
         Route::patch('/applications/{id}/status',       [ApplicationController::class, 'updateStatus']);
 
         // Admin affiliates

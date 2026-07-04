@@ -60,12 +60,7 @@ class ApplicationController extends Controller
             'form_data'        => 'nullable|array',
         ]);
 
-        if ($user->hasRole('student')) {
-            $existing = Application::where('user_id', $user->id)->first();
-            if ($existing) {
-                return response()->json(['application' => $this->format($existing->load('documents'))], 200);
-            }
-        }
+        // Students may have multiple applications — no restriction
 
         FormTemplate::where('id', $data['form_template_id'])
             ->where('status', 'published')->where('is_active', true)->firstOrFail();

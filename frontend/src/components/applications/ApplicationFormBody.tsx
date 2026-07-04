@@ -451,7 +451,7 @@ export default function ApplicationFormBody({
                   const existingDoc = docs.find(d => d.field_key === docKey || d.doc_type === docKey);
                   return (
                     <div key={edu.level} className="border border-slate-200 rounded-xl overflow-hidden">
-                      <div className="flex items-center gap-2.5 px-4 py-3 bg-slate-50 border-b border-slate-100">
+                      <div className="flex items-center gap-2.5 px-4 py-3 bg-green-100/50 border-b border-green-100">
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${mandatory ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-500'}`}>
                           {mandatory ? 'Required' : 'Optional'}
                         </span>

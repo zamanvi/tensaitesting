@@ -219,7 +219,7 @@ export default function StudentSettingsPage() {
         <div className="flex-1 min-w-0 space-y-5">
 
           {/* ── Profile Picture ── */}
-          <section id="profile" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-20">
+          <section id="profile" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-16">
             <div className="flex items-center gap-3 px-4 sm:px-6 py-3.5 border-b border-slate-100 bg-slate-50/60">
               <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <svg className="w-4 h-4 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,7 +268,7 @@ export default function StudentSettingsPage() {
           </section>
 
           {/* ── Account Info ── */}
-          <section id="account" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-20">
+          <section id="account" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-16">
             <div className="flex items-center gap-3 px-4 sm:px-6 py-3.5 border-b border-slate-100 bg-slate-50/60">
               <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <svg className="w-4 h-4 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -336,7 +336,7 @@ export default function StudentSettingsPage() {
           </section>
 
           {/* ── Security / Change Password ── */}
-          <section id="security" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-20">
+          <section id="security" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-16">
             <div className="flex items-center gap-3 px-4 sm:px-6 py-3.5 border-b border-slate-100 bg-slate-50/60">
               <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <svg className="w-4 h-4 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
