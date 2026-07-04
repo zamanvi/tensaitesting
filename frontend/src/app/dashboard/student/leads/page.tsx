@@ -323,32 +323,42 @@ export default function StudentApplicationPage() {
                 </div>
               ) : (
                 <div className="divide-y divide-slate-50">
-                  {apps.map(app => (
-                    <button key={app.id} onClick={() => setSelectedAppId(app.id)}
-                      className={`w-full text-left px-4 py-3.5 hover:bg-green-50/50 transition-colors border-l-2 ${
-                        selectedApp?.id === app.id ? 'border-l-green-600 bg-green-50/30' : 'border-l-transparent'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <p className="text-xs font-bold text-slate-800 leading-snug truncate">{app.student_name}</p>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status]?.cls}`}>
-                          {STATUS_BADGE[app.status]?.label}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500">{app.form_template?.country ?? '—'}</p>
-                      <p className="text-[10px] text-slate-400 truncate mb-2">{app.form_template?.name}</p>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] text-slate-400">Progress</span>
-                        <span className={`text-[10px] font-black tabular-nums ${app.progress >= 80 ? 'text-emerald-600' : app.progress >= 50 ? 'text-amber-600' : 'text-rose-500'}`}>
-                          {app.progress}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full transition-all ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
-                          style={{ width: `${app.progress}%` }} />
-                      </div>
-                    </button>
-                  ))}
+                  {apps.map(app => {
+                    const badge = STATUS_BADGE[app.status];
+                    const isSelected = selectedApp?.id === app.id;
+                    return (
+                      <button key={app.id} onClick={() => setSelectedAppId(app.id)}
+                        className={`w-full text-left px-4 py-3.5 hover:bg-green-50/50 transition-colors border-l-2 ${
+                          isSelected ? 'border-l-green-600 bg-green-50/30' : 'border-l-transparent'
+                        }`}
+                      >
+                        {/* Status pill — prominent at top */}
+                        <div className="mb-2">
+                          <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${badge?.cls}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                              app.status === 'draft' ? 'bg-slate-400' :
+                              app.status === 'submitted' ? 'bg-amber-500' :
+                              app.status === 'accepted' ? 'bg-emerald-500' : 'bg-rose-500'
+                            }`} />
+                            {badge?.label}
+                          </span>
+                        </div>
+                        <p className="text-xs font-bold text-slate-800 leading-snug truncate mb-0.5">{app.student_name}</p>
+                        <p className="text-[11px] text-slate-500">{app.form_template?.country ?? '—'}</p>
+                        <p className="text-[10px] text-slate-400 truncate mb-2.5">{app.form_template?.name}</p>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] text-slate-400">Progress</span>
+                          <span className={`text-[10px] font-black tabular-nums ${app.progress >= 80 ? 'text-emerald-600' : app.progress >= 50 ? 'text-amber-600' : 'text-rose-500'}`}>
+                            {app.progress}%
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                            style={{ width: `${app.progress}%` }} />
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
 
