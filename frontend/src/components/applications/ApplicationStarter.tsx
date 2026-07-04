@@ -13,8 +13,6 @@ interface Props {
   queryKey: string;
 }
 
-const cardPad = 'px-4 sm:px-6';
-
 export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Props) {
   const qc = useQueryClient();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -74,12 +72,19 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
   const visibleEdu = (template?.educations ?? []).filter(e => e.requirement !== 'none');
 
   return (
-    <div className="py-5 px-0 space-y-5">
+    <div className="px-4 sm:px-6 py-5 space-y-4">
 
-      {/* ── Country Form card ── */}
-      <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-        <div className={`${cardPad} py-4`}>
-          <label className={lbl}>Country Form <span className="text-rose-400">*</span></label>
+      {/* ── Country / Program selector ── */}
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+          <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+          <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="text-sm font-semibold text-slate-800">Country &amp; Program</span>
+        </div>
+        <div className="px-5 py-4">
+          <label className={lbl}>Select Destination <span className="text-rose-400">*</span></label>
           {templatesError ? (
             <div className="flex items-center gap-2.5 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mt-1">
               <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -107,37 +112,38 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
               ))}
             </select>
           )}
-          <p className="text-xs text-green-700/60 mt-2">After saving, you can fill in all remaining fields on the edit page.</p>
+          <p className="text-xs text-slate-400 mt-2">After saving, you can fill in all remaining fields on the edit page.</p>
         </div>
       </div>
 
-      {/* ── Loading ── */}
+      {/* ── Loading skeleton ── */}
       {selectedId && loadingTemplate && (
-        <div className="space-y-4 animate-pulse">
+        <div className="space-y-3 animate-pulse">
           {[1, 2].map(i => <div key={i} className="bg-slate-100 rounded-xl h-20" />)}
-          <div className="flex items-center gap-2 text-xs text-gray-400 justify-center py-2">
-            <span className="w-3.5 h-3.5 border-2 border-gray-200 border-t-green-600 rounded-full animate-spin" />
+          <div className="flex items-center gap-2 text-xs text-slate-400 justify-center py-2">
+            <span className="w-3.5 h-3.5 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
             Loading form…
           </div>
         </div>
       )}
 
-      {/* ── Personal Information card ── */}
+      {/* ── Personal Information ── */}
       {template && !loadingTemplate && (
-        <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-          <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
-            <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+            <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span className="text-sm font-semibold text-gray-900">Personal Information</span>
+            <span className="text-sm font-semibold text-slate-800">Personal Information</span>
           </div>
-          <div className={`${cardPad} py-5`}>
+          <div className="px-5 py-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={lbl}>Full Name <span className="text-rose-400">*</span></label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                   </span>
                   <input className={`${inp} pl-10`} placeholder="Student full name" aria-required="true"
                     value={studentInfo.student_name} onChange={e => si('student_name', e.target.value)} />
@@ -147,7 +153,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                 <label className={lbl}>Email Address</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                   </span>
                   <input className={`${inp} pl-10`} type="email" placeholder="email@example.com"
                     value={studentInfo.student_email} onChange={e => si('student_email', e.target.value)} />
@@ -157,7 +163,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                 <label className={lbl}>Contact Number <span className="text-rose-400">*</span></label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                   </span>
                   <input className={`${inp} pl-10`} type="tel" placeholder="+880..." aria-required="true"
                     value={studentInfo.student_phone} onChange={e => si('student_phone', e.target.value)} />
@@ -167,7 +173,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                 <label className={lbl}>WhatsApp Number</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                   </span>
                   <input className={`${inp} pl-10`} type="tel" placeholder="+880..."
                     value={studentInfo.whatsapp_no} onChange={e => si('whatsapp_no', e.target.value)} />
@@ -177,7 +183,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                 <label className={lbl}>Date of Birth</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   </span>
                   <input className={`${inp} pl-10`} type="date"
                     value={formData.birth_date ?? ''} onChange={e => set('birth_date', e.target.value)} />
@@ -187,7 +193,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                 <label className={lbl}>Passport Number</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
                   </span>
                   <input className={`${inp} pl-10`} placeholder="e.g. AB1234567"
                     value={formData.passport_no ?? ''} onChange={e => set('passport_no', e.target.value)} />
@@ -216,21 +222,22 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
       {template && !loadingTemplate && template.groups.filter(g => g.label !== 'Application Form Info').filter(g =>
         g.boxes.some(b => b.fields.some(f => isFieldVisible(f, formData) && f.field_type !== 'file'))
       ).map(group => (
-        <div key={group.id} className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-          <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
-            <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+        <div key={group.id} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+            <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span className="text-sm font-semibold text-gray-900">{group.label}</span>
-            {group.hint && <span className="text-xs text-gray-400 hidden sm:inline">{group.hint}</span>}
+            <span className="text-sm font-semibold text-slate-800">{group.label}</span>
+            {group.hint && <span className="text-xs text-slate-400 hidden sm:inline">{group.hint}</span>}
           </div>
-          <div className={`${cardPad} py-5 space-y-4`}>
+          <div className="px-5 py-5 space-y-4">
             {group.boxes.map(box => {
               const visible = box.fields.filter(f => isFieldVisible(f, formData) && f.field_type !== 'file');
               if (visible.length === 0) return null;
               return (
                 <div key={box.id}>
-                  {box.name && <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{box.name}</p>}
+                  {box.name && <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">{box.name}</p>}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
                     {visible.map(field => (
                       <div key={field.field_key} className={colSpan(field.box_size)}>
@@ -247,17 +254,11 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
                             placeholder={field.placeholder ?? ''} onChange={e => set(field.field_key, e.target.value)} />
                         ) : (
                           <input className={inp}
-                            type={
-                              field.field_type === 'number' ? 'number' :
-                              field.field_type === 'date'   ? 'date' :
-                              field.field_type === 'email'  ? 'email' :
-                              field.field_type === 'tel'    ? 'tel' :
-                              'text'
-                            }
+                            type={field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : field.field_type === 'email' ? 'email' : field.field_type === 'tel' ? 'tel' : 'text'}
                             value={formData[field.field_key] ?? ''} placeholder={field.placeholder ?? ''}
                             onChange={e => set(field.field_key, e.target.value)} />
                         )}
-                        {field.helper_text && <p className="text-xs text-gray-400 mt-1">{field.helper_text}</p>}
+                        {field.helper_text && <p className="text-xs text-slate-400 mt-1">{field.helper_text}</p>}
                       </div>
                     ))}
                   </div>
@@ -268,38 +269,42 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
         </div>
       ))}
 
-      {/* ── Education Certificates card ── */}
+      {/* ── Education Certificates ── */}
       {template && !loadingTemplate && visibleEdu.length > 0 && (
-        <div className="bg-[#f0fdf4] border border-gray-200 rounded-xl overflow-hidden">
-          <div className={`flex items-center gap-3 ${cardPad} py-4 border-b border-gray-100`}>
-            <svg className="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+            <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
             </svg>
-            <span className="text-sm font-semibold text-gray-900">Education Certificates</span>
+            <span className="text-sm font-semibold text-slate-800">Education Certificates</span>
           </div>
-          <div className={`${cardPad} py-5 space-y-3`}>
+          <div className="px-5 py-4 space-y-3">
             {visibleEdu.map((edu, i) => {
               const label     = EDU_LABELS[edu.level] ?? edu.level;
               const mandatory = edu.requirement === 'mandatory';
               const isOpen    = openEdu[edu.level] ?? (i === 0);
               const docKey    = `edu_${edu.level}`;
               return (
-                <div key={edu.level} className="border border-gray-200 rounded-xl overflow-hidden">
-                  <button type="button" onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !(p[edu.level] ?? (i === 0)) }))}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors min-h-[44px] focus:outline-none focus:ring-2 focus:ring-green-500/40"
-                    aria-expanded={isOpen}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-800">{label}</span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${mandatory ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-500'}`}>
+                <div key={edu.level} className="border border-slate-200 rounded-xl overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setOpenEdu(p => ({ ...p, [edu.level]: !(p[edu.level] ?? (i === 0)) }))}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors min-h-[44px] focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                    aria-expanded={isOpen}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-sm font-medium text-slate-800">{label}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${mandatory ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-500'}`}>
                         {mandatory ? 'Required' : 'Optional'}
                       </span>
                     </div>
-                    <svg className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
                   {isOpen && (
-                    <div className="border-t border-gray-100">
+                    <div className="border-t border-slate-100">
                       <div className="px-4 pt-4 pb-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                           <label className={lbl}>Institution / Board</label>
@@ -339,30 +344,34 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
 
       {/* ── Action bar ── */}
       {template && !loadingTemplate && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-5 mt-1 border-t border-gray-100">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-slate-100">
           {err
             ? <p aria-live="assertive" className="text-xs text-rose-500 font-semibold flex items-center gap-1">
                 <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 {err}
               </p>
-            : <div className="flex items-center gap-2 text-xs text-gray-400">
-                <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                <span>After saving, you can fill in all remaining fields.</span>
-              </div>
+            : <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                After saving, you can fill in all remaining fields.
+              </p>
           }
           <div className="flex items-center gap-2.5">
             {onCancel && (
               <button type="button" onClick={onCancel}
-                className="flex-1 sm:flex-none min-h-[44px] px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-200 rounded-xl hover:bg-gray-50 shadow-sm transition-all text-center focus:outline-none focus:ring-2 focus:ring-slate-400/40">
+                className="flex-1 sm:flex-none min-h-[44px] px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400/40">
                 Cancel
               </button>
             )}
-            <button type="button" onClick={() => { if (validate()) createMut.mutate(); }} disabled={createMut.isPending}
-              className="flex-1 sm:flex-none min-h-[44px] flex items-center justify-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500/60">
+            <button
+              type="button"
+              onClick={() => { if (validate()) createMut.mutate(); }}
+              disabled={createMut.isPending}
+              className="flex-1 sm:flex-none min-h-[44px] flex items-center justify-center gap-2 px-6 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl disabled:opacity-50 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/60"
+            >
               {createMut.isPending
                 ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
-              Create Application
+              {createMut.isPending ? 'Creating…' : 'Create Application'}
             </button>
           </div>
         </div>
