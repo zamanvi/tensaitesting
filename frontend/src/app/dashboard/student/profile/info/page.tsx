@@ -23,17 +23,22 @@ export default function StudentInfoPage() {
     <StudentLayout title={title}>
 
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 mb-6 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-xl shrink-0">📋</div>
-        <div>
-          <h2 className="font-bold text-slate-900 text-base">{title}</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {lang === 'bn'
-              ? 'ব্যক্তিগত, পারিবারিক, ঠিকানা, শিক্ষা ও স্পনসরের তথ্য সম্পূর্ণ করুন। এই তথ্য আপনার ভিসা আবেদনে ব্যবহার হবে।'
-              : lang === 'ja'
-              ? '個人・家族・住所・学歴・保証人の情報を入力してください。ビザ申請に使用されます。'
-              : 'Complete your personal, family, address, educational background and sponsor details. This information will be used in your visa application.'}
-          </p>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+          <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+          <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <div>
+            <p className="text-sm font-semibold text-slate-800">{title}</p>
+            <p className="text-xs text-slate-400">
+              {lang === 'bn'
+                ? 'ব্যক্তিগত, পারিবারিক, ঠিকানা, শিক্ষা ও স্পনসরের তথ্য সম্পূর্ণ করুন।'
+                : lang === 'ja'
+                ? '個人・家族・住所・学歴・保証人の情報を入力してください。'
+                : 'Complete your personal, family, address, education and sponsor details.'}
+            </p>
+          </div>
         </div>
       </div>
 

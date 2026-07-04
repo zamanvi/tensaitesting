@@ -257,12 +257,16 @@ export default function DocumentsPage() {
         const pct = Math.round((doneCount / total) * 100);
         const done = doneCount >= total;
         return (
-          <div className={`rounded-2xl border p-4 mb-5 ${done ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100'}`}>
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="text-sm font-bold text-slate-900">
+          <div className={`bg-white rounded-xl border shadow-sm overflow-hidden mb-4 ${done ? 'border-emerald-200' : 'border-slate-200'}`}>
+            <div className={`flex items-center gap-3 px-5 py-3.5 border-b ${done ? 'border-emerald-100 bg-emerald-50' : 'border-slate-100'}`}>
+              <span className={`w-0.5 h-4 rounded-full shrink-0 ${done ? 'bg-emerald-500' : 'bg-green-600'}`} />
+              <svg className={`w-4 h-4 shrink-0 ${done ? 'text-emerald-500' : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold ${done ? 'text-emerald-800' : 'text-slate-800'}`}>
                   {done
-                    ? (lang === 'bn' ? '✓ প্রয়োজনীয় সব কাগজপত্র আপলোড হয়েছে!' : lang === 'ja' ? '✓ 必要書類をすべてアップロード済み！' : '✓ All required documents uploaded!')
+                    ? (lang === 'bn' ? 'সব প্রয়োজনীয় কাগজপত্র আপলোড হয়েছে' : lang === 'ja' ? '必要書類をすべてアップロード済み' : 'All required documents uploaded')
                     : (lang === 'bn' ? 'প্রোফাইল অগ্রগতি' : lang === 'ja' ? 'プロフィール進捗' : 'Profile Progress')}
                 </p>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -270,43 +274,49 @@ export default function DocumentsPage() {
                     ? `${doneCount}টি আপলোড হয়েছে — ${total - doneCount}টি বাকি আছে`
                     : lang === 'ja'
                     ? `${doneCount}件アップロード済み — 残り${total - doneCount}件`
-                    : `${doneCount} of ${total} required documents uploaded${done ? '' : ` — ${total - doneCount} remaining`}`}
+                    : `${doneCount} of ${total} required documents${done ? '' : ` — ${total - doneCount} remaining`}`}
                 </p>
               </div>
-              <span className={`text-xl font-black shrink-0 ${done ? 'text-emerald-600' : 'text-slate-700'}`}>{pct}%</span>
+              <span className={`text-lg font-black shrink-0 tabular-nums ${done ? 'text-emerald-600' : 'text-slate-700'}`}>{pct}%</span>
             </div>
-            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-green-600'}`} style={{ width: `${pct}%` }} />
+            <div className="px-5 py-3">
+              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-emerald-500' : 'bg-green-600'}`} style={{ width: `${pct}%` }} />
+              </div>
+              {!done && (
+                <p className="text-xs text-slate-400 mt-2">
+                  {lang === 'bn'
+                    ? 'প্রয়োজনীয়: পাসপোর্ট, NID, জন্ম সনদ, SSC ও HSC সার্টিফিকেট ও মার্কশিট'
+                    : lang === 'ja'
+                    ? '必要書類: パスポート、NID、出生証明書、SSC・HSC証明書・マークシート'
+                    : 'Required: Passport, NID, Birth Certificate, SSC & HSC certificates and marksheets'}
+                </p>
+              )}
+              {done && (
+                <p className="text-xs text-emerald-600 mt-2">
+                  {lang === 'bn' ? 'আপনি চাইলে আরও অতিরিক্ত কাগজপত্রও আপলোড করতে পারেন।' : lang === 'ja' ? '追加書類もアップロードできます。' : 'You can still upload additional documents if needed.'}
+                </p>
+              )}
             </div>
-            {!done && (
-              <p className="text-xs text-slate-400 mt-2">
-                {lang === 'bn'
-                  ? '📋 প্রয়োজনীয়: পাসপোর্ট, NID, জন্ম সনদ, SSC ও HSC সার্টিফিকেট ও মার্কশিট'
-                  : lang === 'ja'
-                  ? '📋 必要書類: パスポート、NID、出生証明書、SSC・HSC証明書・マークシート'
-                  : '📋 Required: Passport, NID, Birth Certificate, SSC & HSC certificates and marksheets'}
-              </p>
-            )}
-            {done && (
-              <p className="text-xs text-emerald-600 mt-1">
-                {lang === 'bn' ? 'আপনি চাইলে আরও অতিরিক্ত কাগজপত্রও আপলোড করতে পারেন।' : lang === 'ja' ? '追加書類もアップロードできます。' : 'You can still upload additional documents if needed.'}
-              </p>
-            )}
           </div>
         );
       })()}
 
       {/* Upload Card */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-6">
-
-        {/* Card header */}
-        <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
-          <h2 className="font-bold text-slate-900 text-sm">
-            {lang === 'bn' ? 'নতুন কাগজপত্র আপলোড করুন' : lang === 'ja' ? '書類をアップロード' : 'Upload New Document'}
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            {lang === 'bn' ? 'OCR স্বয়ংক্রিয়ভাবে তথ্য পড়বে ও যাচাই করবে।' : lang === 'ja' ? 'OCRが自動でデータを読み取り検証します。' : 'OCR will automatically read and verify your document data.'}
-          </p>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+          <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+          <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          <div>
+            <p className="text-sm font-semibold text-slate-800">
+              {lang === 'bn' ? 'নতুন কাগজপত্র আপলোড করুন' : lang === 'ja' ? '書類をアップロード' : 'Upload New Document'}
+            </p>
+            <p className="text-xs text-slate-400">
+              {lang === 'bn' ? 'OCR স্বয়ংক্রিয়ভাবে তথ্য পড়বে ও যাচাই করবে।' : lang === 'ja' ? 'OCRが自動でデータを読み取り検証します。' : 'OCR will automatically read and verify your document data.'}
+            </p>
+          </div>
         </div>
 
         <div className="p-5 space-y-5">
@@ -476,22 +486,31 @@ export default function DocumentsPage() {
       </div>
 
       {/* Uploaded documents */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold text-slate-800 text-sm">
-          {lang === 'bn' ? 'আপলোড করা কাগজপত্র' : lang === 'ja' ? 'アップロード済み書類' : 'Uploaded Documents'}
-        </h3>
-        {jobs.length > 0 && (
-          <span className="text-xs bg-slate-100 text-slate-600 font-semibold px-2.5 py-1 rounded-full">
-            {jobs.length}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+          <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+          <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+          </svg>
+          <span className="text-sm font-semibold text-slate-800 flex-1">
+            {lang === 'bn' ? 'আপলোড করা কাগজপত্র' : lang === 'ja' ? 'アップロード済み書類' : 'Uploaded Documents'}
           </span>
-        )}
-      </div>
+          {jobs.length > 0 && (
+            <span className="text-xs bg-slate-100 text-slate-500 font-semibold px-2.5 py-0.5 rounded-full">
+              {jobs.length}
+            </span>
+          )}
+        </div>
 
-      <div className="space-y-3">
+      <div className="p-4 space-y-3">
         {jobs.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-100 p-10 text-center">
-            <div className="text-4xl mb-3">📂</div>
-            <p className="text-sm font-medium text-slate-600 mb-1">{sd.empty}</p>
+          <div className="py-10 text-center">
+            <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <p className="text-sm font-semibold text-slate-500 mb-1">{sd.empty}</p>
             <p className="text-xs text-slate-400">
               {lang === 'bn' ? 'উপরের ফর্ম ব্যবহার করে আপলোড করুন।' : lang === 'ja' ? '上のフォームからアップロードしてください。' : 'Use the form above to upload your first document.'}
             </p>
@@ -501,7 +520,7 @@ export default function DocumentsPage() {
             const sc = STATUS_CONFIG[job.status] ?? { color: 'bg-slate-100 text-slate-600', icon: '•' };
             const confidence = job.confidence_score !== null ? Math.round(job.confidence_score * 100) : null;
             return (
-              <div key={job.id} className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 hover:border-slate-200 hover:shadow-sm transition-all">
+              <div key={job.id} className="bg-slate-50 rounded-xl border border-slate-100 p-4 hover:border-slate-200 hover:bg-white hover:shadow-sm transition-all">
                 <div className="flex items-start gap-3">
                   {/* Doc icon */}
                   <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-xl shrink-0">
@@ -558,7 +577,7 @@ export default function DocumentsPage() {
           })
         )}
       </div>
-
+      </div>
 
     </StudentLayout>
   );

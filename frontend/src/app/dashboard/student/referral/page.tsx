@@ -40,14 +40,12 @@ export default function StudentReferralPage() {
     });
   }
 
-  // Fetch referrals list
   const { data: referralsData, isLoading: referralsLoading } = useQuery({
     queryKey: ['student-referrals'],
     queryFn: () => api.get('/student/referrals').then(r => r.data),
     staleTime: 60_000,
   });
 
-  // Fetch public settings for fee schedule
   const { data: settingsData } = useQuery({
     queryKey: ['public-settings'],
     queryFn: () => api.get('/settings/public').then(r => r.data),
@@ -57,7 +55,6 @@ export default function StudentReferralPage() {
   const referrals: Referral[] = referralsData?.data ?? [];
   const fees: Record<string, number> = settingsData?.referral_fees ?? {};
 
-  // Earnings summary
   const earned = referrals
     .filter(r => r.status === 'enrolled')
     .reduce((sum, r) => sum + (r.target_country ? (fees[r.target_country] ?? 0) : 0), 0);
@@ -84,122 +81,141 @@ export default function StudentReferralPage() {
 
   return (
     <StudentLayout title={title}>
-      <div className="max-w-2xl space-y-5">
+      <div className="max-w-2xl space-y-4">
+
+        {/* ── Earnings summary strip (when referrals exist) ── */}
+        {referrals.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center">
+              <div className="text-2xl font-black text-slate-800">{referrals.length}</div>
+              <div className="text-[11px] text-slate-500 mt-0.5">
+                {ja ? '紹介数' : bn ? 'মোট রেফারেল' : 'Total Referrals'}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center">
+              <div className="text-lg font-black text-green-700 truncate">
+                {earned > 0 ? `৳${earned.toLocaleString()}` : '৳0'}
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">
+                {ja ? '獲得済み' : bn ? 'অর্জিত' : 'Earned'}
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center">
+              <div className="text-lg font-black text-amber-600 truncate">
+                {pending > 0 ? `৳${pending.toLocaleString()}` : '৳0'}
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">
+                {ja ? '保留中' : bn ? 'অপেক্ষায়' : 'Pending'}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Referral link card ── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
-          <div className="text-3xl mb-3">🤝</div>
-          <h2 className="font-bold text-slate-900 text-base mb-2">
-            {ja ? 'Tensai紹介プログラム' : bn ? 'Tensai রেফারেল প্রোগ্রাম' : 'Tensai Referral Program'}
-          </h2>
-          <p className="text-sm text-slate-600 leading-relaxed mb-4">
-            {ja
-              ? '友人や知人をTensaiに紹介して、留学が完了したときにコミッションを獲得しましょう。'
-              : bn
-              ? 'আপনার পরিচিতদের Tensai-এ রেফার করুন এবং তাদের পড়াশোনা সম্পন্ন হলে কমিশন পান।'
-              : 'Refer friends to Tensai and earn a commission when they successfully complete their study abroad journey.'}
-          </p>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+            <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="text-sm font-semibold text-slate-800">
+              {ja ? 'Tensai紹介プログラム' : bn ? 'Tensai রেফারেল প্রোগ্রাম' : 'Tensai Referral Program'}
+            </span>
+          </div>
+          <div className="px-5 py-5">
+            <p className="text-sm text-slate-600 leading-relaxed mb-4">
+              {ja
+                ? '友人や知人をTensaiに紹介して、留学が完了したときにコミッションを獲得しましょう。'
+                : bn
+                ? 'আপনার পরিচিতদের Tensai-এ রেফার করুন এবং তাদের পড়াশোনা সম্পন্ন হলে কমিশন পান।'
+                : 'Refer friends to Tensai and earn a commission when they successfully complete their study abroad journey.'}
+            </p>
 
-          {/* Earnings summary */}
-          {referrals.length > 0 && (
-            <div className="grid grid-cols-3 gap-3 mb-5">
-              <div className="bg-slate-50 rounded-xl p-3 text-center">
-                <div className="text-xl font-bold text-slate-900">{referrals.length}</div>
-                <div className="text-[11px] text-slate-500 mt-0.5">
-                  {ja ? '紹介数' : bn ? 'মোট রেফারেল' : 'Total Referrals'}
+            {!revealed ? (
+              <button
+                onClick={() => setRevealed(true)}
+                className="w-full min-h-[44px] py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl font-bold text-sm transition-colors"
+              >
+                {ja ? '紹介リンクを取得する' : bn ? 'রেফারেল লিংক পান' : 'Get my referral link'}
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+                    {ja ? 'あなたのコード' : bn ? 'আপনার কোড' : 'Your code'}
+                  </label>
+                  <div className="font-mono text-sm font-bold text-green-800 bg-green-50 border border-green-100 rounded-xl px-4 py-2.5">
+                    {code || '—'}
+                  </div>
                 </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wide">
+                    {ja ? '紹介リンク' : bn ? 'রেফারেল লিংক' : 'Referral link'}
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      value={referralLink}
+                      className="flex-1 min-w-0 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-600 bg-slate-50 focus:outline-none"
+                    />
+                    <button
+                      onClick={copyLink}
+                      className={`shrink-0 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold transition-colors ${
+                        copied ? 'bg-green-100 text-green-800' : 'bg-green-700 hover:bg-green-800 text-white'
+                      }`}
+                    >
+                      {copied
+                        ? (ja ? 'コピー済み ✓' : bn ? 'কপি হয়েছে ✓' : 'Copied ✓')
+                        : (ja ? 'コピー' : bn ? 'কপি' : 'Copy')}
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-400">
+                  {ja
+                    ? 'このリンクを友人にシェアしてください。登録時に自動的にあなたの紹介として記録されます。'
+                    : bn
+                    ? 'এই লিংকটি বন্ধুদের সাথে শেয়ার করুন। নিবন্ধনের সময় স্বয়ংক্রিয়ভাবে আপনার রেফারেল হিসেবে রেকর্ড হবে।'
+                    : 'Share this link with friends. When they register, it is automatically recorded as your referral.'}
+                </p>
               </div>
-              <div className="bg-green-50 rounded-xl p-3 text-center">
-                <div className="text-base font-bold text-green-700 truncate">
-                  {earned > 0 ? `৳${earned.toLocaleString()}` : '৳0'}
-                </div>
-                <div className="text-[11px] text-green-600 mt-0.5">
-                  {ja ? '獲得済み' : bn ? 'অর্জিত' : 'Earned'}
-                </div>
-              </div>
-              <div className="bg-amber-50 rounded-xl p-3 text-center">
-                <div className="text-base font-bold text-amber-700 truncate">
-                  {pending > 0 ? `৳${pending.toLocaleString()}` : '৳0'}
-                </div>
-                <div className="text-[11px] text-amber-600 mt-0.5">
-                  {ja ? '保留中' : bn ? 'অপেক্ষায়' : 'Pending'}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {!revealed ? (
-            <button
-              onClick={() => setRevealed(true)}
-              className="w-full py-3 bg-green-700 hover:bg-green-800 text-white rounded-xl font-bold text-sm transition-colors"
-            >
-              {ja ? '紹介リンクを取得する' : bn ? 'রেফারেল লিংক পান' : 'Get my referral link'}
-            </button>
-          ) : (
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">
-                  {ja ? 'あなたのコード' : bn ? 'আপনার কোড' : 'Your code'}
-                </label>
-                <div className="font-mono text-sm font-bold text-green-800 bg-green-50 border border-green-100 rounded-xl px-4 py-2.5">
-                  {code || '—'}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1">
-                  {ja ? '紹介リンク' : bn ? 'রেফারেল লিংক' : 'Referral link'}
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    readOnly
-                    value={referralLink}
-                    className="flex-1 min-w-0 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-600 bg-slate-50 focus:outline-none"
-                  />
-                  <button
-                    onClick={copyLink}
-                    className={`shrink-0 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                      copied ? 'bg-green-100 text-green-800' : 'bg-green-700 hover:bg-green-800 text-white'
-                    }`}
-                  >
-                    {copied ? (ja ? 'コピー済み ✓' : bn ? 'কপি হয়েছে ✓' : 'Copied ✓') : (ja ? 'コピー' : bn ? 'কপি' : 'Copy')}
-                  </button>
-                </div>
-              </div>
-              <p className="text-xs text-slate-400">
-                {ja
-                  ? 'このリンクを友人にシェアしてください。登録時に自動的にあなたの紹介として記録されます。'
-                  : bn
-                  ? 'এই লিংকটি বন্ধুদের সাথে শেয়ার করুন। নিবন্ধনের সময় স্বয়ংক্রিয়ভাবে আপনার রেফারেল হিসেবে রেকর্ড হবে।'
-                  : 'Share this link with friends. When they register, it is automatically recorded as your referral.'}
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ── My Referrals table ── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="font-bold text-slate-900 text-sm">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+            <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span className="text-sm font-semibold text-slate-800 flex-1">
               {ja ? '私の紹介一覧' : bn ? 'আমার রেফারেলসমূহ' : 'My Referrals'}
-            </h3>
-            <span className="text-xs font-semibold text-slate-400">
-              {referrals.length} {ja ? '件' : bn ? 'জন' : 'total'}
             </span>
+            {referrals.length > 0 && (
+              <span className="text-xs font-semibold bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">
+                {referrals.length} {ja ? '件' : bn ? 'জন' : 'total'}
+              </span>
+            )}
           </div>
 
           {referralsLoading ? (
             <div className="text-center py-10 text-slate-400 text-sm">
-              {ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}
+              <span className="w-5 h-5 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin inline-block" />
             </div>
           ) : referrals.length === 0 ? (
-            <div className="text-center py-10 text-slate-400">
-              <div className="text-3xl mb-2">👥</div>
-              <div className="text-sm font-medium text-slate-500">
+            <div className="text-center py-12">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <p className="text-sm font-semibold text-slate-500">
                 {ja ? 'まだ紹介がありません' : bn ? 'এখনো কোনো রেফারেল নেই' : 'No referrals yet'}
-              </div>
-              <div className="text-xs mt-1">
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
                 {ja ? 'あなたの紹介リンクを友人にシェアしましょう。' : bn ? 'আপনার রেফারেল লিংক শেয়ার করুন।' : 'Share your referral link to get started.'}
-              </div>
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -237,11 +253,9 @@ export default function StudentReferralPage() {
                         </span>
                       </td>
                       <td className="px-3 py-3 text-right font-semibold text-sm">
-                        {r.status === 'enrolled' ? (
-                          <span className="text-green-700">{fmtFee(r.target_country)}</span>
-                        ) : (
-                          <span className="text-slate-400">{fmtFee(r.target_country)}</span>
-                        )}
+                        {r.status === 'enrolled'
+                          ? <span className="text-green-700">{fmtFee(r.target_country)}</span>
+                          : <span className="text-slate-400">{fmtFee(r.target_country)}</span>}
                       </td>
                       <td className="px-5 py-3 text-right text-xs text-slate-400">
                         {new Date(r.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
@@ -251,7 +265,7 @@ export default function StudentReferralPage() {
                 </tbody>
                 {referrals.length > 0 && (
                   <tfoot>
-                    <tr className="border-t border-slate-100 bg-slate-50">
+                    <tr className="border-t border-slate-200 bg-slate-50">
                       <td colSpan={3} className="px-5 py-3 text-xs font-semibold text-slate-500">
                         {ja ? '合計獲得済み' : bn ? 'মোট অর্জিত' : 'Total earned'}
                       </td>
@@ -269,23 +283,25 @@ export default function StudentReferralPage() {
 
         {/* ── Fee schedule ── */}
         {hasFees && (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">
-                {ja ? '国別コミッション一覧' : bn ? 'দেশ অনুযায়ী কমিশন' : 'Commission by Country'}
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                {ja
-                  ? '入学完了時に支払われる金額です。'
-                  : bn
-                  ? 'ভর্তি সম্পন্ন হলে এই পরিমাণ কমিশন পাবেন।'
-                  : 'Amount paid on enrollment completion.'}
-              </p>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+              <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+              <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-sm font-semibold text-slate-800">
+                  {ja ? '国別コミッション一覧' : bn ? 'দেশ অনুযায়ী কমিশন' : 'Commission by Country'}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {ja ? '入学完了時に支払われる金額です。' : bn ? 'ভর্তি সম্পন্ন হলে এই পরিমাণ কমিশন পাবেন।' : 'Amount paid on enrollment completion.'}
+                </p>
+              </div>
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-100">
               {Object.entries(fees).map(([country, fee]) => (
                 <div key={country} className="flex items-center justify-between px-5 py-3">
-                  <span className="text-sm font-medium text-slate-700">{country}</span>
+                  <span className="text-sm text-slate-700">{country}</span>
                   <span className="text-sm font-bold text-green-700">৳{fee.toLocaleString()}</span>
                 </div>
               ))}
@@ -294,11 +310,17 @@ export default function StudentReferralPage() {
         )}
 
         {/* ── How it works ── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
-          <h3 className="font-bold text-slate-900 text-sm mb-4">
-            {ja ? 'どのように機能するか' : bn ? 'কীভাবে কাজ করে' : 'How it works'}
-          </h3>
-          <div className="space-y-4">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
+            <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-sm font-semibold text-slate-800">
+              {ja ? 'どのように機能するか' : bn ? 'কীভাবে কাজ করে' : 'How it works'}
+            </span>
+          </div>
+          <div className="px-5 py-5 space-y-4">
             {[
               {
                 num: '01',
@@ -321,8 +343,8 @@ export default function StudentReferralPage() {
                   {step.num}
                 </div>
                 <div>
-                  <div className="font-semibold text-sm text-slate-900">{step.title}</div>
-                  <div className="text-xs text-slate-500 mt-0.5">{step.desc}</div>
+                  <p className="font-semibold text-sm text-slate-800">{step.title}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{step.desc}</p>
                 </div>
               </div>
             ))}
