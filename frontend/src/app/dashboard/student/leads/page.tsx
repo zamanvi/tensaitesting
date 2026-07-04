@@ -311,15 +311,7 @@ export default function StudentApplicationPage() {
                 </div>
               ) : apps.length === 0 ? (
                 <div className="px-4 py-8 text-center">
-                  <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <p className="text-xs font-semibold text-slate-400">No applications yet</p>
-                  <button onClick={() => setTab('new')} className="text-[11px] text-green-600 font-semibold mt-1 hover:underline">
-                    Start one →
-                  </button>
+                  <p className="text-xs text-slate-400">No applications yet</p>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-50">
@@ -376,26 +368,8 @@ export default function StudentApplicationPage() {
             </div>
           </aside>
 
-          {/* Main: draft form OR detail OR empty */}
+          {/* Main: draft form OR detail */}
           <div className="flex-1 min-w-0">
-            {!selectedApp && !isLoading && (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden py-16 text-center px-6">
-                <div className="w-14 h-14 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-base font-bold text-slate-800 mb-1">No Applications Yet</h3>
-                <p className="text-sm text-slate-400 mb-5">Click the button below to start your first application.</p>
-                <button onClick={() => setTab('new')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Start New Application
-                </button>
-              </div>
-            )}
 
             {selectedApp?.status === 'draft' && (
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
