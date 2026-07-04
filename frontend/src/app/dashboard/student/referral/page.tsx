@@ -85,7 +85,7 @@ export default function StudentReferralPage() {
 
         {/* ── Earnings summary strip (when referrals exist) ── */}
         {referrals.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 text-center">
               <div className="text-2xl font-black text-slate-800">{referrals.length}</div>
               <div className="text-[11px] text-slate-500 mt-0.5">

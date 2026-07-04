@@ -335,7 +335,7 @@ export default function StudentApplicationPage() {
   return (
     <StudentLayout title="My Application">
       {deleteDialog}
-      <div className="flex flex-col md:flex-row gap-5 items-start">
+      <div className="flex flex-col-reverse md:flex-row gap-5 items-start">
         {sidebarJsx}
         {view === 'start' && (
           <div className="flex-1 min-w-0">

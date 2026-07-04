@@ -402,7 +402,7 @@ export default function ApplicationFormBody({
                   return (
                     <div key={box.id} className={bi > 0 ? 'pt-4 border-t border-slate-100' : ''}>
                       {box.name && <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">{box.name}</p>}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                         {visibleFields.map(field => (
                           <div key={field.field_key} className={colSpan(field.box_size)}>
                             <DynamicField

@@ -142,7 +142,26 @@ export default function StudentSettingsPage() {
 
   return (
     <StudentLayout title={label('Settings', '設定', 'সেটিংস')}>
-      <div className="max-w-5xl flex gap-5 items-start">
+      {/* Mobile section tab bar */}
+      <div className="sm:hidden flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-4 shadow-sm">
+        {NAV_ITEMS.map(item => {
+          const isActive = activeSection === item.id;
+          const lbl_ = label(item.labelEn, item.labelJa, item.labelBn);
+          return (
+            <button
+              key={item.id}
+              onClick={() => scrollTo(item.id)}
+              className={`flex-1 py-2 px-2 rounded-lg text-xs font-semibold transition-colors ${
+                isActive ? 'bg-green-700 text-white' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+              }`}
+            >
+              {lbl_}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="max-w-5xl flex flex-col sm:flex-row gap-4 sm:gap-5 items-start">
 
         {/* ── Settings mini-sidebar ── */}
         <aside className="hidden sm:flex flex-col w-56 shrink-0 sticky top-6">
@@ -202,14 +221,14 @@ export default function StudentSettingsPage() {
         <div className="flex-1 min-w-0 space-y-4">
 
           {/* Profile Picture */}
-          <section id="profile" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-6">
-            <div className="px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
+          <section id="profile" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-20">
+            <div className="px-4 sm:px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
               <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <h2 className="text-sm font-semibold text-slate-800">
                 {label('Profile Picture', 'プロフィール写真', 'প্রোফাইল ছবি')}
               </h2>
             </div>
-            <div className="px-6 py-5">
+            <div className="px-4 sm:px-6 py-5">
               {avatarSaved && <Alert type="success" msg={label('Photo updated successfully', '写真を更新しました', 'ছবি আপডেট হয়েছে')} />}
               {avatarErr && <Alert type="error" msg={avatarErr} />}
               <div className="flex items-center gap-5">
@@ -256,14 +275,14 @@ export default function StudentSettingsPage() {
           </section>
 
           {/* Account Info */}
-          <section id="account" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-6">
-            <div className="px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
+          <section id="account" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-20">
+            <div className="px-4 sm:px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
               <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <h2 className="text-sm font-semibold text-slate-800">
                 {label('Account Info', 'アカウント情報', 'অ্যাকাউন্টের তথ্য')}
               </h2>
             </div>
-            <div className="px-6 py-5 space-y-5">
+            <div className="px-4 sm:px-6 py-5 space-y-5">
 
               {/* Name + Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -335,14 +354,14 @@ export default function StudentSettingsPage() {
           </section>
 
           {/* Security / Change Password */}
-          <section id="security" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-6">
-            <div className="px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
+          <section id="security" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden scroll-mt-20">
+            <div className="px-4 sm:px-6 py-3.5 border-b border-slate-100 flex items-center gap-3">
               <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
               <h2 className="text-sm font-semibold text-slate-800">
                 {label('Change Password', 'パスワード変更', 'পাসওয়ার্ড পরিবর্তন')}
               </h2>
             </div>
-            <div className="px-6 py-5">
+            <div className="px-4 sm:px-6 py-5">
               {pwSaved && <Alert type="success" msg={label('Password updated successfully', 'パスワードを更新しました', 'পাসওয়ার্ড আপডেট হয়েছে')} />}
               {pwErr && <Alert type="error" msg={pwErr} />}
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
