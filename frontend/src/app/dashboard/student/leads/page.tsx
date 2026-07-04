@@ -18,7 +18,7 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
 
 const STEPS = ['Submitted', 'Under Review', 'Decision'];
 
-type MainView = 'empty' | 'new' | 'form' | 'detail';
+type Tab = 'ongoing' | 'new';
 
 export default function StudentApplicationPage() {
   const { user } = useAuthStore();
@@ -30,7 +30,7 @@ export default function StudentApplicationPage() {
     if (user && !isStudent) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isStudent, router]);
 
-  const [mainView, setMainView]         = useState<MainView>('empty');
+  const [tab, setTab]               = useState<Tab>('ongoing');
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -42,18 +42,12 @@ export default function StudentApplicationPage() {
     enabled: !!isStudent,
   });
 
-  const apps       = appsData?.data ?? [];
-  const selectedApp = apps.find(a => a.id === selectedAppId) ?? null;
+  const apps        = appsData?.data ?? [];
+  const selectedApp = apps.find(a => a.id === selectedAppId) ?? apps[0] ?? null;
 
-  // Auto-open first app on initial load
   useEffect(() => {
-    if (isLoading) return;
-    if (apps.length > 0 && selectedAppId === null) {
-      const first = apps[0];
-      setSelectedAppId(first.id);
-      setMainView(first.status === 'draft' ? 'form' : 'detail');
-    } else if (apps.length === 0) {
-      setMainView('empty');
+    if (!isLoading && apps.length > 0 && !selectedAppId) {
+      setSelectedAppId(apps[0].id);
     }
   }, [isLoading, apps.length]);
 
@@ -66,18 +60,13 @@ export default function StudentApplicationPage() {
     staleTime: 300_000,
   });
 
-  function openApp(app: Application) {
-    setSelectedAppId(app.id);
-    setMainView(app.status === 'draft' ? 'form' : 'detail');
-  }
-
   function handleCreated(app: Application) {
     qc.invalidateQueries({ queryKey });
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
       ...old, data: [...(old?.data ?? []), app],
     }));
     setSelectedAppId(app.id);
-    setMainView('form');
+    setTab('ongoing');
   }
 
   function updateApp(updated: Application) {
@@ -87,9 +76,10 @@ export default function StudentApplicationPage() {
   }
 
   function handleDocUploaded(doc: AppDoc, progress: number) {
+    if (!selectedApp) return;
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a =>
-        a.id === selectedAppId
+        a.id === selectedApp.id
           ? { ...a, progress, documents: [...(a.documents ?? []).filter(d => d.doc_type !== doc.doc_type), doc] }
           : a
       ),
@@ -97,9 +87,10 @@ export default function StudentApplicationPage() {
   }
 
   function handleDocDeleted(docId: number, progress: number) {
+    if (!selectedApp) return;
     qc.setQueryData(queryKey, (old: { data: Application[] } | undefined) => ({
       ...old, data: (old?.data ?? []).map(a =>
-        a.id === selectedAppId
+        a.id === selectedApp.id
           ? { ...a, progress, documents: (a.documents ?? []).filter(d => d.id !== docId) }
           : a
       ),
@@ -113,12 +104,7 @@ export default function StudentApplicationPage() {
       qc.setQueryData(queryKey, { data: remaining });
       qc.invalidateQueries({ queryKey });
       setConfirmDelete(false);
-      if (remaining.length > 0) {
-        openApp(remaining[0]);
-      } else {
-        setSelectedAppId(null);
-        setMainView('empty');
-      }
+      setSelectedAppId(remaining[0]?.id ?? null);
     },
   });
 
@@ -135,7 +121,7 @@ export default function StudentApplicationPage() {
         </div>
         <h2 className="text-sm font-bold text-slate-900 text-center mb-1">Delete this application?</h2>
         <p className="text-xs text-slate-500 text-center mb-5 leading-relaxed">
-          This will permanently delete your draft application and all uploaded documents. This cannot be undone.
+          This will permanently delete your draft and all uploaded documents. This cannot be undone.
         </p>
         <div className="flex gap-2.5">
           <button onClick={() => setConfirmDelete(false)}
@@ -152,96 +138,7 @@ export default function StudentApplicationPage() {
     </div>
   );
 
-  // ── Sidebar ──────────────────────────────────────────────────────────────────
-  const sidebarJsx = (
-    <aside className="w-full md:w-72 shrink-0">
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5">
-            <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
-            <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Applications</span>
-          </div>
-          <button
-            onClick={() => { setSelectedAppId(null); setMainView('new'); }}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-              mainView === 'new'
-                ? 'bg-green-700 text-white'
-                : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-            </svg>
-            New
-          </button>
-        </div>
-
-        {/* Apps list */}
-        {isLoading ? (
-          <div className="py-8 flex justify-center">
-            <span className="w-5 h-5 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
-          </div>
-        ) : apps.length === 0 ? (
-          <div className="px-4 py-8 text-center">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
-              <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <p className="text-xs font-semibold text-slate-400">No applications yet</p>
-            <p className="text-[11px] text-slate-300 mt-0.5">Click + New to start</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-50">
-            {apps.map(app => (
-              <button key={app.id} onClick={() => openApp(app)}
-                className={`w-full text-left px-4 py-3.5 hover:bg-green-50/50 transition-colors border-l-2 ${
-                  selectedAppId === app.id && mainView !== 'new'
-                    ? 'border-l-green-600 bg-green-50/30'
-                    : 'border-l-transparent'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2 mb-1.5">
-                  <p className="text-xs font-bold text-slate-800 leading-snug truncate">{app.student_name}</p>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status]?.cls}`}>
-                    {STATUS_BADGE[app.status]?.label}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500">{app.form_template?.country ?? '—'}</p>
-                <p className="text-[10px] text-slate-400 truncate mb-2">{app.form_template?.name}</p>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] text-slate-400">Progress</span>
-                  <span className={`text-[10px] font-black tabular-nums ${app.progress >= 80 ? 'text-emerald-600' : app.progress >= 50 ? 'text-amber-600' : 'text-rose-500'}`}>
-                    {app.progress}%
-                  </span>
-                </div>
-                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full transition-all ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
-                    style={{ width: `${app.progress}%` }} />
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Delete button for selected draft */}
-        {selectedApp?.status === 'draft' && mainView !== 'new' && (
-          <div className="px-4 py-3 border-t border-slate-100">
-            <button onClick={() => setConfirmDelete(true)}
-              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-colors border border-rose-100">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Delete Draft
-            </button>
-          </div>
-        )}
-      </div>
-    </aside>
-  );
-
-  // ── Detail view ──────────────────────────────────────────────────────────────
+  // ── Detail view renderer ─────────────────────────────────────────────────────
   function renderDetail(app: Application) {
     if (app.status === 'submitted') {
       const activeStep = 1;
@@ -283,7 +180,6 @@ export default function StudentApplicationPage() {
         </div>
       );
     }
-
     if (app.status === 'accepted') {
       return (
         <div className="bg-white rounded-xl border border-emerald-100 shadow-sm overflow-hidden">
@@ -337,7 +233,6 @@ export default function StudentApplicationPage() {
         </div>
       );
     }
-
     return (
       <div className="bg-white rounded-xl border border-rose-100 shadow-sm overflow-hidden">
         <div className="bg-gradient-to-r from-rose-500 to-rose-600 px-6 py-7 text-center">
@@ -362,23 +257,127 @@ export default function StudentApplicationPage() {
   return (
     <StudentLayout title="My Application">
       {deleteDialog}
-      <div className="flex flex-col-reverse md:flex-row gap-5 items-start">
-        {sidebarJsx}
 
-        <div className="flex-1 min-w-0">
+      {/* ── Tab bar ───────────────────────────────────────────────────────────── */}
+      <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 mb-5 shadow-sm w-fit">
+        <button
+          onClick={() => setTab('ongoing')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+            tab === 'ongoing'
+              ? 'bg-green-700 text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Ongoing Applications
+          {apps.length > 0 && (
+            <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${tab === 'ongoing' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>
+              {apps.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setTab('new')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+            tab === 'new'
+              ? 'bg-green-700 text-white shadow-sm'
+              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+          </svg>
+          New Application
+        </button>
+      </div>
 
-          {/* ── Empty state ── */}
-          {mainView === 'empty' && (
+      {/* ── Tab 1: Ongoing Applications ──────────────────────────────────────── */}
+      {tab === 'ongoing' && (
+        <div className="flex flex-col-reverse md:flex-row gap-5 items-start">
+
+          {/* App list sidebar */}
+          <aside className="w-full md:w-72 shrink-0">
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="py-16 text-center px-6">
-                <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-5">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2.5">
+                <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Your Applications</span>
+              </div>
+
+              {isLoading ? (
+                <div className="py-8 flex justify-center">
+                  <span className="w-5 h-5 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+                </div>
+              ) : apps.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-400">No applications yet</p>
+                  <button onClick={() => setTab('new')} className="text-[11px] text-green-600 font-semibold mt-1 hover:underline">
+                    Start one →
+                  </button>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-50">
+                  {apps.map(app => (
+                    <button key={app.id} onClick={() => setSelectedAppId(app.id)}
+                      className={`w-full text-left px-4 py-3.5 hover:bg-green-50/50 transition-colors border-l-2 ${
+                        selectedApp?.id === app.id ? 'border-l-green-600 bg-green-50/30' : 'border-l-transparent'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <p className="text-xs font-bold text-slate-800 leading-snug truncate">{app.student_name}</p>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status]?.cls}`}>
+                          {STATUS_BADGE[app.status]?.label}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500">{app.form_template?.country ?? '—'}</p>
+                      <p className="text-[10px] text-slate-400 truncate mb-2">{app.form_template?.name}</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] text-slate-400">Progress</span>
+                        <span className={`text-[10px] font-black tabular-nums ${app.progress >= 80 ? 'text-emerald-600' : app.progress >= 50 ? 'text-amber-600' : 'text-rose-500'}`}>
+                          {app.progress}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${app.progress >= 80 ? 'bg-emerald-500' : app.progress >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                          style={{ width: `${app.progress}%` }} />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {selectedApp?.status === 'draft' && (
+                <div className="px-4 py-3 border-t border-slate-100">
+                  <button onClick={() => setConfirmDelete(true)}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-rose-500 hover:bg-rose-50 transition-colors border border-rose-100">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete Draft
+                  </button>
+                </div>
+              )}
+            </div>
+          </aside>
+
+          {/* Main: draft form OR detail OR empty */}
+          <div className="flex-1 min-w-0">
+            {!selectedApp && !isLoading && (
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden py-16 text-center px-6">
+                <div className="w-14 h-14 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <h3 className="text-base font-bold text-slate-800 mb-1">No Applications Yet</h3>
-                <p className="text-sm text-slate-400 mb-6">Start your first application by clicking the button below.</p>
-                <button onClick={() => setMainView('new')}
+                <p className="text-sm text-slate-400 mb-5">Click the button below to start your first application.</p>
+                <button onClick={() => setTab('new')}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-xl transition-colors shadow-sm">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -386,52 +385,50 @@ export default function StudentApplicationPage() {
                   Start New Application
                 </button>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ── New Application form ── */}
-          {mainView === 'new' && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-br from-green-700 to-emerald-600 px-6 py-6 flex items-center gap-5">
-                <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center shrink-0">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-base font-black text-white leading-tight">Start Your Application</h2>
-                  <p className="text-green-100 text-sm mt-0.5">Choose your destination and program — save as draft anytime</p>
-                </div>
+            {selectedApp?.status === 'draft' && (
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <ApplicationFormBody
+                  app={selectedApp}
+                  template={template ?? null}
+                  templateLoading={templateLoading}
+                  onSaved={updateApp}
+                  onSubmitted={updated => { updateApp(updated); }}
+                  onDocUploaded={handleDocUploaded}
+                  onDocDeleted={handleDocDeleted}
+                />
               </div>
-              <ApplicationStarter
-                role="student"
-                onCreated={handleCreated}
-                onCancel={apps.length > 0 ? () => openApp(apps[0]) : undefined}
-                queryKey="student-applications"
-              />
-            </div>
-          )}
+            )}
 
-          {/* ── Draft form ── */}
-          {mainView === 'form' && selectedApp && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <ApplicationFormBody
-                app={selectedApp}
-                template={template ?? null}
-                templateLoading={templateLoading}
-                onSaved={updateApp}
-                onSubmitted={updated => { updateApp(updated); setMainView('detail'); }}
-                onDocUploaded={handleDocUploaded}
-                onDocDeleted={handleDocDeleted}
-              />
-            </div>
-          )}
-
-          {/* ── Detail view ── */}
-          {mainView === 'detail' && selectedApp && renderDetail(selectedApp)}
-
+            {selectedApp && selectedApp.status !== 'draft' && renderDetail(selectedApp)}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* ── Tab 2: New Application ────────────────────────────────────────────── */}
+      {tab === 'new' && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-br from-green-700 to-emerald-600 px-6 py-6 flex items-center gap-5">
+            <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center shrink-0">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-base font-black text-white leading-tight">Start Your Application</h2>
+              <p className="text-green-100 text-sm mt-0.5">Choose your destination and program — save as draft anytime</p>
+            </div>
+          </div>
+          <ApplicationStarter
+            role="student"
+            onCreated={handleCreated}
+            onCancel={apps.length > 0 ? () => setTab('ongoing') : undefined}
+            queryKey="student-applications"
+          />
+        </div>
+      )}
+
     </StudentLayout>
   );
 }
