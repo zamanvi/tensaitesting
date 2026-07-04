@@ -293,25 +293,21 @@ export default function StudentApplicationPage() {
 
       {/* ── Tab 1: Ongoing Applications ──────────────────────────────────────── */}
       {tab === 'ongoing' && (
-        <div className="flex flex-col-reverse md:flex-row gap-5 items-start">
+        isLoading ? (
+          <div className="py-16 flex justify-center">
+            <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+          </div>
+        ) : apps.length > 0 ? (
+          <div className="flex flex-col-reverse md:flex-row gap-5 items-start">
 
-          {/* App list sidebar */}
-          <aside className="w-full md:w-72 shrink-0">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2.5">
-                <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
-                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Your Applications</span>
-              </div>
+            {/* App list sidebar */}
+            <aside className="w-full md:w-72 shrink-0">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2.5">
+                  <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Your Applications</span>
+                </div>
 
-              {isLoading ? (
-                <div className="py-8 flex justify-center">
-                  <span className="w-5 h-5 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
-                </div>
-              ) : apps.length === 0 ? (
-                <div className="px-4 py-8 text-center">
-                  <p className="text-xs text-slate-400">No applications yet</p>
-                </div>
-              ) : (
                 <div className="divide-y divide-slate-50">
                   {apps.map(app => {
                     const badge = STATUS_BADGE[app.status];
@@ -322,7 +318,6 @@ export default function StudentApplicationPage() {
                           isSelected ? 'border-l-green-600 bg-green-50/30' : 'border-l-transparent'
                         }`}
                       >
-                        {/* Status pill — prominent at top */}
                         <div className="mb-2">
                           <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${badge?.cls}`}>
                             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
@@ -350,42 +345,40 @@ export default function StudentApplicationPage() {
                     );
                   })}
                 </div>
-              )}
 
+                {selectedApp?.status === 'draft' && (
+                  <div className="px-4 py-3 border-t border-slate-100">
+                    <button onClick={() => setConfirmDelete(true)}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-rose-500 hover:bg-rose-50 transition-colors border border-rose-100">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete Draft
+                    </button>
+                  </div>
+                )}
+              </div>
+            </aside>
+
+            {/* Main: draft form OR detail */}
+            <div className="flex-1 min-w-0">
               {selectedApp?.status === 'draft' && (
-                <div className="px-4 py-3 border-t border-slate-100">
-                  <button onClick={() => setConfirmDelete(true)}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold text-rose-500 hover:bg-rose-50 transition-colors border border-rose-100">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Delete Draft
-                  </button>
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <ApplicationFormBody
+                    app={selectedApp}
+                    template={template ?? null}
+                    templateLoading={templateLoading}
+                    onSaved={updateApp}
+                    onSubmitted={updated => { updateApp(updated); }}
+                    onDocUploaded={handleDocUploaded}
+                    onDocDeleted={handleDocDeleted}
+                  />
                 </div>
               )}
+              {selectedApp && selectedApp.status !== 'draft' && renderDetail(selectedApp)}
             </div>
-          </aside>
-
-          {/* Main: draft form OR detail */}
-          <div className="flex-1 min-w-0">
-
-            {selectedApp?.status === 'draft' && (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <ApplicationFormBody
-                  app={selectedApp}
-                  template={template ?? null}
-                  templateLoading={templateLoading}
-                  onSaved={updateApp}
-                  onSubmitted={updated => { updateApp(updated); }}
-                  onDocUploaded={handleDocUploaded}
-                  onDocDeleted={handleDocDeleted}
-                />
-              </div>
-            )}
-
-            {selectedApp && selectedApp.status !== 'draft' && renderDetail(selectedApp)}
           </div>
-        </div>
+        ) : null
       )}
 
       {/* ── Tab 2: New Application ────────────────────────────────────────────── */}
