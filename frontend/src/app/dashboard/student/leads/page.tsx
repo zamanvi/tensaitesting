@@ -298,7 +298,7 @@ export default function StudentApplicationPage() {
             <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
           </div>
         ) : apps.length > 0 ? (
-          <div className="flex flex-col-reverse md:flex-row gap-5 items-start">
+          <div className="flex flex-col md:flex-row gap-5 items-start">
 
             {/* App list sidebar */}
             <aside className="w-full md:w-72 shrink-0">

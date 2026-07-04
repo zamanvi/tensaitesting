@@ -111,7 +111,7 @@ export default function StudentReferralPage() {
               </p>
             </div>
             {referrals.length > 0 && (
-              <div className="flex gap-4 shrink-0">
+              <div className="flex flex-wrap gap-3 shrink-0">
                 <div className="text-center bg-white/15 rounded-xl px-4 py-2.5">
                   <p className="text-2xl font-black text-white">{referrals.length}</p>
                   <p className="text-[11px] text-green-200 mt-0.5">{ja ? '紹介数' : bn ? 'রেফারেল' : 'Referrals'}</p>

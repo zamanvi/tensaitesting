@@ -180,32 +180,11 @@ export default function StudentLayout({ children, title }: Props) {
         <Sidebar />
       </div>
 
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 z-40 flex">
-          <div className="fixed inset-0 bg-black/40" onClick={() => setSidebarOpen(false)} />
-          <div className="relative z-50 w-60 h-full">
-            <Sidebar mobile />
-          </div>
-        </div>
-      )}
-
       {/* Right side */}
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Top bar */}
         <header className="bg-white border-b border-slate-200 sticky top-0 z-30 h-14 flex items-center px-4 sm:px-6 gap-3">
-
-          {/* Mobile: hamburger */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500"
-            onClick={() => setSidebarOpen(o => !o)}
-            aria-label="Menu"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
 
           {/* Mobile: logo */}
           <Link href="/dashboard/student/leads" className="md:hidden flex items-center gap-2">
@@ -319,15 +298,15 @@ export default function StudentLayout({ children, title }: Props) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 overflow-auto">
           {title && (
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 mb-5 tracking-tight">{title}</h1>
           )}
           {children}
         </main>
 
-        {/* Footer */}
-        <footer className="bg-white border-t border-slate-200 px-6 py-4">
+        {/* Footer — hidden on mobile (bottom nav takes that space) */}
+        <footer className="hidden md:block bg-white border-t border-slate-200 px-6 py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <span className="text-xs text-slate-400">{t.landing.footer}</span>
             <div className="flex items-center gap-5 text-xs text-slate-400">
@@ -338,6 +317,31 @@ export default function StudentLayout({ children, title }: Props) {
           </div>
         </footer>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 safe-area-inset-bottom">
+        <div className="flex items-stretch h-16">
+          {NAV.map(item => {
+            const active = pathname === item.href || pathname.startsWith(item.href + '/');
+            const label = lang === 'ja' ? item.label.ja : lang === 'bn' ? item.label.bn : item.label.en;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative flex-1 flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition-colors ${
+                  active ? 'text-green-700' : 'text-slate-400'
+                }`}
+              >
+                <span className={`p-1.5 rounded-xl transition-colors ${active ? 'bg-green-50' : ''}`}>
+                  <span className={active ? 'text-green-700' : 'text-slate-400'}>{item.icon}</span>
+                </span>
+                <span className="leading-none">{label}</span>
+                {active && <span className="absolute bottom-0 w-8 h-0.5 bg-green-600 rounded-t" />}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }
