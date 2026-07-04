@@ -340,14 +340,18 @@ export default function StudentApplicationPage() {
         {view === 'start' && (
           <div className="flex-1 min-w-0">
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-                <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
-                <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              {/* Hero banner */}
+              <div className="bg-gradient-to-br from-green-700 to-emerald-600 px-6 py-6 flex items-center gap-5">
+                <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">New Application</p>
-                  <p className="text-xs text-slate-400">Choose your destination and program — save as draft anytime</p>
+                  <h2 className="text-base font-black text-white leading-tight">Start Your Application</h2>
+                  <p className="text-green-100 text-sm mt-0.5">
+                    Choose your destination and program — save as draft anytime
+                  </p>
                 </div>
               </div>
               <ApplicationStarter role="student" onCreated={handleCreated} queryKey="student-application" />
