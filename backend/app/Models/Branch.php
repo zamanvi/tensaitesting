@@ -62,11 +62,11 @@ class Branch extends Model
     {
         if (!$path) return null;
         if (app()->environment('production')) {
-            $r2Url = env('R2_URL', '');
+            $r2Url = (string) config('filesystems.disks.r2.url', '');
             if ($r2Url && !str_contains($r2Url, 'r2.cloudflarestorage.com')) {
                 return rtrim($r2Url, '/') . '/' . ltrim($path, '/');
             }
-            return rtrim(env('APP_URL', 'https://tensai-production-3af6.up.railway.app'), '/') . '/api/branches/file?path=' . urlencode($path);
+            return rtrim((string) config('app.url', 'https://tensai-production-3af6.up.railway.app'), '/') . '/api/branches/file?path=' . urlencode($path);
         }
         return Storage::disk('public')->url($path);
     }

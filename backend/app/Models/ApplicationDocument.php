@@ -30,11 +30,12 @@ class ApplicationDocument extends Model
         if (!$this->file_path) return '';
 
         if (app()->environment('production')) {
-            $r2Url = env('R2_URL', '');
+            $r2Url = (string) config('filesystems.disks.r2.url', '');
             if ($r2Url && !str_contains($r2Url, 'r2.cloudflarestorage.com')) {
                 return rtrim($r2Url, '/') . '/' . ltrim($this->file_path, '/');
             }
-            return rtrim(env('APP_URL', ''), '/') . '/api/branches/file?path=' . urlencode($this->file_path);
+            $appUrl = (string) config('app.url', '');
+            return rtrim($appUrl, '/') . '/api/branches/file?path=' . urlencode($this->file_path);
         }
 
         return Storage::disk('public')->url($this->file_path);

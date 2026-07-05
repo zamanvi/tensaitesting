@@ -27,7 +27,7 @@ class GalleryItem extends Model
     {
         if ($this->image_path) {
             if (app()->environment('production')) {
-                $r2Url = env('R2_URL', '');
+                $r2Url = (string) config('filesystems.disks.r2.url', '');
                 // Only use R2_URL if it's a proper public CDN URL.
                 // The private API endpoint (r2.cloudflarestorage.com) requires auth — browsers can't load it.
                 $isPublicCdn = $r2Url && !str_contains($r2Url, 'r2.cloudflarestorage.com');
@@ -35,7 +35,7 @@ class GalleryItem extends Model
                     return rtrim($r2Url, '/') . '/' . ltrim($this->image_path, '/');
                 }
                 // Fall back to backend proxy — streams the image through Railway
-                $appUrl = rtrim(env('APP_URL', 'https://tensai-production-3af6.up.railway.app'), '/');
+                $appUrl = rtrim((string) config('app.url', 'https://tensai-production-3af6.up.railway.app'), '/');
                 return $appUrl . '/api/gallery/image/' . $this->id;
             }
             // Local dev: use public disk URL
