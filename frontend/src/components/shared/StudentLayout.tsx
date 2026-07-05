@@ -16,7 +16,7 @@ interface Notification {
 interface Props { children: React.ReactNode; title?: string; }
 
 // Paths that belong to the Application group (parent + sub-items)
-const APP_GROUP_PATHS = ['/dashboard/student/leads', '/dashboard/student/experience', '/dashboard/student/cv'];
+const APP_GROUP_PATHS = ['/dashboard/student/leads'];
 
 const NAV = [
   {
@@ -32,7 +32,7 @@ const NAV = [
     sub: [
       {
         label: { en: 'My Experience', ja: '体験', bn: 'অভিজ্ঞতা' },
-        href: '/dashboard/student/experience',
+        href: '/dashboard/student/leads',
         icon: (
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -42,7 +42,7 @@ const NAV = [
       },
       {
         label: { en: 'My CV', ja: '履歴書', bn: 'আমার সিভি' },
-        href: '/dashboard/student/cv',
+        href: '/dashboard/student/leads?tab=new',
         icon: (
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -199,7 +199,8 @@ export default function StudentLayout({ children, title }: Props) {
                 {'sub' in item && inGroup && (
                   <div className="ml-4 mt-0.5 mb-1 pl-4 border-l border-slate-200 space-y-0.5">
                     {item.sub!.map(sub => {
-                      const subActive = pathname === sub.href || pathname.startsWith(sub.href + '/');
+                      const subPath = sub.href.split('?')[0];
+                      const subActive = pathname === subPath;
                       const subLabel = lang === 'ja' ? sub.label.ja : lang === 'bn' ? sub.label.bn : sub.label.en;
                       return (
                         <Link
