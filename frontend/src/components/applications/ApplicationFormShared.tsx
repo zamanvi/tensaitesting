@@ -187,9 +187,11 @@ export function InlineDoc({
     try {
       const res = await api.post(`/applications/${appId}/documents`, fd);
       onUploaded(res.data.document, res.data.progress);
-    } catch {
-      setUploadErr('Upload failed — please try again.');
-      setTimeout(() => setUploadErr(''), 5000);
+    } catch (e: unknown) {
+      const ax = e as { response?: { data?: { message?: string } } };
+      const msg = ax.response?.data?.message ?? 'Upload failed — please try again.';
+      setUploadErr(msg);
+      setTimeout(() => setUploadErr(''), 8000);
     }
     setUploading(false); e.target.value = '';
   }
@@ -199,9 +201,10 @@ export function InlineDoc({
     try {
       const res = await api.delete(`/applications/${appId}/documents/${existingDoc.id}`);
       onDeleted(existingDoc.id, res.data.progress);
-    } catch {
-      setUploadErr('Delete failed — please try again.');
-      setTimeout(() => setUploadErr(''), 5000);
+    } catch (e: unknown) {
+      const ax = e as { response?: { data?: { message?: string } } };
+      setUploadErr(ax.response?.data?.message ?? 'Delete failed — please try again.');
+      setTimeout(() => setUploadErr(''), 8000);
     }
     setDeleting(false);
   }
