@@ -31,7 +31,7 @@ const NAV = [
     ),
     sub: [
       {
-        label: { en: 'Ongoing Applications', ja: '進行中', bn: 'চলমান আবেদন' },
+        label: { en: 'My Experience', ja: '体験', bn: 'অভিজ্ঞতা' },
         href: '/dashboard/student/experience',
         icon: (
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +41,7 @@ const NAV = [
         ),
       },
       {
-        label: { en: 'New Application', ja: '新規申請', bn: 'নতুন আবেদন' },
+        label: { en: 'My CV', ja: '履歴書', bn: 'আমার সিভি' },
         href: '/dashboard/student/cv',
         icon: (
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
