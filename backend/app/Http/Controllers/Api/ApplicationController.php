@@ -159,11 +159,17 @@ class ApplicationController extends Controller
 
         $file    = $request->file('file');
         $disk    = $this->storageDisk();
-        $path    = $file->store("applications/{$app->id}", $disk);
         $docType = $request->input('doc_type');
 
+        try {
+            $path = $file->store("applications/{$app->id}", $disk);
+        } catch (\Throwable $e) {
+            \Log::error('Document upload failed', ['error' => $e->getMessage(), 'app' => $app->id]);
+            return response()->json(['message' => 'File storage failed: ' . $e->getMessage()], 500);
+        }
+
         if (!$path) {
-            return response()->json(['message' => 'File storage failed — storage may not be configured.'], 500);
+            return response()->json(['message' => 'File storage returned false — check R2 credentials in Railway env vars.'], 500);
         }
 
         $existing = ApplicationDocument::where('application_id', $app->id)->where('doc_type', $docType)->first();
@@ -230,7 +236,8 @@ class ApplicationController extends Controller
     private function storageDisk(): string
     {
         if (!app()->environment('production')) return 'public';
-        return (env('R2_ACCESS_KEY_ID') && env('R2_SECRET_ACCESS_KEY')) ? 'r2' : 'public';
+        $key = config('filesystems.disks.r2.key');
+        return ($key && $key !== '') ? 'r2' : 'public';
     }
 
     private function findOwned(Request $request, int $id): Application
