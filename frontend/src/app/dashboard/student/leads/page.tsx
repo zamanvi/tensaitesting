@@ -260,7 +260,7 @@ export default function StudentApplicationPage() {
   }
 
   return (
-    <StudentLayout title="My Application">
+    <StudentLayout>
       {deleteDialog}
 
       {/* ── Sub-category nav ─────────────────────────────────────────────────── */}
