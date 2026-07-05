@@ -185,7 +185,9 @@ export function InlineDoc({
     fd.append('label', fieldLabel);
     fd.append('file', await compressImage(file));
     try {
-      const res = await api.post(`/applications/${appId}/documents`, fd);
+      const res = await api.post(`/applications/${appId}/documents`, fd, {
+        headers: { 'Content-Type': undefined },
+      });
       onUploaded(res.data.document, res.data.progress);
     } catch (e: unknown) {
       const ax = e as { response?: { data?: { message?: string } } };
