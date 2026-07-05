@@ -158,9 +158,13 @@ class ApplicationController extends Controller
         $request->validate(['file' => 'required|file|max:10240', 'doc_type' => 'required|string', 'field_key' => 'nullable|string', 'label' => 'nullable|string']);
 
         $file    = $request->file('file');
-        $disk    = app()->environment('production') ? 'r2' : 'public';
+        $disk    = $this->storageDisk();
         $path    = $file->store("applications/{$app->id}", $disk);
         $docType = $request->input('doc_type');
+
+        if (!$path) {
+            return response()->json(['message' => 'File storage failed — storage may not be configured.'], 500);
+        }
 
         $existing = ApplicationDocument::where('application_id', $app->id)->where('doc_type', $docType)->first();
         if ($existing) {
@@ -198,7 +202,7 @@ class ApplicationController extends Controller
         }
 
         // Delete all associated documents from storage
-        $disk = app()->environment('production') ? 'r2' : 'public';
+        $disk = $this->storageDisk();
         foreach ($app->documents ?? [] as $doc) {
             try { Storage::disk($disk)->delete($doc->file_path); } catch (\Throwable) {}
         }
@@ -213,7 +217,7 @@ class ApplicationController extends Controller
         $app = $this->findOwned($request, $id);
         $doc = ApplicationDocument::where('application_id', $app->id)->findOrFail($docId);
 
-        $disk = app()->environment('production') ? 'r2' : 'public';
+        $disk = $this->storageDisk();
         try { Storage::disk($disk)->delete($doc->file_path); } catch (\Throwable) {}
         $doc->delete();
 
@@ -221,6 +225,12 @@ class ApplicationController extends Controller
         $app->save();
 
         return response()->json(['progress' => $app->progress]);
+    }
+
+    private function storageDisk(): string
+    {
+        if (!app()->environment('production')) return 'public';
+        return (env('R2_ACCESS_KEY_ID') && env('R2_SECRET_ACCESS_KEY')) ? 'r2' : 'public';
     }
 
     private function findOwned(Request $request, int $id): Application
