@@ -57,6 +57,7 @@ export default function ApplicationFormBody({
   const toFormData = (src: Application) =>
     Object.fromEntries(Object.entries(src.form_data ?? {}).map(([k, v]) => [k, v == null ? '' : String(v)]));
   const toStudentInfo = (src: Application) => ({
+    student_name:      src.student_name ?? '',
     student_email:     src.student_email ?? '',
     student_phone:     src.student_phone ?? '',
     whatsapp_no:       src.whatsapp_no ?? '',
@@ -127,7 +128,7 @@ export default function ApplicationFormBody({
   async function handleSave() {
     setSaving(true); setErr('');
     try {
-      const res = await api.patch(`/applications/${app.id}`, { form_data: formData, ...studentInfo });
+      const res = await api.patch(`/applications/${app.id}`, { form_data: formData, ...studentInfo, student_name: studentInfo.student_name.trim() || null });
       onSaved(res.data);
       if (res.data?.progress !== undefined) setLiveProgress(res.data.progress);
       setHasChanges(false);
@@ -298,7 +299,9 @@ export default function ApplicationFormBody({
                     <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                       <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     </span>
-                    <input className={`${inp} pl-10 bg-slate-50 cursor-not-allowed`} value={app.student_name ?? ''} readOnly aria-label="Full name (read only)" />
+                    <input className={`${inp} pl-10 ${!isEditable ? 'bg-slate-50 cursor-not-allowed' : ''}`}
+                      value={studentInfo.student_name} readOnly={!isEditable}
+                      onChange={isEditable ? e => { setStudentInfo(p => ({ ...p, student_name: e.target.value })); setHasChanges(true); } : undefined} />
                   </div>
                 </div>
                 <div>
@@ -307,7 +310,7 @@ export default function ApplicationFormBody({
                     <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                       <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     </span>
-                    <input className={`${inp} pl-10 ${!isEditable ? 'bg-slate-50 cursor-not-allowed' : ''}`} type="email"
+                    <input className={`${inp} pl-10 ${!isEditable ? 'bg-slate-50 cursor-not-allowed' : ''}`} type="text"
                       value={studentInfo.student_email} readOnly={!isEditable}
                       onChange={isEditable ? e => { setStudentInfo(p => ({ ...p, student_email: e.target.value })); setHasChanges(true); } : undefined} />
                   </div>
