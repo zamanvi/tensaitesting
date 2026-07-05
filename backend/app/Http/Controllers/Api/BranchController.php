@@ -265,7 +265,7 @@ class BranchController extends Controller
         $path = $request->query('path');
         if (!$path) abort(404);
 
-        $disk = app()->environment('production') ? 'r2' : 'public';
+        $disk = $this->storageDisk();
 
         try {
             $contents = Storage::disk($disk)->get($path);
@@ -273,12 +273,23 @@ class BranchController extends Controller
             abort(404);
         }
 
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $mimeMap = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif'];
-        $mimeType = $mimeMap[$ext] ?? 'image/jpeg';
+        $ext      = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mimeMap  = [
+            'jpg'  => 'image/jpeg', 'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',  'webp' => 'image/webp',
+            'gif'  => 'image/gif',  'pdf'  => 'application/pdf',
+        ];
+        $mimeType = $mimeMap[$ext] ?? 'application/octet-stream';
 
         return response($contents, 200)
             ->header('Content-Type', $mimeType)
             ->header('Cache-Control', 'public, max-age=86400');
+    }
+
+    private function storageDisk(): string
+    {
+        if (!app()->environment('production')) return 'public';
+        $key = config('filesystems.disks.r2.key');
+        return ($key && $key !== '') ? 'r2' : 'public';
     }
 }
