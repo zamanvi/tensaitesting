@@ -384,7 +384,23 @@ export default function StudentApplicationPage() {
               {selectedApp && selectedApp.status !== 'draft' && renderDetail(selectedApp)}
             </div>
           </div>
-        ) : null
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mb-5">
+              <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-base font-black text-slate-800 mb-1">No applications yet</h3>
+            <p className="text-sm text-slate-400 mb-6 max-w-xs">Start your study abroad journey by submitting your first application.</p>
+            <button
+              onClick={() => setTab('new')}
+              className="px-6 py-2.5 bg-green-700 hover:bg-green-600 text-white text-sm font-bold rounded-xl transition-colors shadow-sm shadow-green-700/20"
+            >
+              + New Application
+            </button>
+          </div>
+        )
       )}
 
       {/* ── Tab 2: New Application ────────────────────────────────────────────── */}
