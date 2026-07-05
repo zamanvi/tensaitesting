@@ -6,12 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const FEATURES = [
-  { icon: '🔒', en: 'OCR-locked documents',      ja: 'OCRロック書類',        bn: 'OCR লক ডকুমেন্ট' },
-  { icon: '🤖', en: 'AI eligibility scoring',     ja: 'AI適性スコア',         bn: 'AI যোগ্যতা স্কোর' },
-  { icon: '📊', en: 'Real-time visa tracking',    ja: 'ビザリアルタイム追跡',  bn: 'রিয়েল-টাইম ভিসা ট্র্যাকিং' },
-  { icon: '💼', en: '৳20,000 per referral',       ja: '紹介で৳20,000',        bn: 'রেফারেলে ৳২০,০০০' },
-];
 
 export default function LoginPage() {
   const [email, setEmail]               = useState("");
@@ -45,75 +39,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-10">
 
-      {/* LEFT — dark brand panel, lg+ only */}
-      <div className="hidden lg:flex flex-col justify-between w-[400px] xl:w-[460px] bg-[#0d1117] px-10 py-10 relative overflow-hidden shrink-0">
+      <div className="w-full flex flex-col items-center">
 
-        {/* Glow orbs */}
-        <div className="absolute top-[-80px] left-[-60px] w-[300px] h-[300px] rounded-full bg-green-500/10 blur-[90px] pointer-events-none" />
-        <div className="absolute bottom-[-60px] right-[-40px] w-[240px] h-[240px] rounded-full bg-cyan-500/8 blur-[80px] pointer-events-none" />
-        {/* Grid texture */}
-        <div className="absolute inset-0 opacity-[0.025] pointer-events-none"
-          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
-
-        <div className="relative z-10 flex flex-col gap-8">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <Image src="/tensai-logo.png" alt="Tensai" width={40} height={40} className="rounded-xl object-contain" />
-            <div>
-              <div className="text-xl font-black text-white tracking-tight leading-none">Tensai</div>
-              <div className="text-[9px] text-slate-500 tracking-widest uppercase mt-0.5">The Way of Global Career</div>
-            </div>
-          </Link>
-
-          {/* Headline */}
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 mb-5">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs text-green-400 font-medium">
-                {ja ? 'ようこそ' : bn ? 'স্বাগতম' : 'Welcome back'}
-              </span>
-            </div>
-            <h2 className="text-2xl xl:text-3xl font-black text-white leading-tight">
-              {ja ? 'グローバルキャリアへ\nようこそ' : bn ? 'গ্লোবাল ক্যারিয়ারে\nস্বাগতম' : 'Your global career\nstarts here'}
-            </h2>
-          </div>
-
-          {/* Features — short pills */}
-          <ul className="space-y-2.5">
-            {FEATURES.map((f) => (
-              <li key={f.en} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/4 border border-white/6">
-                <span className="text-base shrink-0">{f.icon}</span>
-                <span className="text-sm text-slate-300 font-medium">
-                  {ja ? f.ja : bn ? f.bn : f.en}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Social proof */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {(['R','K','Y','S'] as const).map((c, i) => (
-              <div key={c} className="w-8 h-8 rounded-full border-2 border-[#0d1117] flex items-center justify-center text-white text-xs font-bold"
-                style={{ background: ['#16a34a','#0891b2','#7c3aed','#ea580c'][i] }}>
-                {c}
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-slate-400">
-            {ja ? '信頼されたプラットフォーム' : bn ? 'বিশ্বস্ত প্ল্যাটফর্ম' : 'Trusted by thousands'}
-          </p>
-        </div>
-      </div>
-
-      {/* RIGHT — form panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-10 overflow-y-auto">
-
-        {/* Mobile logo */}
-        <Link href="/" className="flex lg:hidden items-center gap-2.5 mb-8">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 mb-8">
           <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-xl object-contain" />
           <div>
             <div className="text-lg font-black text-green-800 tracking-tight leading-none">Tensai</div>
