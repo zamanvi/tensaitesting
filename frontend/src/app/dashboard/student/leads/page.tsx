@@ -44,13 +44,7 @@ export default function StudentApplicationPage() {
   });
 
   const apps        = appsData?.data ?? [];
-  const selectedApp = apps.find(a => a.id === selectedAppId) ?? apps[0] ?? null;
-
-  useEffect(() => {
-    if (!isLoading && apps.length > 0 && !selectedAppId) {
-      setSelectedAppId(apps[0].id);
-    }
-  }, [isLoading, apps.length]);
+  const selectedApp = apps.find(a => a.id === selectedAppId) ?? null;
 
   const { data: template, isLoading: templateLoading } = useQuery<FormTemplateData | null>({
     queryKey: ['form-template', selectedApp?.form_template_id],
@@ -331,6 +325,14 @@ export default function StudentApplicationPage() {
 
             {/* Main: draft form OR detail */}
             <div className="flex-1 min-w-0">
+              {!selectedApp && (
+                <div className="flex flex-col items-center justify-center py-20 text-center text-slate-400">
+                  <svg className="w-10 h-10 mb-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  <p className="text-sm font-semibold text-slate-400">Select an application to view details</p>
+                </div>
+              )}
               {selectedApp?.status === 'draft' && (
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                   <ApplicationFormBody
