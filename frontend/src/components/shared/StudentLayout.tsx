@@ -84,6 +84,7 @@ export default function StudentLayout({ children, title }: Props) {
   const { lang, toggle, t } = useLang();
   const qc = useQueryClient();
   const [mounted, setMounted] = useState(false);
+  const [searchStr, setSearchStr] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -124,6 +125,7 @@ export default function StudentLayout({ children, title }: Props) {
   }
 
   useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { setSearchStr(window.location.search); }, [pathname]);
   useEffect(() => { if (mounted && !user) router.push('/auth/login'); }, [mounted, user, router]);
   useEffect(() => { setUserMenuOpen(false); setNotifOpen(false); }, [pathname]);
   useEffect(() => {
@@ -200,7 +202,9 @@ export default function StudentLayout({ children, title }: Props) {
                   <div className="ml-4 mt-0.5 mb-1 pl-4 border-l border-slate-200 space-y-0.5">
                     {item.sub!.map(sub => {
                       const subPath = sub.href.split('?')[0];
-                      const subActive = pathname === subPath;
+                      const subTabParam = new URLSearchParams(sub.href.split('?')[1] ?? '').get('tab');
+                      const currentTab = new URLSearchParams(searchStr).get('tab');
+                      const subActive = pathname === subPath && (subTabParam ? currentTab === subTabParam : !currentTab || currentTab === 'ongoing');
                       const subLabel = lang === 'ja' ? sub.label.ja : lang === 'bn' ? sub.label.bn : sub.label.en;
                       return (
                         <Link
