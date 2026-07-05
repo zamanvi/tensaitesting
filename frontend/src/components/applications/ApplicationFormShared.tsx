@@ -76,7 +76,7 @@ export async function compressImage(file: File): Promise<File> {
     const url = URL.createObjectURL(file);
     img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.onload = () => {
-      const MAX = 1200;
+      const MAX = 1800;
       let { width, height } = img;
       if (width > MAX || height > MAX) {
         if (width > height) { height = Math.round((height / width) * MAX); width = MAX; }
@@ -88,7 +88,7 @@ export async function compressImage(file: File): Promise<File> {
       URL.revokeObjectURL(url);
       canvas.toBlob(blob => {
         resolve(new File([blob!], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
-      }, 'image/jpeg', 0.82);
+      }, 'image/jpeg', 0.88);
     };
     img.src = url;
   });
