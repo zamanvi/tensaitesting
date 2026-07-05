@@ -53,7 +53,7 @@ class ApplicationController extends Controller
         $data = $request->validate([
             'form_template_id' => 'required|exists:form_templates,id',
             'student_name'     => 'nullable|string|max:255',
-            'student_email'    => 'nullable|email|max:255',
+            'student_email'    => 'nullable|string|max:255',
             'student_phone'    => 'nullable|string|max:50',
             'whatsapp_no'      => 'nullable|string|max:50',
             'permanent_address'=> 'nullable|string|max:500',
@@ -99,7 +99,7 @@ class ApplicationController extends Controller
 
         $data = $request->validate([
             'student_name'     => 'sometimes|string|max:255',
-            'student_email'    => 'sometimes|nullable|email|max:255',
+            'student_email'    => 'sometimes|nullable|string|max:255',
             'student_phone'    => 'sometimes|nullable|string|max:50',
             'whatsapp_no'      => 'sometimes|nullable|string|max:50',
             'permanent_address'=> 'sometimes|nullable|string|max:500',

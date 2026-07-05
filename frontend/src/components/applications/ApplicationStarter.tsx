@@ -48,7 +48,7 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
     mutationFn: () => api.post('/applications', {
       form_template_id: selectedId,
       student_name:      studentInfo.student_name      || null,
-      student_email:     studentInfo.student_email     || null,
+      student_email:     studentInfo.student_email.trim() || null,
       student_phone:     studentInfo.student_phone     || null,
       whatsapp_no:       studentInfo.whatsapp_no       || null,
       permanent_address: studentInfo.permanent_address || null,
