@@ -4,7 +4,8 @@ import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useUiStore } from '@/store/uiStore';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
@@ -30,12 +31,7 @@ export default function StudentApplicationPage() {
     if (user && !isStudent) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
   }, [user, isStudent, router]);
 
-  const [tab, setTab] = useState<Tab>('ongoing');
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('tab') === 'new') setTab('new');
-  }, []);
+  const { appTab: tab, setAppTab: setTab } = useUiStore();
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 

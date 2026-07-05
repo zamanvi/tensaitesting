@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useUiStore } from '@/store/uiStore';
 
 interface Notification {
   id: number; type: string; title: string; body: string;
@@ -79,12 +80,12 @@ const NAV = [
 
 export default function StudentLayout({ children, title }: Props) {
   const { user, logout, fetchMe } = useAuthStore();
+  const { appTab, setAppTab } = useUiStore();
   const router = useRouter();
   const pathname = usePathname();
   const { lang, toggle, t } = useLang();
   const qc = useQueryClient();
   const [mounted, setMounted] = useState(false);
-  const [searchStr, setSearchStr] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -125,7 +126,6 @@ export default function StudentLayout({ children, title }: Props) {
   }
 
   useEffect(() => { setMounted(true); }, []);
-  useEffect(() => { setSearchStr(window.location.search); }, [pathname]);
   useEffect(() => { if (mounted && !user) router.push('/auth/login'); }, [mounted, user, router]);
   useEffect(() => { setUserMenuOpen(false); setNotifOpen(false); }, [pathname]);
   useEffect(() => {
@@ -188,6 +188,7 @@ export default function StudentLayout({ children, title }: Props) {
               <div key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={() => { if ('sub' in item) setAppTab('ongoing'); }}
                   className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     parentActive
                       ? 'bg-green-50 text-green-800'
@@ -200,17 +201,15 @@ export default function StudentLayout({ children, title }: Props) {
                 </Link>
                 {'sub' in item && inGroup && (
                   <div className="ml-4 mt-0.5 mb-1 pl-4 border-l border-slate-200 space-y-0.5">
-                    {item.sub!.map(sub => {
-                      const subPath = sub.href.split('?')[0];
-                      const subTabParam = new URLSearchParams(sub.href.split('?')[1] ?? '').get('tab');
-                      const currentTab = new URLSearchParams(searchStr).get('tab');
-                      const subActive = pathname === subPath && (subTabParam ? currentTab === subTabParam : !currentTab || currentTab === 'ongoing');
+                    {item.sub!.map((sub, si) => {
+                      const tabValue = si === 0 ? 'ongoing' : 'new';
+                      const subActive = inGroup && appTab === tabValue;
                       const subLabel = lang === 'ja' ? sub.label.ja : lang === 'bn' ? sub.label.bn : sub.label.en;
                       return (
-                        <Link
+                        <button
                           key={sub.href}
-                          href={sub.href}
-                          className={`flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-colors ${
+                          onClick={() => { setAppTab(tabValue as 'ongoing' | 'new'); if (pathname !== '/dashboard/student/leads') router.push('/dashboard/student/leads'); }}
+                          className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-colors text-left ${
                             subActive
                               ? 'bg-green-50 text-green-700'
                               : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
@@ -218,7 +217,7 @@ export default function StudentLayout({ children, title }: Props) {
                         >
                           <span className={subActive ? 'text-green-600' : 'text-slate-400'}>{sub.icon}</span>
                           {subLabel}
-                        </Link>
+                        </button>
                       );
                     })}
                   </div>
