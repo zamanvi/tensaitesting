@@ -185,7 +185,7 @@ export function InlineDoc({
     fd.append('label', fieldLabel);
     fd.append('file', await compressImage(file));
     try {
-      const res = await api.post(`/applications/${appId}/documents`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const res = await api.post(`/applications/${appId}/documents`, fd);
       onUploaded(res.data.document, res.data.progress);
     } catch {
       setUploadErr('Upload failed — please try again.');
