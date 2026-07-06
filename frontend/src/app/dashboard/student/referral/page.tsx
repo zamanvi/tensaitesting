@@ -48,7 +48,7 @@ export default function StudentReferralPage() {
     });
   }
 
-  const { data: referralsData, isLoading: referralsLoading } = useQuery({
+  const { data: referralsData, isLoading: referralsLoading, isError: referralsError } = useQuery({
     queryKey: ['student-referrals'],
     queryFn: () => api.get('/student/referrals').then(r => r.data),
     staleTime: 60_000,
@@ -292,6 +292,15 @@ export default function StudentReferralPage() {
               {referralsLoading ? (
                 <div className="py-16 flex justify-center">
                   <span className="w-6 h-6 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+                </div>
+              ) : referralsError ? (
+                <div className="py-16 text-center px-6">
+                  <p className="text-sm font-bold text-rose-500">
+                    {ja ? 'データの読み込みに失敗しました' : bn ? 'ডেটা লোড করা যায়নি' : 'Failed to load referrals'}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {ja ? 'ページを更新してください。' : bn ? 'পেজ রিফ্রেশ করুন।' : 'Please refresh the page and try again.'}
+                  </p>
                 </div>
               ) : referrals.length === 0 ? (
                 <div className="py-16 text-center px-6">

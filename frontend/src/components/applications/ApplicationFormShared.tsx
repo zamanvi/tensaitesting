@@ -84,10 +84,13 @@ export async function compressImage(file: File): Promise<File> {
       }
       const canvas = document.createElement('canvas');
       canvas.width = width; canvas.height = height;
-      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { resolve(file); return; }
+      ctx.drawImage(img, 0, 0, width, height);
       URL.revokeObjectURL(url);
       canvas.toBlob(blob => {
-        resolve(new File([blob!], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+        if (!blob) { resolve(file); return; }
+        resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
       }, 'image/jpeg', 0.88);
     };
     img.src = url;

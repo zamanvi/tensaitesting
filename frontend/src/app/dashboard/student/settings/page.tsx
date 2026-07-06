@@ -157,7 +157,7 @@ export default function StudentSettingsPage() {
   }
 
   const initials  = (user?.name ?? '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
-  const avatarSrc = avatarPreview ?? (user as unknown as { avatar_url?: string })?.avatar_url ?? null;
+  const avatarSrc = avatarPreview ?? user?.avatar_url ?? null;
 
   // Password strength: 1–4
   const pwStrength = pw.password.length === 0 ? 0 :
@@ -316,7 +316,7 @@ export default function StudentSettingsPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <span className="truncate flex-1 text-xs">{user.email}</span>
-                    {(user as unknown as { email_verified_at?: string })?.email_verified_at && (
+                    {user?.email_verified_at && (
                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">
                         ✓ {t('Verified','認証済み','যাচাই হয়েছে')}
                       </span>
