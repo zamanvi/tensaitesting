@@ -423,6 +423,7 @@ export default function StudentApplicationPage() {
                     onDocUploaded={handleDocUploaded}
                     onDocDeleted={handleDocDeleted}
                     onClose={() => { setEditMode(false); if (selectedApp.status === 'draft') setSelectedAppId(null); }}
+                    hideSubmit={editMode && selectedApp.status !== 'draft'}
                   />
                 </div>
               )}

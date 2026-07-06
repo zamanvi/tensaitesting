@@ -17,6 +17,7 @@ interface Props {
   onDocUploaded: (doc: AppDoc, progress: number) => void;
   onDocDeleted: (docId: number, progress: number) => void;
   onClose?: () => void;
+  hideSubmit?: boolean;
 }
 
 // Accessible confirm dialog with focus trap + Escape key
@@ -52,7 +53,7 @@ function ConfirmDialog({ message, detail, confirmLabel, onConfirm, onCancel, dan
 }
 
 export default function ApplicationFormBody({
-  app, template, templateLoading = true, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose,
+  app, template, templateLoading = true, onSaved, onSubmitted, onDocUploaded, onDocDeleted, onClose, hideSubmit = false,
 }: Props) {
   const toFormData = (src: Application) =>
     Object.fromEntries(Object.entries(src.form_data ?? {}).map(([k, v]) => [k, v == null ? '' : String(v)]));
@@ -226,7 +227,7 @@ export default function ApplicationFormBody({
                 <span className="hidden sm:inline">{saving ? 'Saving…' : 'Save'}</span>
               </button>
             )}
-            {canSubmit && (
+            {canSubmit && !hideSubmit && (
               <button onClick={() => setConfirm('submit')} disabled={submitting || saving} aria-label="Submit application"
                 className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/60">
                 {submitting
@@ -521,20 +522,20 @@ export default function ApplicationFormBody({
                   : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>}
                 {saving ? 'Saving…' : 'Save Progress'}
               </button>
-              {canSubmit ? (
+              {!hideSubmit && (canSubmit ? (
                 <button onClick={() => setConfirm('submit')} disabled={submitting || saving}
                   className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl text-sm font-bold disabled:opacity-50 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-green-500/60">
                   {submitting
                     ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                     : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>}
-                  {app.status === 'submitted' ? 'Resubmit Application' : 'Submit Application'}
+                  Submit Application
                 </button>
               ) : (
                 <div className="flex-1 py-3.5 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center flex flex-col items-center justify-center gap-0.5">
                   <span className="text-xs font-semibold text-slate-400">Submit unlocks at 50% completion</span>
                   <span className="text-xs text-slate-400">You are at {progress}% — fill required fields to continue</span>
                 </div>
-              )}
+              ))}
             </div>
           )}
 
