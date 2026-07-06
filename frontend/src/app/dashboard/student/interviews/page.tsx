@@ -32,17 +32,23 @@ export default function StudentInterviews() {
   return (
     <StudentLayout title={si.title}>
       {isLoading ? (
-        <div className="text-center py-16 text-slate-400">{t.common.loading}</div>
+        <div className="py-16 flex justify-center">
+          <span className="w-7 h-7 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+        </div>
       ) : interviews.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-10 sm:p-16 text-center text-slate-400">
-          <div className="text-4xl mb-3">🎙️</div>
-          <div className="font-medium text-slate-600">{si.emptyTitle}</div>
-          <div className="text-sm mt-1">{si.emptyDesc}</div>
+        <div className="bg-white rounded-2xl border border-slate-200 p-10 sm:p-16 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-7 h-7 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </div>
+          <div className="font-bold text-sm text-slate-500">{si.emptyTitle}</div>
+          <div className="text-xs text-slate-400 mt-1">{si.emptyDesc}</div>
         </div>
       ) : (
         <div className="space-y-3">
           {interviews.map((iv) => (
-            <div key={iv.id} className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5">
+            <div key={iv.id} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span className="font-semibold text-sm text-slate-900">
                   {iv.institution?.name ?? 'Institution'}
@@ -61,7 +67,7 @@ export default function StudentInterviews() {
                 )}
                 {iv.meeting_link && (
                   <a href={iv.meeting_link} target="_blank" rel="noreferrer"
-                    className="text-indigo-600 hover:underline font-medium"
+                    className="text-green-700 hover:text-green-800 font-semibold hover:underline"
                   >
                     {si.joinMeeting}
                   </a>

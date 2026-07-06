@@ -84,7 +84,7 @@ export default function StudentCVPage() {
             {/* Avatar */}
             <div className="relative inline-block mb-3">
               {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="avatar" className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg mx-auto" />
+                <img src={user.avatar_url} alt={`${user?.name ?? 'User'} profile photo`} className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg mx-auto" />
               ) : (
                 <div className="w-20 h-20 rounded-2xl bg-white/20 border-4 border-white shadow-lg flex items-center justify-center text-white text-2xl font-black mx-auto">
                   {initials}
@@ -115,7 +115,7 @@ export default function StudentCVPage() {
             <p className="text-xs text-slate-500">
               {t('Fill all sections to complete your CV', 'すべてのセクションを入力してCVを完成させましょう', 'সব সেকশন পূরণ করে সিভি সম্পূর্ণ করুন')}
             </p>
-            <button disabled className="flex items-center gap-1.5 px-3.5 py-2 bg-green-700 text-white text-xs font-bold rounded-xl opacity-50 cursor-not-allowed">
+            <button disabled title={t('Coming soon — CV builder is under development', '近日公開 — CV作成機能は開発中です', 'শীঘ্রই আসছে — সিভি বিল্ডার তৈরি হচ্ছে')} className="flex items-center gap-1.5 px-3.5 py-2 bg-green-700 text-white text-xs font-bold rounded-xl opacity-50 cursor-not-allowed">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
               {t('Download PDF', 'PDFダウンロード', 'PDF ডাউনলোড')}
             </button>
@@ -128,7 +128,7 @@ export default function StudentCVPage() {
             const label = ja ? section.ja : bn ? section.bn : section.en;
             const desc  = ja ? section.desc.ja : bn ? section.desc.bn : section.desc.en;
             return (
-              <div key={section.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div key={section.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
                   <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
                   <span className={`shrink-0 ${section.color}`}>{section.icon}</span>
@@ -140,7 +140,9 @@ export default function StudentCVPage() {
                 <div className="px-5 py-4 flex items-center justify-between gap-3">
                   <p className="text-xs text-slate-400 leading-relaxed">{desc}</p>
                   <button
-                    className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 border border-green-200 text-green-700 hover:bg-green-50 text-xs font-bold rounded-xl transition-colors"
+                    disabled
+                    title={t('Coming soon', '近日公開', 'শীঘ্রই আসছে')}
+                    className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 text-slate-400 text-xs font-bold rounded-xl cursor-not-allowed"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                     {t('Add', '追加', 'যোগ করুন')}

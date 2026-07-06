@@ -296,7 +296,7 @@ export default function StudentApplicationPage() {
   }
 
   return (
-    <StudentLayout>
+    <StudentLayout title="My Applications">
       {deleteDialog}
 
       {/* ── Tab 1: Ongoing Applications ──────────────────────────────────────── */}
@@ -397,8 +397,8 @@ export default function StudentApplicationPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-bold text-slate-400 mb-1">No application selected</p>
-                  <p className="text-xs text-slate-300">Pick one from the list to view details</p>
+                  <p className="text-sm font-bold text-slate-500 mb-1">No application selected</p>
+                  <p className="text-xs text-slate-400">Pick one from the list to view details</p>
                 </div>
               )}
 

@@ -2,7 +2,7 @@
 import StudentLayout from '@/components/shared/StudentLayout';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 type PostType = 'post' | 'photo' | 'video';
 
@@ -40,7 +40,14 @@ export default function StudentExperiencePage() {
   const [activeTab, setActiveTab] = useState<PostType>('post');
   const [draft, setDraft] = useState<DraftPost>({ type: 'post', text: '', mediaUrl: '', videoUrl: '' });
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [postNotice, setPostNotice] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!postNotice) return;
+    const timer = setTimeout(() => setPostNotice(false), 3500);
+    return () => clearTimeout(timer);
+  }, [postNotice]);
 
   const initials = (user?.name ?? '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
 
@@ -86,7 +93,7 @@ export default function StudentExperiencePage() {
             {/* Avatar + type tabs */}
             <div className="flex items-center gap-3 mb-4">
               {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="avatar" className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0" />
+                <img src={user.avatar_url} alt={`${user?.name ?? 'User'} profile photo`} className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0" />
               ) : (
                 <div className="w-10 h-10 rounded-xl bg-green-700 flex items-center justify-center text-white text-sm font-bold shrink-0">
                   {initials}
@@ -163,11 +170,19 @@ export default function StudentExperiencePage() {
             )}
 
             {/* Submit */}
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-xs text-slate-400">
-                {t('Your post will be visible to Tensai community', 'Tensaiコミュニティに表示されます', 'পোস্টটি Tensai কমিউনিটিতে দেখা যাবে')}
-              </p>
+            <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
+              {postNotice ? (
+                <p className="text-xs font-semibold text-amber-600 flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {t('Community feed coming soon!', 'コミュニティフィードは近日公開!', 'কমিউনিটি ফিড শীঘ্রই আসছে!')}
+                </p>
+              ) : (
+                <p className="text-xs text-slate-400">
+                  {t('Your post will be visible to Tensai community', 'Tensaiコミュニティに表示されます', 'পোস্টটি Tensai কমিউনিটিতে দেখা যাবে')}
+                </p>
+              )}
               <button
+                onClick={() => setPostNotice(true)}
                 disabled={!draft.text.trim() && !draft.mediaUrl && !draft.videoUrl}
                 className="px-5 py-2 bg-green-700 hover:bg-green-800 text-white text-sm font-bold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >

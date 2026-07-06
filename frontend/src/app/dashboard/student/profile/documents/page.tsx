@@ -21,7 +21,7 @@ const STATUS_CONFIG: Record<string, { color: string; icon: string }> = {
   completed:        { color: 'bg-emerald-100 text-emerald-700', icon: '✓' },
   failed:           { color: 'bg-red-100 text-red-600',        icon: '✗' },
   review_requested: { color: 'bg-amber-100 text-amber-700',    icon: '👁' },
-  manually_approved:{ color: 'bg-purple-100 text-purple-700',  icon: '✓' },
+  manually_approved:{ color: 'bg-emerald-100 text-emerald-700', icon: '✓' },
 };
 
 const SAFE_DOC_ICONS: Record<string, string> = {

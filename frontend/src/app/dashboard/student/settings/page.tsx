@@ -192,12 +192,12 @@ export default function StudentSettingsPage() {
       <div className="flex flex-col sm:flex-row gap-5 items-start">
 
         {/* Sidebar */}
-        <aside className="hidden sm:flex flex-col w-56 shrink-0 sticky top-6">
+        <aside className="hidden sm:flex flex-col w-56 shrink-0 sticky top-6 max-h-[calc(100vh-5rem)] overflow-y-auto">
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             {/* User card */}
             <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-100 bg-slate-50/60">
               {avatarSrc ? (
-                <img src={avatarSrc} alt="avatar" className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0" />
+                <img src={avatarSrc} alt={`${user.name} profile photo`} className="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0" />
               ) : (
                 <div className="w-10 h-10 rounded-xl bg-green-700 flex items-center justify-center text-white text-sm font-black shrink-0 select-none">
                   {initials}
@@ -253,7 +253,7 @@ export default function StudentSettingsPage() {
                 {/* Avatar */}
                 <div className="relative shrink-0">
                   {avatarSrc ? (
-                    <img src={avatarSrc} alt="avatar" className="w-24 h-24 rounded-2xl object-cover border-2 border-slate-200 shadow-sm" />
+                    <img src={avatarSrc} alt={`${user.name} profile photo`} className="w-24 h-24 rounded-2xl object-cover border-2 border-slate-200 shadow-sm" />
                   ) : (
                     <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center text-white text-3xl font-black shadow-sm select-none">
                       {initials}

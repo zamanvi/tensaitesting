@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 export default function StudentInfoPage() {
   const { lang } = useLang();
 
-  const { data, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['student-profile-info'],
     queryFn: () => api.get('/student/profile').then(r => r.data),
     staleTime: 30_000,
@@ -19,11 +19,21 @@ export default function StudentInfoPage() {
     lang === 'ja' ? '全情報を提出する' :
     'Submit Your Information';
 
+  if (isLoading) {
+    return (
+      <StudentLayout title={title}>
+        <div className="py-16 flex justify-center">
+          <span className="w-7 h-7 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+        </div>
+      </StudentLayout>
+    );
+  }
+
   return (
     <StudentLayout title={title}>
 
       {/* Header */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-5">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-5">
         <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100">
           <span className="w-0.5 h-4 bg-green-600 rounded-full shrink-0" />
           <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -88,6 +88,7 @@ export default function StudentLayout({ children, title }: Props) {
   const [mounted, setMounted] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -127,7 +128,7 @@ export default function StudentLayout({ children, title }: Props) {
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => { if (mounted && !user) router.push('/auth/login'); }, [mounted, user, router]);
-  useEffect(() => { setUserMenuOpen(false); setNotifOpen(false); }, [pathname]);
+  useEffect(() => { setUserMenuOpen(false); setNotifOpen(false); setMoreOpen(false); }, [pathname]);
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
@@ -233,7 +234,7 @@ export default function StudentLayout({ children, title }: Props) {
         <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors">
           <div className="relative shrink-0 group">
             {user.avatar_url ? (
-              <img src={user.avatar_url} alt="avatar" className="w-9 h-9 rounded-xl object-cover border border-slate-200" />
+              <img src={user.avatar_url} alt={`${user?.name ?? 'User'} profile photo`} className="w-9 h-9 rounded-xl object-cover border border-slate-200" />
             ) : (
               <div className="w-9 h-9 rounded-xl bg-green-700 flex items-center justify-center text-white text-xs font-bold select-none">
                 {initials}
@@ -348,7 +349,7 @@ export default function StudentLayout({ children, title }: Props) {
               className="flex items-center gap-2 rounded-full pl-1 pr-2 py-1 hover:bg-slate-100 transition-colors"
             >
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt="avatar" className="w-7 h-7 rounded-full object-cover border border-slate-200 shrink-0" />
+                <img src={user.avatar_url} alt={`${user?.name ?? 'User'} profile photo`} className="w-7 h-7 rounded-full object-cover border border-slate-200 shrink-0" />
               ) : (
                 <div className="w-7 h-7 rounded-full bg-green-700 flex items-center justify-center text-white text-xs font-bold shrink-0 select-none">
                   {initials}
@@ -407,31 +408,89 @@ export default function StudentLayout({ children, title }: Props) {
         </footer>
       </div>
 
-      {/* Mobile bottom navigation — 3 items */}
+      {/* Mobile bottom navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex items-stretch h-14">
-          {NAV.map(item => {
-            const inGroup = 'sub' in item && APP_GROUP_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'));
-            const active = 'sub' in item ? inGroup : (pathname === item.href || pathname.startsWith(item.href + '/'));
-            const short = lang === 'ja' ? item.shortLabel.ja : lang === 'bn' ? item.shortLabel.bn : item.shortLabel.en;
+          {/* Apply */}
+          {(() => {
+            const item = NAV[0];
+            const active = APP_GROUP_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'));
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
-                  active ? 'text-green-700' : 'text-slate-400'
-                }`}
-              >
-                <span className={`p-1 rounded-lg transition-colors ${active ? 'bg-green-50' : ''}`}>
-                  {item.icon}
-                </span>
-                <span className="text-[9px] font-bold leading-none">{short}</span>
+              <Link key={item.href} href={item.href} className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${active ? 'text-green-700' : 'text-slate-400'}`}>
+                <span className={`p-1 rounded-lg transition-colors ${active ? 'bg-green-50' : ''}`}>{item.icon}</span>
+                <span className="text-[9px] font-bold leading-none">{lang === 'ja' ? item.shortLabel.ja : lang === 'bn' ? item.shortLabel.bn : item.shortLabel.en}</span>
                 {active && <span className="absolute top-0 left-2 right-2 h-0.5 bg-green-600 rounded-b" />}
               </Link>
             );
-          })}
+          })()}
+          {/* Profile */}
+          {(() => {
+            const active = pathname.startsWith('/dashboard/student/profile');
+            return (
+              <Link href="/dashboard/student/profile" className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${active ? 'text-green-700' : 'text-slate-400'}`}>
+                <span className={`p-1 rounded-lg transition-colors ${active ? 'bg-green-50' : ''}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </span>
+                <span className="text-[9px] font-bold leading-none">{lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile'}</span>
+                {active && <span className="absolute top-0 left-2 right-2 h-0.5 bg-green-600 rounded-b" />}
+              </Link>
+            );
+          })()}
+          {/* Refer */}
+          {(() => {
+            const item = NAV[1];
+            const active = pathname === item.href || pathname.startsWith(item.href + '/');
+            return (
+              <Link key={item.href} href={item.href} className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${active ? 'text-green-700' : 'text-slate-400'}`}>
+                <span className={`p-1 rounded-lg transition-colors ${active ? 'bg-green-50' : ''}`}>{item.icon}</span>
+                <span className="text-[9px] font-bold leading-none">{lang === 'ja' ? item.shortLabel.ja : lang === 'bn' ? item.shortLabel.bn : item.shortLabel.en}</span>
+                {active && <span className="absolute top-0 left-2 right-2 h-0.5 bg-green-600 rounded-b" />}
+              </Link>
+            );
+          })()}
+          {/* More */}
+          {(() => {
+            const morePages = ['/dashboard/student/cv', '/dashboard/student/interviews', '/dashboard/student/experience', '/dashboard/student/settings'];
+            const active = morePages.some(p => pathname === p || pathname.startsWith(p + '/'));
+            return (
+              <button onClick={() => setMoreOpen(o => !o)} className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${active || moreOpen ? 'text-green-700' : 'text-slate-400'}`}>
+                <span className={`p-1 rounded-lg transition-colors ${active || moreOpen ? 'bg-green-50' : ''}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </span>
+                <span className="text-[9px] font-bold leading-none">{lang === 'ja' ? 'もっと' : lang === 'bn' ? 'আরো' : 'More'}</span>
+                {(active || moreOpen) && <span className="absolute top-0 left-2 right-2 h-0.5 bg-green-600 rounded-b" />}
+              </button>
+            );
+          })()}
         </div>
       </nav>
+
+      {/* Mobile More drawer */}
+      {moreOpen && (
+        <>
+          <div className="md:hidden fixed inset-0 z-40 bg-black/30" onClick={() => setMoreOpen(false)} />
+          <div className="md:hidden fixed bottom-14 left-0 right-0 z-50 bg-white border-t border-slate-200 rounded-t-2xl shadow-xl px-4 py-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4" />
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { href: '/dashboard/student/cv', label: { en: 'My CV', ja: '履歴書', bn: 'সিভি' }, icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> },
+                { href: '/dashboard/student/interviews', label: { en: 'Interviews', ja: '面接', bn: 'ইন্টারভিউ' }, icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg> },
+                { href: '/dashboard/student/experience', label: { en: 'Experience', ja: '体験', bn: 'অভিজ্ঞতা' }, icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> },
+                { href: '/dashboard/student/settings', label: { en: 'Settings', ja: '設定', bn: 'সেটিংস' }, icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg> },
+              ].map(item => {
+                const active = pathname === item.href || pathname.startsWith(item.href + '/');
+                const lbl = lang === 'ja' ? item.label.ja : lang === 'bn' ? item.label.bn : item.label.en;
+                return (
+                  <Link key={item.href} href={item.href} className={`flex flex-col items-center gap-2 py-3 rounded-xl transition-colors ${active ? 'bg-green-50 text-green-700' : 'text-slate-500 hover:bg-slate-50'}`}>
+                    {item.icon}
+                    <span className="text-[10px] font-bold text-center leading-tight">{lbl}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

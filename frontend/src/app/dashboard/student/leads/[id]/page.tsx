@@ -724,15 +724,15 @@ export default function StudentLeadDetailPage() {
               </div>
             ))}
             {/* Coming soon notice — no fake file inputs */}
-            <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-              <svg className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <svg className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <p className="text-xs font-bold text-blue-800">
+                <p className="text-xs font-bold text-amber-800">
                   {ja ? 'ドキュメントアップロード — 近日公開' : bn ? 'ডকুমেন্ট আপলোড — শীঘ্রই আসছে' : 'Document upload — coming soon'}
                 </p>
-                <p className="text-[11px] text-blue-600 mt-0.5">
+                <p className="text-[11px] text-amber-700 mt-0.5">
                   {ja ? 'この機能は現在準備中です。準備が整い次第お知らせします。' : bn ? 'এই ফিচারটি শীঘ্রই যোগ হবে। প্রস্তুত হলে আপনাকে জানানো হবে।' : 'This feature is being prepared. You will be notified when it is ready.'}
                 </p>
               </div>

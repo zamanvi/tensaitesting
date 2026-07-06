@@ -96,7 +96,9 @@ export default function StudentProfilePage() {
   if (isLoading) {
     return (
       <StudentLayout title={p.title}>
-        <div className="text-center py-16 text-slate-400 text-sm">{t.common.loading}</div>
+        <div className="py-16 flex justify-center">
+          <span className="w-7 h-7 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+        </div>
       </StudentLayout>
     );
   }
@@ -229,7 +231,7 @@ export default function StudentProfilePage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-5 sm:p-6 mb-5">
+    <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 mb-5">
       <h2 className="font-semibold text-slate-500 mb-4 text-xs uppercase tracking-wide">{title}</h2>
       {children}
     </div>
