@@ -39,7 +39,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8 sm:py-12 overflow-y-auto overflow-x-hidden">
 
       <div className="w-full flex flex-col items-center">
 
@@ -128,7 +128,6 @@ export default function LoginPage() {
           <span className="text-slate-300 text-xs">·</span>
           <Link href="/terms"   className="text-[11px] text-slate-400 hover:text-slate-600 transition-colors">{l.terms}</Link>
           <Link href="/privacy" className="text-[11px] text-slate-400 hover:text-slate-600 transition-colors">{l.privacy}</Link>
-          <span className="text-[11px] text-slate-400">{l.footer}</span>
         </div>
       </div>
     </div>

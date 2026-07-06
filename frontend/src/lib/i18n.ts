@@ -32,7 +32,7 @@ const translations = {
       badge: '🌏 Now Connecting to Japan',
       heroTitle: 'The Hub for',
       heroHighlight: 'Global Education & Healthcare.',
-      heroSub: 'Tensai is the trusted platform for international higher education and healthcare sector careers — connecting verified Bangladeshi talent with global institutions through a fraud-proof, fully auditable digital ecosystem.',
+      heroSub: 'The trusted platform for finding jobs in overseas higher education and healthcare sectors.',
       ctaStudent: "Join as a User",
       ctaAgency: 'Agency',
       ctaInstitution: 'Institution',
