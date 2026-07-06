@@ -164,11 +164,11 @@ export default function StudentApplicationPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-gradient-to-r from-amber-500 to-amber-400 px-6 py-5">
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs font-bold text-amber-100 uppercase tracking-wider mb-1">Under Review</p>
-                  <p className="text-base font-black text-white">{app.student_name}</p>
-                  <p className="text-sm text-amber-100">{app.form_template?.country} · {app.form_template?.name}</p>
-                  <p className="font-mono text-xs text-amber-200 mt-1">{app.application_code}</p>
+                  <p className="text-base font-black text-white truncate">{app.student_name}</p>
+                  <p className="text-sm text-amber-100 truncate">{app.form_template?.country} · {app.form_template?.name}</p>
+                  <p className="font-mono text-xs text-amber-200 mt-1 truncate">{app.application_code}</p>
                 </div>
                 <button
                   onClick={() => setEditMode(true)}

@@ -212,16 +212,16 @@ export default function StudentProfilePage() {
 
       {/* Save bar */}
       {!locked && (
-        <div className="flex items-center gap-4 mt-2">
+        <div className="flex flex-wrap items-center gap-3 mt-2">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2.5 bg-green-700 text-white rounded-xl text-sm font-semibold hover:bg-green-800 disabled:opacity-50 transition-colors"
+            className="px-6 py-2.5 bg-green-700 text-white rounded-xl text-sm font-semibold hover:bg-green-800 disabled:opacity-50 transition-colors shrink-0"
           >
             {saving ? p.saving : p.saveBtn}
           </button>
-          {savedMsg && <span className="text-sm text-emerald-600">{savedMsg}</span>}
-          {errorMsg && <span className="text-sm text-red-500">{errorMsg}</span>}
+          {savedMsg && <span className="text-sm text-emerald-600 min-w-0">{savedMsg}</span>}
+          {errorMsg && <span className="text-sm text-red-500 min-w-0">{errorMsg}</span>}
         </div>
       )}
 

@@ -377,7 +377,7 @@ export default function DocumentsPage() {
                     {selectedFile.type.includes('pdf') ? '📄' : '🖼️'}
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-slate-800 max-w-xs truncate">{selectedFile.name}</p>
+                    <p className="text-sm font-semibold text-slate-800 max-w-full truncate">{selectedFile.name}</p>
                     <p className="text-xs text-slate-400 mt-0.5">{formatFileSize(selectedFile.size)}</p>
                   </div>
                   <button

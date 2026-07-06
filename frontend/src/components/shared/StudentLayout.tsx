@@ -309,7 +309,7 @@ export default function StudentLayout({ children, title }: Props) {
               )}
             </button>
             {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-40">
+              <div className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-1rem)] bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-40">
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                   <span className="text-sm font-semibold text-slate-900">
                     {lang === 'ja' ? '通知' : lang === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
@@ -361,7 +361,7 @@ export default function StudentLayout({ children, title }: Props) {
               </svg>
             </button>
             {userMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-40">
+              <div className="absolute right-0 top-full mt-2 w-52 max-w-[calc(100vw-2rem)] bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-40">
                 <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
                   <p className="text-sm font-semibold text-slate-900 truncate">{user.name}</p>
                   <p className="text-xs text-slate-400 truncate mt-0.5">{user.email}</p>
@@ -388,7 +388,7 @@ export default function StudentLayout({ children, title }: Props) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8 overflow-auto">
           {title && (
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 mb-5 tracking-tight">{title}</h1>
           )}

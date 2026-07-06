@@ -220,7 +220,7 @@ export default function ApplicationFormBody({
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {isEditable && (
               <button onClick={handleSave} disabled={saving || submitting} aria-label="Save progress"
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/40">
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 min-h-[44px] bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/40">
                 {saving
                   ? <span className="w-3.5 h-3.5 border-2 border-slate-400/40 border-t-slate-600 rounded-full animate-spin" />
                   : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>}
@@ -229,7 +229,7 @@ export default function ApplicationFormBody({
             )}
             {canSubmit && !hideSubmit && (
               <button onClick={() => setConfirm('submit')} disabled={submitting || saving} aria-label="Submit application"
-                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/60">
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 min-h-[44px] bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/60">
                 {submitting
                   ? <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                   : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>}

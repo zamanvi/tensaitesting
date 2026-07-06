@@ -50,13 +50,13 @@ export default function StudentInterviews() {
           {interviews.map((iv) => (
             <div key={iv.id} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                <span className="font-semibold text-sm text-slate-900">
+                <span className="font-semibold text-sm text-slate-900 truncate">
                   {iv.institution?.name ?? 'Institution'}
                 </span>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[iv.status] ?? 'bg-slate-100 text-slate-600'}`}>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${STATUS_COLORS[iv.status] ?? 'bg-slate-100 text-slate-600'}`}>
                   {statuses[iv.status as keyof typeof statuses] ?? iv.status.replace(/_/g, ' ')}
                 </span>
-                <span className="ml-auto font-mono text-xs text-slate-400">{iv.lead?.lead_code}</span>
+                <span className="font-mono text-xs text-slate-400 shrink-0">{iv.lead?.lead_code}</span>
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                 <span>{MEDIUM_LABEL[iv.medium] ?? iv.medium}</span>
