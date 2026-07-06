@@ -45,7 +45,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 mb-8">
-          <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-xl object-contain" />
+          <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-full object-contain" />
           <div>
             <div className="text-lg font-black text-green-800 tracking-tight leading-none">Tensai</div>
             <div className="text-[9px] text-slate-400 tracking-widest mt-0.5 uppercase">The Way of Global Career</div>
@@ -108,7 +108,7 @@ export default function LoginPage() {
               </div>
 
               <button type="submit" disabled={isLoading}
-                className="w-full bg-green-700 hover:bg-green-600 disabled:opacity-60 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-sm shadow-green-700/20">
+                className="w-full bg-green-700 hover:bg-green-600 disabled:opacity-60 text-white py-3 rounded-xl font-bold text-sm transition-all shadow-sm shadow-green-700/20 mt-1">
                 {isLoading ? a.signingIn : a.signIn}
               </button>
             </form>
