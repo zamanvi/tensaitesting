@@ -493,7 +493,7 @@ export default function HomePage() {
                 {ja ? 'プラットフォームの実績' : bn ? 'আমাদের প্ল্যাটফর্ম' : 'Our Platform'}
               </p>
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
-                {ja ? '国境を越えるための、信頼できるプラットフォーム' : bn ? 'বিদেশে পড়াশোনার জন্য বিশ্বাসযোগ্য প্ল্যাটফর্ম' : 'The platform built for students crossing borders'}
+                {ja ? 'グローバルな教育・医療キャリアのための信頼できるプラットフォーム' : bn ? 'বৈশ্বিক শিক্ষা ও স্বাস্থ্যসেবা ক্যারিয়ারের বিশ্বস্ত প্ল্যাটফর্ম' : 'The trusted platform for global education & healthcare careers'}
               </h2>
               <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
                 {ja ? 'パートナーシップと信頼に基づいて成長するネットワーク' : bn ? 'অংশীদারিত্ব ও বিশ্বাসের উপর গড়ে ওঠা একটি ক্রমবর্ধমান নেটওয়ার্ক' : 'A growing network built on verified partnerships and zero fraud'}
@@ -933,7 +933,7 @@ export default function HomePage() {
                 href="/auth/register?type=student"
                 className="w-full sm:w-auto px-7 py-3.5 bg-green-600 hover:bg-green-500 text-white rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
               >
-                {ja ? '学生として始める' : bn ? 'শিক্ষার্থী হিসেবে শুরু করুন' : 'Start as Student'}
+                {l.ctaStudent}
               </Link>
               <Link
                 href="/auth/register?type=agency"
