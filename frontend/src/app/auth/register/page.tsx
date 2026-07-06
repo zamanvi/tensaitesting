@@ -61,29 +61,6 @@ function RegisterForm() {
     </svg>
   );
 
-  const TRUST_POINTS = [
-    {
-      icon: '🔒',
-      title: ja ? 'OCRロック書類' : bn ? 'OCR-লকড ডকুমেন্ট' : 'OCR-Locked Documents',
-      desc: ja ? 'アップロード後に改ざん不可' : bn ? 'আপলোডের পর টেম্পার-প্রুফ' : 'Tamper-proof once uploaded',
-    },
-    {
-      icon: '🤖',
-      title: ja ? 'AI適格性スコア' : bn ? 'AI যোগ্যতা স্কোর' : 'AI Eligibility Score',
-      desc: ja ? '自動計算・機関と即座にマッチング' : bn ? 'স্বয়ংক্রিয় স্কোর ও ম্যাচিং' : 'Auto-scored, matched with institutions',
-    },
-    {
-      icon: '💰',
-      title: ja ? 'エスクロー決済保護' : bn ? 'এসক্রো পেমেন্ট সুরক্ষা' : 'Escrow Payment Protection',
-      desc: ja ? '入学確定後にのみ費用が支払われる' : bn ? 'ভর্তি নিশ্চিতের পরেই ফি প্রদান' : 'Fees only released on confirmed placement',
-    },
-    {
-      icon: '🌐',
-      title: ja ? '完全な透明性' : bn ? 'সম্পূর্ণ স্বচ্ছতা' : 'Full Transparency',
-      desc: ja ? 'すべてのステップが正式に記録・監査可能' : bn ? 'প্রতিটি ধাপ আনুষ্ঠানিকভাবে রেকর্ড ও যাচাইযোগ্য' : 'Every step formally recorded and auditable',
-    },
-  ];
-
   return (
     <div className="min-h-screen flex">
 
