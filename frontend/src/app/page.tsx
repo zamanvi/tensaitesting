@@ -961,6 +961,17 @@ export default function HomePage() {
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-white/[0.06] py-8 px-4 bg-alt-section">
         <div className="max-w-7xl mx-auto">
+          {/* Legal Disclaimer */}
+          <div className="border border-white/[0.06] rounded-xl px-5 py-4 mb-6 text-center">
+            <p className="text-[11px] leading-relaxed text-white/38">
+              {ja
+                ? '免責事項：Tensaiはテクノロジーを活用した教育・人材マッチングインフラです。語学研修、スキルブリッジング、海外大学入学コンサルティング、および海外就労情報の提供を行っています。Tensaiはビザの直接発行、出入国管理の手続き、または労働者の海外送出を直接行いません。最終的な学生ビザ申請および雇用採用の認可は、公認大学およびバングラデシュ政府認定のBMETライセンス取得パートナー機関を通じてのみ行われます。'
+                : bn
+                ? 'দায়মুক্তি বিবৃতি: Tensai একটি আইটি-সক্ষম শিক্ষা ও প্রতিভা-সংযোগ অবকাঠামো। আমরা ভাষা প্রশিক্ষণ, দক্ষতা উন্নয়ন, আন্তর্জাতিক শিক্ষার্থী ভর্তি পরামর্শ এবং বৈশ্বিক কর্মসংস্থানের তথ্য সরবরাহ করি। Tensai সরাসরি ভিসা প্রদান, অভিবাসন প্রক্রিয়াকরণ বা জনশক্তি রপ্তানি করে না। সকল চূড়ান্ত শিক্ষার্থী ভিসা আবেদন এবং কর্মসংস্থান নিয়োগ অনুমোদন সরকারিভাবে স্বীকৃত বিশ্ববিদ্যালয় এবং বাংলাদেশে সরকার-অনুমোদিত BMET লাইসেন্সপ্রাপ্ত অংশীদার সংস্থাগুলির মাধ্যমে পরিচালিত হয়।'
+                : 'Disclaimer: Tensai is an IT-enabled educational and talent-matching infrastructure. We provide language training, skill-bridging, international student admission consultancy, and global employment information. Tensai does not directly issue visas, process immigration, or export manpower. All final student visa applications and employment recruitment clearances are handled strictly through officially recognized universities and government-approved BMET licensed partner agencies in Bangladesh.'}
+            </p>
+          </div>
+
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
             <Link href="/" className="flex items-center gap-2.5 shrink-0">
               <Image src="/tensai-logo.png" alt="Tensai" width={30} height={30} className="rounded-full object-contain" />
