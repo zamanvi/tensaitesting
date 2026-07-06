@@ -486,16 +486,16 @@ export default function HomePage() {
         </section>
 
         {/* ── Platform Stats ─────────────────────────────────── */}
-        <section className="py-12 sm:py-20 px-4 bg-white border-t border-slate-100">
+        <section className="py-20 px-4 bg-alt-section border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10">
-              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-green-600 mb-2">
+              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'プラットフォームの実績' : bn ? 'আমাদের প্ল্যাটফর্ম' : 'Our Platform'}
               </p>
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              <h2 className="text-fluid-4xl font-bold text-white">
                 {ja ? 'グローバルな教育・医療キャリアのための信頼できるプラットフォーム' : bn ? 'বৈশ্বিক শিক্ষা ও স্বাস্থ্যসেবা ক্যারিয়ারের বিশ্বস্ত প্ল্যাটফর্ম' : 'The trusted platform for global education & healthcare careers'}
               </h2>
-              <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
+              <p className="text-fluid-sm text-white/40 mt-2 max-w-md mx-auto">
                 {ja ? 'パートナーシップと信頼に基づいて成長するネットワーク' : bn ? 'অংশীদারিত্ব ও বিশ্বাসের উপর গড়ে ওঠা একটি ক্রমবর্ধমান নেটওয়ার্ক' : 'A growing network built on verified partnerships and zero fraud'}
               </p>
             </div>
@@ -503,9 +503,9 @@ export default function HomePage() {
               {[
                 {
                   value: '205+',
-                  label: ja ? '登録学生' : bn ? 'নিবন্ধিত শিক্ষার্থী' : 'Students Registered',
+                  label: ja ? '登録ユーザー' : bn ? 'নিবন্ধিত ব্যবহারকারী' : 'Users Registered',
                   icon: '🎓',
-                  desc: ja ? '留学を夢見る学生たち' : bn ? 'বিদেশে পড়তে আগ্রহী' : 'Aspiring to study abroad',
+                  desc: ja ? '留学・医療キャリアを目指す' : bn ? 'বিদেশে পড়াশোনা ও ক্যারিয়ার' : 'Pursuing education & careers abroad',
                 },
                 {
                   value: '3',
@@ -526,11 +526,11 @@ export default function HomePage() {
                   desc: ja ? '審査済みパートナー' : bn ? 'যাচাইকৃত অংশীদার' : 'Verified trusted partners',
                 },
               ].map((stat) => (
-                <div key={stat.label} className="bg-slate-50 rounded-2xl p-5 sm:p-6 text-center border border-slate-100 hover:border-green-200 hover:bg-green-50/30 transition-all">
+                <div key={stat.label} className="glass-card rounded-2xl p-5 sm:p-6 text-center border border-white/[0.08] hover:border-green-500/25 transition-all">
                   <div className="text-3xl mb-2">{stat.icon}</div>
-                  <div className="text-3xl sm:text-4xl font-black text-slate-900 mb-1">{stat.value}</div>
-                  <div className="text-sm font-semibold text-slate-700 mb-1">{stat.label}</div>
-                  <div className="text-xs text-slate-400">{stat.desc}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-white mb-1">{stat.value}</div>
+                  <div className="text-sm font-semibold text-white/70 mb-1">{stat.label}</div>
+                  <div className="text-xs text-white/38">{stat.desc}</div>
                 </div>
               ))}
             </div>
@@ -630,7 +630,7 @@ export default function HomePage() {
                 {ja ? '学生、エージェンシー、教育機関 — 全員に効果があります' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান — সবার জন্য কাজ করে' : 'Students, agencies, institutions — it works for everyone'}
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {TESTIMONIALS.map((tm) => (
                 <div key={tm.name} className={`glass-card rounded-2xl p-6 flex flex-col gap-4 border ${tm.border} relative`}>
                   <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
@@ -928,31 +928,29 @@ export default function HomePage() {
                 ? 'জাপান যেতে চাওয়া শিক্ষার্থী, স্টুডেন্ট রক্ষা করতে চাওয়া এজেন্সি, বা মানসম্পন্ন শিক্ষার্থী খোঁজা স্কুল — Tensai সবার জন্য।'
                 : 'Whether you\'re a student dreaming of Japan, an agency protecting your students, or a school seeking quality applicants — Tensai was built for you.'}
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="flex flex-col items-center gap-5">
               <Link
-                href="/auth/register?type=student"
-                className="w-full sm:w-auto px-7 py-3.5 bg-green-600 hover:bg-green-500 text-white rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
+                href="/auth/register"
+                className="px-10 py-4 bg-green-600 hover:bg-green-500 text-white rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
               >
                 {l.ctaStudent}
               </Link>
-              <Link
-                href="/auth/register?type=agency"
-                className="w-full sm:w-auto px-7 py-3.5 glass-card text-white/80 hover:text-white rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-cyan-500/30"
-              >
-                {ja ? 'エージェンシーとして参加' : bn ? 'এজেন্সি হিসেবে যোগ দিন' : 'Join as Agency'}
-              </Link>
-              <Link
-                href="/auth/register?type=institution"
-                className="w-full sm:w-auto px-7 py-3.5 glass-card text-white/80 hover:text-white rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-violet-500/30"
-              >
-                {ja ? '教育機関として参加' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন' : 'Join as School'}
-              </Link>
-              <Link
-                href="/auth/register?type=affiliate"
-                className="w-full sm:w-auto px-7 py-3.5 glass-card text-white/80 hover:text-white rounded-full font-semibold text-sm transition-all border border-white/10 hover:border-amber-500/30"
-              >
-                {ja ? 'アフィリエイトとして参加' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন' : 'Join as Affiliate'}
-              </Link>
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+                <Link href="/auth/register?type=agency"
+                  className="text-sm text-white/45 hover:text-white/80 transition-colors">
+                  {ja ? 'エージェンシーとして参加 →' : bn ? 'এজেন্সি হিসেবে যোগ দিন →' : 'Join as Agency →'}
+                </Link>
+                <span className="text-white/15 hidden sm:inline">·</span>
+                <Link href="/auth/register?type=institution"
+                  className="text-sm text-white/45 hover:text-white/80 transition-colors">
+                  {ja ? '教育機関として参加 →' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন →' : 'Join as Institution →'}
+                </Link>
+                <span className="text-white/15 hidden sm:inline">·</span>
+                <Link href="/auth/register?type=affiliate"
+                  className="text-sm text-white/45 hover:text-white/80 transition-colors">
+                  {ja ? 'アフィリエイトとして参加 →' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন →' : 'Join as Affiliate →'}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
