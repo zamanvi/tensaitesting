@@ -32,6 +32,7 @@ interface RegisterData {
   password: string;
   password_confirmation: string;
   gateway_type: string;
+  affiliate_type?: 'local' | 'global' | '';
   affiliate_code?: string;
 }
 
