@@ -17,9 +17,7 @@ function RegisterForm() {
   const bn = lang === 'bn';
 
   const gateways = [
-    { value: "student",     label: a.studentLabel,     desc: a.studentDesc,     icon: '\u{1F393}' },
-    { value: "agency",      label: a.agencyLabel,      desc: a.agencyDesc,      icon: '\u{1F3E2}' },
-    { value: "institution", label: a.institutionLabel, desc: a.institutionDesc, icon: '\u{1F3EB}' },
+    { value: "student", label: ja ? 'ユーザーアカウント' : bn ? 'ব্যবহারকারী অ্যাকাউন্ট' : 'User Account', desc: a.studentDesc, icon: '\u{1F393}' },
   ];
 
   const [form, setForm] = useState({
@@ -126,11 +124,11 @@ function RegisterForm() {
           {/* Gateway selector */}
           <div className="mb-5">
             <p className="text-xs font-semibold text-slate-700 mb-2.5">{a.iAm}</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex gap-2">
               {gateways.map((g) => (
                 <button key={g.value} type="button"
                   onClick={() => setForm(f => ({ ...f, gateway_type: g.value, affiliate_type: '' }))}
-                  className={`p-3 rounded-xl border text-left text-xs transition-all ${
+                  className={`flex-1 p-3 rounded-xl border text-left text-xs transition-all ${
                     form.gateway_type === g.value
                       ? 'border-green-500 bg-green-50 text-green-800 shadow-sm'
                       : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
@@ -276,6 +274,26 @@ function RegisterForm() {
             {a.alreadyRegistered}{' '}
             <Link href="/auth/login" className="text-green-700 font-semibold hover:underline">{a.signInLink}</Link>
           </p>
+
+          {/* Institution / Agency registration footer */}
+          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+            <p className="text-[11px] text-slate-400 mb-2">
+              {ja ? '機関・代理店の方はこちら' : bn ? 'প্রতিষ্ঠান বা এজেন্সি হিসেবে নিবন্ধন করতে চান?' : 'Registering as an organization?'}
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              <Link href="/auth/register?type=institution"
+                className="text-xs text-slate-500 hover:text-slate-700 hover:underline transition-colors flex items-center gap-1">
+                <span>🏫</span>
+                <span>{ja ? '教育機関' : bn ? 'শিক্ষাপ্রতিষ্ঠান' : 'Institution'}</span>
+              </Link>
+              <span className="text-slate-300">·</span>
+              <Link href="/auth/register?type=agency"
+                className="text-xs text-slate-500 hover:text-slate-700 hover:underline transition-colors flex items-center gap-1">
+                <span>🏢</span>
+                <span>{ja ? 'エージェンシー' : bn ? 'এজেন্সি' : 'Agency'}</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
