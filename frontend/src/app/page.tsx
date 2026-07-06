@@ -326,7 +326,7 @@ export default function HomePage() {
 
                 {/* Decorative sub-label */}
                 <p className={`text-white/28 text-xs font-medium mb-5 ${lang === 'en' ? 'tracking-[0.25em] uppercase' : 'tracking-normal'}`} aria-hidden="true">
-                  {ja ? 'グローバルキャリアへの道 · 天才' : bn ? 'বৈশ্বিক ক্যারিয়ারের পথ · টেনসাই' : 'The Way of Global Career · Tensai'}
+                  {ja ? 'グローバル教育・医療の総合ハブ · 天才' : bn ? 'বৈশ্বিক শিক্ষা ও স্বাস্থ্যসেবার বিশ্বস্ত কেন্দ্র · টেনসাই' : 'The Hub for Global Education & Healthcare · Tensai'}
                 </p>
 
                 {/* Sub-copy */}
