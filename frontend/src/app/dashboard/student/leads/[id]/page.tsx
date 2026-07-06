@@ -108,10 +108,19 @@ export default function StudentLeadDetailPage() {
   const [showOther, setShowOther] = useState(false);
   const [infoErr, setInfoErr] = useState('');
   const [infoSuccess, setInfoSuccess] = useState(false);
-  const [docFiles, setDocFiles] = useState<Partial<Record<DocKey, string>>>({});
+
+  // Warn before unload when user has unsaved info-form changes
+  const [infoHasChanges, setInfoHasChanges] = useState(false);
+  useEffect(() => {
+    if (!infoHasChanges) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [infoHasChanges]);
 
   function goToSection(s: 'overview' | 'info' | 'docs') {
     setActiveSection(s);
+    if (s !== 'info') setInfoHasChanges(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -149,12 +158,14 @@ export default function StudentLeadDetailPage() {
         setCitiesChecked([]); setCitiesOther(''); setShowOther(false);
       }
       setInfoForm(f => ({ ...f, [field]: e.target.value }));
+      setInfoHasChanges(true);
     };
 
   function toggleCity(city: string) {
     setCitiesChecked(prev =>
       prev.includes(city) ? prev.filter(c => c !== city) : [...prev, city]
     );
+    setInfoHasChanges(true);
   }
 
   const updateInfo = useMutation({
@@ -179,6 +190,7 @@ export default function StudentLeadDetailPage() {
       setInfoSuccess(true);
       setTimeout(() => setInfoSuccess(false), 3500);
       setInfoErr('');
+      setInfoHasChanges(false);
       goToSection('overview');
     },
     onError: (e: unknown) => {
@@ -246,7 +258,7 @@ export default function StudentLeadDetailPage() {
   const docsLocked    = !infoComplete || !docsEditable;
   const hasCity       = (lead.preferred_cities?.length ?? 0) > 0;
   const hasJlpt       = !!lead.jlpt_nat_score;
-  const docsStarted   = Object.keys(docFiles).length > 0;
+  const docsStarted   = false; // doc upload not yet implemented on this page
   // 50% gate = info complete (docs shown as checklist prep, not a server-side gate yet)
   const progressPct   = isSubmittable
     ? (infoComplete ? 50 : 0)
@@ -410,9 +422,7 @@ export default function StudentLeadDetailPage() {
                         {ja ? '書類を準備する' : bn ? 'ডকুমেন্ট প্রস্তুত করুন' : 'Prepare documents'}
                       </p>
                       <p className="text-[10px] text-slate-400">
-                        {docsStarted
-                          ? (ja ? `${Object.keys(docFiles).length}件のファイルを選択済み` : bn ? `${Object.keys(docFiles).length}টি ফাইল বেছে নেওয়া হয়েছে` : `${Object.keys(docFiles).length} file(s) selected`)
-                          : (ja ? 'パスポート・証明書など（任意）' : bn ? 'পাসপোর্ট, সার্টিফিকেট ইত্যাদি (ঐচ্ছিক)' : 'Passport, certificates, etc. (optional now)')}
+                        {ja ? 'パスポート・証明書など（近日公開）' : bn ? 'পাসপোর্ট, সার্টিফিকেট ইত্যাদি (শীঘ্রই)' : 'Passport, certificates, etc. (coming soon)'}
                       </p>
                     </div>
                   </div>
@@ -450,7 +460,7 @@ export default function StudentLeadDetailPage() {
                 </button>
                 {canSubmit && (
                   <p className="text-[11px] text-slate-400 text-center mt-2">
-                    {ja ? '提出後は情報を編集できません。' : bn ? 'জমা দেওয়ার পর তথ্য পরিবর্তন করা যাবে না।' : 'Info cannot be edited after submitting.'}
+                    {ja ? '提出後も編集できます。' : bn ? 'জমা দেওয়ার পরেও তথ্য সম্পাদনা করা যাবে।' : 'You can still edit your application after submitting.'}
                   </p>
                 )}
               </div>
@@ -470,11 +480,10 @@ export default function StudentLeadDetailPage() {
               </div>
               <div className="space-y-2">
                 {docs.map(d => {
-                  const filed = !!docFiles[d.key];
                   return (
                     <div key={d.key} className="flex items-center gap-2 text-[11px]">
-                      <span className={`shrink-0 font-bold ${filed ? 'text-green-600' : 'text-slate-300'}`}>{filed ? '✓' : '○'}</span>
-                      <span className={filed ? 'text-slate-700' : 'text-slate-400'}>{d.label}</span>
+                      <span className="shrink-0 font-bold text-slate-300">○</span>
+                      <span className="text-slate-400">{d.label}</span>
                       {!d.required && <span className="text-slate-400">({ja ? '任意' : bn ? 'ঐচ্ছিক' : 'optional'})</span>}
                     </div>
                   );
@@ -693,36 +702,40 @@ export default function StudentLeadDetailPage() {
             </button>
           </div>
           <div className="p-5 space-y-3">
+            {/* Document list — labels only, no fake upload inputs */}
             {docs.map(doc => (
-              <div key={doc.key} className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+              <div key={doc.key} className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <p className="text-xs font-semibold text-slate-700">{doc.label}</p>
                     {doc.required && (
-                      <span className="text-[9px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full border border-red-100 flex-shrink-0">
+                      <span className="text-[9px] font-bold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded-full border border-rose-100 shrink-0">
                         {ja ? '必須' : bn ? 'আবশ্যক' : 'Required'}
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {docFiles[doc.key]
-                      ? <span className="text-green-600 font-medium">✓ {docFiles[doc.key]}</span>
-                      : doc.hint}
-                  </p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{doc.hint}</p>
                 </div>
-                <label className="flex-shrink-0 cursor-pointer px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-xl hover:border-green-400 hover:text-green-700 active:bg-slate-50 transition-colors text-slate-600">
-                  {docFiles[doc.key] ? (ja ? '変更' : bn ? 'পরিবর্তন' : 'Change') : (ja ? 'ファイルを選択' : bn ? 'ফাইল বেছে নিন' : 'Choose file')}
-                  <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf"
-                    onChange={e => {
-                      const file = e.target.files?.[0];
-                      if (file) setDocFiles(prev => ({ ...prev, [doc.key]: file.name }));
-                    }} />
-                </label>
               </div>
             ))}
-            <div className="flex items-start gap-2.5 p-3 bg-amber-50 border border-amber-100 rounded-xl text-[11px] text-amber-700">
-              <span className="flex-shrink-0 mt-0.5">⚠️</span>
-              <span>{ja ? 'ドキュメントのストレージ統合は近日公開予定です。現在はファイルを選択できますが、サーバーには保存されません。' : bn ? 'ডকুমেন্ট আপলোড স্টোরেজ ইন্টিগ্রেশন শীঘ্রই আসছে। এখন ফাইল বেছে নেওয়া যাবে কিন্তু সার্ভারে সংরক্ষণ হবে না।' : 'Document storage integration coming soon. Files can be selected but are not yet saved to the server.'}</span>
+            {/* Coming soon notice — no fake file inputs */}
+            <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+              <svg className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="text-xs font-bold text-blue-800">
+                  {ja ? 'ドキュメントアップロード — 近日公開' : bn ? 'ডকুমেন্ট আপলোড — শীঘ্রই আসছে' : 'Document upload — coming soon'}
+                </p>
+                <p className="text-[11px] text-blue-600 mt-0.5">
+                  {ja ? 'この機能は現在準備中です。準備が整い次第お知らせします。' : bn ? 'এই ফিচারটি শীঘ্রই যোগ হবে। প্রস্তুত হলে আপনাকে জানানো হবে।' : 'This feature is being prepared. You will be notified when it is ready.'}
+                </p>
+              </div>
             </div>
           </div>
         </div>

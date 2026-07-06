@@ -67,7 +67,8 @@ export default function StudentSettingsPage() {
     if (user && user.gateway_type !== 'student') router.replace('/dashboard');
   }, [user, router]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef    = useRef<HTMLInputElement>(null);
+  const avatarObjectUrl = useRef<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarErr, setAvatarErr]         = useState('');
   const [avatarSaved, setAvatarSaved]     = useState(false);
@@ -101,10 +102,23 @@ export default function StudentSettingsPage() {
     mutationFn: (file: File) => {
       const fd = new FormData();
       fd.append('avatar', file);
-      return api.post('/student/account/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      return api.post('/student/account/avatar', fd, { headers: { 'Content-Type': undefined } });
     },
-    onSuccess: () => { fetchMe().catch(() => {}); setAvatarSaved(true); setAvatarErr(''); setTimeout(() => setAvatarSaved(false), 3000); },
-    onError:   (e: unknown) => { const ax = e as { response?: { data?: { message?: string } } }; setAvatarErr(ax.response?.data?.message ?? 'Upload failed.'); },
+    onSuccess: () => {
+      fetchMe().catch(() => {});
+      setAvatarSaved(true); setAvatarErr('');
+      setTimeout(() => setAvatarSaved(false), 3000);
+      // Revoke the blob URL now that the server copy is confirmed
+      if (avatarObjectUrl.current) { URL.revokeObjectURL(avatarObjectUrl.current); avatarObjectUrl.current = null; }
+    },
+    onError: (e: unknown) => {
+      const ax = e as { response?: { data?: { message?: string } } };
+      setAvatarErr(ax.response?.data?.message ?? 'Upload failed.');
+      // Revert preview and revoke the blob URL
+      if (avatarObjectUrl.current) { URL.revokeObjectURL(avatarObjectUrl.current); avatarObjectUrl.current = null; }
+      setAvatarPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    },
   });
 
   const saveContact = useMutation({
@@ -124,7 +138,10 @@ export default function StudentSettingsPage() {
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) { setAvatarErr(t('File must be under 2 MB.', 'ファイルは2MB以内にしてください。', 'ফাইল ২ MB এর মধ্যে হতে হবে।')); return; }
     setAvatarErr('');
-    setAvatarPreview(URL.createObjectURL(file));
+    // Revoke any previous blob URL before creating a new one
+    if (avatarObjectUrl.current) URL.revokeObjectURL(avatarObjectUrl.current);
+    avatarObjectUrl.current = URL.createObjectURL(file);
+    setAvatarPreview(avatarObjectUrl.current);
     uploadAvatar.mutate(file);
   }
 
@@ -322,6 +339,7 @@ export default function StudentSettingsPage() {
                       </svg>
                     </span>
                     <input type="tel" className={`${inp} pl-9`} placeholder="+880 1XXX XXXXXX"
+                      disabled={saveContact.isPending}
                       value={phone} onChange={e => setPhone(e.target.value)} />
                   </div>
                   <button type="submit" disabled={saveContact.isPending}

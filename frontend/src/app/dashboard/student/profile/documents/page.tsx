@@ -41,8 +41,8 @@ function formatFileSize(bytes: number) {
 }
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
-const MAX_IMAGE_DIM  = 1200; // px — max width or height
-const IMAGE_QUALITY  = 0.82; // JPEG quality after resize
+const MAX_IMAGE_DIM  = 1800; // px — max width or height
+const IMAGE_QUALITY  = 0.88; // JPEG quality after resize
 
 async function compressImage(file: File): Promise<File> {
   // PDFs pass through unchanged

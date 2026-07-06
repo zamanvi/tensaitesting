@@ -39,6 +39,7 @@ export default function StudentApplicationPage() {
   const { appTab: tab, setAppTab: setTab } = useUiStore();
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   const queryKey = ['student-applications'];
 
@@ -59,6 +60,9 @@ export default function StudentApplicationPage() {
     enabled: !!selectedApp?.form_template_id,
     staleTime: 300_000,
   });
+
+  // Reset edit mode whenever the selected app changes
+  useEffect(() => { setEditMode(false); }, [selectedAppId]);
 
   function handleCreated(app: Application) {
     qc.invalidateQueries({ queryKey });
@@ -159,10 +163,23 @@ export default function StudentApplicationPage() {
           {backBtn}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="bg-gradient-to-r from-amber-500 to-amber-400 px-6 py-5">
-              <p className="text-xs font-bold text-amber-100 uppercase tracking-wider mb-1">Under Review</p>
-              <p className="text-base font-black text-white">{app.student_name}</p>
-              <p className="text-sm text-amber-100">{app.form_template?.country} · {app.form_template?.name}</p>
-              <p className="font-mono text-xs text-amber-200 mt-1">{app.application_code}</p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold text-amber-100 uppercase tracking-wider mb-1">Under Review</p>
+                  <p className="text-base font-black text-white">{app.student_name}</p>
+                  <p className="text-sm text-amber-100">{app.form_template?.country} · {app.form_template?.name}</p>
+                  <p className="font-mono text-xs text-amber-200 mt-1">{app.application_code}</p>
+                </div>
+                <button
+                  onClick={() => setEditMode(true)}
+                  className="shrink-0 flex items-center gap-1.5 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold transition-colors mt-1"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </button>
+              </div>
             </div>
             <div className="px-6 sm:px-10 py-8">
               <div className="relative">
@@ -385,24 +402,33 @@ export default function StudentApplicationPage() {
                 </div>
               )}
 
-              {/* Draft form */}
-              {selectedApp?.status === 'draft' && (
+              {/* Draft form — also shown when editing a submitted app */}
+              {selectedApp && (selectedApp.status === 'draft' || editMode) && (
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  {editMode && selectedApp.status !== 'draft' && (
+                    <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-100 bg-amber-50">
+                      <svg className="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <p className="text-xs font-semibold text-amber-700 flex-1">Editing submitted application</p>
+                      <button onClick={() => setEditMode(false)} className="text-xs text-amber-600 hover:text-amber-800 font-bold">Cancel</button>
+                    </div>
+                  )}
                   <ApplicationFormBody
                     app={selectedApp}
                     template={template ?? null}
                     templateLoading={templateLoading}
                     onSaved={updateApp}
-                    onSubmitted={updated => { updateApp(updated); }}
+                    onSubmitted={updated => { updateApp(updated); setEditMode(false); }}
                     onDocUploaded={handleDocUploaded}
                     onDocDeleted={handleDocDeleted}
-                    onClose={() => setSelectedAppId(null)}
+                    onClose={() => { setEditMode(false); if (selectedApp.status === 'draft') setSelectedAppId(null); }}
                   />
                 </div>
               )}
 
               {/* Submitted / accepted / rejected cards */}
-              {selectedApp && selectedApp.status !== 'draft' && renderDetail(selectedApp)}
+              {selectedApp && selectedApp.status !== 'draft' && !editMode && renderDetail(selectedApp)}
             </div>
           </div>
 

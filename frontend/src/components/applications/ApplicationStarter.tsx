@@ -22,9 +22,9 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
   const [err, setErr] = useState('');
 
   function set(k: string, v: string) { setFormData(p => ({ ...p, [k]: v })); }
-  function si(k: keyof typeof studentInfo, v: string) { setStudentInfo(p => ({ ...p, [k]: v })); }
+  function si(k: keyof typeof studentInfo, v: string) { setStudentInfo(p => ({ ...p, [k]: v })); setErr(''); }
 
-  const { data: templates = [], isLoading: loadingTemplates, isError: templatesError } = useQuery<ListTemplate[]>({
+  const { data: templates = [], isLoading: loadingTemplates, isError: templatesError, refetch: retryTemplates } = useQuery<ListTemplate[]>({
     queryKey: ['form-templates-list'],
     queryFn: () => api.get('/form-templates').then(r => r.data),
     staleTime: 60_000,
@@ -88,7 +88,8 @@ export default function ApplicationStarter({ onCreated, onCancel, queryKey }: Pr
           {templatesError ? (
             <div className="flex items-center gap-2.5 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mt-1">
               <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <p className="text-xs font-semibold text-rose-700">Could not load country forms — check your connection and refresh.</p>
+              <p className="text-xs font-semibold text-rose-700 flex-1">Could not load country forms — check your connection.</p>
+              <button onClick={() => retryTemplates()} className="shrink-0 text-xs font-bold text-rose-600 hover:text-rose-800 underline underline-offset-2">Retry</button>
             </div>
           ) : !loadingTemplates && templates.length === 0 ? (
             <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-1">

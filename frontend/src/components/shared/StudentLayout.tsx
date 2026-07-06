@@ -115,7 +115,7 @@ export default function StudentLayout({ children, title }: Props) {
     try {
       const fd = new FormData();
       fd.append('avatar', file);
-      await api.post('/student/account/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await api.post('/student/account/avatar', fd, { headers: { 'Content-Type': undefined } });
       await fetchMe();
     } catch {
       // silent — settings page shows errors

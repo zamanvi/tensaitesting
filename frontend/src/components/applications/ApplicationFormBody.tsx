@@ -218,7 +218,7 @@ export default function ApplicationFormBody({
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {isEditable && (
-              <button onClick={handleSave} disabled={saving} aria-label="Save progress"
+              <button onClick={handleSave} disabled={saving || submitting} aria-label="Save progress"
                 className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/40">
                 {saving
                   ? <span className="w-3.5 h-3.5 border-2 border-slate-400/40 border-t-slate-600 rounded-full animate-spin" />
@@ -227,7 +227,7 @@ export default function ApplicationFormBody({
               </button>
             )}
             {canSubmit && (
-              <button onClick={() => setConfirm('submit')} disabled={submitting} aria-label="Submit application"
+              <button onClick={() => setConfirm('submit')} disabled={submitting || saving} aria-label="Submit application"
                 className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500/60">
                 {submitting
                   ? <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -514,7 +514,7 @@ export default function ApplicationFormBody({
           {/* Bottom actions */}
           {isEditable && (
             <div className="flex flex-col sm:flex-row gap-3 pt-2 pb-2">
-              <button onClick={handleSave} disabled={saving}
+              <button onClick={handleSave} disabled={saving || submitting}
                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400/40">
                 {saving
                   ? <span className="w-4 h-4 border-2 border-slate-400/40 border-t-slate-700 rounded-full animate-spin" />
@@ -522,7 +522,7 @@ export default function ApplicationFormBody({
                 {saving ? 'Saving…' : 'Save Progress'}
               </button>
               {canSubmit ? (
-                <button onClick={() => setConfirm('submit')} disabled={submitting}
+                <button onClick={() => setConfirm('submit')} disabled={submitting || saving}
                   className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl text-sm font-bold disabled:opacity-50 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-green-500/60">
                   {submitting
                     ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
