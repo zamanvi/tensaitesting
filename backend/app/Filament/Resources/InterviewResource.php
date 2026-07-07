@@ -16,7 +16,7 @@ class InterviewResource extends Resource
 {
     protected static ?string $model = Interview::class;
     protected static ?string $navigationIcon  = 'heroicon-o-check-badge';
-    protected static ?string $navigationLabel = 'Interviews';
+    protected static ?string $navigationLabel = 'Selected';
     protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?int    $navigationSort  = 2;
 
