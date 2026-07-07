@@ -288,156 +288,69 @@ export default function HomePage() {
 
       <main>
 
-        {/* ── Hero — Split Layout ────────────────────────────── */}
-        <section className="hero-mesh min-h-screen flex items-center px-4 pt-24 pb-16 relative overflow-hidden">
+        {/* ── Hero — Centered ────────────────────────────────── */}
+        <section className="hero-mesh min-h-screen flex items-center px-4 pt-24 pb-20 relative overflow-hidden">
 
-          {/* Enhanced ambient orbs */}
-          <div className="absolute top-[15%] left-[8%]  w-[480px] h-[480px] bg-green-600/12  rounded-full blur-[140px] pointer-events-none" aria-hidden="true" />
-          <div className="absolute bottom-[20%] right-[5%]  w-[380px] h-[380px] bg-cyan-500/8   rounded-full blur-[120px] pointer-events-none" aria-hidden="true" />
-          <div className="absolute top-[60%] left-[40%]  w-[300px] h-[300px] bg-violet-600/6  rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
+          {/* Ambient orbs */}
+          <div className="absolute top-[15%] left-[10%]  w-[500px] h-[500px] bg-green-600/10  rounded-full blur-[160px] pointer-events-none" aria-hidden="true" />
+          <div className="absolute bottom-[15%] right-[8%]  w-[400px] h-[400px] bg-cyan-500/7   rounded-full blur-[130px] pointer-events-none" aria-hidden="true" />
+          <div className="absolute top-[55%] left-[45%]  w-[320px] h-[320px] bg-violet-600/5  rounded-full blur-[110px] pointer-events-none" aria-hidden="true" />
 
-          {/* Subtle grid overlay */}
+          {/* Subtle grid */}
           <div
-            className="absolute inset-0 opacity-[0.022] pointer-events-none"
+            className="absolute inset-0 opacity-[0.018] pointer-events-none"
             aria-hidden="true"
             style={{
               backgroundImage: 'linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)',
-              backgroundSize: '60px 60px',
+              backgroundSize: '70px 70px',
             }}
           />
 
-          <div className="relative z-10 max-w-7xl mx-auto w-full">
-            <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
+          <div className="relative z-10 max-w-4xl mx-auto w-full text-center animate-fade-up">
 
-              {/* ── Left: Copy ──────────────────────────────── */}
-              <div className="flex-1 text-center lg:text-left animate-fade-up">
-
-                {/* Live badge */}
-                <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-7 backdrop-blur-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" aria-hidden="true" />
-                  {l.badge}
-                </div>
-
-                {/* Headline */}
-                <h1 className="text-fluid-hero font-black text-white tracking-tight mb-3 leading-[1.06]">
-                  {l.heroTitle}<br />
-                  <span className="gradient-text">{l.heroHighlight}</span>
-                </h1>
-
-                {/* Decorative sub-label */}
-                <p className={`text-white/28 text-xs font-medium mb-5 ${lang === 'en' ? 'tracking-[0.25em] uppercase' : 'tracking-normal'}`} aria-hidden="true">
-                  {ja ? 'グローバル教育・医療の総合ハブ · 天才' : bn ? 'বৈশ্বিক শিক্ষা ও স্বাস্থ্যসেবার বিশ্বস্ত কেন্দ্র · টেনসাই' : 'The Hub for Global Education & Healthcare · Tensai'}
-                </p>
-
-                {/* Sub-copy */}
-                <p className="text-fluid-base text-white/48 max-w-xl lg:mx-0 mx-auto mb-9 leading-relaxed">
-                  {l.heroSub}
-                </p>
-
-                {/* CTAs */}
-                <div className="flex flex-col items-stretch justify-center lg:justify-start gap-2.5 mb-10 max-w-sm sm:max-w-lg lg:mx-0 mx-auto w-full">
-                  <Link
-                    href="/auth/register?type=student"
-                    className="w-full text-center bg-green-600 hover:bg-green-500 text-white px-6 py-4 rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
-                  >
-                    {l.ctaStudent}
-                  </Link>
-                </div>
-
-                {/* Stats strip */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-white/[0.08] max-w-lg lg:mx-0 mx-auto">
-                  {STATS.map((s, i) => (
-                    <div key={i} className="px-3 sm:px-5 py-3 bg-white/[0.03] text-center border-b border-r border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r">
-                      <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
-                      <div className="text-white/38 text-[10px] mt-0.5 leading-snug">{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* ── Right: Student Profile Mockup (decorative) ──── */}
-              <div className="hidden lg:block lg:flex-none w-72 xl:w-80 animate-slide-right" aria-hidden="true">
-                <div className="gateway-featured glass-card rounded-2xl p-5 space-y-4 relative">
-
-                  {/* Active pulse */}
-                  <span className="absolute top-4 right-4 flex items-center gap-1.5 text-[10px] text-green-400 font-bold">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                    LIVE
-                  </span>
-
-                  {/* Profile header */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500/30 to-cyan-500/20 border border-green-500/25 flex items-center justify-center text-lg">
-                      {'🎓'}
-                    </div>
-                    <div>
-                      <div className="text-white text-xs font-bold leading-tight">
-                        {ja ? '学生プロフィール' : bn ? 'শিক্ষার্থীর প্রোফাইল' : 'Student Profile'}
-                      </div>
-                      <div className="text-green-400 text-[10px] font-medium">
-                        {ja ? 'AI認証済み ✓' : bn ? 'AI যাচাইকৃত ✓' : 'AI Verified ✓'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* AI Score bar */}
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1.5">
-                      <span className="text-white/45">{ja ? 'AI適格性スコア' : bn ? 'AI যোগ্যতা স্কোর' : 'AI Eligibility Score'}</span>
-                      <span className="text-green-400 font-bold">94 / 100</span>
-                    </div>
-                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                      <div className="h-full w-[94%] bg-gradient-to-r from-green-500 to-cyan-400 rounded-full" />
-                    </div>
-                  </div>
-
-                  {/* OCR-locked docs */}
-                  <div className="space-y-2">
-                    <div className="text-[10px] text-white/30 font-medium uppercase tracking-wider">
-                      {ja ? '書類ロック' : bn ? 'ডকুমেন্ট লক' : 'Document Lock'}
-                    </div>
-                    {[
-                      { name: ja ? 'パスポート'         : bn ? 'পাসপোর্ট'              : 'Passport'              },
-                      { name: ja ? 'JLPT証明書'         : bn ? 'JLPT সার্টিফিকেট'      : 'JLPT Certificate'      },
-                      { name: ja ? '学業成績証明書'      : bn ? 'একাডেমিক ট্রান্সক্রিপ্ট': 'Academic Transcript'   },
-                    ].map((d) => (
-                      <div key={d.name} className="flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5">
-                        <span className="text-[10px] text-white/55">{d.name}</span>
-                        <span className="text-[10px] text-green-400 font-semibold">{'🔒'} OCR</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Placement status */}
-                  <div className="flex items-center gap-3 bg-green-500/[0.08] border border-green-500/[0.18] rounded-xl p-3">
-                    <span className="text-xl">{'🇯🇵'}</span>
-                    <div className="flex-1">
-                      <div className="text-white text-[11px] font-bold leading-tight">
-                        {ja ? '日本配置済み' : bn ? 'জাপানে প্লেসমেন্ট রেডি' : 'Japan Placement Ready'}
-                      </div>
-                      <div className="text-white/38 text-[9px] mt-0.5">
-                        {ja ? 'エスクロー保護中' : bn ? 'এসক্রো সুরক্ষিত' : 'Escrow Protected · QR Tracked'}
-                      </div>
-                    </div>
-                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
-                  </div>
-
-                  {/* Floating badge decorations */}
-                  <div className="absolute -top-3 -right-3 bg-[#0d1117] border border-green-500/25 rounded-full px-2.5 py-1 text-[9px] text-green-400 font-bold shadow-lg">
-                    AI ✓
-                  </div>
-                  <div className="absolute -bottom-3 -left-3 bg-[#0d1117] border border-cyan-500/25 rounded-full px-2.5 py-1 text-[9px] text-cyan-400 font-bold shadow-lg">
-                    {'🔒'} OCR
-                  </div>
-                </div>
-
-                {/* Trust note below card */}
-                <p className="text-center text-[10px] text-white/25 mt-5 leading-relaxed">
-                  {ja ? 'すべてのデータはAIによって自動的にロックされます' : bn ? 'সব তথ্য AI দ্বারা স্বয়ংক্রিয়ভাবে লক হয়' : 'All data is automatically locked by AI on upload'}
-                </p>
-              </div>
-
+            {/* Live badge */}
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" aria-hidden="true" />
+              {l.badge}
             </div>
+
+            {/* Headline */}
+            <h1 className="text-fluid-hero font-black text-white tracking-tight mb-5 leading-[1.06]">
+              {l.heroTitle}<br />
+              <span className="gradient-text">{l.heroHighlight}</span>
+            </h1>
+
+            {/* Sub-copy */}
+            <p className="text-fluid-base text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed">
+              {l.heroSub}
+            </p>
+
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14 w-full max-w-sm mx-auto sm:max-w-none">
+              <Link
+                href="/auth/register?type=student"
+                className="w-full sm:w-auto text-center bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
+              >
+                {l.ctaStudent}
+              </Link>
+              <Link
+                href="/about"
+                className="w-full sm:w-auto text-center text-sm text-white/50 hover:text-white/80 border border-white/[0.1] hover:border-white/20 px-8 py-4 rounded-full transition-all"
+              >
+                {ja ? '詳しく見る' : bn ? 'আরও জানুন' : 'Learn more'}
+              </Link>
+            </div>
+
+            {/* Stats strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-white/[0.08] max-w-xl mx-auto">
+              {STATS.map((s, i) => (
+                <div key={i} className="px-4 sm:px-6 py-3.5 bg-white/[0.03] text-center border-r border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r">
+                  <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
+                  <div className="text-white/38 text-[10px] mt-0.5 leading-snug">{s.label}</div>
+                </div>
+              ))}
+            </div>
+
           </div>
 
           {/* Bottom fade */}
