@@ -373,7 +373,7 @@ export default function HomePage() {
         {/* ── Gateway Bento Grid ─────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 pt-14 pb-14 sm:pt-20 sm:pb-20">
           <div className="text-center mb-10">
-            <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+            <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
               {ja ? 'ゲートウェイを選択' : bn ? 'আপনার গেটওয়ে বেছে নিন' : 'Choose Your Gateway'}
             </p>
             <h2 className="text-fluid-4xl font-bold text-white">
@@ -382,28 +382,34 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {GATEWAYS.map((g) => (
+            {GATEWAYS.map((g) => {
+              const accent = g.type === 'student' ? { border: 'border-green-500/30', top: 'from-green-500/40 to-transparent', ring: 'focus-visible:ring-green-400', iconBg: 'from-green-500/20 to-green-600/5', iconBorder: 'border-green-500/20', cta: 'text-green-400' }
+                : g.type === 'agency' ? { border: 'border-cyan-500/25', top: 'from-cyan-500/35 to-transparent', ring: 'focus-visible:ring-cyan-400', iconBg: 'from-cyan-500/20 to-cyan-600/5', iconBorder: 'border-cyan-500/20', cta: 'text-cyan-400' }
+                : { border: 'border-violet-500/25', top: 'from-violet-500/35 to-transparent', ring: 'focus-visible:ring-violet-400', iconBg: 'from-violet-500/20 to-violet-600/5', iconBorder: 'border-violet-500/20', cta: 'text-violet-400' };
+              return (
               <Link
                 key={g.type}
                 href={`/auth/register?type=${g.type}`}
-                className="group rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 glass-card card-hover-glow"
+                className={`group rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 ${accent.ring} glass-card card-hover-glow border ${accent.border}`}
               >
+                <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${accent.top}`} />
                 {g.tag && (
                   <span className="absolute top-3.5 right-3.5 text-[10px] font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
                     {g.tag}
                   </span>
                 )}
-                <div className="text-3xl" aria-hidden="true">{g.icon}</div>
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${accent.iconBg} border ${accent.iconBorder} flex items-center justify-center text-2xl`} aria-hidden="true">{g.icon}</div>
                 <div>
                   <h3 className="font-bold text-white text-sm mb-1.5">{g.title}</h3>
                   <p className="text-xs text-white/50 leading-relaxed">{g.desc}</p>
                 </div>
-                <div className="mt-auto text-xs text-green-400 font-semibold flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
+                <div className={`mt-auto text-xs ${accent.cta} font-semibold flex items-center gap-1.5 group-hover:gap-2.5 transition-all`}>
                   <span>{ja ? '詳しく見る' : bn ? 'শুরু করুন' : 'Get started'}</span>
                   <span className="group-hover:translate-x-1 transition-transform inline-block" aria-hidden="true">→</span>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -411,7 +417,7 @@ export default function HomePage() {
         <section className="py-14 sm:py-20 px-4 bg-alt-section border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-8 sm:mb-10">
-              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'プラットフォームの実績' : bn ? 'আমাদের প্ল্যাটফর্ম' : 'Our Platform'}
               </p>
               <h2 className="text-fluid-4xl font-bold text-white">
@@ -426,31 +432,30 @@ export default function HomePage() {
                 {
                   value: '205+',
                   label: ja ? '登録ユーザー' : bn ? 'নিবন্ধিত ব্যবহারকারী' : 'Users Registered',
-                  icon: '🎓',
+                  accent: 'text-green-400',
                   desc: ja ? '留学・医療キャリアを目指す' : bn ? 'বিদেশে পড়াশোনা ও ক্যারিয়ার' : 'Pursuing education & careers abroad',
                 },
                 {
                   value: '3',
                   label: ja ? '拠点オフィス' : bn ? 'শাখা অফিস' : 'Branch Offices',
-                  icon: '🏢',
+                  accent: 'text-cyan-400',
                   desc: ja ? '全国に広がるネットワーク' : bn ? 'সারাদেশে বিস্তৃত' : 'Nationwide presence',
                 },
                 {
                   value: '9',
                   label: ja ? 'パートナー校' : bn ? 'পার্টনার স্কুল' : 'Partner Schools',
-                  icon: '🏫',
+                  accent: 'text-violet-400',
                   desc: ja ? '日本の認定教育機関' : bn ? 'জাপানে স্বীকৃত প্রতিষ্ঠান' : 'Accredited institutions in Japan',
                 },
                 {
                   value: '4',
                   label: ja ? '認定エージェンシー' : bn ? 'অনুমোদিত এজেন্সি' : 'Approved Agencies',
-                  icon: '🤝',
+                  accent: 'text-amber-400',
                   desc: ja ? '審査済みパートナー' : bn ? 'যাচাইকৃত অংশীদার' : 'Verified trusted partners',
                 },
               ].map((stat) => (
                 <div key={stat.label} className="glass-card rounded-2xl p-5 sm:p-6 text-center border border-white/[0.08] hover:border-green-500/25 transition-all">
-                  <div className="text-3xl mb-2">{stat.icon}</div>
-                  <div className="text-3xl sm:text-4xl font-black text-white mb-1">{stat.value}</div>
+                  <div className={`text-4xl sm:text-5xl font-black ${stat.accent} mb-1 leading-none`}>{stat.value}</div>
                   <div className="text-sm font-semibold text-white/70 mb-1">{stat.label}</div>
                   <div className="text-xs text-white/38">{stat.desc}</div>
                 </div>
@@ -463,7 +468,7 @@ export default function HomePage() {
         <section className="bg-alt-section py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-10 sm:mb-14">
-              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'プロセス' : bn ? 'প্রক্রিয়া' : 'Process'}
               </p>
               <h2 className="text-fluid-4xl font-bold text-white">
@@ -483,7 +488,7 @@ export default function HomePage() {
                       <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center text-xl md:text-2xl" aria-hidden="true">
                         {step.icon}
                       </div>
-                      <span className="text-[10px] text-green-500/70 font-black tracking-wider" aria-hidden="true">{step.num}</span>
+                      <span className="text-[11px] text-green-400 font-black tracking-widest" aria-hidden="true">{step.num}</span>
                     </div>
                     <div className="flex-1 md:px-4 md:mt-5 pb-2 md:pb-0">
                       <h3 className="text-white font-bold text-sm mb-1.5 leading-snug">{step.title}</h3>
@@ -517,7 +522,7 @@ export default function HomePage() {
         <section className="py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-10 sm:mb-12">
-              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'なぜ天才か' : bn ? 'কেন টেনসাই' : 'Why Tensai'}
               </p>
               <h2 className="text-fluid-4xl font-bold text-white mb-3">{l.whyTitle}</h2>
@@ -525,15 +530,22 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {FEATURES.map((f) => (
-                <div key={f.title} className="glass-card rounded-2xl p-6 flex flex-col gap-4 card-hover-glow transition-all duration-300">
+              {FEATURES.map((f) => {
+                const topLine = f.color.includes('green') ? 'from-green-500/50 to-transparent'
+                  : f.color.includes('cyan') ? 'from-cyan-500/50 to-transparent'
+                  : f.color.includes('violet') ? 'from-violet-500/50 to-transparent'
+                  : 'from-amber-500/50 to-transparent';
+                return (
+                <div key={f.title} className="glass-card rounded-2xl p-6 flex flex-col gap-4 card-hover-glow transition-all duration-300 relative overflow-hidden">
+                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${topLine}`} />
                   <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center text-xl`} aria-hidden="true">
                     {f.icon}
                   </div>
                   <h3 className="font-bold text-white text-sm leading-snug">{f.title}</h3>
                   <p className="text-xs text-white/55 leading-relaxed">{f.desc}</p>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -542,7 +554,7 @@ export default function HomePage() {
         <section className="bg-alt-section py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-10 sm:mb-12">
-              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? '体験談' : bn ? 'সাফল্যের গল্প' : 'Success Stories'}
               </p>
               <h2 className="text-fluid-4xl font-bold text-white">
@@ -556,7 +568,12 @@ export default function HomePage() {
               {TESTIMONIALS.map((tm) => (
                 <div key={tm.name} className={`glass-card rounded-2xl p-6 flex flex-col gap-4 border ${tm.border} relative`}>
                   <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
-                  <div className="text-2xl mb-1" aria-hidden="true">❝</div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-2xl text-white/30" aria-hidden="true">❝</div>
+                    <div className="flex gap-0.5" aria-label="5 stars">
+                      {[1,2,3,4,5].map(s => <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill="#facc15" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>)}
+                    </div>
+                  </div>
                   <p className="text-white/70 text-sm leading-relaxed flex-1">{tm.quote}</p>
                   <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
                     <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${tm.color} border ${tm.border} flex items-center justify-center text-sm font-bold text-white shrink-0`}>
@@ -578,7 +595,7 @@ export default function HomePage() {
         <section className="py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-10 sm:mb-12">
-              <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'ビジネスパートナー' : bn ? 'ব্যবসায়িক অংশীদার' : 'Business Partners'}
               </p>
               <h2 className="text-fluid-4xl font-bold text-white">
@@ -614,7 +631,7 @@ export default function HomePage() {
                   <ul className="space-y-2.5 mb-6">
                     {AGENCY_BENEFITS.map((b) => (
                       <li key={b.text} className="flex items-start gap-2.5 text-sm text-white/65">
-                        <span className="shrink-0 mt-0.5" aria-hidden="true">{b.icon}</span>
+                        <svg className="shrink-0 mt-0.5 text-cyan-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                         {b.text}
                       </li>
                     ))}
@@ -647,7 +664,7 @@ export default function HomePage() {
                   <ul className="space-y-2.5 mb-6">
                     {INSTITUTION_BENEFITS.map((b) => (
                       <li key={b.text} className="flex items-start gap-2.5 text-sm text-white/65">
-                        <span className="shrink-0 mt-0.5" aria-hidden="true">{b.icon}</span>
+                        <svg className="shrink-0 mt-0.5 text-violet-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                         {b.text}
                       </li>
                     ))}
@@ -685,7 +702,7 @@ export default function HomePage() {
                       { icon: '⚡', text: ja ? '承認後すぐに支払い' : bn ? 'অনুমোদনের পরেই পেমেন্ট' : 'Fast payout on approval' },
                     ].map((b) => (
                       <li key={b.text} className="flex items-start gap-2.5 text-sm text-white/65">
-                        <span className="shrink-0 mt-0.5" aria-hidden="true">{b.icon}</span>
+                        <svg className="shrink-0 mt-0.5 text-amber-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                         {b.text}
                       </li>
                     ))}
@@ -746,7 +763,7 @@ export default function HomePage() {
           <div className="mb-8">
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
-                <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-1">
+                <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-1">
                   {ja ? 'コミュニティ' : bn ? 'কমিউনিটি' : 'Community'}
                 </p>
                 <h2 className="text-fluid-3xl font-bold text-white leading-tight">
@@ -832,9 +849,11 @@ export default function HomePage() {
       </main>
 
       {/* ── Final CTA ──────────────────────────────────────── */}
-      <section className="bg-alt-section border-t border-white/[0.05] py-14 sm:py-20 px-4">
+      <section className="relative border-t border-white/[0.05] py-14 sm:py-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-950/60 via-[#0d1117] to-cyan-950/30 pointer-events-none" aria-hidden="true" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-green-600/8 rounded-full blur-[80px] pointer-events-none" aria-hidden="true" />
         <div className="max-w-3xl mx-auto text-center relative">
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-green-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-green-600/15 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
           <div className="relative z-10">
             <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" />
