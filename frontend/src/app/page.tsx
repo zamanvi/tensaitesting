@@ -357,7 +357,7 @@ export default function HomePage() {
             {/* Stats strip */}
             <div className="grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-white/[0.08] max-w-xl mx-auto">
               {STATS.map((s, i) => (
-                <div key={i} className="px-4 sm:px-6 py-3.5 bg-white/[0.03] text-center border-r border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r">
+                <div key={i} className="px-4 sm:px-6 py-3.5 bg-white/[0.03] text-center border-r border-b border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r [&:nth-child(3)]:border-b-0 [&:nth-child(4)]:border-b-0 sm:border-b-0">
                   <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
                   <div className="text-white/38 text-[10px] mt-0.5 leading-snug">{s.label}</div>
                 </div>
@@ -371,7 +371,7 @@ export default function HomePage() {
         </section>
 
         {/* ── Gateway Bento Grid ─────────────────────────────── */}
-        <section className="max-w-7xl mx-auto px-4 pt-20 pb-20">
+        <section className="max-w-7xl mx-auto px-4 pt-14 pb-14 sm:pt-20 sm:pb-20">
           <div className="text-center mb-10">
             <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
               {ja ? 'ゲートウェイを選択' : bn ? 'আপনার গেটওয়ে বেছে নিন' : 'Choose Your Gateway'}
@@ -408,9 +408,9 @@ export default function HomePage() {
         </section>
 
         {/* ── Platform Stats ─────────────────────────────────── */}
-        <section className="py-20 px-4 bg-alt-section border-t border-white/[0.05]">
+        <section className="py-14 sm:py-20 px-4 bg-alt-section border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-10">
+            <div className="text-center mb-8 sm:mb-10">
               <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'プラットフォームの実績' : bn ? 'আমাদের প্ল্যাটফর্ম' : 'Our Platform'}
               </p>
@@ -460,9 +460,9 @@ export default function HomePage() {
         </section>
 
         {/* ── How It Works ───────────────────────────────────── */}
-        <section className="bg-alt-section py-20 border-t border-white/[0.05]">
+        <section className="bg-alt-section py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto px-4">
-            <div className="text-center mb-14">
+            <div className="text-center mb-10 sm:mb-14">
               <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'プロセス' : bn ? 'প্রক্রিয়া' : 'Process'}
               </p>
@@ -514,9 +514,9 @@ export default function HomePage() {
         </section>
 
         {/* ── Why Tensai ─────────────────────────────────────── */}
-        <section className="py-20 border-t border-white/[0.05]">
+        <section className="py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
+            <div className="text-center mb-10 sm:mb-12">
               <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'なぜ天才か' : bn ? 'কেন টেনসাই' : 'Why Tensai'}
               </p>
@@ -539,9 +539,9 @@ export default function HomePage() {
         </section>
 
         {/* ── Testimonials ───────────────────────────────────── */}
-        <section className="bg-alt-section py-20 border-t border-white/[0.05]">
+        <section className="bg-alt-section py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
+            <div className="text-center mb-10 sm:mb-12">
               <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? '体験談' : bn ? 'সাফল্যের গল্প' : 'Success Stories'}
               </p>
@@ -575,9 +575,9 @@ export default function HomePage() {
         </section>
 
         {/* ── For Partners ────────────────────────────────────── */}
-        <section className="py-20 border-t border-white/[0.05]">
+        <section className="py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
+            <div className="text-center mb-10 sm:mb-12">
               <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'ビジネスパートナー' : bn ? 'ব্যবসায়িক অংশীদার' : 'Business Partners'}
               </p>
@@ -596,7 +596,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
               {/* Agency card */}
-              <div className="glass-card rounded-2xl p-7 border border-cyan-500/20 relative overflow-hidden">
+              <div className="glass-card rounded-2xl p-5 sm:p-7 border border-cyan-500/20 relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-cyan-500/30 to-transparent" />
                 <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-cyan-500/5 blur-2xl pointer-events-none" />
                 <div className="relative z-10">
@@ -629,7 +629,7 @@ export default function HomePage() {
               </div>
 
               {/* Institution card */}
-              <div className="glass-card rounded-2xl p-7 border border-violet-500/20 relative overflow-hidden">
+              <div className="glass-card rounded-2xl p-5 sm:p-7 border border-violet-500/20 relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-violet-500/30 to-transparent" />
                 <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-violet-500/5 blur-2xl pointer-events-none" />
                 <div className="relative z-10">
@@ -662,7 +662,7 @@ export default function HomePage() {
               </div>
 
               {/* Affiliate card */}
-              <div className="glass-card rounded-2xl p-7 border border-amber-500/20 relative overflow-hidden">
+              <div className="glass-card rounded-2xl p-5 sm:p-7 border border-amber-500/20 relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-amber-500/30 to-transparent" />
                 <div className="absolute -bottom-16 -right-16 w-40 h-40 rounded-full bg-amber-500/5 blur-2xl pointer-events-none" />
                 <div className="relative z-10">
@@ -704,7 +704,7 @@ export default function HomePage() {
         </section>
 
         {/* ── BD → JP Corridor ───────────────────────────────── */}
-        <section className="bg-alt-section py-20 px-4 border-t border-white/[0.05]">
+        <section className="bg-alt-section py-14 sm:py-20 px-4 border-t border-white/[0.05]">
           <div className="max-w-4xl mx-auto">
             <div className="glass-card rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 via-transparent to-cyan-600/5 rounded-3xl pointer-events-none" aria-hidden="true" />
@@ -742,7 +742,7 @@ export default function HomePage() {
         </section>
 
         {/* ── Gallery ────────────────────────────────────────── */}
-        <section className="max-w-7xl mx-auto px-4 py-20 border-t border-white/[0.05]">
+        <section className="max-w-7xl mx-auto px-4 py-14 sm:py-20 border-t border-white/[0.05]">
           <div className="mb-8">
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
@@ -832,7 +832,7 @@ export default function HomePage() {
       </main>
 
       {/* ── Final CTA ──────────────────────────────────────── */}
-      <section className="bg-alt-section border-t border-white/[0.05] py-20 px-4">
+      <section className="bg-alt-section border-t border-white/[0.05] py-14 sm:py-20 px-4">
         <div className="max-w-3xl mx-auto text-center relative">
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-green-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
           <div className="relative z-10">
@@ -883,7 +883,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           {/* Legal Disclaimer */}
           <div className="border border-white/[0.06] rounded-xl px-5 py-4 mb-6 text-center">
-            <p className="text-[11px] leading-relaxed text-white/38">
+            <p className="text-xs leading-relaxed text-white/38">
               {ja
                 ? '免責事項：Tensaiはテクノロジーを活用した教育・人材マッチングインフラです。語学研修、スキルブリッジング、海外大学入学コンサルティング、および海外就労情報の提供を行っています。Tensaiはビザの直接発行、出入国管理の手続き、または労働者の海外送出を直接行いません。最終的な学生ビザ申請および雇用採用の認可は、公認大学およびバングラデシュ政府認定のBMETライセンス取得パートナー機関を通じてのみ行われます。'
                 : bn
