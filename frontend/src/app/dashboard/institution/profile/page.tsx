@@ -270,7 +270,7 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '機関名 (英語)' : bn ? 'প্রতিষ্ঠানের নাম (ইংরেজি)' : 'Institution Name (English)'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls()} placeholder="e.g. Tokyo Language Academy"
+              <input className={inputCls()} placeholder={ja ? '例：東京語学院' : bn ? 'যেমন: ঢাকা ইন্টারন্যাশনাল স্কুল' : 'e.g. Tokyo Language Academy'}
                 value={form.institution_name} onChange={e => set('institution_name', e.target.value)}
                 required disabled={isLocked} />
             </div>
@@ -307,7 +307,7 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '市区町村' : bn ? 'শহর' : 'City'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls()} placeholder="e.g. Tokyo"
+              <input className={inputCls()} placeholder={ja ? '例：東京' : bn ? 'যেমন: ঢাকা' : 'e.g. Tokyo'}
                 value={form.city} onChange={e => set('city', e.target.value)}
                 required disabled={isLocked} />
             </div>
@@ -323,7 +323,7 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '住所' : bn ? 'ঠিকানা' : 'Address'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls()} placeholder="Full address"
+              <input className={inputCls()} placeholder={ja ? '住所を入力' : bn ? 'সম্পূর্ণ ঠিকানা' : 'Full address'}
                 value={form.address} onChange={e => set('address', e.target.value)}
                 required disabled={isLocked} />
             </div>
