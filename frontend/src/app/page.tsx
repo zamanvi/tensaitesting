@@ -177,10 +177,10 @@ export default function HomePage() {
       name: ja ? 'ファリダ・アクター' : bn ? 'ফারিদা আক্তার' : 'Farida Akter',
       role: ja ? 'アフィリエイトパートナー · チッタゴン' : bn ? 'অ্যাফিলিয়েট পার্টনার · চট্টগ্রাম' : 'Affiliate Partner · Chittagong',
       quote: ja
-        ? '友人に学生登録を紹介するだけで৳20,000を獲得できました。ダッシュボードで全部追跡できて、支払いも約束通りでした。'
+        ? '友人を紹介しました。ダッシュボードで全部追跡できて、支払いも約束通りでした。透明性が高く、信頼できます。'
         : bn
-        ? 'বন্ধুকে স্টুডেন্ট হিসেবে রেফার করেছিলাম, ৳২০,০০০ পেয়েছি। ড্যাশবোর্ডে সব ট্র্যাক করা যায়, পেমেন্টও প্রতিশ্রুতি মতো।'
-        : 'I referred a friend for student registration and earned ৳20,000. Everything is trackable on the dashboard and the payment came exactly as promised.',
+        ? 'বন্ধুকে রেফার করেছিলাম — ড্যাশবোর্ডে সব ট্র্যাক করা যায়, পেমেন্টও প্রতিশ্রুতি মতোই হয়েছে। সম্পূর্ণ স্বচ্ছ ও বিশ্বস্ত।'
+        : 'I referred a friend and the whole process was transparent end to end. Everything trackable on the dashboard and the payout came exactly as promised.',
       flag: '💼',
       color: 'from-amber-500/15 to-amber-600/5',
       border: 'border-amber-500/20',
@@ -666,7 +666,7 @@ export default function HomePage() {
                   </div>
                   <ul className="space-y-2.5 mb-6">
                     {[
-                      { icon: '💰', text: ja ? '1紹介あたり৳20,000' : bn ? 'প্রতি রেফারেলে ৳২০,০০০' : '৳20,000 per successful referral' },
+                      { icon: '💰', text: ja ? '紹介ごとに報酬を獲得' : bn ? 'প্রতিটি সফল রেফারেলে পুরস্কার' : 'Earn rewards per successful referral' },
                       { icon: '📊', text: ja ? 'ダッシュボードで収益管理' : bn ? 'ড্যাশবোর্ডে আয় ট্র্যাক করুন' : 'Track earnings on dashboard' },
                       { icon: '🎓', text: ja ? '学生・機関どちらも紹介可' : bn ? 'শিক্ষার্থী বা প্রতিষ্ঠান রেফার করুন' : 'Refer students or institutions' },
                       { icon: '⚡', text: ja ? '承認後すぐに支払い' : bn ? 'অনুমোদনের পরেই পেমেন্ট' : 'Fast payout on approval' },
