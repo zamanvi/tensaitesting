@@ -449,7 +449,7 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {GATEWAYS.map((g) => {
-                const borderAccent = g.type === 'student' || g.href.includes('student') ? 'border-green-500/25 hover:border-green-500/50'
+                const borderAccent = g.href.includes('student') ? 'border-green-500/25 hover:border-green-500/50'
                   : g.href.includes('agency') ? 'border-cyan-500/25 hover:border-cyan-500/50'
                   : g.href.includes('institution') ? 'border-violet-500/25 hover:border-violet-500/50'
                   : 'border-amber-500/25 hover:border-amber-500/50';
