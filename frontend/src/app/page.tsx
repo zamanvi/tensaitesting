@@ -185,6 +185,19 @@ export default function HomePage() {
       color: 'from-amber-500/15 to-amber-600/5',
       border: 'border-amber-500/20',
     },
+    {
+      avatar: 'N',
+      name: ja ? 'ナスリン・ベゴム' : bn ? 'নাসরিন বেগম' : 'Nasrin Begum',
+      role: ja ? '看護師 · 名古屋医療センター' : bn ? 'নার্স · নাগোয়া মেডিকেল সেন্টার' : 'Nurse · Nagoya Medical Center',
+      quote: ja
+        ? '医療分野での日本就職は難しいと思っていましたが、TensaiのAIマッチングが最適な病院を見つけてくれました。書類も全て安全に管理されています。'
+        : bn
+        ? 'ভেবেছিলাম স্বাস্থ্যসেবায় জাপানে চাকরি পাওয়া কঠিন। Tensai-এর AI ম্যাচিং আমার জন্য সঠিক হাসপাতাল খুঁজে দিয়েছে। কাগজপত্র সব নিরাপদ।'
+        : 'I thought landing a healthcare job in Japan would be near impossible. Tensai\'s AI matching found the right hospital for me and every document was handled securely.',
+      flag: '🏥',
+      color: 'from-rose-500/15 to-rose-600/5',
+      border: 'border-rose-500/20',
+    },
   ];
 
   const AGENCY_BENEFITS = [
