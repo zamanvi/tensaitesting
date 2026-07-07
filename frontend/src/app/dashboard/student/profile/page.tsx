@@ -140,7 +140,7 @@ export default function StudentProfilePage() {
             </select>
           </Field>
           <Field label={p.nationality}>
-            <input className={inputCls(locked)} disabled={locked} value={form.nationality ?? ''} onChange={(e) => set('nationality', e.target.value)} placeholder="e.g. Bangladeshi" />
+            <input className={inputCls(locked)} disabled={locked} value={form.nationality ?? ''} onChange={(e) => set('nationality', e.target.value)} />
           </Field>
           <Field label={p.religion}>
             <input className={inputCls(locked)} disabled={locked} value={form.religion ?? ''} onChange={(e) => set('religion', e.target.value)} />
@@ -160,7 +160,7 @@ export default function StudentProfilePage() {
             <input className={inputCls(locked)} disabled={locked} value={form.street_address ?? ''} onChange={(e) => set('street_address', e.target.value)} placeholder="House no., Road, Area" />
           </Field>
           <Field label={p.district}>
-            <input className={inputCls(locked)} disabled={locked} value={form.district ?? ''} onChange={(e) => set('district', e.target.value)} placeholder="e.g. Dhaka, Chittagong" />
+            <input className={inputCls(locked)} disabled={locked} value={form.district ?? ''} onChange={(e) => set('district', e.target.value)} />
           </Field>
           <Field label={p.division}>
             <select className={inputCls(locked)} disabled={locked} value={form.division ?? ''} onChange={(e) => set('division', e.target.value)}>
@@ -184,7 +184,7 @@ export default function StudentProfilePage() {
             <input className={inputCls(locked)} disabled={locked} value={form.emergency_contact_phone ?? ''} onChange={(e) => set('emergency_contact_phone', e.target.value)} placeholder="+8801XXXXXXXXX" />
           </Field>
           <Field label={p.emergencyRelation}>
-            <input className={inputCls(locked)} disabled={locked} value={form.emergency_contact_relation ?? ''} onChange={(e) => set('emergency_contact_relation', e.target.value)} placeholder={p.emergencyRelation} />
+            <input className={inputCls(locked)} disabled={locked} value={form.emergency_contact_relation ?? ''} onChange={(e) => set('emergency_contact_relation', e.target.value)} />
           </Field>
         </div>
       </Section>
@@ -199,13 +199,13 @@ export default function StudentProfilePage() {
             </select>
           </Field>
           <Field label={p.gpa}>
-            <input type="number" step="0.01" min="0" max="5" className={inputCls(locked)} disabled={locked} value={form.gpa ?? ''} onChange={(e) => set('gpa', e.target.value)} placeholder="e.g. 3.75 (out of 4.00)" />
+            <input type="number" step="0.01" min="0" max="5" className={inputCls(locked)} disabled={locked} value={form.gpa ?? ''} onChange={(e) => set('gpa', e.target.value)} placeholder="0.00 – 5.00" />
           </Field>
           <Field label={p.institutionName}>
             <input className={inputCls(locked)} disabled={locked} value={form.institution_name ?? ''} onChange={(e) => set('institution_name', e.target.value)} />
           </Field>
           <Field label={p.passingYear}>
-            <input type="number" min="1990" max="2030" className={inputCls(locked)} disabled={locked} value={form.passing_year ?? ''} onChange={(e) => set('passing_year', e.target.value)} placeholder="e.g. 2023" />
+            <input type="number" min="1990" max="2030" className={inputCls(locked)} disabled={locked} value={form.passing_year ?? ''} onChange={(e) => set('passing_year', e.target.value)} placeholder="1990–2030" />
           </Field>
         </div>
       </Section>
