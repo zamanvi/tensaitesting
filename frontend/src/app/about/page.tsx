@@ -313,7 +313,7 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 rounded-2xl overflow-hidden border border-white/[0.08]">
               {STATS.map((s, i) => (
-                <div key={i} className="px-4 sm:px-6 py-5 bg-white/[0.03] text-center border-r border-b border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r sm:[&:nth-child(3)]:border-r-0 lg:[&:nth-child(3)]:border-r lg:[&:nth-child(5)]:border-r-0 [&:nth-child(3)]:border-b-0 [&:nth-child(4)]:border-b-0 [&:nth-child(5)]:border-b-0 sm:[&:nth-child(5)]:border-b-0">
+                <div key={i} className={`px-4 sm:px-6 py-5 bg-white/[0.03] text-center border-r border-b border-white/[0.08] sm:border-b ${i === STATS.length - 1 && STATS.length % 2 !== 0 ? 'col-span-2 sm:col-span-1 border-r-0 sm:border-r' : ''} last:sm:border-r-0 [&:nth-last-child(-n+2)]:border-b-0 sm:[&:nth-last-child(-n+2)]:border-b sm:[&:nth-last-child(-n+1)]:border-b-0`}>
                   <div className={`font-black text-green-400 leading-none mb-1 ${s.small ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'}`}>{s.value}</div>
                   <div className="text-[10px] sm:text-xs text-white/45 leading-snug mt-1">{s.label}</div>
                 </div>

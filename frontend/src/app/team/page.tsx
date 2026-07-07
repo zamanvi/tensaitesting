@@ -259,12 +259,12 @@ export default function TeamPage() {
           {TEAM.map((member, i) => (
             <div
               key={member.name}
-              className={`glass-card rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row gap-8 transition-all duration-300 card-hover-glow
+              className={`glass-card rounded-3xl p-6 sm:p-10 flex flex-col sm:flex-row gap-5 sm:gap-8 transition-all duration-300 card-hover-glow
                 ${i % 2 === 1 ? 'sm:flex-row-reverse' : ''}`}
             >
               {/* Avatar side */}
               <div className="flex flex-col items-center gap-4 shrink-0">
-                <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden shadow-xl border border-white/10">
+                <div className="w-28 h-28 sm:w-44 sm:h-44 rounded-2xl overflow-hidden shadow-xl border border-white/10">
                   {member.photo ? (
                     <Image src={member.photo} alt={member.name} width={176} height={176} className="w-full h-full object-cover object-top" />
                   ) : (
@@ -299,7 +299,7 @@ export default function TeamPage() {
                   </blockquote>
                 )}
                 <div>
-                  <p className="text-[10px] font-bold text-white/28 uppercase tracking-[0.2em] mb-3">
+                  <p className="text-[10px] font-bold text-white/45 uppercase tracking-[0.2em] mb-3">
                     {ja ? '専門分野' : bn ? 'মূল দক্ষতা' : 'Focus Areas'}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -317,7 +317,7 @@ export default function TeamPage() {
       {/* ── Team Values ────────────────────────────────────── */}
       <section className="bg-alt-section py-16 sm:py-20 border-t border-white/[0.05]">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+          <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
             {ja ? '価値観' : bn ? 'মূল্যবোধ' : 'Values'}
           </p>
           <h2 className="text-fluid-4xl font-bold text-white mb-10">
@@ -369,7 +369,7 @@ export default function TeamPage() {
       <section className="bg-alt-section py-16 sm:py-20 border-t border-white/[0.05]">
         <div className="max-w-5xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-white/28 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+            <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
               {ja ? '文化' : bn ? 'সংস্কৃতি' : 'Culture'}
             </p>
             <h2 className="text-fluid-4xl font-bold text-white mb-3">

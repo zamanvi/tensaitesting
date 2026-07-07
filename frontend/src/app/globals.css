@@ -138,6 +138,15 @@ body {
   box-shadow: 0 8px 32px rgba(21, 128, 61, 0.15);
 }
 
+/* ── Scrollbar hide ─────────────────────────────────────── */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Marquee (trust ticker) ──────────────────────────────── */
 @keyframes marquee {
   from { transform: translateX(0); }
