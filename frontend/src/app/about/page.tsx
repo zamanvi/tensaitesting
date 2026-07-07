@@ -40,7 +40,6 @@ export default function AboutPage() {
     { value: '100%',    label: a.stat2 },
     { value: '0',       label: a.stat3 },
     { value: 'BD→JP',   label: a.stat4, small: true },
-    { value: '৳20K',    label: ja ? '紹介1件の収益' : bn ? 'প্রতি রেফারেলে আয়' : 'Per Referral Earned' },
     { value: '2026',    label: ja ? '正式ローンチ' : bn ? 'আনুষ্ঠানিক লঞ্চ' : 'Official Launch' },
   ];
 
@@ -117,10 +116,10 @@ export default function AboutPage() {
       title: ja ? 'アフィリエイト' : bn ? 'অ্যাফিলিয়েট' : 'Affiliates',
       sub: ja ? '紹介で収益を得る' : bn ? 'রেফার করুন, আয় করুন' : 'Refer people, earn commission',
       points: ja
-        ? ['学生または機関を紹介', '成功紹介1件あたり৳20,000', '収益をダッシュボードで追跡', '特別スキルは不要']
+        ? ['学生または機関を紹介', '成功紹介ごとに報酬を獲得', '収益をダッシュボードで追跡', '特別スキルは不要']
         : bn
-        ? ['শিক্ষার্থী বা প্রতিষ্ঠান রেফার করুন', 'প্রতি সফল রেফারেলে ৳২০,০০০', 'ড্যাশবোর্ডে আয় ট্র্যাক করুন', 'কোনো বিশেষ দক্ষতা লাগে না']
-        : ['Refer students or institutions', '৳20,000 per successful referral', 'Track earnings on your dashboard', 'No special skills required'],
+        ? ['শিক্ষার্থী বা প্রতিষ্ঠান রেফার করুন', 'সফল রেফারেলে পুরস্কার অর্জন করুন', 'ড্যাশবোর্ডে আয় ট্র্যাক করুন', 'কোনো বিশেষ দক্ষতা লাগে না']
+        : ['Refer students or institutions', 'Earn rewards per successful referral', 'Track earnings on your dashboard', 'No special skills required'],
     },
   ];
 
@@ -212,21 +211,19 @@ export default function AboutPage() {
   const toggleAriaLabel = lang === 'en' ? 'Switch to Bangla' : lang === 'bn' ? '日本語に切り替える' : 'Switch to English';
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#0d1117]">
 
       {/* ── Navbar ─────────────────────────────────────────── */}
       <nav
         aria-label={ja ? 'メインナビゲーション' : bn ? 'প্রধান নেভিগেশন' : 'Main navigation'}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? 'bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-sm' : 'bg-transparent'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-nav' : 'bg-transparent'}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
             <Image src="/tensai-logo.png" alt="Tensai" width={36} height={36} className="rounded-full object-contain" priority />
             <div>
-              <div className="text-base font-bold text-slate-900 tracking-tight leading-none">Tensai</div>
-              <div className="text-[9px] text-slate-400 tracking-wider leading-none mt-0.5 hidden sm:block">
+              <div className="text-base font-bold text-white tracking-tight leading-none">Tensai</div>
+              <div className="text-[9px] text-white/35 tracking-wider leading-none mt-0.5 hidden sm:block">
                 {ja ? 'グローバルキャリアへの道' : bn ? 'বৈশ্বিক ক্যারিয়ারের পথ' : 'THE WAY OF GLOBAL CAREER'}
               </div>
             </div>
@@ -236,21 +233,21 @@ export default function AboutPage() {
               type="button"
               onClick={toggle}
               aria-label={toggleAriaLabel}
-              className="text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200 text-slate-600 hover:border-green-400 hover:text-green-700 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="text-xs font-semibold px-2.5 py-1 rounded-full border border-white/10 text-white/60 hover:border-green-500/40 hover:text-green-400 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
             >
               {toggleLabel}
             </button>
-            <Link href="/about"    className="text-sm font-semibold text-green-700 px-2 py-1 hidden md:inline border-b-2 border-green-600">{a.navAbout}</Link>
-            <Link href="/team"     className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navTeam}</Link>
-            <Link href="/gallery"  className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{a.navGallery}</Link>
-            <Link href="/branches" className="text-sm text-slate-500 hover:text-slate-900 transition-colors px-2 py-1 hidden md:inline">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
-            <Link href="/auth/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors px-3 py-1.5 hidden sm:inline">{l.login}</Link>
-            <Link href="/auth/register" className="text-sm bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full font-semibold transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 hidden sm:inline">
+            <Link href="/about"    className="text-sm font-semibold text-green-400 px-2 py-1 hidden md:inline border-b border-green-500/50">{a.navAbout}</Link>
+            <Link href="/team"     className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{a.navTeam}</Link>
+            <Link href="/gallery"  className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{a.navGallery}</Link>
+            <Link href="/branches" className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5 hidden sm:inline">{l.login}</Link>
+            <Link href="/auth/register" className="text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full font-semibold transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300 hidden sm:inline">
               {l.getStarted}
             </Link>
             <button
               onClick={() => setMobileOpen(o => !o)}
-              className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all"
+              className="md:hidden p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/[0.08] transition-all"
               aria-label="Menu"
             >
               {mobileOpen
@@ -261,14 +258,14 @@ export default function AboutPage() {
           </div>
         </div>
         {mobileOpen && (
-          <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-slate-100 px-4 py-4 flex flex-col gap-1 shadow-lg">
-            <Link href="/about"    onClick={() => setMobileOpen(false)} className="text-sm font-semibold text-green-700 px-3 py-2.5 rounded-xl bg-green-50">{a.navAbout}</Link>
-            <Link href="/team"     onClick={() => setMobileOpen(false)} className="text-sm text-slate-600 hover:text-slate-900 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all">{a.navTeam}</Link>
-            <Link href="/gallery"  onClick={() => setMobileOpen(false)} className="text-sm text-slate-600 hover:text-slate-900 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all">{a.navGallery}</Link>
-            <Link href="/branches" onClick={() => setMobileOpen(false)} className="text-sm text-slate-600 hover:text-slate-900 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-all">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
-            <div className="border-t border-slate-100 mt-2 pt-3 flex gap-2">
-              <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 px-4 py-2.5 rounded-full transition-all">{l.login}</Link>
-              <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-700 hover:bg-green-600 text-white px-4 py-2.5 rounded-full font-semibold transition-all">{l.getStarted}</Link>
+          <div className="md:hidden bg-[#0d1117]/95 backdrop-blur-md border-t border-white/[0.08] px-4 py-4 flex flex-col gap-1">
+            <Link href="/about"    onClick={() => setMobileOpen(false)} className="text-sm font-semibold text-green-400 px-3 py-2.5 rounded-xl bg-green-500/10">{a.navAbout}</Link>
+            <Link href="/team"     onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{a.navTeam}</Link>
+            <Link href="/gallery"  onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{a.navGallery}</Link>
+            <Link href="/branches" onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <div className="border-t border-white/[0.08] mt-2 pt-3 flex gap-2">
+              <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-white/70 hover:text-white border border-white/10 hover:border-white/25 px-4 py-2.5 rounded-full transition-all">{l.login}</Link>
+              <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-full font-semibold transition-all">{l.getStarted}</Link>
             </div>
           </div>
         )}
@@ -277,34 +274,34 @@ export default function AboutPage() {
       <main>
 
         {/* ── Hero ───────────────────────────────────────────── */}
-        <section className="relative overflow-hidden pt-32 pb-20 px-4 text-center">
-          <div className="absolute inset-0 bg-gradient-to-b from-green-50/80 via-white to-white pointer-events-none" aria-hidden="true" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-green-400/8 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
+        <section className="hero-mesh relative overflow-hidden pt-32 pb-20 px-4 text-center">
+          <div className="absolute top-[10%] left-[10%] w-[500px] h-[500px] bg-green-600/10 rounded-full blur-[160px] pointer-events-none" aria-hidden="true" />
+          <div className="absolute bottom-0 right-[5%] w-[350px] h-[350px] bg-cyan-500/7 rounded-full blur-[130px] pointer-events-none" aria-hidden="true" />
           <div
-            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            className="absolute inset-0 opacity-[0.018] pointer-events-none"
             aria-hidden="true"
             style={{
-              backgroundImage: 'linear-gradient(rgba(0,0,0,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.8) 1px, transparent 1px)',
-              backgroundSize: '50px 50px',
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)',
+              backgroundSize: '70px 70px',
             }}
           />
-          <div className="relative z-10 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-green-700/8 border border-green-700/15 text-green-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse shrink-0" aria-hidden="true" />
+          <div className="relative z-10 max-w-3xl mx-auto animate-fade-up">
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" aria-hidden="true" />
               {a.badge}
             </div>
-            <h1 className="text-fluid-hero font-black text-slate-900 leading-[1.06] tracking-tight mb-5">
+            <h1 className="text-fluid-hero font-black text-white leading-[1.06] tracking-tight mb-5">
               {a.heroTitle}<br />
-              <span className="text-green-700">{a.heroHighlight}</span>
+              <span className="gradient-text">{a.heroHighlight}</span>
             </h1>
-            <p className="text-fluid-lg text-slate-500 max-w-2xl mx-auto leading-relaxed mb-8">
+            <p className="text-fluid-base text-white/50 max-w-2xl mx-auto leading-relaxed mb-8">
               {a.heroDesc}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/auth/register" className="bg-green-700 hover:bg-green-600 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg shadow-green-700/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500">
+              <Link href="/auth/register" className="w-full sm:w-auto text-center bg-green-600 hover:bg-green-500 text-white px-8 py-3.5 rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300">
                 {a.ctaStart}
               </Link>
-              <Link href="#problem" className="border border-slate-200 hover:border-green-400 text-slate-700 hover:text-green-800 px-8 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400">
+              <Link href="#problem" className="w-full sm:w-auto text-center border border-white/[0.1] hover:border-white/20 text-white/50 hover:text-white/80 px-8 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30">
                 {ja ? '問題を見る ↓' : bn ? 'সমস্যাটি দেখুন ↓' : 'See the problem ↓'}
               </Link>
             </div>
@@ -312,13 +309,13 @@ export default function AboutPage() {
         </section>
 
         {/* ── Stats Strip ────────────────────────────────────── */}
-        <section className="py-12 px-4 border-y border-slate-100 bg-slate-50/60" aria-label={ja ? '主な数値' : bn ? 'মূল পরিসংখ্যান' : 'Key statistics'}>
+        <section className="py-12 px-4 border-y border-white/[0.05] bg-alt-section" aria-label={ja ? '主な数値' : bn ? 'মূল পরিসংখ্যান' : 'Key statistics'}>
           <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-slate-200 rounded-2xl overflow-hidden shadow-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 rounded-2xl overflow-hidden border border-white/[0.08]">
               {STATS.map((s, i) => (
-                <div key={i} className="bg-white px-4 py-6 text-center">
-                  <div className={`font-black text-green-700 leading-none mb-1 ${s.small ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'}`}>{s.value}</div>
-                  <div className="text-[10px] sm:text-xs text-slate-500 leading-snug mt-1">{s.label}</div>
+                <div key={i} className="px-4 sm:px-6 py-5 bg-white/[0.03] text-center border-r border-b border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r sm:[&:nth-child(3)]:border-r-0 lg:[&:nth-child(3)]:border-r lg:[&:nth-child(5)]:border-r-0 [&:nth-child(3)]:border-b-0 [&:nth-child(4)]:border-b-0 [&:nth-child(5)]:border-b-0 sm:[&:nth-child(5)]:border-b-0">
+                  <div className={`font-black text-green-400 leading-none mb-1 ${s.small ? 'text-xl sm:text-2xl' : 'text-2xl sm:text-3xl'}`}>{s.value}</div>
+                  <div className="text-[10px] sm:text-xs text-white/45 leading-snug mt-1">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -383,22 +380,22 @@ export default function AboutPage() {
         {/* ── Our Story ──────────────────────────────────────── */}
         <section className="max-w-3xl mx-auto px-4 py-16 sm:py-20">
           <div className="mb-8">
-            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-100 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               {a.storyBadge}
             </div>
-            <h2 className="text-fluid-4xl font-bold text-slate-900 mb-2">{a.storyTitle}</h2>
+            <h2 className="text-fluid-4xl font-bold text-white mb-2">{a.storyTitle}</h2>
           </div>
-          <div className="space-y-5 text-slate-600 text-fluid-base leading-relaxed">
+          <div className="space-y-5 text-white/55 text-fluid-base leading-relaxed">
             <p>{a.story1}</p>
-            <blockquote className="border-l-4 border-green-500 pl-5 py-1 my-6">
-              <p className="text-slate-800 font-semibold text-fluid-lg leading-snug italic">
+            <blockquote className="border-l-4 border-green-500/60 pl-5 py-1 my-6">
+              <p className="text-white/80 font-semibold text-fluid-lg leading-snug italic">
                 {ja
                   ? '"書類の真偽を証明できない学生が、なぜ機会を失わなければならないのか？"'
                   : bn
                   ? '"যে শিক্ষার্থী তার কাগজের সত্যতা প্রমাণ করতে পারে না, সে কেন সুযোগ হারাবে?"'
                   : '"Why should a student lose their chance because they can\'t prove their own documents are real?"'}
               </p>
-              <footer className="text-sm text-slate-400 mt-2 not-italic">— Md. Norozzaman, Founder</footer>
+              <footer className="text-sm text-white/35 mt-2 not-italic">— Md. Norozzaman, Founder</footer>
             </blockquote>
             <p>{a.story2}</p>
             <p>{a.story3}</p>
@@ -406,108 +403,129 @@ export default function AboutPage() {
         </section>
 
         {/* ── What We Stand For ──────────────────────────────── */}
-        <section className="bg-slate-50 py-16 sm:py-20 border-t border-slate-100">
+        <section className="bg-alt-section py-16 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-12">
-              <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? '私たちの価値観' : bn ? 'আমাদের মূলনীতি' : 'Core Principles'}
               </p>
-              <h2 className="text-fluid-4xl font-bold text-slate-900">{a.pillarsTitle}</h2>
-              <p className="text-slate-400 text-sm mt-2">{a.pillarsSub}</p>
+              <h2 className="text-fluid-4xl font-bold text-white">{a.pillarsTitle}</h2>
+              <p className="text-white/40 text-sm mt-2">{a.pillarsSub}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {PILLARS.map((p) => (
-                <div key={p.title} className="bg-white rounded-2xl p-6 border border-slate-100 hover:border-green-200 hover:shadow-md transition-all flex flex-col gap-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-2xl border border-slate-100`} aria-hidden="true">
+              {PILLARS.map((p) => {
+                const topLine = p.color.includes('green') ? 'from-green-500/50 to-transparent'
+                  : p.color.includes('cyan') ? 'from-cyan-500/50 to-transparent'
+                  : p.color.includes('violet') ? 'from-violet-500/50 to-transparent'
+                  : 'from-amber-500/50 to-transparent';
+                return (
+                <div key={p.title} className="glass-card rounded-2xl p-6 border border-white/[0.08] hover:border-green-500/25 card-hover-glow transition-all flex flex-col gap-4 relative overflow-hidden">
+                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${topLine}`} />
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-2xl`} aria-hidden="true">
                     {p.icon}
                   </div>
-                  <h3 className="font-bold text-slate-900 text-sm leading-snug">{p.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed flex-1">{p.desc}</p>
+                  <h3 className="font-bold text-white text-sm leading-snug">{p.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed flex-1">{p.desc}</p>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* ── Who Tensai Serves ──────────────────────────────── */}
-        <section className="py-16 sm:py-20 px-4">
+        <section className="py-16 sm:py-20 px-4 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
-              <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'エコシステム' : bn ? 'ইকোসিস্টেম' : 'Ecosystem'}
               </p>
-              <h2 className="text-fluid-4xl font-bold text-slate-900">
+              <h2 className="text-fluid-4xl font-bold text-white">
                 {ja ? 'Tensaiは4種類のユーザーに対応' : bn ? 'টেনসাই চার ধরনের ব্যবহারকারী সেবা দেয়' : 'Built for four types of users'}
               </h2>
-              <p className="text-slate-400 text-sm mt-2 max-w-xl mx-auto">
+              <p className="text-white/40 text-sm mt-2 max-w-xl mx-auto">
                 {ja ? '学生・エージェンシー・教育機関・アフィリエイト — 全員が同じプラットフォームで繋がる。' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান ও অ্যাফিলিয়েট — সবাই একই প্ল্যাটফর্মে সংযুক্ত।' : 'Students, agencies, institutions, and affiliates — all connected in one trusted ecosystem.'}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {GATEWAYS.map((g) => (
-                <div key={g.title} className={`bg-white border rounded-2xl p-6 flex flex-col gap-4 hover:shadow-lg transition-all ${g.accent}`}>
+              {GATEWAYS.map((g) => {
+                const borderAccent = g.type === 'student' || g.href.includes('student') ? 'border-green-500/25 hover:border-green-500/50'
+                  : g.href.includes('agency') ? 'border-cyan-500/25 hover:border-cyan-500/50'
+                  : g.href.includes('institution') ? 'border-violet-500/25 hover:border-violet-500/50'
+                  : 'border-amber-500/25 hover:border-amber-500/50';
+                const ctaColor = g.href.includes('student') ? 'text-green-400 hover:text-green-300'
+                  : g.href.includes('agency') ? 'text-cyan-400 hover:text-cyan-300'
+                  : g.href.includes('institution') ? 'text-violet-400 hover:text-violet-300'
+                  : 'text-amber-400 hover:text-amber-300';
+                const checkColor = g.href.includes('student') ? 'text-green-400'
+                  : g.href.includes('agency') ? 'text-cyan-400'
+                  : g.href.includes('institution') ? 'text-violet-400'
+                  : 'text-amber-400';
+                return (
+                <div key={g.title} className={`glass-card border rounded-2xl p-6 flex flex-col gap-4 card-hover-glow transition-all ${borderAccent}`}>
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${g.color} flex items-center justify-center text-2xl`} aria-hidden="true">
                     {g.icon}
                   </div>
                   <div>
-                    <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${g.badge}`}>{g.title}</span>
-                    <p className="text-xs text-slate-400 mt-2 font-medium">{g.sub}</p>
+                    <p className="text-white font-bold text-sm">{g.title}</p>
+                    <p className="text-xs text-white/40 mt-1 font-medium">{g.sub}</p>
                   </div>
                   <ul className="space-y-2 flex-1">
                     {g.points.map((pt) => (
-                      <li key={pt} className="flex items-start gap-2 text-xs text-slate-600 leading-relaxed">
-                        <span className="text-green-500 shrink-0 mt-0.5">✓</span>
+                      <li key={pt} className="flex items-start gap-2 text-xs text-white/60 leading-relaxed">
+                        <svg className={`shrink-0 mt-0.5 ${checkColor}`} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                         {pt}
                       </li>
                     ))}
                   </ul>
-                  <Link href={g.href} className="mt-auto text-xs font-semibold text-green-700 hover:text-green-600 hover:underline transition-colors">
+                  <Link href={g.href} className={`mt-auto text-xs font-semibold transition-colors ${ctaColor}`}>
                     {ja ? '今すぐ始める →' : bn ? 'শুরু করুন →' : 'Get started →'}
                   </Link>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* ── Corridors Roadmap ──────────────────────────────── */}
-        <section className="bg-slate-50 py-16 sm:py-20 border-t border-slate-100 px-4">
+        <section className="bg-alt-section py-16 sm:py-20 border-t border-white/[0.05] px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'グローバル展開' : bn ? 'বৈশ্বিক বিস্তার' : 'Global Expansion'}
               </p>
-              <h2 className="text-fluid-4xl font-bold text-slate-900">
-                {ja ? '今と、その先へ' : bn ? 'এখন এবং সামনে' : 'Where we are, and where we\'re going'}
+              <h2 className="text-fluid-4xl font-bold text-white">
+                {ja ? '今と、その先へ' : bn ? 'এখন এবং সামনে' : "Where we are, and where we're going"}
               </h2>
-              <p className="text-slate-400 text-sm mt-2 max-w-lg mx-auto">
+              <p className="text-white/40 text-sm mt-2 max-w-lg mx-auto">
                 {ja ? 'バングラデシュから始まり、世界へ広がるTensaiのコリドーマップ。' : bn ? 'বাংলাদেশ থেকে শুরু হয়ে বিশ্বে ছড়িয়ে পড়ছে টেনসাই।' : 'Starting from Bangladesh, expanding to every major study destination globally.'}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {CORRIDORS.map((c) => (
-                <div key={c.route} className={`bg-white rounded-2xl p-6 border flex flex-col gap-4 transition-all ${
-                  c.status === 'live'    ? 'border-green-200 shadow-sm shadow-green-100' :
-                  c.status === 'coming' ? 'border-blue-100'  :
-                  c.status === 'planned'? 'border-slate-100' : 'border-dashed border-slate-200'
+                <div key={c.route} className={`glass-card rounded-2xl p-6 border flex flex-col gap-4 transition-all ${
+                  c.status === 'live'    ? 'border-green-500/30' :
+                  c.status === 'coming' ? 'border-cyan-500/20'  :
+                  c.status === 'planned'? 'border-white/[0.08]' : 'border-dashed border-white/[0.08]'
                 }`}>
                   <div className="flex items-center gap-2 text-3xl">
                     <span>{c.from}</span>
-                    <span className="text-slate-300 text-sm">→</span>
+                    <span className="text-white/25 text-sm">→</span>
                     <span>{c.to}</span>
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900 text-sm">{c.route}</p>
-                    <span className={`inline-block mt-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                      c.status === 'live'    ? 'bg-green-100 text-green-700' :
-                      c.status === 'coming' ? 'bg-blue-100 text-blue-600'   :
-                      c.status === 'planned'? 'bg-slate-100 text-slate-500'  : 'bg-slate-50 text-slate-400'
+                    <p className="font-bold text-white text-sm">{c.route}</p>
+                    <span className={`inline-flex items-center mt-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                      c.status === 'live'    ? 'bg-green-500/15 text-green-400 border border-green-500/25' :
+                      c.status === 'coming' ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/25'   :
+                      c.status === 'planned'? 'bg-white/[0.06] text-white/45 border border-white/[0.1]'  : 'bg-white/[0.04] text-white/35 border border-white/[0.08]'
                     }`}>
-                      {c.status === 'live' && <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse mr-1 align-middle" />}
+                      {c.status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse mr-1.5" />}
                       {c.label}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed flex-1">{c.desc}</p>
+                  <p className="text-xs text-white/40 leading-relaxed flex-1">{c.desc}</p>
                 </div>
               ))}
             </div>
@@ -515,18 +533,18 @@ export default function AboutPage() {
         </section>
 
         {/* ── Team ───────────────────────────────────────────── */}
-        <section className="py-16 sm:py-20 border-t border-slate-100 px-4">
+        <section className="py-16 sm:py-20 border-t border-white/[0.05] px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <p className="text-slate-400 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
                 {ja ? 'チーム' : bn ? 'আমাদের দল' : 'Our Team'}
               </p>
-              <h2 className="text-fluid-4xl font-bold text-slate-900">{a.teamTitle}</h2>
-              <p className="text-slate-400 text-sm mt-2 max-w-md mx-auto">{a.teamSub}</p>
+              <h2 className="text-fluid-4xl font-bold text-white">{a.teamTitle}</h2>
+              <p className="text-white/40 text-sm mt-2 max-w-md mx-auto">{a.teamSub}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {TEAM.map((member) => (
-                <div key={member.name} className={`bg-white border rounded-2xl p-6 flex flex-col gap-4 hover:shadow-lg transition-all ${member.accent}`}>
+                <div key={member.name} className="glass-card border border-white/[0.08] hover:border-green-500/25 rounded-2xl p-6 flex flex-col gap-4 card-hover-glow transition-all">
                   <div className="flex items-center gap-3">
                     {member.photo ? (
                       <Image
@@ -534,29 +552,29 @@ export default function AboutPage() {
                         alt={member.name}
                         width={48}
                         height={48}
-                        className="w-12 h-12 rounded-xl object-cover object-top shrink-0 shadow-sm"
+                        className="w-12 h-12 rounded-xl object-cover object-top shrink-0"
                       />
                     ) : (
-                      <div className={`w-12 h-12 rounded-xl ${member.avatarBg} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm`} aria-hidden="true">
+                      <div className={`w-12 h-12 rounded-xl ${member.avatarBg} flex items-center justify-center text-white font-bold text-sm shrink-0`} aria-hidden="true">
                         {member.initials}
                       </div>
                     )}
                     <div>
-                      <div className="font-bold text-slate-900 text-sm leading-tight">{member.name}</div>
-                      <div className="text-xs text-green-700 font-medium mt-0.5">{member.role}</div>
+                      <div className="font-bold text-white text-sm leading-tight">{member.name}</div>
+                      <div className="text-xs text-green-400 font-medium mt-0.5">{member.role}</div>
                     </div>
                   </div>
-                  <span className={`self-start text-[11px] font-semibold px-2.5 py-1 rounded-full ${member.badgeColor}`}>
+                  <span className="self-start text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/[0.06] text-white/60 border border-white/[0.1]">
                     {member.badge}
                   </span>
-                  <p className="text-sm text-slate-600 leading-relaxed flex-1">{member.bio}</p>
+                  <p className="text-sm text-white/50 leading-relaxed flex-1">{member.bio}</p>
                   <div className="flex items-center justify-between mt-auto">
                     {member.linkedin ? (
-                      <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-xs text-green-700 font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded">
+                      <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-xs text-green-400 font-semibold hover:text-green-300 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 rounded">
                         LinkedIn →
                       </a>
                     ) : (
-                      <Link href="/team" className="text-xs text-slate-400 hover:text-green-700 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded">
+                      <Link href="/team" className="text-xs text-white/35 hover:text-green-400 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 rounded">
                         {ja ? '詳細を見る →' : bn ? 'আরও দেখুন →' : 'Full profile →'}
                       </Link>
                     )}
@@ -565,7 +583,7 @@ export default function AboutPage() {
               ))}
             </div>
             <div className="text-center mt-8">
-              <Link href="/team" className="inline-flex items-center gap-2 border border-slate-200 hover:border-green-400 text-slate-700 hover:text-green-800 px-6 py-2.5 rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400">
+              <Link href="/team" className="inline-flex items-center gap-2 border border-white/[0.1] hover:border-green-500/40 text-white/55 hover:text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400">
                 {ja ? 'チームページを見る →' : bn ? 'পুরো দল দেখুন →' : 'Meet the full team →'}
               </Link>
             </div>
@@ -574,32 +592,32 @@ export default function AboutPage() {
 
         {/* ── Contact Info ───────────────────────────────────── */}
         {(settings?.support_phone || settings?.support_email || settings?.support_whatsapp || settings?.office_address) && (
-          <section className="py-12 sm:py-16 px-4 bg-slate-50 border-t border-slate-100">
+          <section className="py-12 sm:py-16 px-4 bg-alt-section border-t border-white/[0.05]">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              <h2 className="text-2xl font-bold text-white mb-2">
                 {ja ? 'お問い合わせ' : bn ? 'যোগাযোগ করুন' : 'Get in Touch'}
               </h2>
-              <p className="text-slate-500 text-sm mb-8">
+              <p className="text-white/45 text-sm mb-8">
                 {ja ? 'ご質問やご相談はお気軽にどうぞ。' : bn ? 'যেকোনো প্রশ্ন বা পরামর্শের জন্য আমাদের সাথে যোগাযোগ করুন।' : "Have questions? We're here to help."}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 {settings?.support_phone && (
-                  <a href={`tel:${settings.support_phone}`} className="flex items-center gap-2.5 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-sm text-slate-700 hover:border-green-300 hover:bg-green-50 transition-all">
+                  <a href={`tel:${settings.support_phone}`} className="flex items-center gap-2.5 px-5 py-3 glass-card border border-white/[0.08] rounded-2xl text-sm text-white/70 hover:border-green-500/35 hover:text-white transition-all">
                     <span>📞</span><span>{settings.support_phone}</span>
                   </a>
                 )}
                 {settings?.support_whatsapp && (
-                  <a href={`https://wa.me/${settings.support_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-5 py-3 bg-green-50 border border-green-200 rounded-2xl text-sm text-green-700 hover:bg-green-100 transition-all">
+                  <a href={`https://wa.me/${settings.support_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-5 py-3 bg-green-500/10 border border-green-500/25 rounded-2xl text-sm text-green-400 hover:bg-green-500/20 transition-all">
                     <span>💬</span><span>WhatsApp</span>
                   </a>
                 )}
                 {settings?.support_email && (
-                  <a href={`mailto:${settings.support_email}`} className="flex items-center gap-2.5 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-sm text-slate-700 hover:border-green-300 hover:bg-green-50 transition-all">
+                  <a href={`mailto:${settings.support_email}`} className="flex items-center gap-2.5 px-5 py-3 glass-card border border-white/[0.08] rounded-2xl text-sm text-white/70 hover:border-green-500/35 hover:text-white transition-all">
                     <span>✉️</span><span>{settings.support_email}</span>
                   </a>
                 )}
                 {settings?.office_address && (
-                  <div className="flex items-center gap-2.5 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-sm text-slate-700">
+                  <div className="flex items-center gap-2.5 px-5 py-3 glass-card border border-white/[0.08] rounded-2xl text-sm text-white/60">
                     <span>📍</span><span>{settings.office_address}</span>
                   </div>
                 )}
@@ -609,11 +627,14 @@ export default function AboutPage() {
         )}
 
         {/* ── CTA ────────────────────────────────────────────── */}
-        <section className="bg-slate-900 py-16 sm:py-24 px-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-900/30 via-transparent to-slate-900 pointer-events-none" aria-hidden="true" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-green-600/10 rounded-full blur-[100px] pointer-events-none" aria-hidden="true" />
+        <section className="relative border-t border-white/[0.05] py-16 sm:py-24 px-4 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-950/60 via-[#0d1117] to-cyan-950/30 pointer-events-none" aria-hidden="true" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-green-600/8 rounded-full blur-[80px] pointer-events-none" aria-hidden="true" />
           <div className="relative z-10 max-w-2xl mx-auto text-center">
-            <div className="text-4xl mb-5" aria-hidden="true">🚀</div>
+            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" />
+              {ja ? '現在受付中' : bn ? 'এখন অনবোর্ডিং চলছে' : 'Now onboarding partners'}
+            </div>
             <h2 className="text-fluid-4xl font-bold text-white mb-4">
               {ja ? 'グローバルキャリアへの道を、今。' : bn ? 'আপনার বৈশ্বিক ক্যারিয়ার শুরু হোক এখানে।' : 'Your global career starts here.'}
             </h2>
@@ -642,22 +663,22 @@ export default function AboutPage() {
       </main>
 
       {/* ── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-slate-100 py-8 px-4">
+      <footer className="border-t border-white/[0.06] py-8 px-4 bg-alt-section">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/tensai-logo.png" alt="Tensai" width={26} height={26} className="rounded-full object-contain opacity-70" />
-            <span className="text-sm font-bold text-slate-500">Tensai</span>
+            <span className="text-sm font-bold text-white/50">Tensai</span>
           </Link>
           <nav aria-label={ja ? 'フッターナビゲーション' : bn ? 'ফুটার নেভিগেশন' : 'Footer navigation'}>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400">
-              <Link href="/about"   className="text-green-700 font-medium">{a.navAbout}</Link>
-              <Link href="/team"    className="hover:text-slate-700 transition-colors">{a.navTeam}</Link>
-              <Link href="/gallery" className="hover:text-slate-700 transition-colors">{a.navGallery}</Link>
-              <Link href="/terms"   className="hover:text-slate-700 transition-colors">{termsText}</Link>
-              <Link href="/privacy" className="hover:text-slate-700 transition-colors">{privText}</Link>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/35">
+              <Link href="/about"   className="text-green-400 font-medium">{a.navAbout}</Link>
+              <Link href="/team"    className="hover:text-white/65 transition-colors">{a.navTeam}</Link>
+              <Link href="/gallery" className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
+              <Link href="/terms"   className="hover:text-white/65 transition-colors">{termsText}</Link>
+              <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
             </div>
           </nav>
-          <p className="text-xs text-slate-400">{l.footer}</p>
+          <p className="text-xs text-white/30">{l.footer}</p>
         </div>
       </footer>
 
