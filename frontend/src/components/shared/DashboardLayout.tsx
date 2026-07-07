@@ -78,6 +78,7 @@ export default function DashboardLayout({ children, title }: Props) {
       { label: lang === 'ja' ? 'ユーザー管理' : lang === 'bn' ? 'ইউজার' : 'Users',        href: '/dashboard/admin/users' },
       { label: lang === 'ja' ? '機関管理' : lang === 'bn' ? 'ইনস্টিটিউশন' : 'Institutions', href: '/dashboard/admin/institutions' },
       { label: lang === 'ja' ? 'アフィリエイト' : lang === 'bn' ? 'অ্যাফিলিয়েট' : 'Affiliates', href: '/dashboard/admin/affiliates' },
+      { label: lang === 'ja' ? '選択済み' : lang === 'bn' ? 'নির্বাচিত' : 'Selected',       href: '/dashboard/admin/selected' },
       { label: lang === 'ja' ? 'ギャラリー' : lang === 'bn' ? 'গ্যালারি' : 'Gallery',     href: '/dashboard/admin/gallery' },
       { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings',            href: '/dashboard/admin/settings' },
     ],
@@ -88,6 +89,7 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
     agency: [
       { label: lang === 'ja' ? '申請' : lang === 'bn' ? 'আবেদন' : 'Applications',        href: '/dashboard/agency/applicants' },
+      { label: lang === 'ja' ? '選択済み' : lang === 'bn' ? 'নির্বাচিত' : 'Selected',   href: '/dashboard/agency/selected' },
       { label: lang === 'ja' ? 'プロフィール' : lang === 'bn' ? 'প্রোফাইল' : 'Profile',  href: '/dashboard/agency/profile' },
       { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings',            href: '/dashboard/agency/settings' },
     ],
@@ -101,6 +103,7 @@ export default function DashboardLayout({ children, title }: Props) {
     branch_admin: [
       { label: lang === 'ja' ? 'ダッシュボード' : lang === 'bn' ? 'ড্যাশবোর্ড' : 'Dashboard',     href: '/dashboard/branch' },
       { label: lang === 'ja' ? '申請'            : lang === 'bn' ? 'আবেদন'        : 'Applications',  href: '/dashboard/branch/applicants' },
+      { label: lang === 'ja' ? '選択済み'       : lang === 'bn' ? 'নির্বাচিত'    : 'Selected',       href: '/dashboard/branch/selected' },
       { label: lang === 'ja' ? 'チーム'         : lang === 'bn' ? 'টিম'           : 'Team',          href: '/dashboard/branch/team' },
       { label: lang === 'ja' ? 'ギャラリー'     : lang === 'bn' ? 'গ্যালারি'      : 'Gallery',       href: '/dashboard/branch/gallery' },
       { label: lang === 'ja' ? '設定'           : lang === 'bn' ? 'সেটিংস'        : 'Settings',      href: '/dashboard/branch/settings' },
