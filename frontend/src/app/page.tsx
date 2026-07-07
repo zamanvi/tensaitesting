@@ -373,11 +373,7 @@ export default function HomePage() {
               <Link
                 key={g.type}
                 href={`/auth/register?type=${g.type}`}
-                className={`group rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400
-                  ${g.featured
-                    ? 'sm:col-span-2 lg:col-span-2 glass-card gateway-featured'
-                    : 'glass-card card-hover-glow'
-                  }`}
+                className="group rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 glass-card card-hover-glow"
               >
                 {g.tag && (
                   <span className="absolute top-3.5 right-3.5 text-[10px] font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
