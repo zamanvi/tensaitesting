@@ -153,8 +153,7 @@ export default function InstitutionProfilePage() {
     mutation.mutate(fd);
   }
 
-  const status   = data?.status ?? null;
-  const isLocked = status === 'active';
+  const isLocked = false;
 
   // Locked input style
   const inputCls = (extra = '') =>
@@ -164,13 +163,6 @@ export default function InstitutionProfilePage() {
         : 'border-slate-200 bg-white text-slate-800'
     } ${extra}`;
 
-  const STATUS_BANNER: Record<string, { bg: string; icon: string; title: string; desc: string }> = {
-    pending:   { bg: 'bg-amber-50 border-amber-200',    icon: '⏳', title: ja ? '審査待ち' : bn ? 'পর্যালোচনা অপেক্ষায়' : 'Under Review', desc: ja ? '管理者がプロフィールを確認中です。通常24〜48時間かかります。' : bn ? 'অ্যাডমিন যাচাই করছেন। সাধারণত ২৪-৪৮ ঘন্টা লাগে।' : 'Admin is reviewing your profile. Usually takes 24–48 hours.' },
-    active:    { bg: 'bg-emerald-50 border-emerald-200', icon: '✅', title: ja ? '認証済み ✓' : bn ? 'অনুমোদিত ✓' : 'Verified & Active ✓', desc: ja ? 'プロフィールは承認済みです。変更するには管理者にお問い合わせください。' : bn ? 'প্রোফাইল অনুমোদিত। পরিবর্তনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।' : 'Profile is approved. Contact support to make changes.' },
-    suspended: { bg: 'bg-red-50 border-red-200',        icon: '❌', title: ja ? 'アカウント停止中' : bn ? 'অ্যাকাউন্ট স্থগিত' : 'Account Suspended', desc: ja ? 'サポートにお問い合わせください。' : bn ? 'সাপোর্টে যোগাযোগ করুন।' : 'Contact support for assistance.' },
-  };
-
-  const banner = status ? STATUS_BANNER[status] : null;
 
   if (isLoading) {
     return <DashboardLayout><div className="text-center py-16 text-slate-400 text-sm">{ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}</div></DashboardLayout>;
@@ -179,32 +171,6 @@ export default function InstitutionProfilePage() {
   return (
     <DashboardLayout title={ja ? '教育機関プロフィール' : bn ? 'প্রতিষ্ঠানের প্রোফাইল' : 'Institution Profile'}>
 
-      {/* Status banner */}
-      {banner && (
-        <div className={`rounded-2xl border p-4 mb-5 flex items-start gap-3 ${banner.bg}`}>
-          <span className="text-xl shrink-0">{banner.icon}</span>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm text-slate-900">{banner.title}</p>
-            <p className="text-xs text-slate-600 mt-0.5">{banner.desc}</p>
-          </div>
-          {/* Show commission + verified date when active */}
-          {status === 'active' && (
-            <div className="shrink-0 text-right">
-              {data?.commission_percent > 0 && (
-                <div className="text-xs font-semibold text-emerald-700">
-                  {ja ? 'コミッション' : bn ? 'কমিশন' : 'Commission'}: {data.commission_percent}%
-                </div>
-              )}
-              {data?.verified_at && (
-                <div className="text-xs text-slate-400 mt-0.5">
-                  {ja ? '承認日' : bn ? 'অনুমোদনের তারিখ' : 'Verified'}:{' '}
-                  {new Date(data.verified_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* No profile yet */}
       {!data && (
@@ -463,7 +429,7 @@ export default function InstitutionProfilePage() {
         {saved && (
           <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-700">
             <span>✓</span>
-            {ja ? 'プロフィールを保存しました。管理者の審査をお待ちください。' : bn ? 'প্রোফাইল সংরক্ষিত। অ্যাডমিন যাচাইয়ের অপেক্ষায় আছেন।' : 'Profile saved. Awaiting admin review.'}
+            {ja ? 'プロフィールを保存しました。' : bn ? 'প্রোফাইল সংরক্ষিত।' : 'Profile saved successfully.'}
           </div>
         )}
 
@@ -479,8 +445,8 @@ export default function InstitutionProfilePage() {
             {mutation.isPending
               ? (ja ? '保存中...' : bn ? 'সংরক্ষণ হচ্ছে...' : 'Saving...')
               : data
-                ? (ja ? 'プロフィールを更新' : bn ? 'প্রোফাইল আপডেট করুন' : 'Update & Resubmit')
-                : (ja ? 'プロフィールを提出' : bn ? 'প্রোফাইল জমা দিন' : 'Submit Profile for Review')}
+                ? (ja ? 'プロフィールを更新' : bn ? 'প্রোফাইল আপডেট করুন' : 'Update Profile')
+                : (ja ? 'プロフィールを保存' : bn ? 'প্রোফাইল সংরক্ষণ করুন' : 'Save Profile')}
           </button>
         )}
       </form>

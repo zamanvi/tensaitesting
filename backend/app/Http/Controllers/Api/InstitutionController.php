@@ -61,20 +61,16 @@ class InstitutionController extends Controller
         }
 
         if ($profile) {
-            // Only allow editing if not yet active (approved)
-            if ($profile->status === 'active') {
-                return response()->json(['message' => 'Profile is locked after approval. Contact support to update.'], 403);
-            }
-            $validated['status'] = 'pending';
+            $validated['status'] = 'active';
             $profile->update($validated);
         } else {
             $validated['user_id'] = $user->id;
-            $validated['status']  = 'pending';
+            $validated['status']  = 'active';
             $profile = InstitutionProfile::create($validated);
         }
 
         return response()->json([
-            'message' => 'Institution profile saved. Awaiting admin review.',
+            'message' => 'Institution profile saved.',
             'profile' => $profile->fresh(),
         ]);
     }
