@@ -8,8 +8,8 @@ use App\Models\FormTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Notifications\Notification;
 use Filament\Tables;
+use Filament\Notifications\Notification;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -291,8 +291,6 @@ class ApplicationResource extends Resource
             ->options([
                 'draft'     => 'Draft',
                 'submitted' => 'Submitted',
-                'pool'      => 'In Pool',
-                'selected'  => 'Selected',
                 'accepted'  => 'Accepted',
                 'rejected'  => 'Rejected',
             ])
@@ -594,6 +592,13 @@ class ApplicationResource extends Resource
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
+                    ->color(fn (string $state) => match ($state) {
+                        'admin', 'super_admin' => 'gray',
+                        'branch_admin', 'branch_manager' => 'info',
+                        'agency'       => 'warning',
+                        'student'      => 'success',
+                        default        => 'gray',
+                    })
                     ->formatStateUsing(fn (string $state) => match ($state) {
                         'admin', 'super_admin'            => 'Admin',
                         'branch_admin', 'branch_manager'  => 'Branch',
@@ -601,11 +606,11 @@ class ApplicationResource extends Resource
                         'student'                         => 'Student',
                         default                           => ucfirst($state),
                     })
-                    ->color(fn (string $state) => match ($state) {
-                        'branch_admin', 'branch_manager' => 'info',
-                        'agency'                         => 'warning',
-                        'student'                        => 'success',
-                        default                          => 'gray',
+                    ->description(fn (Application $r) => match ($r->submitted_by_role) {
+                        'branch_admin', 'branch_manager' => $r->branch?->name ?? $r->user?->name ?? '—',
+                        'agency'   => $r->user?->name ?? '—',
+                        'student'  => $r->user?->name ?? '—',
+                        default    => $r->user?->name ?? '—',
                     }),
 
                 // Created date
@@ -676,7 +681,6 @@ class ApplicationResource extends Resource
                             ->success()
                             ->send();
                     }),
-
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
