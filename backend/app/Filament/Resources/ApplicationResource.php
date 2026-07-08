@@ -10,6 +10,7 @@ use App\Models\FormTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -591,33 +592,28 @@ class ApplicationResource extends Resource
                         default     => 'gray',
                     }),
 
-                // Source — full title in badge (type + name), email/role as description, clickable
+                // Source — full title badge, email description, clickable link
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
-                    ->color(fn (Application $record) => match ($record->submitted_by_role) {
-                        'admin', 'super_admin'           => 'gray',
-                        'branch_admin', 'branch_manager' => 'info',
-                        'agency'                         => 'warning',
-                        'student'                        => 'success',
-                        default                          => 'gray',
-                    })
-                    ->getStateUsing(fn (Application $record) => match ($record->submitted_by_role) {
+                    ->getStateUsing(fn (Application $record): string => match ($record->submitted_by_role) {
                         'branch_admin', 'branch_manager' => implode('', array_filter([
                             'Branch — ',
                             $record->branch?->name ?? $record->user?->name ?? 'Unknown',
                             $record->branch?->city ? ' (' . $record->branch->city . ')' : null,
                         ])),
-                        'agency'  => 'Agency — '  . ($record->user?->name ?? 'Unknown'),
-                        'student' => 'Student — ' . ($record->user?->name ?? 'Unknown'),
+                        'agency'       => 'Agency — '  . ($record->user?->name ?? 'Unknown'),
+                        'student'      => 'Student — ' . ($record->user?->name ?? 'Unknown'),
                         'admin', 'super_admin' => 'Admin — ' . ($record->user?->name ?? 'Unknown'),
-                        default   => ucfirst($record->submitted_by_role ?? '') . ' — ' . ($record->user?->name ?? 'Unknown'),
+                        default        => ucfirst($record->submitted_by_role ?? '') . ' — ' . ($record->user?->name ?? 'Unknown'),
                     })
-                    ->description(fn (Application $r) => match ($r->submitted_by_role) {
-                        'branch_admin', 'branch_manager' =>
-                            ($r->user?->email ? '👤 ' . $r->user->email : null),
-                        default => $r->user?->email ? '✉ ' . $r->user->email : null,
+                    ->color(fn (string $state): string => match (true) {
+                        str_starts_with($state, 'Branch')  => 'info',
+                        str_starts_with($state, 'Student') => 'success',
+                        str_starts_with($state, 'Agency')  => 'warning',
+                        default                            => 'gray',
                     })
+                    ->description(fn (Application $r): ?string => $r->user?->email ? '✉ ' . $r->user->email : null)
                     ->url(fn (Application $r): ?string => match ($r->submitted_by_role) {
                         'branch_admin', 'branch_manager' => $r->branch_id
                             ? BranchResource::getUrl('edit', ['record' => $r->branch_id])
@@ -690,7 +686,7 @@ class ApplicationResource extends Resource
                         auth()->user()?->hasRole(['super_admin', 'admin']))
                     ->action(function (Application $r) {
                         $r->update(['status' => 'pool']);
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Sent to Pool')
                             ->body('Application is now visible in the institution pool.')
                             ->success()
