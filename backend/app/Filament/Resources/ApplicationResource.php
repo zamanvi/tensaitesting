@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ApplicationResource\Pages;
+use App\Filament\Resources\BranchResource;
+use App\Filament\Resources\UserResource;
 use App\Models\Application;
 use App\Models\FormTemplate;
 use Filament\Forms;
@@ -581,16 +583,16 @@ class ApplicationResource extends Resource
                         default     => 'gray',
                     }),
 
-                // Source
+                // Source — badge + name; clicking name opens the user/branch edit page in new tab
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'admin', 'super_admin' => 'gray',
+                        'admin', 'super_admin'           => 'gray',
                         'branch_admin', 'branch_manager' => 'info',
-                        'agency'       => 'warning',
-                        'student'      => 'success',
-                        default        => 'gray',
+                        'agency'                         => 'warning',
+                        'student'                        => 'success',
+                        default                          => 'gray',
                     })
                     ->formatStateUsing(fn (string $state) => match ($state) {
                         'admin', 'super_admin'            => 'Admin',
@@ -601,10 +603,17 @@ class ApplicationResource extends Resource
                     })
                     ->description(fn (Application $r) => match ($r->submitted_by_role) {
                         'branch_admin', 'branch_manager' => $r->branch?->name ?? $r->user?->name ?? '—',
-                        'agency'   => $r->user?->name ?? '—',
-                        'student'  => $r->user?->name ?? '—',
-                        default    => $r->user?->name ?? '—',
-                    }),
+                        default                          => $r->user?->name ?? '—',
+                    })
+                    ->url(fn (Application $r): ?string => match ($r->submitted_by_role) {
+                        'branch_admin', 'branch_manager' => $r->branch_id
+                            ? BranchResource::getUrl('edit', ['record' => $r->branch_id])
+                            : ($r->user_id ? UserResource::getUrl('edit', ['record' => $r->user_id]) : null),
+                        default => $r->user_id
+                            ? UserResource::getUrl('edit', ['record' => $r->user_id])
+                            : null,
+                    })
+                    ->openUrlInNewTab(),
 
                 // Created date
                 Tables\Columns\TextColumn::make('created_at')
