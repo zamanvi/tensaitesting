@@ -292,6 +292,8 @@ class ApplicationResource extends Resource
             ->options([
                 'draft'     => 'Draft',
                 'submitted' => 'Submitted',
+                'pool'      => 'In Pool',
+                'selected'  => 'Selected',
                 'accepted'  => 'Accepted',
                 'rejected'  => 'Rejected',
             ])
@@ -575,11 +577,17 @@ class ApplicationResource extends Resource
                 // Status badge (display only — no editing here)
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => ucfirst($state))
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'pool'     => '🟢 In Pool',
+                        'selected' => '⭐ Selected',
+                        default    => ucfirst($state),
+                    })
                     ->color(fn (string $state) => match ($state) {
                         'accepted'  => 'success',
                         'submitted' => 'warning',
                         'rejected'  => 'danger',
+                        'pool'      => 'success',
+                        'selected'  => 'info',
                         default     => 'gray',
                     }),
 
@@ -669,6 +677,26 @@ class ApplicationResource extends Resource
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->actions([
+                Tables\Actions\Action::make('send_to_pool')
+                    ->label('Send to Pool')
+                    ->icon('heroicon-o-arrow-up-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Send to Institution Pool')
+                    ->modalDescription('Student will appear in the Application Pool for institutions to view and select. Personal contact info remains hidden.')
+                    ->modalSubmitActionLabel('Yes, Send to Pool')
+                    ->visible(fn (Application $r) =>
+                        in_array($r->status, ['submitted', 'draft']) &&
+                        auth()->user()?->hasRole(['super_admin', 'admin']))
+                    ->action(function (Application $r) {
+                        $r->update(['status' => 'pool']);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Sent to Pool')
+                            ->body('Application is now visible in the institution pool.')
+                            ->success()
+                            ->send();
+                    }),
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()

@@ -131,7 +131,7 @@ class InstitutionController extends Controller
                 'formTemplate:id,name,country,visa_type,intake_options',
                 'user.studentProfile:id,user_id,highest_qualification,gpa,jlpt_level,nat_level',
             ])
-            ->where('status', 'submitted')
+            ->where('status', 'pool')
             ->latest('submitted_at');
 
         if ($country) {
@@ -180,7 +180,7 @@ class InstitutionController extends Controller
     public function selectApplication(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
-        $app  = Application::where('id', $id)->where('status', 'submitted')->firstOrFail();
+        $app  = Application::where('id', $id)->where('status', 'pool')->firstOrFail();
 
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
