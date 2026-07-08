@@ -595,14 +595,14 @@ class ApplicationResource extends Resource
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
+                    ->color(fn (Application $record) => match ($record->submitted_by_role) {
                         'admin', 'super_admin'           => 'gray',
                         'branch_admin', 'branch_manager' => 'info',
                         'agency'                         => 'warning',
                         'student'                        => 'success',
                         default                          => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state, Application $record) => match ($state) {
+                    ->getStateUsing(fn (Application $record) => match ($record->submitted_by_role) {
                         'branch_admin', 'branch_manager' => implode('', array_filter([
                             'Branch — ',
                             $record->branch?->name ?? $record->user?->name ?? 'Unknown',
@@ -611,7 +611,7 @@ class ApplicationResource extends Resource
                         'agency'  => 'Agency — '  . ($record->user?->name ?? 'Unknown'),
                         'student' => 'Student — ' . ($record->user?->name ?? 'Unknown'),
                         'admin', 'super_admin' => 'Admin — ' . ($record->user?->name ?? 'Unknown'),
-                        default   => ucfirst($state) . ' — ' . ($record->user?->name ?? 'Unknown'),
+                        default   => ucfirst($record->submitted_by_role ?? '') . ' — ' . ($record->user?->name ?? 'Unknown'),
                     })
                     ->description(fn (Application $r) => match ($r->submitted_by_role) {
                         'branch_admin', 'branch_manager' =>
