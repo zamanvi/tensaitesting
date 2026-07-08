@@ -583,7 +583,7 @@ class ApplicationResource extends Resource
                         default     => 'gray',
                     }),
 
-                // Source — badge + name; clicking name opens the user/branch edit page in new tab
+                // Source — full title in badge (type + name), email/role as description, clickable
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
@@ -594,16 +594,18 @@ class ApplicationResource extends Resource
                         'student'                        => 'success',
                         default                          => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state) => match ($state) {
-                        'admin', 'super_admin'            => 'Admin',
-                        'branch_admin', 'branch_manager'  => 'Branch',
-                        'agency'                          => 'Agency',
-                        'student'                         => 'Student',
-                        default                           => ucfirst($state),
+                    ->formatStateUsing(fn (string $state, Application $record) => match ($state) {
+                        'branch_admin', 'branch_manager' =>
+                            'Branch — ' . ($record->branch?->name ?? $record->user?->name ?? 'Unknown'),
+                        'agency'  => 'Agency — '  . ($record->user?->name ?? 'Unknown'),
+                        'student' => 'Student — ' . ($record->user?->name ?? 'Unknown'),
+                        'admin', 'super_admin' => 'Admin — ' . ($record->user?->name ?? 'Unknown'),
+                        default   => ucfirst($state) . ' — ' . ($record->user?->name ?? 'Unknown'),
                     })
                     ->description(fn (Application $r) => match ($r->submitted_by_role) {
-                        'branch_admin', 'branch_manager' => $r->branch?->name ?? $r->user?->name ?? '—',
-                        default                          => $r->user?->name ?? '—',
+                        'branch_admin', 'branch_manager' =>
+                            ($r->user?->email ? '👤 ' . $r->user->email : null),
+                        default => $r->user?->email ? '✉ ' . $r->user->email : null,
                     })
                     ->url(fn (Application $r): ?string => match ($r->submitted_by_role) {
                         'branch_admin', 'branch_manager' => $r->branch_id
