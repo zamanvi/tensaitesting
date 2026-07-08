@@ -595,8 +595,11 @@ class ApplicationResource extends Resource
                         default                          => 'gray',
                     })
                     ->formatStateUsing(fn (string $state, Application $record) => match ($state) {
-                        'branch_admin', 'branch_manager' =>
-                            'Branch — ' . ($record->branch?->name ?? $record->user?->name ?? 'Unknown'),
+                        'branch_admin', 'branch_manager' => implode('', array_filter([
+                            'Branch — ',
+                            $record->branch?->name ?? $record->user?->name ?? 'Unknown',
+                            $record->branch?->city ? ' (' . $record->branch->city . ')' : null,
+                        ])),
                         'agency'  => 'Agency — '  . ($record->user?->name ?? 'Unknown'),
                         'student' => 'Student — ' . ($record->user?->name ?? 'Unknown'),
                         'admin', 'super_admin' => 'Admin — ' . ($record->user?->name ?? 'Unknown'),
