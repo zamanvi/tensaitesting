@@ -10,7 +10,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 
 class ApplicationResource extends Resource
@@ -599,6 +598,12 @@ class ApplicationResource extends Resource
                         'agency'                          => 'Agency',
                         'student'                         => 'Student',
                         default                           => ucfirst($state),
+                    })
+                    ->description(fn (Application $r) => match ($r->submitted_by_role) {
+                        'branch_admin', 'branch_manager' => $r->branch?->name ?? $r->user?->name ?? '—',
+                        'agency'   => $r->user?->name ?? '—',
+                        'student'  => $r->user?->name ?? '—',
+                        default    => $r->user?->name ?? '—',
                     }),
 
                 // Created date
@@ -650,32 +655,6 @@ class ApplicationResource extends Resource
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->actions([
-                Tables\Actions\Action::make('accept')
-                    ->label('Accept')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->visible(fn (Application $r) =>
-                        $r->status === 'submitted' &&
-                        auth()->user()?->hasRole(['super_admin', 'admin']))
-                    ->action(function (Application $r) {
-                        $r->update(['status' => 'accepted']);
-                        Notification::make()->title('Application accepted')->success()->send();
-                    }),
-
-                Tables\Actions\Action::make('reject')
-                    ->label('Reject')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->visible(fn (Application $r) =>
-                        $r->status === 'submitted' &&
-                        auth()->user()?->hasRole(['super_admin', 'admin']))
-                    ->action(function (Application $r) {
-                        $r->update(['status' => 'rejected']);
-                        Notification::make()->title('Application rejected')->warning()->send();
-                    }),
-
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
@@ -683,11 +662,6 @@ class ApplicationResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('accept_all')
-                        ->label('Accept selected')
-                        ->icon('heroicon-o-check')
-                        ->color('success')
-                        ->action(fn ($records) => $records->each->update(['status' => 'accepted'])),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
