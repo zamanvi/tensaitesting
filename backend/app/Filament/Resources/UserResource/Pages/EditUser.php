@@ -16,4 +16,12 @@ class EditUser extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+    {
+        $user = $this->record;
+        if ($user->gateway_type) {
+            $user->syncRoles([$user->gateway_type]);
+        }
+    }
 }
