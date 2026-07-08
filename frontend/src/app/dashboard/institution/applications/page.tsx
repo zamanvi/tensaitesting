@@ -9,17 +9,17 @@ import { useRouter } from 'next/navigation';
 
 interface AnonApplication {
   id: number;
-  lead_code: string;
-  target_country: string;
-  target_city: string | null;
-  city_type: 'fixed' | 'preferred';
-  target_course: string | null;
-  target_intake: string | null;
-  age: number | null;
-  last_education: string | null;
+  application_code: string;
+  country: string | null;
+  form_name: string | null;
+  intake: string | null;
+  progress: number;
+  status: string;
+  submitted_at: string | null;
+  highest_qualification: string | null;
   gpa: string | null;
-  jlpt_nat_score: string | null;
-  submission_status: string | null;
+  jlpt_level: string | null;
+  nat_level: string | null;
   already_selected: boolean;
 }
 
@@ -47,8 +47,7 @@ export default function InstitutionApplicationsPage() {
     if (user && user.gateway_type !== 'institution') router.replace(`/dashboard/${user.gateway_type}`);
   }, [user, router]);
 
-  const [filters, setFilters] = useState({ education: '', jlpt: '', course: '', intake_from: '', intake_to: '', age_min: '', age_max: '' });
-  // selectingId = which card has the form open
+  const [filters, setFilters] = useState({ education: '', jlpt: '' });
   const [selectingId, setSelectingId] = useState<number | null>(null);
   const [contact, setContact] = useState<ContactForm>(blank);
   const [contactErr, setContactErr] = useState('');
@@ -57,26 +56,9 @@ export default function InstitutionApplicationsPage() {
   function setF(k: keyof typeof filters, v: string) { setFilters(f => ({ ...f, [k]: v })); }
   function setC(k: keyof ContactForm, v: string) { setContact(c => ({ ...c, [k]: v })); }
 
-  function openForm(id: number) {
-    setSelectingId(id);
-    setContact(blank);
-    setContactErr('');
-  }
-
-  function closeForm() {
-    setSelectingId(null);
-    setContact(blank);
-    setContactErr('');
-  }
-
   const params: Record<string, string> = {};
-  if (filters.education)   params.education   = filters.education;
-  if (filters.jlpt)        params.jlpt        = filters.jlpt;
-  if (filters.course)      params.course      = filters.course;
-  if (filters.intake_from) params.intake_from = filters.intake_from;
-  if (filters.intake_to)   params.intake_to   = filters.intake_to;
-  if (filters.age_min)     params.age_min     = filters.age_min;
-  if (filters.age_max)     params.age_max     = filters.age_max;
+  if (filters.education) params.education = filters.education;
+  if (filters.jlpt)      params.jlpt      = filters.jlpt;
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-browse', params],
@@ -86,7 +68,6 @@ export default function InstitutionApplicationsPage() {
 
   const applications: AnonApplication[] = data?.data ?? [];
   const institutionCountry: string = data?.institution_country ?? '';
-  const institutionCity: string = data?.institution_city ?? '';
 
   const select = useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: ContactForm }) =>
@@ -94,7 +75,8 @@ export default function InstitutionApplicationsPage() {
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: ['institution-browse'] });
       qc.invalidateQueries({ queryKey: ['institution-selected'] });
-      closeForm();
+      setSelectingId(null);
+      setContact(blank);
       setDoneId(id);
       setTimeout(() => setDoneId(null), 3000);
     },
@@ -135,15 +117,13 @@ export default function InstitutionApplicationsPage() {
       )}
 
       {/* Match banner */}
-      {(institutionCountry || institutionCity) && (
+      {institutionCountry && (
         <div className="mb-4 p-3 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center gap-3">
           <span className="text-lg shrink-0">📍</span>
           <p className="text-xs text-indigo-800 font-medium">
-            {ja
-              ? `表示中: ${institutionCountry}${institutionCity ? ` › ${institutionCity}` : ''} に一致する申請のみ`
-              : bn
-              ? `দেখাচ্ছে: ${institutionCountry}${institutionCity ? ` › ${institutionCity}` : ''} ম্যাচ করা আবেদন`
-              : `Showing applications matched to ${institutionCountry}${institutionCity ? ` › ${institutionCity}` : ''}`}
+            {ja ? `表示中: ${institutionCountry} に一致する申請のみ`
+              : bn ? `দেখাচ্ছে: ${institutionCountry} ম্যাচ করা আবেদন`
+              : `Showing submitted applications matched to ${institutionCountry}`}
           </p>
         </div>
       )}
@@ -153,48 +133,25 @@ export default function InstitutionApplicationsPage() {
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
           {ja ? 'フィルター' : bn ? 'ফিল্টার' : 'Filters'}
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="flex flex-wrap gap-3 items-end">
           <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">{ja ? '最終学歴' : bn ? 'শেষ শিক্ষা' : 'Last Education'}</label>
-            <select className={selectCls + ' w-full'} value={filters.education} onChange={e => setF('education', e.target.value)}>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">{ja ? '最終学歴' : bn ? 'শেষ শিক্ষা' : 'Education'}</label>
+            <select className={selectCls} value={filters.education} onChange={e => setF('education', e.target.value)}>
               <option value="">{ja ? 'すべて' : bn ? 'সব' : 'All'}</option>
               {EDU_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">JLPT / NAT</label>
-            <select className={selectCls + ' w-full'} value={filters.jlpt} onChange={e => setF('jlpt', e.target.value)}>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">JLPT</label>
+            <select className={selectCls} value={filters.jlpt} onChange={e => setF('jlpt', e.target.value)}>
               <option value="">{ja ? 'すべて' : bn ? 'সব' : 'All'}</option>
               {JLPT_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">{ja ? 'コース' : bn ? 'কোর্স' : 'Course'}</label>
-            <input className={selectCls + ' w-full'} placeholder={ja ? '例: 日本語' : bn ? 'যেমন: ভাষা' : 'e.g. Language'}
-              value={filters.course} onChange={e => setF('course', e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">{ja ? '年齢' : bn ? 'বয়স' : 'Age'}</label>
-            <div className="flex gap-1 items-center">
-              <input type="number" min="16" max="60" className={selectCls + ' w-full'} placeholder="Min" value={filters.age_min} onChange={e => setF('age_min', e.target.value)} />
-              <span className="text-slate-300 text-xs shrink-0">—</span>
-              <input type="number" min="16" max="60" className={selectCls + ' w-full'} placeholder="Max" value={filters.age_max} onChange={e => setF('age_max', e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">{ja ? '入学日（開始）' : bn ? 'ইনটেক থেকে' : 'Intake From'}</label>
-            <input type="date" className={selectCls + ' w-full'} value={filters.intake_from} onChange={e => setF('intake_from', e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">{ja ? '入学日（終了）' : bn ? 'ইনটেক পর্যন্ত' : 'Intake To'}</label>
-            <input type="date" className={selectCls + ' w-full'} value={filters.intake_to} onChange={e => setF('intake_to', e.target.value)} />
-          </div>
-          <div className="flex items-end">
-            <button onClick={() => setFilters({ education: '', jlpt: '', course: '', intake_from: '', intake_to: '', age_min: '', age_max: '' })}
-              className="w-full py-2 text-xs font-semibold text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl transition-colors">
-              {ja ? 'リセット' : bn ? 'রিসেট' : 'Reset filters'}
-            </button>
-          </div>
+          <button onClick={() => setFilters({ education: '', jlpt: '' })}
+            className="py-2 px-4 text-xs font-semibold text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl transition-colors">
+            {ja ? 'リセット' : bn ? 'রিসেট' : 'Reset'}
+          </button>
         </div>
       </div>
 
@@ -202,148 +159,192 @@ export default function InstitutionApplicationsPage() {
         {applications.length} {ja ? '件の申請が一致しました' : bn ? 'টি আবেদন মিলেছে' : `application${applications.length !== 1 ? 's' : ''} matched`}
       </div>
 
-      {/* List */}
+      {/* Table */}
       {isLoading ? (
         <div className="text-center py-16 text-slate-400 text-sm">{ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}</div>
       ) : applications.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-400">
           <div className="text-4xl mb-3">📋</div>
           <p className="font-medium text-slate-500 mb-1">{ja ? '一致する申請がありません' : bn ? 'কোনো ম্যাচিং আবেদন নেই' : 'No matching applications'}</p>
-          <p className="text-xs">{ja ? 'フィルターを変更するか、後でもう一度お試しください。' : bn ? 'ফিল্টার পরিবর্তন করুন বা পরে আবার দেখুন।' : 'Try adjusting filters or check back later.'}</p>
+          <p className="text-xs">{ja ? 'フィルターを変更するか、後でもう一度お試しください。' : bn ? 'ফিল্টার পরিবর্তন করুন বা পরে দেখুন।' : 'Try adjusting filters or check back later.'}</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {applications.map(app => (
-            <div key={app.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
-              app.already_selected ? 'border-indigo-200 bg-indigo-50/20' : selectingId === app.id ? 'border-indigo-300' : 'border-slate-100'
-            }`}>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <th className="text-left px-5 py-3">{ja ? 'コード' : bn ? 'কোড' : 'Code'}</th>
+                  <th className="text-left px-4 py-3">{ja ? '国 / フォーム' : bn ? 'দেশ / ফর্ম' : 'Country / Form'}</th>
+                  <th className="text-left px-4 py-3">{ja ? '学歴' : bn ? 'শিক্ষা' : 'Education'}</th>
+                  <th className="text-left px-4 py-3">GPA</th>
+                  <th className="text-left px-4 py-3">JLPT/NAT</th>
+                  <th className="text-left px-4 py-3">{ja ? '進捗' : bn ? 'অগ্রগতি' : 'Progress'}</th>
+                  <th className="px-4 py-3" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {applications.map(app => (
+                  <>
+                    <tr key={app.id} className={`transition-colors ${app.already_selected ? 'bg-indigo-50/30' : 'hover:bg-slate-50'}`}>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">{app.application_code}</span>
+                          {app.already_selected && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">✓ {ja ? '選択済み' : bn ? 'নির্বাচিত' : 'Selected'}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <p className="text-xs font-semibold text-slate-700">{app.country ?? '—'}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5 truncate max-w-[180px]">{app.form_name ?? ''}</p>
+                      </td>
+                      <td className="px-4 py-3.5 text-xs text-slate-600">{app.highest_qualification ?? '—'}</td>
+                      <td className="px-4 py-3.5 text-xs text-slate-600">{app.gpa ?? '—'}</td>
+                      <td className="px-4 py-3.5 text-xs text-slate-600">
+                        {[app.jlpt_level, app.nat_level].filter(Boolean).join(' / ') || '—'}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-indigo-500" style={{ width: `${app.progress ?? 0}%` }} />
+                          </div>
+                          <span className="text-xs font-bold text-slate-600 tabular-nums">{app.progress ?? 0}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-right">
+                        {app.already_selected ? (
+                          <span className="text-xs font-semibold text-indigo-500">✓ {ja ? '選択済み' : bn ? 'নির্বাচিত' : 'Selected'}</span>
+                        ) : doneId === app.id ? (
+                          <span className="text-xs font-semibold text-emerald-600">✓ {ja ? '選択しました' : bn ? 'নির্বাচিত!' : 'Selected!'}</span>
+                        ) : (
+                          <button onClick={() => { setSelectingId(selectingId === app.id ? null : app.id); setContact(blank); setContactErr(''); }}
+                            className={`px-4 py-1.5 text-xs font-bold rounded-xl transition-colors ${
+                              selectingId === app.id
+                                ? 'bg-slate-100 text-slate-500'
+                                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                            }`}>
+                            {selectingId === app.id ? (ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel') : (ja ? '選択する' : bn ? 'নির্বাচন করুন' : 'Select')}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
 
-              {/* Card body */}
-              <div className="p-4 sm:p-5">
-                <div className="flex flex-wrap items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    {/* Badges */}
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="font-mono text-xs text-slate-400">{app.lead_code}</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${app.city_type === 'fixed' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}`}>
-                        {app.city_type === 'fixed' ? (ja ? '都市固定' : bn ? 'ফিক্সড সিটি' : 'Fixed City') : (ja ? '都市希望' : bn ? 'পছন্দের সিটি' : 'Preferred City')}
-                      </span>
-                      {app.already_selected && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
-                          ✓ {ja ? '選択済み' : bn ? 'নির্বাচিত' : 'Selected'}
-                        </span>
-                      )}
-                    </div>
-                    {/* Info */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs">
-                      <InfoRow label={ja ? '国' : bn ? 'দেশ' : 'Country'} value={app.target_country} />
-                      {app.target_city && <InfoRow label={ja ? '都市' : bn ? 'শহর' : 'City'} value={app.target_city} />}
-                      {app.target_course && <InfoRow label={ja ? 'コース' : bn ? 'কোর্স' : 'Course'} value={app.target_course} />}
-                      {app.target_intake && <InfoRow label={ja ? '入学' : bn ? 'ইনটেক' : 'Intake'} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
-                      {app.age && <InfoRow label={ja ? '年齢' : bn ? 'বয়স' : 'Age'} value={`${app.age} ${ja ? '歳' : bn ? 'বছর' : 'yrs'}`} />}
-                      {app.last_education && <InfoRow label={ja ? '学歴' : bn ? 'শিক্ষা' : 'Education'} value={app.last_education} />}
-                      {app.gpa && <InfoRow label="GPA" value={app.gpa} />}
-                      {app.jlpt_nat_score && <InfoRow label="JLPT/NAT" value={app.jlpt_nat_score} />}
-                    </div>
-                  </div>
+                    {/* Inline contact form */}
+                    {selectingId === app.id && (
+                      <tr key={`form-${app.id}`}>
+                        <td colSpan={7} className="px-5 py-4 bg-indigo-50/60 border-b border-indigo-100">
+                          <p className="font-bold text-slate-800 text-sm mb-1">
+                            {ja ? '担当者の連絡先を入力してください' : bn ? 'দায়িত্বশীল ব্যক্তির তথ্য দিন' : 'Who should Tensai contact?'}
+                          </p>
+                          <p className="text-xs text-indigo-600 font-semibold mb-3">
+                            {ja ? '⏰ Tensaiのマネージャーが24時間以内にご連絡いたします。' : bn ? '⏰ Tensai ম্যানেজার ২৪ ঘণ্টার মধ্যে যোগাযোগ করবেন।' : '⏰ A Tensai manager will contact this person within 24 hours.'}
+                          </p>
+                          <form onSubmit={handleSelect} className="space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                                  {ja ? '担当者氏名 *' : bn ? 'দায়িত্বশীল ব্যক্তির নাম *' : 'Contact Person Name *'}
+                                </label>
+                                <input className={inputCls} value={contact.name} onChange={e => setC('name', e.target.value)}
+                                  placeholder={ja ? '例: 山田 太郎' : bn ? 'যেমন: রহিম উদ্দিন' : 'e.g. John Smith'} />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                                  {ja ? 'メール *' : bn ? 'ইমেইল *' : 'Email *'}
+                                </label>
+                                <input type="email" className={inputCls} value={contact.email} onChange={e => setC('email', e.target.value)}
+                                  placeholder="contact@school.com" />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">WhatsApp</label>
+                                <input type="tel" className={inputCls} value={contact.whatsapp} onChange={e => setC('whatsapp', e.target.value)}
+                                  placeholder="+81 90-0000-0000" />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                                  {ja ? '電話番号' : bn ? 'ফোন' : 'Phone'}
+                                </label>
+                                <input type="tel" className={inputCls} value={contact.phone} onChange={e => setC('phone', e.target.value)}
+                                  placeholder="+81 3-0000-0000" />
+                              </div>
+                            </div>
+                            {contactErr && <p className="text-xs text-red-600 font-medium">⚠️ {contactErr}</p>}
+                            <div className="flex gap-2 pt-1">
+                              <button type="submit" disabled={select.isPending}
+                                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50">
+                                {select.isPending ? '...' : (ja ? '選択を確定する' : bn ? 'নির্বাচন নিশ্চিত করুন' : 'Confirm Selection')}
+                              </button>
+                              <button type="button" onClick={() => { setSelectingId(null); setContact(blank); setContactErr(''); }}
+                                className="px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl transition-colors">
+                                {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
+                              </button>
+                            </div>
+                          </form>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-                  {/* Select button / already selected */}
-                  <div className="shrink-0 self-center text-right">
-                    {app.already_selected ? (
-                      <span className="text-xs font-semibold text-indigo-600">✓ {ja ? '選択済み' : bn ? 'নির্বাচিত' : 'Selected'}</span>
-                    ) : selectingId === app.id ? null : (
-                      <button
-                        onClick={() => openForm(app.id)}
-                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors whitespace-nowrap"
-                      >
-                        {ja ? '選択する' : bn ? 'নির্বাচন করুন' : 'Select'}
-                      </button>
-                    )}
-                    {doneId === app.id && (
-                      <p className="text-[10px] text-indigo-600 font-semibold mt-1">✓ {ja ? '選択しました' : bn ? 'নির্বাচিত হয়েছে' : 'Selected!'}</p>
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-slate-50">
+            {applications.map(app => (
+              <div key={app.id} className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{app.application_code}</span>
+                    {app.already_selected && (
+                      <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">✓ {ja ? '選択済み' : bn ? 'নির্বাচিত' : 'Selected'}</span>
                     )}
                   </div>
+                  {!app.already_selected && doneId !== app.id && (
+                    <button onClick={() => { setSelectingId(selectingId === app.id ? null : app.id); setContact(blank); setContactErr(''); }}
+                      className="shrink-0 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-xl">
+                      {ja ? '選択する' : bn ? 'নির্বাচন' : 'Select'}
+                    </button>
+                  )}
                 </div>
-              </div>
+                <p className="text-xs font-semibold text-slate-700">{app.country ?? '—'}</p>
+                <p className="text-[11px] text-slate-400">{app.form_name ?? ''}</p>
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
+                  {app.highest_qualification && <span>{app.highest_qualification}</span>}
+                  {app.gpa && <span>GPA {app.gpa}</span>}
+                  {(app.jlpt_level || app.nat_level) && <span>{[app.jlpt_level, app.nat_level].filter(Boolean).join('/')}</span>}
+                  <span>{app.progress ?? 0}%</span>
+                </div>
 
-              {/* Inline contact form — opens when clicking Select */}
-              {selectingId === app.id && (
-                <div className="border-t border-indigo-100 bg-indigo-50/40 p-4 sm:p-5">
-                  <p className="font-bold text-slate-800 text-sm mb-1">
-                    {ja ? '担当者の連絡先を入力してください' : bn ? 'দায়িত্বশীল ব্যক্তির তথ্য দিন' : 'Who should Tensai contact?'}
-                  </p>
-                  <div className="text-xs text-slate-500 mb-4 space-y-1">
-                    <p>
-                      {ja
-                        ? '学校内の複数のスタッフの中から、このアプリケーションを直接担当する方の情報をご入力ください。'
-                        : bn
-                        ? 'আপনার প্রতিষ্ঠানে অনেক কর্মী থাকতে পারেন — তাই যিনি এই নির্দিষ্ট আবেদনটি সরাসরি দেখাশোনা করবেন, শুধুমাত্র তাঁর তথ্য দিন।'
-                        : 'Your school may have many staff members — please provide the details of the specific person who will be directly responsible for this applicant.'}
-                    </p>
-                    <p className="text-indigo-600 font-semibold">
-                      {ja
-                        ? '⏰ Tensaiのマネージャーがこの方に24時間以内に直接ご連絡いたします。'
-                        : bn
-                        ? '⏰ Tensai ম্যানেজার এই ব্যক্তির সাথে ২৪ ঘণ্টার মধ্যে সরাসরি যোগাযোগ করবেন।'
-                        : '⏰ A Tensai manager will contact this person directly within 24 hours.'}
-                    </p>
-                  </div>
-                  <form onSubmit={handleSelect} className="space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                          {ja ? '担当者氏名 *' : bn ? 'দায়িত্বশীল ব্যক্তির নাম *' : 'Responsible Person Name *'}
-                        </label>
-                        <input className={inputCls} placeholder={ja ? '例: 山田 太郎（入学担当）' : bn ? 'যেমন: রহিম উদ্দিন (অ্যাডমিশন অফিসার)' : 'e.g. John Smith (Admission Officer)'}
-                          value={contact.name} onChange={e => setC('name', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                          {ja ? 'メールアドレス *' : bn ? 'ইমেইল *' : 'Email Address *'}
-                        </label>
-                        <input type="email" className={inputCls} placeholder="contact@school.com"
-                          value={contact.email} onChange={e => setC('email', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">WhatsApp</label>
-                        <input type="tel" className={inputCls} placeholder="+81 90-0000-0000"
-                          value={contact.whatsapp} onChange={e => setC('whatsapp', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                          {ja ? '電話番号' : bn ? 'ফোন নম্বর' : 'Phone Number'}
-                        </label>
-                        <input type="tel" className={inputCls} placeholder="+81 3-0000-0000"
-                          value={contact.phone} onChange={e => setC('phone', e.target.value)} />
-                      </div>
-                    </div>
-                    {contactErr && <p className="text-xs text-red-600 font-medium">⚠️ {contactErr}</p>}
-                    <div className="flex gap-2 pt-1">
+                {/* Mobile contact form */}
+                {selectingId === app.id && (
+                  <form onSubmit={handleSelect} className="mt-3 space-y-2">
+                    <input className={inputCls} value={contact.name} onChange={e => setC('name', e.target.value)}
+                      placeholder={ja ? '担当者氏名 *' : bn ? 'নাম *' : 'Contact name *'} />
+                    <input type="email" className={inputCls} value={contact.email} onChange={e => setC('email', e.target.value)}
+                      placeholder="Email *" />
+                    <input type="tel" className={inputCls} value={contact.whatsapp} onChange={e => setC('whatsapp', e.target.value)}
+                      placeholder="WhatsApp" />
+                    {contactErr && <p className="text-xs text-red-600">⚠️ {contactErr}</p>}
+                    <div className="flex gap-2">
                       <button type="submit" disabled={select.isPending}
-                        className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50">
-                        {select.isPending ? '...' : (ja ? '選択を確定する' : bn ? 'নির্বাচন নিশ্চিত করুন' : 'Confirm Selection')}
+                        className="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl disabled:opacity-50">
+                        {select.isPending ? '...' : (ja ? '確定' : bn ? 'নিশ্চিত' : 'Confirm')}
                       </button>
-                      <button type="button" onClick={closeForm}
-                        className="px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl transition-colors">
+                      <button type="button" onClick={() => setSelectingId(null)}
+                        className="px-3 py-2 text-xs text-slate-500 border border-slate-200 rounded-xl">
                         {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
                       </button>
                     </div>
                   </form>
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </DashboardLayout>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-1">
-      <span className="text-slate-400 shrink-0">{label}:</span>
-      <span className="font-semibold text-slate-700 truncate">{value}</span>
-    </div>
   );
 }

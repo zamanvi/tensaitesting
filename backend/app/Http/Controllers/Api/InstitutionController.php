@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\ContactPaper;
 use App\Models\InstitutionProfile;
+use App\Models\InstitutionSelection;
 use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -109,6 +111,145 @@ class InstitutionController extends Controller
         });
 
         return response()->json($leads);
+    }
+
+    /**
+     * Anonymous pool of submitted applications matching institution's country.
+     * Student personal info (name, email, phone, address) is stripped.
+     */
+    public function browseApplications(Request $request): JsonResponse
+    {
+        $user    = $request->user();
+        $profile = $user->institutionProfile;
+        $country = $profile?->country;
+
+        $selectedIds = InstitutionSelection::where('institution_id', $user->id)
+            ->pluck('lead_id')
+            ->toArray();
+
+        $q = Application::with([
+                'formTemplate:id,name,country,visa_type,intake_options',
+                'user.studentProfile:id,user_id,highest_qualification,gpa,jlpt_level,nat_level',
+            ])
+            ->where('status', 'submitted')
+            ->latest('submitted_at');
+
+        if ($country) {
+            $q->whereHas('formTemplate', fn ($t) => $t->where('country', $country));
+        }
+
+        // Filters
+        if ($request->education) {
+            $q->whereHas('user.studentProfile', fn ($p) => $p->where('highest_qualification', $request->education));
+        }
+        if ($request->jlpt) {
+            $q->whereHas('user.studentProfile', fn ($p) => $p->where('jlpt_level', $request->jlpt));
+        }
+
+        $paginated = $q->paginate(30);
+
+        $paginated->getCollection()->transform(function (Application $app) use ($selectedIds) {
+            $sp = $app->user?->studentProfile;
+            return [
+                'id'                  => $app->id,
+                'application_code'    => $app->application_code,
+                'country'             => $app->formTemplate?->country,
+                'form_name'           => $app->formTemplate?->name,
+                'intake'              => $app->formTemplate?->intake_options,
+                'progress'            => $app->progress,
+                'status'              => $app->status,
+                'submitted_at'        => $app->submitted_at,
+                'highest_qualification' => $sp?->highest_qualification,
+                'gpa'                 => $sp?->gpa,
+                'jlpt_level'          => $sp?->jlpt_level,
+                'nat_level'           => $sp?->nat_level,
+                'already_selected'    => in_array($app->id, $selectedIds),
+            ];
+        });
+
+        return response()->json([
+            'data'               => $paginated->items(),
+            'total'              => $paginated->total(),
+            'institution_country'=> $country,
+        ]);
+    }
+
+    /**
+     * Institution selects an application — creates InstitutionSelection record.
+     */
+    public function selectApplication(Request $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+        $app  = Application::where('id', $id)->where('status', 'submitted')->firstOrFail();
+
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|max:255',
+            'whatsapp' => 'nullable|string|max:50',
+            'phone'    => 'nullable|string|max:50',
+        ]);
+
+        $existing = InstitutionSelection::where('lead_id', $app->id)
+            ->where('institution_id', $user->id)
+            ->first();
+
+        if ($existing) {
+            return response()->json(['message' => 'You have already selected this application.'], 409);
+        }
+
+        InstitutionSelection::create([
+            'lead_id'         => $app->id,
+            'institution_id'  => $user->id,
+            'connect_name'    => $validated['name'],
+            'connect_email'   => $validated['email'],
+            'connect_whatsapp'=> $validated['whatsapp'] ?? null,
+            'connect_phone'   => $validated['phone'] ?? null,
+            'status'          => 'selected',
+            'selected_at'     => now(),
+        ]);
+
+        $app->update(['status' => 'selected']);
+
+        return response()->json(['message' => 'Application selected successfully.'], 201);
+    }
+
+    /**
+     * List applications selected by this institution.
+     */
+    public function selectedApplications(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $selections = InstitutionSelection::where('institution_id', $user->id)
+            ->with([
+                'lead.formTemplate:id,name,country',
+                'lead.user.studentProfile:id,user_id,highest_qualification,gpa,jlpt_level,nat_level',
+            ])
+            ->latest('selected_at')
+            ->get();
+
+        $data = $selections->map(function (InstitutionSelection $sel) {
+            $app = $sel->lead;
+            $sp  = $app?->user?->studentProfile;
+            return [
+                'id'               => $sel->id,
+                'application_id'   => $app?->id,
+                'lead_code'        => $app?->application_code,
+                'country'          => $app?->formTemplate?->country,
+                'form_name'        => $app?->formTemplate?->name,
+                'highest_qualification' => $sp?->highest_qualification,
+                'gpa'              => $sp?->gpa,
+                'jlpt_level'       => $sp?->jlpt_level,
+                'selected_at'      => $sel->selected_at,
+                'status'           => $sel->status,
+                'connect_name'     => $sel->connect_name,
+                'connect_email'    => $sel->connect_email,
+                'connect_whatsapp' => $sel->connect_whatsapp,
+                'connect_phone'    => $sel->connect_phone,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     /**

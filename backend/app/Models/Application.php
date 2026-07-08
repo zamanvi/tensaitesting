@@ -50,6 +50,11 @@ class Application extends Model
         return $this->hasMany(ApplicationDocument::class);
     }
 
+    public function institutionSelections(): HasMany
+    {
+        return $this->hasMany(InstitutionSelection::class, 'lead_id');
+    }
+
     public function recalculateProgress(): int
     {
         $template = FormTemplate::with('activeFieldGroups.activeBoxes.activeFields')
