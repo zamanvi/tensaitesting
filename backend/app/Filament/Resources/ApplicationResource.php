@@ -574,12 +574,12 @@ class ApplicationResource extends Resource
                 // Status badge (display only — no editing here)
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => match ($state) {
+                    ->formatStateUsing(fn ($state) => match ($state ?? '') {
                         'pool'     => '🟢 In Pool',
                         'selected' => '⭐ Selected',
-                        default    => ucfirst($state),
+                        default    => ucfirst($state ?? ''),
                     })
-                    ->color(fn (string $state) => match ($state) {
+                    ->color(fn ($state) => match ($state ?? '') {
                         'accepted'  => 'success',
                         'submitted' => 'warning',
                         'rejected'  => 'danger',
@@ -592,19 +592,19 @@ class ApplicationResource extends Resource
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
+                    ->color(fn ($state) => match ($state ?? '') {
                         'admin', 'super_admin' => 'gray',
                         'branch_admin', 'branch_manager' => 'info',
                         'agency'       => 'warning',
                         'student'      => 'success',
                         default        => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state) => match ($state) {
+                    ->formatStateUsing(fn ($state) => match ($state ?? '') {
                         'admin', 'super_admin'            => 'Admin',
                         'branch_admin', 'branch_manager'  => 'Branch',
                         'agency'                          => 'Agency',
                         'student'                         => 'Student',
-                        default                           => ucfirst($state),
+                        default                           => ucfirst($state ?? ''),
                     })
                     ->description(fn (Application $r) => match ($r->submitted_by_role) {
                         'branch_admin', 'branch_manager' => $r->branch?->name ?? $r->user?->name ?? '—',
