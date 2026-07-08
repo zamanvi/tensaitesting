@@ -95,7 +95,7 @@ export default function DashboardLayout({ children, title }: Props) {
     ],
     institution: [
       { label: t.nav.institutionProfile, href: '/dashboard/institution/profile' },
-      { label: lang === 'ja' ? '申請一覧' : lang === 'bn' ? 'আবেদন তালিকা' : 'Applications', href: '/dashboard/institution/applications' },
+      { label: lang === 'ja' ? '申請プール' : lang === 'bn' ? 'আবেদন ভান্ডার' : 'Application Pool', href: '/dashboard/institution/applications' },
       { label: lang === 'ja' ? '選択済み' : lang === 'bn' ? 'নির্বাচিত' : 'Selected', href: '/dashboard/institution/selected' },
       { label: lang === 'ja' ? 'アカウントマネージャー' : lang === 'bn' ? 'অ্যাকাউন্ট ম্যানেজার' : 'Account Managers', href: '/dashboard/institution/account-managers' },
       { label: lang === 'ja' ? '設定' : lang === 'bn' ? 'সেটিংস' : 'Settings', href: '/dashboard/institution/settings' },

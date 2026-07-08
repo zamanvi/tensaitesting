@@ -99,7 +99,7 @@ export default function InstitutionApplicationsPage() {
   }
 
   return (
-    <DashboardLayout title={ja ? '申請一覧' : bn ? 'আবেদন তালিকা' : 'Applications'}>
+    <DashboardLayout title={ja ? '申請プール' : bn ? 'আবেদন ভান্ডার' : 'Application Pool'}>
 
       {/* No country warning */}
       {!isLoading && !institutionCountry && (
