@@ -3,8 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ApplicationResource\Pages;
-use App\Filament\Resources\BranchResource;
-use App\Filament\Resources\UserResource;
 use App\Models\Application;
 use App\Models\FormTemplate;
 use Filament\Forms;
@@ -592,37 +590,23 @@ class ApplicationResource extends Resource
                         default     => 'gray',
                     }),
 
-                // Source — full title badge, email description, clickable link
+                // Source
                 Tables\Columns\TextColumn::make('submitted_by_role')
                     ->label('Source')
                     ->badge()
-                    ->getStateUsing(fn (Application $record): string => match ($record->submitted_by_role) {
-                        'branch_admin', 'branch_manager' => implode('', array_filter([
-                            'Branch — ',
-                            $record->branch?->name ?? $record->user?->name ?? 'Unknown',
-                            $record->branch?->city ? ' (' . $record->branch->city . ')' : null,
-                        ])),
-                        'agency'       => 'Agency — '  . ($record->user?->name ?? 'Unknown'),
-                        'student'      => 'Student — ' . ($record->user?->name ?? 'Unknown'),
-                        'admin', 'super_admin' => 'Admin — ' . ($record->user?->name ?? 'Unknown'),
-                        default        => ucfirst($record->submitted_by_role ?? '') . ' — ' . ($record->user?->name ?? 'Unknown'),
+                    ->formatStateUsing(fn (string $state) => match ($state) {
+                        'admin', 'super_admin'            => 'Admin',
+                        'branch_admin', 'branch_manager'  => 'Branch',
+                        'agency'                          => 'Agency',
+                        'student'                         => 'Student',
+                        default                           => ucfirst($state),
                     })
-                    ->color(fn (string $state): string => match (true) {
-                        str_starts_with($state, 'Branch')  => 'info',
-                        str_starts_with($state, 'Student') => 'success',
-                        str_starts_with($state, 'Agency')  => 'warning',
-                        default                            => 'gray',
-                    })
-                    ->description(fn (Application $r): ?string => $r->user?->email ? '✉ ' . $r->user->email : null)
-                    ->url(fn (Application $r): ?string => match ($r->submitted_by_role) {
-                        'branch_admin', 'branch_manager' => $r->branch_id
-                            ? BranchResource::getUrl('edit', ['record' => $r->branch_id])
-                            : ($r->user_id ? UserResource::getUrl('edit', ['record' => $r->user_id]) : null),
-                        default => $r->user_id
-                            ? UserResource::getUrl('edit', ['record' => $r->user_id])
-                            : null,
-                    })
-                    ->openUrlInNewTab(),
+                    ->color(fn (string $state) => match ($state) {
+                        'branch_admin', 'branch_manager' => 'info',
+                        'agency'                         => 'warning',
+                        'student'                        => 'success',
+                        default                          => 'gray',
+                    }),
 
                 // Created date
                 Tables\Columns\TextColumn::make('created_at')
