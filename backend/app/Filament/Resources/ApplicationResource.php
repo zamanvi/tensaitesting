@@ -572,7 +572,7 @@ class ApplicationResource extends Resource
                     ->label('Progress')
                     ->suffix('%')
                     ->badge()
-                    ->color(fn (int $state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'danger'))
+                    ->color(fn ($state) => ($state ?? 0) >= 80 ? 'success' : (($state ?? 0) >= 50 ? 'warning' : 'danger'))
                     ->sortable(),
 
                 // Status badge (display only — no editing here)
