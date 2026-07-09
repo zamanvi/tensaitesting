@@ -18,6 +18,9 @@ php artisan optimize:clear 2>&1 || true
 php artisan tinker --execute="try { \$c = \DB::selectOne(\"SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='applications' AND COLUMN_NAME='status'\"); if(\$c && str_contains(strtolower(\$c->COLUMN_TYPE),'enum') && !str_contains(\$c->COLUMN_TYPE,'pool')) { \DB::statement(\"ALTER TABLE applications MODIFY COLUMN status ENUM('draft','submitted','accepted','rejected','pool','selected') NOT NULL DEFAULT 'draft'\"); echo 'ENUM fixed\n'; } else { echo 'ENUM ok\n'; } } catch(\Throwable \$e) { echo 'skip: '.\$e->getMessage().'\n'; }" 2>&1 || true
 
 php artisan migrate --force 2>&1 || echo "Migration warning (non-fatal)"
+
+# Fix institution_selections.lead_id FK to point to applications (not leads)
+php artisan tinker --execute="try { \$fks = \DB::select(\"SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='institution_selections' AND COLUMN_NAME='lead_id' AND REFERENCED_TABLE_NAME='leads'\"); foreach(\$fks as \$fk) { \DB::statement(\"ALTER TABLE institution_selections DROP FOREIGN KEY {\$fk->CONSTRAINT_NAME}\"); } \DB::statement(\"ALTER TABLE institution_selections ADD CONSTRAINT isel_lead_app_fk FOREIGN KEY (lead_id) REFERENCES applications(id) ON DELETE CASCADE\"); echo 'FK fixed'; } catch(\Throwable \$e) { echo 'FK skip: '.\$e->getMessage(); }" 2>&1 || true
 php artisan db:seed --force 2>&1 || echo "Seed warning (non-fatal)"
 php artisan storage:link --force 2>&1 || true
 php artisan filament:upgrade 2>&1 || true
