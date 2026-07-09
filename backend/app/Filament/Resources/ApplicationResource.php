@@ -34,7 +34,8 @@ class ApplicationResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user  = auth()->user();
-        $query = parent::getEloquentQuery();
+        $query = parent::getEloquentQuery()
+            ->with(['user.studentProfile', 'formTemplate', 'branch']);
 
         if ($user->hasRole(['super_admin', 'admin'])) {
             // Hide agency drafts unless explicitly marked live
@@ -570,6 +571,18 @@ class ApplicationResource extends Resource
                     ->badge()
                     ->color(fn ($state) => ($state ?? 0) >= 80 ? 'success' : (($state ?? 0) >= 50 ? 'warning' : 'danger'))
                     ->sortable(),
+
+                // Student qualifications from profile
+                Tables\Columns\TextColumn::make('user.studentProfile.highest_qualification')
+                    ->label('Education')
+                    ->placeholder('—')
+                    ->toggleable()
+                    ->description(fn (Application $r) =>
+                        collect([
+                            $r->user?->studentProfile?->gpa      ? 'GPA ' . $r->user->studentProfile->gpa : null,
+                            $r->user?->studentProfile?->jlpt_level,
+                            $r->user?->studentProfile?->nat_level,
+                        ])->filter()->join(' · ') ?: '—'),
 
                 // Status badge (display only — no editing here)
                 Tables\Columns\TextColumn::make('status')
