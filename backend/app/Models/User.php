@@ -37,7 +37,7 @@ class User extends Authenticatable implements FilamentUser
         if ($panel->getId() === 'manager') {
             return $this->hasRole('manager');
         }
-        return $this->hasRole(['admin', 'super_admin', 'branch_admin', 'branch_manager']);
+        return $this->hasRole(['admin', 'super_admin', 'branch_admin', 'branch_manager', 'agency']);
     }
 
     public function branch()

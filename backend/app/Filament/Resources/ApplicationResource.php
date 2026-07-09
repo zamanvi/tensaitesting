@@ -28,7 +28,7 @@ class ApplicationResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole(['super_admin', 'admin', 'branch_admin']);
+        return auth()->user()?->hasRole(['super_admin', 'admin', 'branch_admin', 'branch_manager', 'agency']);
     }
 
     public static function getEloquentQuery(): Builder
@@ -45,7 +45,15 @@ class ApplicationResource extends Resource
                     ->orWhere('live_to_school', true);
             });
         }
-        if ($user->hasRole('branch_admin')) return $query->where('branch_id', $user->branch_id);
+
+        if ($user->hasRole(['branch_admin', 'branch_manager'])) {
+            return $query->where('branch_id', $user->branch_id);
+        }
+
+        if ($user->hasRole('agency')) {
+            // Agency sees only applications they submitted
+            return $query->where('user_id', $user->id);
+        }
 
         return $query->whereRaw('0 = 1');
     }
