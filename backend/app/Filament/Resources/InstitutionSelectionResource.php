@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\InstitutionSelectionResource\Pages;
 use App\Models\InstitutionSelection;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -19,6 +20,11 @@ class InstitutionSelectionResource extends Resource
     public static function canAccess(): bool
     {
         return auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema([]);
     }
 
     public static function table(Table $table): Table
