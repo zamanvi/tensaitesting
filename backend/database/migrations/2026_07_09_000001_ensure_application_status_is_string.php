@@ -7,9 +7,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Force status column to VARCHAR to allow pool/selected values
-        // Raw SQL works regardless of doctrine/dbal availability
-        DB::statement("ALTER TABLE applications MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'draft'");
+        // Superseded by 2026_07_09_000002_fix_application_status_enum.php
+        // Left empty so it passes and doesn't block the next migration
     }
 
     public function down(): void {}
