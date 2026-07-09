@@ -681,6 +681,27 @@ class ApplicationResource extends Resource
                             ->success()
                             ->send();
                     }),
+
+                Tables\Actions\Action::make('cancel_pool')
+                    ->label('Cancel Pool')
+                    ->icon('heroicon-o-arrow-down-circle')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Remove from Institution Pool')
+                    ->modalDescription('This will remove the application from the institution pool and set it back to Submitted. Institutions will no longer see it.')
+                    ->modalSubmitActionLabel('Yes, Remove from Pool')
+                    ->visible(fn (Application $r) =>
+                        $r->status === 'pool' &&
+                        auth()->user()?->hasRole(['super_admin', 'admin']))
+                    ->action(function (Application $r) {
+                        $r->update(['status' => 'submitted']);
+                        Notification::make()
+                            ->title('Removed from Pool')
+                            ->body('Application has been removed from the institution pool.')
+                            ->warning()
+                            ->send();
+                    }),
+
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
