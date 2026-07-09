@@ -31,6 +31,7 @@ class InstitutionSelectionResource extends Resource
     {
         return $table
             ->columns([
+                // Application details
                 Tables\Columns\TextColumn::make('lead.application_code')
                     ->label('App. Code')
                     ->fontFamily('mono')
@@ -38,8 +39,25 @@ class InstitutionSelectionResource extends Resource
                     ->searchable()
                     ->copyable()
                     ->description(fn (InstitutionSelection $r) =>
-                        $r->lead?->formTemplate?->country ?? '—'),
+                        implode(' · ', array_filter([
+                            $r->lead?->formTemplate?->country,
+                            $r->lead?->formTemplate?->name,
+                        ]))),
 
+                Tables\Columns\TextColumn::make('lead.student_name')
+                    ->label('Student')
+                    ->searchable()
+                    ->default('—')
+                    ->description(fn (InstitutionSelection $r) =>
+                        $r->lead?->submitted_at?->format('d M Y') ?? '—'),
+
+                Tables\Columns\TextColumn::make('lead.progress')
+                    ->label('Progress')
+                    ->formatStateUsing(fn ($state) => ($state ?? 0) . '%')
+                    ->badge()
+                    ->color(fn ($state) => ($state ?? 0) >= 80 ? 'success' : (($state ?? 0) >= 50 ? 'warning' : 'danger')),
+
+                // Institution & contact
                 Tables\Columns\TextColumn::make('institution.name')
                     ->label('Institution')
                     ->searchable()
@@ -53,19 +71,9 @@ class InstitutionSelectionResource extends Resource
                     ->description(fn (InstitutionSelection $r) =>
                         collect([$r->connect_whatsapp, $r->connect_phone])->filter()->join(' / ') ?: '—'),
 
-                Tables\Columns\TextColumn::make('lead.status')
-                    ->label('App. Status')
-                    ->badge()
-                    ->color(fn ($state) => match ($state ?? '') {
-                        'selected' => 'info',
-                        'accepted' => 'success',
-                        'rejected' => 'danger',
-                        default    => 'gray',
-                    })
-                    ->formatStateUsing(fn ($state) => ucfirst($state ?? '')),
-
+                // Status
                 Tables\Columns\TextColumn::make('status')
-                    ->label('Selection Status')
+                    ->label('Status')
                     ->badge()
                     ->color(fn ($state) => match ($state ?? '') {
                         'selected' => 'info',
