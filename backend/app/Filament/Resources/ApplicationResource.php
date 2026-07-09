@@ -674,12 +674,19 @@ class ApplicationResource extends Resource
                         in_array($r->status, ['submitted', 'draft']) &&
                         auth()->user()?->hasRole(['super_admin', 'admin']))
                     ->action(function (Application $r) {
-                        $r->update(['status' => 'pool']);
-                        Notification::make()
-                            ->title('Sent to Pool')
-                            ->body('Application is now visible in the institution pool.')
-                            ->success()
-                            ->send();
+                        try {
+                            $r->update(['status' => 'pool']);
+                            Notification::make()
+                                ->title('Sent to Pool')
+                                ->body('Application is now visible in the institution pool.')
+                                ->success()
+                                ->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Error: ' . $e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
                     }),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
