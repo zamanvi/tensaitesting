@@ -180,7 +180,6 @@ export default function InstitutionApplicationsPage() {
                   <th className="text-left px-4 py-3">{ja ? '学歴' : bn ? 'শিক্ষা' : 'Education'}</th>
                   <th className="text-left px-4 py-3">GPA</th>
                   <th className="text-left px-4 py-3">JLPT/NAT</th>
-                  <th className="text-left px-4 py-3">{ja ? '進捗' : bn ? 'অগ্রগতি' : 'Progress'}</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -205,14 +204,6 @@ export default function InstitutionApplicationsPage() {
                       <td className="px-4 py-3.5 text-xs text-slate-600">
                         {[app.jlpt_level, app.nat_level].filter(Boolean).join(' / ') || '—'}
                       </td>
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full bg-indigo-500" style={{ width: `${app.progress ?? 0}%` }} />
-                          </div>
-                          <span className="text-xs font-bold text-slate-600 tabular-nums">{app.progress ?? 0}%</span>
-                        </div>
-                      </td>
                       <td className="px-4 py-3.5 text-right">
                         {app.already_selected ? (
                           <span className="text-xs font-semibold text-indigo-500">✓ {ja ? '選択済み' : bn ? 'নির্বাচিত' : 'Selected'}</span>
@@ -234,7 +225,7 @@ export default function InstitutionApplicationsPage() {
                     {/* Inline contact form */}
                     {selectingId === app.id && (
                       <tr key={`form-${app.id}`}>
-                        <td colSpan={7} className="px-5 py-4 bg-indigo-50/60 border-b border-indigo-100">
+                        <td colSpan={6} className="px-5 py-4 bg-indigo-50/60 border-b border-indigo-100">
                           <p className="font-bold text-slate-800 text-sm mb-1">
                             {ja ? '担当者の連絡先を入力してください' : bn ? 'দায়িত্বশীল ব্যক্তির তথ্য দিন' : 'Who should Tensai contact?'}
                           </p>
@@ -315,7 +306,6 @@ export default function InstitutionApplicationsPage() {
                   {app.highest_qualification && <span>{app.highest_qualification}</span>}
                   {app.gpa && <span>GPA {app.gpa}</span>}
                   {(app.jlpt_level || app.nat_level) && <span>{[app.jlpt_level, app.nat_level].filter(Boolean).join('/')}</span>}
-                  <span>{app.progress ?? 0}%</span>
                 </div>
 
                 {/* Mobile contact form */}
