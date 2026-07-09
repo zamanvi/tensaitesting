@@ -16,9 +16,9 @@ class InterviewResource extends Resource
 {
     protected static ?string $model = Interview::class;
     protected static ?string $navigationIcon  = 'heroicon-o-check-badge';
-    protected static ?string $navigationLabel = 'Selected';
+    protected static ?string $navigationLabel = 'Interviews';
     protected static ?string $navigationGroup = 'Applicant Management';
-    protected static ?int    $navigationSort  = 2;
+    protected static ?int    $navigationSort  = 3;
 
     public static function canAccess(): bool
     {
@@ -97,7 +97,7 @@ class InterviewResource extends Resource
                 Tables\Columns\TextColumn::make('institution.name')->label('Institution')->searchable(),
                 Tables\Columns\TextColumn::make('medium')
                     ->badge()
-                    ->color(fn (string $state) => match($state) {
+                    ->color(fn ($state) => match($state ?? '') {
                         'zoom', 'google_meet', 'teams' => 'info',
                         'phone' => 'warning',
                         'in_person' => 'success',
@@ -105,7 +105,7 @@ class InterviewResource extends Resource
                     }),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state) => match($state) {
+                    ->color(fn ($state) => match($state ?? '') {
                         'confirmed' => 'success',
                         'pending' => 'warning',
                         'completed' => 'primary',
