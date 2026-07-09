@@ -8,9 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            $table->string('status')->default('draft')->change();
-        });
+        // Superseded by 2026_07_09_000002_fix_application_status_enum.php
+        // doctrine/dbal ->change() was failing in production; left empty to unblock chain
     }
 
     public function down(): void {}

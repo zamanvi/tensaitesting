@@ -13,6 +13,10 @@ sed -i "s/Listen 8080/Listen ${LISTEN_PORT}/" /etc/apache2/ports.conf
 sed -i "s/\*:8080/\*:${LISTEN_PORT}/" /etc/apache2/sites-available/000-default.conf
 
 php artisan optimize:clear 2>&1 || true
+
+# Fix applications.status ENUM to include pool/selected (idempotent, safe to run every deploy)
+php artisan tinker --execute="try { \$c = \DB::selectOne(\"SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='applications' AND COLUMN_NAME='status'\"); if(\$c && str_contains(strtolower(\$c->COLUMN_TYPE),'enum') && !str_contains(\$c->COLUMN_TYPE,'pool')) { \DB::statement(\"ALTER TABLE applications MODIFY COLUMN status ENUM('draft','submitted','accepted','rejected','pool','selected') NOT NULL DEFAULT 'draft'\"); echo 'ENUM fixed\n'; } else { echo 'ENUM ok\n'; } } catch(\Throwable \$e) { echo 'skip: '.\$e->getMessage().'\n'; }" 2>&1 || true
+
 php artisan migrate --force 2>&1 || echo "Migration warning (non-fatal)"
 php artisan db:seed --force 2>&1 || echo "Seed warning (non-fatal)"
 php artisan storage:link --force 2>&1 || true
