@@ -37,14 +37,24 @@ interface SelectedApp {
   };
 }
 
-const STATUS_BAR: Record<SelectionStatus, { en: string; ja: string; bn: string; cls: string }> = {
-  selected:   { en: 'Selected — awaiting institution acceptance', ja: '選択済み — 承認待ち', bn: 'নির্বাচিত — প্রতিষ্ঠানের গ্রহণ বাকি', cls: 'bg-indigo-50 text-indigo-700' },
-  accepted:   { en: 'Accepted by institution — Tensai manager to coordinate', ja: '承認済み — Tensaiが調整中', bn: 'প্রতিষ্ঠান গ্রহণ করেছে — Tensai ম্যানেজার যোগাযোগ করবেন', cls: 'bg-amber-50 text-amber-700' },
-  processing: { en: 'Processing Ongoing', ja: '手続き進行中', bn: 'প্রক্রিয়া চলমান', cls: 'bg-blue-50 text-blue-700' },
-  complete:   { en: 'Processing Complete', ja: '手続き完了', bn: 'প্রক্রিয়া সম্পন্ন', cls: 'bg-emerald-50 text-emerald-700' },
-  incomplete: { en: 'Processing Incomplete', ja: '手続き未完了', bn: 'প্রক্রিয়া অসম্পূর্ণ', cls: 'bg-orange-50 text-orange-700' },
-  rejected:   { en: 'Rejected by institution', ja: '機関により却下', bn: 'প্রতিষ্ঠান প্রত্যাখ্যান করেছে', cls: 'bg-red-50 text-red-600' },
-  cancelled:  { en: 'Cancelled', ja: 'キャンセル済み', bn: 'বাতিল করা হয়েছে', cls: 'bg-slate-50 text-slate-400' },
+const STATUS_BADGE: Record<SelectionStatus, string> = {
+  selected:   'bg-indigo-100 text-indigo-700',
+  accepted:   'bg-amber-100 text-amber-700',
+  processing: 'bg-blue-100 text-blue-700',
+  complete:   'bg-emerald-100 text-emerald-700',
+  incomplete: 'bg-orange-100 text-orange-700',
+  rejected:   'bg-red-100 text-red-600',
+  cancelled:  'bg-slate-100 text-slate-400',
+};
+
+const STATUS_LABEL: Record<SelectionStatus, { en: string; ja: string; bn: string }> = {
+  selected:   { en: 'Selected',   ja: '選択済み',   bn: 'নির্বাচিত' },
+  accepted:   { en: 'Accepted',   ja: '承認済み',   bn: 'গৃহীত' },
+  processing: { en: 'Processing', ja: '手続き中',   bn: 'প্রক্রিয়াধীন' },
+  complete:   { en: 'Complete',   ja: '完了',       bn: 'সম্পন্ন' },
+  incomplete: { en: 'Incomplete', ja: '未完了',     bn: 'অসম্পূর্ণ' },
+  rejected:   { en: 'Rejected',   ja: '却下',       bn: 'প্রত্যাখ্যাত' },
+  cancelled:  { en: 'Cancelled',  ja: 'キャンセル', bn: 'বাতিল' },
 };
 
 const STATUS_FILTERS: { k: SelectionStatus | 'all'; en: string; ja: string; bn: string }[] = [
@@ -57,6 +67,43 @@ const STATUS_FILTERS: { k: SelectionStatus | 'all'; en: string; ja: string; bn: 
   { k: 'rejected',   en: 'Rejected',   ja: '却下',      bn: 'প্রত্যাখ্যাত' },
   { k: 'cancelled',  en: 'Cancelled',  ja: 'キャンセル', bn: 'বাতিল' },
 ];
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, { dateStyle: 'medium' });
+}
+
+function cap(s: string | null): string {
+  if (!s) return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+type BtnColor = 'blue' | 'green' | 'orange' | 'red' | 'indigo' | 'ghost';
+
+function ActionBtn({ color, onClick, disabled, children }: {
+  color: BtnColor; onClick: () => void; disabled: boolean; children: React.ReactNode;
+}) {
+  const cls: Record<BtnColor, string> = {
+    blue:   'bg-blue-600 hover:bg-blue-700 text-white',
+    green:  'bg-emerald-600 hover:bg-emerald-700 text-white',
+    orange: 'border border-orange-200 text-orange-600 hover:border-orange-300 hover:text-orange-700',
+    red:    'border border-red-100 text-red-500 hover:border-red-300 hover:text-red-700',
+    indigo: 'bg-indigo-600 hover:bg-indigo-700 text-white',
+    ghost:  'border border-slate-100 text-slate-400 hover:border-slate-200 hover:text-slate-600',
+  };
+  return (
+    <button onClick={onClick} disabled={disabled}
+      className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap ${cls[color]}`}>
+      {children}
+    </button>
+  );
+}
 
 export default function AdminSelectedPage() {
   const { lang } = useLang();
@@ -100,45 +147,92 @@ export default function AdminSelectedPage() {
     return true;
   });
 
-  const ok = (msg: string) => { setActionOk(msg); setActionErr(''); setTimeout(() => setActionOk(''), 4000); };
+  const ok  = (msg: string) => { setActionOk(msg);  setActionErr(''); setTimeout(() => setActionOk(''), 4000); };
   const err = () => { setActionErr(t('Action failed. Please try again.', '操作に失敗しました。', 'ব্যর্থ হয়েছে।')); setTimeout(() => setActionErr(''), 4000); };
   const refresh = () => { qc.invalidateQueries({ queryKey: ['admin-selected'] }); setConfirmAction(null); };
 
-  const unselect = useMutation({
-    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/unselect`),
-    onSuccess: () => { refresh(); ok(t('Application unselected and returned to the pool.', '申請をプールに戻しました。', 'আবেদন পুলে ফেরত গেছে।')); },
-    onError: err,
-  });
-  const startProcessing = useMutation({
-    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/start-processing`),
-    onSuccess: () => { refresh(); ok(t('Processing started.', '手続きを開始しました。', 'প্রক্রিয়া শুরু হয়েছে।')); },
-    onError: err,
-  });
-  const markComplete = useMutation({
-    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/mark-complete`),
-    onSuccess: () => { refresh(); ok(t('Marked as complete.', '完了としてマークしました。', 'সম্পন্ন হিসেবে চিহ্নিত হয়েছে।')); },
-    onError: err,
-  });
-  const markIncomplete = useMutation({
-    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/mark-incomplete`),
-    onSuccess: () => { refresh(); ok(t('Marked as incomplete.', '未完了としてマークしました。', 'অসম্পূর্ণ হিসেবে চিহ্নিত হয়েছে।')); },
-    onError: err,
-  });
-  const adminReject = useMutation({
-    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/reject`),
-    onSuccess: () => { refresh(); ok(t('Selection rejected.', '選択を却下しました。', 'সিলেকশন প্রত্যাখ্যাত হয়েছে।')); },
-    onError: err,
-  });
-  const adminRevive = useMutation({
-    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/revive`),
-    onSuccess: () => { refresh(); ok(t('Application revived.', '申請を再開しました。', 'আবেদন পুনরুদ্ধার হয়েছে।')); },
-    onError: err,
-  });
+  const unselect        = useMutation({ mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/unselect`),         onSuccess: () => { refresh(); ok(t('Application returned to pool.',  'プールに戻しました。',       'পুলে ফেরত গেছে।')); },      onError: err });
+  const startProcessing = useMutation({ mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/start-processing`), onSuccess: () => { refresh(); ok(t('Processing started.',            '手続きを開始しました。',     'প্রক্রিয়া শুরু হয়েছে।')); }, onError: err });
+  const markComplete    = useMutation({ mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/mark-complete`),    onSuccess: () => { refresh(); ok(t('Marked as complete.',            '完了としてマークしました。', 'সম্পন্ন হয়েছে।')); },         onError: err });
+  const markIncomplete  = useMutation({ mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/mark-incomplete`),  onSuccess: () => { refresh(); ok(t('Marked as incomplete.',          '未完了としてマーク。',       'অসম্পূর্ণ হয়েছে।')); },       onError: err });
+  const adminReject     = useMutation({ mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/reject`),           onSuccess: () => { refresh(); ok(t('Selection rejected.',             '選択を却下しました。',       'প্রত্যাখ্যাত হয়েছে।')); },  onError: err });
+  const adminRevive     = useMutation({ mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/revive`),           onSuccess: () => { refresh(); ok(t('Application revived.',            '申請を再開しました。',       'পুনরুদ্ধার হয়েছে।')); },     onError: err });
 
   if (!user || !isAdmin) return null;
 
+  const confirmApp = confirmAction ? apps.find(a => a.id === confirmAction.id) : null;
+
+  const rowActions = (app: SelectedApp) => (
+    <div className="flex flex-wrap gap-1.5">
+      {app.status === 'accepted' && (
+        <ActionBtn color="blue" onClick={() => startProcessing.mutate(app.id)} disabled={startProcessing.isPending}>
+          {t('▶ Process', '▶ 開始', '▶ শুরু')}
+        </ActionBtn>
+      )}
+      {app.status === 'processing' && (
+        <>
+          <ActionBtn color="green" onClick={() => markComplete.mutate(app.id)} disabled={markComplete.isPending}>
+            {t('✓ Complete', '✓ 完了', '✓ সম্পন্ন')}
+          </ActionBtn>
+          <ActionBtn color="orange" onClick={() => setConfirmAction({ id: app.id, type: 'incomplete' })} disabled={false}>
+            {t('⚠ Incomplete', '⚠ 未完了', '⚠ অসম্পূর্ণ')}
+          </ActionBtn>
+        </>
+      )}
+      {['selected', 'accepted'].includes(app.status) && (
+        <ActionBtn color="red" onClick={() => setConfirmAction({ id: app.id, type: 'reject' })} disabled={false}>
+          {t('✕ Reject', '✕ 却下', '✕ প্রত্যাখ্যান')}
+        </ActionBtn>
+      )}
+      {['cancelled', 'rejected', 'incomplete'].includes(app.status) && (
+        <ActionBtn color="indigo" onClick={() => adminRevive.mutate(app.id)} disabled={adminRevive.isPending}>
+          {t('↩ Revive', '↩ 再開', '↩ পুনরুদ্ধার')}
+        </ActionBtn>
+      )}
+      {app.status !== 'complete' && (
+        <ActionBtn color="ghost" onClick={() => setConfirmAction({ id: app.id, type: 'unselect' })} disabled={false}>
+          {t('⊘ Cancel', '⊘ 解除', '⊘ বাতিল')}
+        </ActionBtn>
+      )}
+    </div>
+  );
+
   return (
     <DashboardLayout title={t('Selected Applications', '選択済み申請', 'নির্বাচিত আবেদন')}>
+
+      {/* Confirm modal */}
+      {confirmAction && confirmApp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <p className="text-sm font-semibold text-slate-800 mb-1">
+              {confirmAction.type === 'reject'
+                ? t('Reject this selection?',       'この選択を却下しますか？',   'এই সিলেকশন প্রত্যাখ্যান করবেন?')
+                : confirmAction.type === 'incomplete'
+                ? t('Mark as incomplete?',           '未完了としてマークしますか？', 'অসম্পূর্ণ চিহ্নিত করবেন?')
+                : t('Force-cancel this selection?', '選択を強制解除しますか？',    'জোর করে বাতিল করবেন?')}
+            </p>
+            <p className="text-xs text-slate-500 mb-5">
+              {confirmApp.lead_code} — {confirmApp.student_name}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  if (confirmAction.type === 'reject')          adminReject.mutate(confirmAction.id);
+                  else if (confirmAction.type === 'incomplete') markIncomplete.mutate(confirmAction.id);
+                  else                                          unselect.mutate(confirmAction.id);
+                }}
+                disabled={adminReject.isPending || markIncomplete.isPending || unselect.isPending}
+                className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-xl disabled:opacity-50">
+                {t('Confirm', '確認', 'নিশ্চিত')}
+              </button>
+              <button onClick={() => setConfirmAction(null)}
+                className="flex-1 py-2 border border-slate-200 text-slate-600 text-sm rounded-xl hover:border-slate-300">
+                {t('Cancel', 'キャンセル', 'বাতিল')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-5 space-y-3">
@@ -146,7 +240,7 @@ export default function AdminSelectedPage() {
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder={t('Search by code, student, country or institution...', 'コード・学生・国・機関名で検索...', 'কোড, শিক্ষার্থী, দেশ বা প্রতিষ্ঠান খুঁজুন...')}
+          placeholder={t('Search by code, student, country or institution…', 'コード・学生・国・機関名で検索…', 'কোড, শিক্ষার্থী, দেশ বা প্রতিষ্ঠান খুঁজুন…')}
           className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         />
         <div className="flex gap-2 flex-wrap">
@@ -155,8 +249,7 @@ export default function AdminSelectedPage() {
               onClick={() => setStatusFilter(k as typeof statusFilter)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 statusFilter === k ? 'bg-green-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
+              }`}>
               {L === 'ja' ? ja : L === 'bn' ? bn : en}
             </button>
           ))}
@@ -165,24 +258,19 @@ export default function AdminSelectedPage() {
 
       {/* Feedback */}
       {actionOk && (
-        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-700 font-medium">
-          ✓ {actionOk}
-        </div>
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-700 font-medium">✓ {actionOk}</div>
       )}
       {actionErr && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">
-          ⚠️ {actionErr}
-        </div>
+        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">⚠️ {actionErr}</div>
       )}
 
       <div className="text-xs text-slate-500 mb-3 px-1">
         {filtered.length} {t(`application${filtered.length !== 1 ? 's' : ''}`, '件', 'টি')}
       </div>
 
-      {/* List */}
       {isLoading ? (
         <div className="text-center py-16 text-slate-400 text-sm animate-pulse">
-          {t('Loading...', '読み込み中...', 'লোড হচ্ছে...')}
+          {t('Loading…', '読み込み中…', 'লোড হচ্ছে…')}
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-400">
@@ -195,168 +283,127 @@ export default function AdminSelectedPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map(app => {
-            const bar = STATUS_BAR[app.status] ?? STATUS_BAR.selected;
-            const isCancelled = app.status === 'cancelled';
-            return (
-              <div key={app.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${isCancelled ? 'opacity-70' : ''}`}>
+        <>
+          {/* ── Desktop table ── */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50 text-left">
+                    {[
+                      t('App Code', 'コード', 'কোড'),
+                      t('Student', '学生', 'শিক্ষার্থী'),
+                      t('Institution', '機関', 'প্রতিষ্ঠান'),
+                      t('Contact Person', '担当者', 'যোগাযোগ'),
+                      t('Status', 'ステータス', 'স্ট্যাটাস'),
+                      t('Selected', '選択日', 'নির্বাচন'),
+                      t('Actions', '操作', 'অ্যাকশন'),
+                    ].map(h => (
+                      <th key={h} className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filtered.map(app => (
+                    <tr key={app.id} className={`hover:bg-slate-50/60 transition-colors ${app.status === 'cancelled' ? 'opacity-60' : ''}`}>
 
-                {/* Status bar */}
-                <div className={`px-5 py-2 flex items-center gap-2 text-xs font-semibold ${bar.cls}`}>
-                  {bar[L]}
-                </div>
-
-                <div className="p-4 sm:p-5">
-                  <div className="flex flex-wrap items-start gap-4">
-
-                    {/* Application info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{app.lead_code}</span>
-                        {app.student_name && (
-                          <span className="text-xs font-semibold text-slate-700">👤 {app.student_name}</span>
-                        )}
-                        <span className="text-[10px] text-slate-400">
-                          {t('Selected: ', '選択日: ', 'নির্বাচন: ')}
-                          {new Date(app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                      {/* App Code */}
+                      <td className="px-4 py-3 align-top">
+                        <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded whitespace-nowrap">
+                          {app.lead_code}
                         </span>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs mb-3">
-                        {app.target_country && <InfoRow label={t('Country', '国', 'দেশ')} value={app.target_country.charAt(0).toUpperCase() + app.target_country.slice(1)} />}
-                        {app.target_city && <InfoRow label={t('City', '都市', 'শহর')} value={app.target_city} />}
-                        {app.target_course && <InfoRow label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />}
-                        {app.last_education && <InfoRow label={t('Education', '学歴', 'শিক্ষা')} value={app.last_education} />}
-                        {app.gpa && <InfoRow label="GPA" value={app.gpa} />}
-                        {app.target_intake && <InfoRow label={t('Intake', 'インテーク', 'ইনটেক')} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
-                        {app.accepted_at && <InfoRow label={t('Accepted', '承認日', 'গ্রহণ')} value={new Date(app.accepted_at).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
-                        {app.processing_at && <InfoRow label={t('Processing', '手続開始', 'প্রক্রিয়া শুরু')} value={new Date(app.processing_at).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
-                        {app.completed_at && <InfoRow label={t('Completed', '完了日', 'সম্পন্ন')} value={new Date(app.completed_at).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
-                      </div>
-                    </div>
-
-                    {/* Right column: institution + contact */}
-                    <div className="shrink-0 space-y-2 min-w-[180px]">
-                      <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs">
-                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">
-                          {t('Selected by', '選択した機関', 'নির্বাচনকারী প্রতিষ্ঠান')}
-                        </p>
-                        <p className="font-bold text-slate-800 truncate">{app.institution?.name}</p>
-                        {app.institution?.country && <p className="text-slate-500 mt-0.5">{app.institution.country}</p>}
-                        <p className="text-slate-400 truncate mt-0.5">{app.institution?.email}</p>
-                      </div>
-                      {(app.connect_name || app.connect_email) && (
-                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs space-y-1">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-                            {t('Their Contact', '担当者', 'যোগাযোগ')}
-                          </p>
-                          {app.connect_name && <div className="flex gap-1.5"><span>👤</span><span className="text-slate-600 truncate">{app.connect_name}</span></div>}
-                          {app.connect_email && <div className="flex gap-1.5"><span>✉️</span><span className="text-slate-600 truncate">{app.connect_email}</span></div>}
-                          {app.connect_whatsapp && <div className="flex gap-1.5"><span>💬</span><span className="text-slate-600 truncate">{app.connect_whatsapp}</span></div>}
-                          {app.connect_phone && <div className="flex gap-1.5"><span>📞</span><span className="text-slate-600 truncate">{app.connect_phone}</span></div>}
+                        <div className="text-[10px] text-slate-400 mt-0.5 whitespace-nowrap">
+                          {cap(app.target_country)}{app.target_course ? ` · ${app.target_course}` : ''}
                         </div>
-                      )}
+                      </td>
+
+                      {/* Student */}
+                      <td className="px-4 py-3 align-top">
+                        <div className="font-medium text-slate-800">{app.student_name ?? '—'}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">
+                          {new Date(app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                        </div>
+                      </td>
+
+                      {/* Institution */}
+                      <td className="px-4 py-3 align-top max-w-[180px]">
+                        <div className="font-medium text-slate-800 truncate">{app.institution?.name ?? '—'}</div>
+                        {app.connect_email && (
+                          <div className="text-[10px] text-slate-400 mt-0.5 truncate">{app.connect_email}</div>
+                        )}
+                      </td>
+
+                      {/* Contact Person */}
+                      <td className="px-4 py-3 align-top max-w-[160px]">
+                        {app.connect_name ? (
+                          <>
+                            <div className="font-medium text-slate-700 truncate">{app.connect_name}</div>
+                            <div className="text-[10px] text-slate-400 mt-0.5 space-y-px">
+                              {app.connect_whatsapp && <div className="truncate">💬 {app.connect_whatsapp}</div>}
+                              {app.connect_phone    && <div className="truncate">📞 {app.connect_phone}</div>}
+                            </div>
+                          </>
+                        ) : <span className="text-slate-300 text-xs">—</span>}
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-4 py-3 align-top whitespace-nowrap">
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${STATUS_BADGE[app.status]}`}>
+                          {STATUS_LABEL[app.status][L]}
+                        </span>
+                      </td>
+
+                      {/* Selected timeago */}
+                      <td className="px-4 py-3 align-top whitespace-nowrap text-xs text-slate-500">
+                        {timeAgo(app.selected_at)}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-4 py-3 align-top">
+                        {rowActions(app)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ── Mobile cards ── */}
+          <div className="md:hidden space-y-3">
+            {filtered.map(app => (
+              <div key={app.id} className={`bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden ${app.status === 'cancelled' ? 'opacity-60' : ''}`}>
+                <div className="px-4 py-3 border-b border-slate-50 flex items-center justify-between gap-3">
+                  <span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                    {app.lead_code}
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${STATUS_BADGE[app.status]}`}>
+                    {STATUS_LABEL[app.status][L]}
+                  </span>
+                </div>
+                <div className="p-4 space-y-1.5 text-sm">
+                  {app.student_name && <div className="font-semibold text-slate-800">👤 {app.student_name}</div>}
+                  <div className="text-slate-600 font-medium">{app.institution?.name}</div>
+                  {app.target_country && (
+                    <div className="text-xs text-slate-400">{cap(app.target_country)}{app.target_course ? ` · ${app.target_course}` : ''}</div>
+                  )}
+                  {app.connect_name && (
+                    <div className="text-xs text-slate-500 space-y-0.5 pt-1">
+                      <div>👤 {app.connect_name}</div>
+                      {app.connect_whatsapp && <div>💬 {app.connect_whatsapp}</div>}
+                      {app.connect_phone    && <div>📞 {app.connect_phone}</div>}
                     </div>
-                  </div>
-
-                  {/* Workflow actions */}
-                  <div className="mt-3 pt-3 border-t border-slate-100">
-                    {/* Confirm overlay */}
-                    {confirmAction?.id === app.id && (
-                      <div className="flex items-center gap-2 mb-3 p-3 bg-red-50 border border-red-100 rounded-xl">
-                        <p className="text-xs text-red-700 font-medium flex-1">
-                          {confirmAction.type === 'reject'
-                            ? t('Reject this selection? Institution can revive within 30 days.', 'この選択を却下しますか？30日以内に再開可能。', 'এই সিলেকশন প্রত্যাখ্যান করবেন? প্রতিষ্ঠান ৩০ দিনে পুনরুদ্ধার করতে পারবে।')
-                            : confirmAction.type === 'incomplete'
-                            ? t('Mark as incomplete? Process returns to pool.', '未完了としてマークしますか？', 'অসম্পূর্ণ চিহ্নিত করবেন? প্রক্রিয়া পুলে ফিরবে।')
-                            : t('Force-cancel this selection? Application returns to pool.', '選択を強制解除しますか？', 'জোর করে বাতিল করবেন? আবেদন পুলে ফিরবে।')}
-                        </p>
-                        <button
-                          onClick={() => {
-                            if (confirmAction.type === 'reject') adminReject.mutate(app.id);
-                            else if (confirmAction.type === 'incomplete') markIncomplete.mutate(app.id);
-                            else unselect.mutate(app.id);
-                          }}
-                          disabled={adminReject.isPending || markIncomplete.isPending || unselect.isPending}
-                          className="shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg disabled:opacity-50">
-                          {t('Confirm', '確認', 'নিশ্চিত')}
-                        </button>
-                        <button onClick={() => setConfirmAction(null)}
-                          className="shrink-0 px-3 py-1.5 text-xs text-slate-500 border border-slate-200 rounded-lg hover:border-slate-300">
-                          {t('Back', '戻る', 'ফিরুন')}
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap gap-2">
-                      {/* selected → Reject */}
-                      {app.status === 'selected' && confirmAction?.id !== app.id && (
-                        <button onClick={() => setConfirmAction({ id: app.id, type: 'reject' })}
-                          className="px-3 py-1.5 text-xs font-bold text-red-500 hover:text-red-700 border border-red-100 hover:border-red-300 rounded-lg transition-colors">
-                          {t('✕ Reject', '✕ 却下', '✕ প্রত্যাখ্যান')}
-                        </button>
-                      )}
-
-                      {/* accepted → Start Processing + Reject */}
-                      {app.status === 'accepted' && confirmAction?.id !== app.id && (
-                        <>
-                          <button onClick={() => startProcessing.mutate(app.id)} disabled={startProcessing.isPending}
-                            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
-                            {startProcessing.isPending ? '...' : t('▶ Start Processing', '▶ 手続き開始', '▶ প্রক্রিয়া শুরু করুন')}
-                          </button>
-                          <button onClick={() => setConfirmAction({ id: app.id, type: 'reject' })}
-                            className="px-3 py-1.5 text-xs font-bold text-red-500 hover:text-red-700 border border-red-100 hover:border-red-300 rounded-lg transition-colors">
-                            {t('✕ Reject', '✕ 却下', '✕ প্রত্যাখ্যান')}
-                          </button>
-                        </>
-                      )}
-
-                      {/* processing → Mark Complete + Mark Incomplete */}
-                      {app.status === 'processing' && confirmAction?.id !== app.id && (
-                        <>
-                          <button onClick={() => markComplete.mutate(app.id)} disabled={markComplete.isPending}
-                            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
-                            {markComplete.isPending ? '...' : t('✓ Mark Complete', '✓ 完了', '✓ সম্পন্ন করুন')}
-                          </button>
-                          <button onClick={() => setConfirmAction({ id: app.id, type: 'incomplete' })}
-                            className="px-3 py-1.5 text-xs font-bold text-orange-500 hover:text-orange-700 border border-orange-100 hover:border-orange-300 rounded-lg transition-colors">
-                            {t('⚠ Mark Incomplete', '⚠ 未完了', '⚠ অসম্পূর্ণ করুন')}
-                          </button>
-                        </>
-                      )}
-
-                      {/* cancelled/rejected/incomplete → Revive */}
-                      {['cancelled', 'rejected', 'incomplete'].includes(app.status) && confirmAction?.id !== app.id && (
-                        <button onClick={() => adminRevive.mutate(app.id)} disabled={adminRevive.isPending}
-                          className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
-                          {adminRevive.isPending ? '...' : t('↩ Revive', '↩ 再開', '↩ পুনরুদ্ধার')}
-                        </button>
-                      )}
-
-                      {/* Force unselect — available for all non-complete */}
-                      {app.status !== 'complete' && confirmAction?.id !== app.id && (
-                        <button onClick={() => setConfirmAction({ id: app.id, type: 'unselect' })}
-                          className="ml-auto px-3 py-1.5 text-[11px] font-medium text-slate-400 hover:text-red-500 border border-slate-100 hover:border-red-100 rounded-lg transition-colors">
-                          {t('Force Cancel', '強制解除', 'জোর বাতিল')}
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                  )}
+                  <div className="text-[10px] text-slate-400">{timeAgo(app.selected_at)}</div>
+                </div>
+                <div className="px-4 pb-4">
+                  {rowActions(app)}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </DashboardLayout>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex gap-1">
-      <span className="text-slate-400 shrink-0">{label}:</span>
-      <span className="font-semibold text-slate-700 truncate">{value}</span>
-    </div>
   );
 }
