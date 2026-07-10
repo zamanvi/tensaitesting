@@ -257,7 +257,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/institutions/{id}/verify', [AdminInstitutionController::class, 'verify']);
 
         // Admin institution selections
-        Route::get('/selected-applications',              [AdminInstitutionController::class, 'selectedApplications']);
-        Route::post('/selected-applications/{id}/unselect', [AdminInstitutionController::class, 'unselectApplication']);
+        Route::get('/selected-applications',                        [AdminInstitutionController::class, 'selectedApplications']);
+        Route::post('/selected-applications/{id}/unselect',         [AdminInstitutionController::class, 'unselectApplication']);
+        Route::post('/selected-applications/{id}/start-processing', [AdminInstitutionController::class, 'startProcessing']);
+        Route::post('/selected-applications/{id}/mark-complete',    [AdminInstitutionController::class, 'markComplete']);
+        Route::post('/selected-applications/{id}/mark-incomplete',  [AdminInstitutionController::class, 'markIncomplete']);
+        Route::post('/selected-applications/{id}/reject',           [AdminInstitutionController::class, 'adminReject']);
+        Route::post('/selected-applications/{id}/revive',           [AdminInstitutionController::class, 'adminRevive']);
     });
 });

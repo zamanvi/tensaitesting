@@ -73,7 +73,7 @@ export default function AdminSelectedPage() {
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<SelectionStatus | 'all'>('all');
-  const [unselectingId, setUnselectingId] = useState<number | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ id: number; type: 'reject' | 'incomplete' | 'unselect' } | null>(null);
   const [actionOk, setActionOk] = useState('');
   const [actionErr, setActionErr] = useState('');
 
@@ -100,19 +100,39 @@ export default function AdminSelectedPage() {
     return true;
   });
 
+  const ok = (msg: string) => { setActionOk(msg); setActionErr(''); setTimeout(() => setActionOk(''), 4000); };
+  const err = () => { setActionErr(t('Action failed. Please try again.', '操作に失敗しました。', 'ব্যর্থ হয়েছে।')); setTimeout(() => setActionErr(''), 4000); };
+  const refresh = () => { qc.invalidateQueries({ queryKey: ['admin-selected'] }); setConfirmAction(null); };
+
   const unselect = useMutation({
     mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/unselect`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-selected'] });
-      setUnselectingId(null);
-      setActionOk(t('Application unselected and returned to the pool.', '申請を選択解除し、プールに戻しました。', 'আবেদন আনসিলেক্ট করা হয়েছে, পুলে ফেরত গেছে।'));
-      setActionErr('');
-      setTimeout(() => setActionOk(''), 4000);
-    },
-    onError: () => {
-      setActionErr(t('Action failed.', '操作に失敗しました。', 'ব্যর্থ হয়েছে।'));
-      setTimeout(() => setActionErr(''), 4000);
-    },
+    onSuccess: () => { refresh(); ok(t('Application unselected and returned to the pool.', '申請をプールに戻しました。', 'আবেদন পুলে ফেরত গেছে।')); },
+    onError: err,
+  });
+  const startProcessing = useMutation({
+    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/start-processing`),
+    onSuccess: () => { refresh(); ok(t('Processing started.', '手続きを開始しました。', 'প্রক্রিয়া শুরু হয়েছে।')); },
+    onError: err,
+  });
+  const markComplete = useMutation({
+    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/mark-complete`),
+    onSuccess: () => { refresh(); ok(t('Marked as complete.', '完了としてマークしました。', 'সম্পন্ন হিসেবে চিহ্নিত হয়েছে।')); },
+    onError: err,
+  });
+  const markIncomplete = useMutation({
+    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/mark-incomplete`),
+    onSuccess: () => { refresh(); ok(t('Marked as incomplete.', '未完了としてマークしました。', 'অসম্পূর্ণ হিসেবে চিহ্নিত হয়েছে।')); },
+    onError: err,
+  });
+  const adminReject = useMutation({
+    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/reject`),
+    onSuccess: () => { refresh(); ok(t('Selection rejected.', '選択を却下しました。', 'সিলেকশন প্রত্যাখ্যাত হয়েছে।')); },
+    onError: err,
+  });
+  const adminRevive = useMutation({
+    mutationFn: (id: number) => api.post(`/admin/selected-applications/${id}/revive`),
+    onSuccess: () => { refresh(); ok(t('Application revived.', '申請を再開しました。', 'আবেদন পুনরুদ্ধার হয়েছে।')); },
+    onError: err,
   });
 
   if (!user || !isAdmin) return null;
@@ -239,35 +259,89 @@ export default function AdminSelectedPage() {
                     </div>
                   </div>
 
-                  {/* Admin unselect action — available for non-complete statuses */}
-                  {app.status !== 'complete' && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-                      <p className="text-[11px] text-slate-400">
-                        {t(
-                          'Unselecting returns this to the pool so other institutions can select it.',
-                          '選択解除すると申請はプールに戻り、他の機関が選択できます。',
-                          'আনসিলেক্ট করলে আবেদন পুলে ফিরে যাবে, অন্য প্রতিষ্ঠান নিতে পারবে।'
-                        )}
-                      </p>
-                      {unselectingId === app.id ? (
-                        <div className="flex gap-2 shrink-0">
-                          <button onClick={() => unselect.mutate(app.id)} disabled={unselect.isPending}
-                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
-                            {unselect.isPending ? '...' : t('Confirm', '確認', 'নিশ্চিত')}
+                  {/* Workflow actions */}
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    {/* Confirm overlay */}
+                    {confirmAction?.id === app.id && (
+                      <div className="flex items-center gap-2 mb-3 p-3 bg-red-50 border border-red-100 rounded-xl">
+                        <p className="text-xs text-red-700 font-medium flex-1">
+                          {confirmAction.type === 'reject'
+                            ? t('Reject this selection? Institution can revive within 30 days.', 'この選択を却下しますか？30日以内に再開可能。', 'এই সিলেকশন প্রত্যাখ্যান করবেন? প্রতিষ্ঠান ৩০ দিনে পুনরুদ্ধার করতে পারবে।')
+                            : confirmAction.type === 'incomplete'
+                            ? t('Mark as incomplete? Process returns to pool.', '未完了としてマークしますか？', 'অসম্পূর্ণ চিহ্নিত করবেন? প্রক্রিয়া পুলে ফিরবে।')
+                            : t('Force-cancel this selection? Application returns to pool.', '選択を強制解除しますか？', 'জোর করে বাতিল করবেন? আবেদন পুলে ফিরবে।')}
+                        </p>
+                        <button
+                          onClick={() => {
+                            if (confirmAction.type === 'reject') adminReject.mutate(app.id);
+                            else if (confirmAction.type === 'incomplete') markIncomplete.mutate(app.id);
+                            else unselect.mutate(app.id);
+                          }}
+                          disabled={adminReject.isPending || markIncomplete.isPending || unselect.isPending}
+                          className="shrink-0 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg disabled:opacity-50">
+                          {t('Confirm', '確認', 'নিশ্চিত')}
+                        </button>
+                        <button onClick={() => setConfirmAction(null)}
+                          className="shrink-0 px-3 py-1.5 text-xs text-slate-500 border border-slate-200 rounded-lg hover:border-slate-300">
+                          {t('Back', '戻る', 'ফিরুন')}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-2">
+                      {/* selected → Reject */}
+                      {app.status === 'selected' && confirmAction?.id !== app.id && (
+                        <button onClick={() => setConfirmAction({ id: app.id, type: 'reject' })}
+                          className="px-3 py-1.5 text-xs font-bold text-red-500 hover:text-red-700 border border-red-100 hover:border-red-300 rounded-lg transition-colors">
+                          {t('✕ Reject', '✕ 却下', '✕ প্রত্যাখ্যান')}
+                        </button>
+                      )}
+
+                      {/* accepted → Start Processing + Reject */}
+                      {app.status === 'accepted' && confirmAction?.id !== app.id && (
+                        <>
+                          <button onClick={() => startProcessing.mutate(app.id)} disabled={startProcessing.isPending}
+                            className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
+                            {startProcessing.isPending ? '...' : t('▶ Start Processing', '▶ 手続き開始', '▶ প্রক্রিয়া শুরু করুন')}
                           </button>
-                          <button onClick={() => setUnselectingId(null)}
-                            className="px-3 py-1.5 text-xs font-semibold text-slate-500 border border-slate-200 rounded-lg">
-                            {t('Cancel', 'キャンセル', 'বাতিল')}
+                          <button onClick={() => setConfirmAction({ id: app.id, type: 'reject' })}
+                            className="px-3 py-1.5 text-xs font-bold text-red-500 hover:text-red-700 border border-red-100 hover:border-red-300 rounded-lg transition-colors">
+                            {t('✕ Reject', '✕ 却下', '✕ প্রত্যাখ্যান')}
                           </button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setUnselectingId(app.id)}
-                          className="shrink-0 px-3 py-1.5 text-xs font-bold text-red-400 hover:text-red-600 border border-red-100 hover:border-red-200 rounded-lg transition-colors">
-                          {t('Unselect', '選択解除', 'আনসিলেক্ট')}
+                        </>
+                      )}
+
+                      {/* processing → Mark Complete + Mark Incomplete */}
+                      {app.status === 'processing' && confirmAction?.id !== app.id && (
+                        <>
+                          <button onClick={() => markComplete.mutate(app.id)} disabled={markComplete.isPending}
+                            className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
+                            {markComplete.isPending ? '...' : t('✓ Mark Complete', '✓ 完了', '✓ সম্পন্ন করুন')}
+                          </button>
+                          <button onClick={() => setConfirmAction({ id: app.id, type: 'incomplete' })}
+                            className="px-3 py-1.5 text-xs font-bold text-orange-500 hover:text-orange-700 border border-orange-100 hover:border-orange-300 rounded-lg transition-colors">
+                            {t('⚠ Mark Incomplete', '⚠ 未完了', '⚠ অসম্পূর্ণ করুন')}
+                          </button>
+                        </>
+                      )}
+
+                      {/* cancelled/rejected/incomplete → Revive */}
+                      {['cancelled', 'rejected', 'incomplete'].includes(app.status) && confirmAction?.id !== app.id && (
+                        <button onClick={() => adminRevive.mutate(app.id)} disabled={adminRevive.isPending}
+                          className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
+                          {adminRevive.isPending ? '...' : t('↩ Revive', '↩ 再開', '↩ পুনরুদ্ধার')}
+                        </button>
+                      )}
+
+                      {/* Force unselect — available for all non-complete */}
+                      {app.status !== 'complete' && confirmAction?.id !== app.id && (
+                        <button onClick={() => setConfirmAction({ id: app.id, type: 'unselect' })}
+                          className="ml-auto px-3 py-1.5 text-[11px] font-medium text-slate-400 hover:text-red-500 border border-slate-100 hover:border-red-100 rounded-lg transition-colors">
+                          {t('Force Cancel', '強制解除', 'জোর বাতিল')}
                         </button>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             );
