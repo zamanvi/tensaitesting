@@ -110,7 +110,7 @@ export default function BranchSelectedPage() {
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs">
                           {app.student_name && <InfoRow label={ja ? '学生' : bn ? 'শিক্ষার্থী' : 'Student'} value={app.student_name} />}
-                          <InfoRow label={ja ? '国' : bn ? 'দেশ' : 'Country'} value={app.target_country} />
+                          <InfoRow label={ja ? '国' : bn ? 'দেশ' : 'Country'} value={app.target_country.charAt(0).toUpperCase() + app.target_country.slice(1)} />
                           {app.target_city && <InfoRow label={ja ? '都市' : bn ? 'শহর' : 'City'} value={app.target_city} />}
                           {app.target_course && <InfoRow label={ja ? 'コース' : bn ? 'কোর্স' : 'Course'} value={app.target_course} />}
                           {app.target_intake && <InfoRow label={ja ? '入学' : bn ? 'ইনটেক' : 'Intake'} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
