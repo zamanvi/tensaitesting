@@ -255,5 +255,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/institutions',            [AdminInstitutionController::class, 'index']);
         Route::patch('/institutions/{id}/status', [AdminInstitutionController::class, 'updateStatus']);
         Route::patch('/institutions/{id}/verify', [AdminInstitutionController::class, 'verify']);
+
+        // Admin institution selections
+        Route::get('/selected-applications',              [AdminInstitutionController::class, 'selectedApplications']);
+        Route::post('/selected-applications/{id}/unselect', [AdminInstitutionController::class, 'unselectApplication']);
     });
 });

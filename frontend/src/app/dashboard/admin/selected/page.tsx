@@ -7,9 +7,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+type SelectionStatus = 'selected' | 'accepted' | 'rejected' | 'processing' | 'complete' | 'incomplete' | 'cancelled';
+
 interface SelectedApp {
   id: number;
   lead_code: string;
+  student_name: string | null;
   target_country: string;
   target_city: string | null;
   target_course: string | null;
@@ -17,7 +20,11 @@ interface SelectedApp {
   last_education: string | null;
   gpa: string | null;
   selected_at: string;
-  status: 'selected' | 'accepted' | 'cancelled';
+  accepted_at: string | null;
+  rejected_at: string | null;
+  processing_at: string | null;
+  completed_at: string | null;
+  status: SelectionStatus;
   connect_name: string | null;
   connect_email: string | null;
   connect_whatsapp: string | null;
@@ -30,12 +37,34 @@ interface SelectedApp {
   };
 }
 
+const STATUS_BAR: Record<SelectionStatus, { en: string; ja: string; bn: string; cls: string }> = {
+  selected:   { en: 'Selected — awaiting institution acceptance', ja: '選択済み — 承認待ち', bn: 'নির্বাচিত — প্রতিষ্ঠানের গ্রহণ বাকি', cls: 'bg-indigo-50 text-indigo-700' },
+  accepted:   { en: 'Accepted by institution — Tensai manager to coordinate', ja: '承認済み — Tensaiが調整中', bn: 'প্রতিষ্ঠান গ্রহণ করেছে — Tensai ম্যানেজার যোগাযোগ করবেন', cls: 'bg-amber-50 text-amber-700' },
+  processing: { en: 'Processing Ongoing', ja: '手続き進行中', bn: 'প্রক্রিয়া চলমান', cls: 'bg-blue-50 text-blue-700' },
+  complete:   { en: 'Processing Complete', ja: '手続き完了', bn: 'প্রক্রিয়া সম্পন্ন', cls: 'bg-emerald-50 text-emerald-700' },
+  incomplete: { en: 'Processing Incomplete', ja: '手続き未完了', bn: 'প্রক্রিয়া অসম্পূর্ণ', cls: 'bg-orange-50 text-orange-700' },
+  rejected:   { en: 'Rejected by institution', ja: '機関により却下', bn: 'প্রতিষ্ঠান প্রত্যাখ্যান করেছে', cls: 'bg-red-50 text-red-600' },
+  cancelled:  { en: 'Cancelled', ja: 'キャンセル済み', bn: 'বাতিল করা হয়েছে', cls: 'bg-slate-50 text-slate-400' },
+};
+
+const STATUS_FILTERS: { k: SelectionStatus | 'all'; en: string; ja: string; bn: string }[] = [
+  { k: 'all',        en: 'All',        ja: 'すべて',    bn: 'সব' },
+  { k: 'selected',   en: 'Selected',   ja: '選択済み',  bn: 'নির্বাচিত' },
+  { k: 'accepted',   en: 'Accepted',   ja: '承認済み',  bn: 'গৃহীত' },
+  { k: 'processing', en: 'Processing', ja: '手続き中',  bn: 'প্রক্রিয়াধীন' },
+  { k: 'complete',   en: 'Complete',   ja: '完了',      bn: 'সম্পন্ন' },
+  { k: 'incomplete', en: 'Incomplete', ja: '未完了',    bn: 'অসম্পূর্ণ' },
+  { k: 'rejected',   en: 'Rejected',   ja: '却下',      bn: 'প্রত্যাখ্যাত' },
+  { k: 'cancelled',  en: 'Cancelled',  ja: 'キャンセル', bn: 'বাতিল' },
+];
+
 export default function AdminSelectedPage() {
   const { lang } = useLang();
   const { user } = useAuthStore();
   const router = useRouter();
   const qc = useQueryClient();
-  const ja = lang === 'ja'; const bn = lang === 'bn';
+  const L = lang === 'ja' ? 'ja' : lang === 'bn' ? 'bn' : 'en';
+  const t = (en: string, ja: string, bn: string) => L === 'ja' ? ja : L === 'bn' ? bn : en;
 
   const isAdmin = user?.roles?.some(r => r === 'admin' || r === 'super_admin');
   useEffect(() => {
@@ -43,7 +72,7 @@ export default function AdminSelectedPage() {
   }, [user, isAdmin, router]);
 
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'selected' | 'accepted' | 'cancelled'>('all');
+  const [statusFilter, setStatusFilter] = useState<SelectionStatus | 'all'>('all');
   const [unselectingId, setUnselectingId] = useState<number | null>(null);
   const [actionOk, setActionOk] = useState('');
   const [actionErr, setActionErr] = useState('');
@@ -55,17 +84,17 @@ export default function AdminSelectedPage() {
     staleTime: 30_000,
   });
 
-  const apps: SelectedApp[] = Array.isArray(data) ? data : data?.data ?? [];
+  const apps: SelectedApp[] = data?.data ?? [];
 
   const filtered = apps.filter(a => {
     if (statusFilter !== 'all' && a.status !== statusFilter) return false;
     if (search) {
       const s = search.toLowerCase();
       return (
-        a.lead_code.toLowerCase().includes(s) ||
-        a.target_country.toLowerCase().includes(s) ||
-        a.institution.name.toLowerCase().includes(s) ||
-        a.institution.email.toLowerCase().includes(s)
+        (a.lead_code ?? '').toLowerCase().includes(s) ||
+        (a.student_name ?? '').toLowerCase().includes(s) ||
+        (a.target_country ?? '').toLowerCase().includes(s) ||
+        (a.institution?.name ?? '').toLowerCase().includes(s)
       );
     }
     return true;
@@ -76,22 +105,20 @@ export default function AdminSelectedPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-selected'] });
       setUnselectingId(null);
-      setActionOk(ja ? '申請を選択解除し、プールに戻しました。' : bn ? 'আবেদন আনসিলেক্ট করা হয়েছে, পুলে ফেরত গেছে।' : 'Application unselected and returned to the pool.');
+      setActionOk(t('Application unselected and returned to the pool.', '申請を選択解除し、プールに戻しました。', 'আবেদন আনসিলেক্ট করা হয়েছে, পুলে ফেরত গেছে।'));
       setActionErr('');
       setTimeout(() => setActionOk(''), 4000);
     },
     onError: () => {
-      setActionErr(ja ? '操作に失敗しました。' : bn ? 'ব্যর্থ হয়েছে।' : 'Action failed.');
+      setActionErr(t('Action failed.', '操作に失敗しました。', 'ব্যর্থ হয়েছে।'));
       setTimeout(() => setActionErr(''), 4000);
     },
   });
 
   if (!user || !isAdmin) return null;
 
-  const title = ja ? '選択済み申請' : bn ? 'নির্বাচিত আবেদন' : 'Selected Applications';
-
   return (
-    <DashboardLayout title={title}>
+    <DashboardLayout title={t('Selected Applications', '選択済み申請', 'নির্বাচিত আবেদন')}>
 
       {/* Filters */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-5 space-y-3">
@@ -99,23 +126,18 @@ export default function AdminSelectedPage() {
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder={ja ? 'コード・国・機関名で検索...' : bn ? 'কোড, দেশ বা প্রতিষ্ঠান খুঁজুন...' : 'Search by code, country or institution...'}
+          placeholder={t('Search by code, student, country or institution...', 'コード・学生・国・機関名で検索...', 'কোড, শিক্ষার্থী, দেশ বা প্রতিষ্ঠান খুঁজুন...')}
           className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         />
         <div className="flex gap-2 flex-wrap">
-          {[
-            { k: 'all',      label: ja ? 'すべて'    : bn ? 'সব'         : 'All' },
-            { k: 'selected', label: ja ? '選択済み'  : bn ? 'নির্বাচিত' : 'Selected' },
-            { k: 'accepted', label: ja ? '承認済み'  : bn ? 'গৃহীত'      : 'Accepted' },
-            { k: 'cancelled',label: ja ? 'キャンセル': bn ? 'বাতিল'      : 'Cancelled' },
-          ].map(({ k, label }) => (
+          {STATUS_FILTERS.map(({ k, en, ja, bn }) => (
             <button key={k}
               onClick={() => setStatusFilter(k as typeof statusFilter)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                 statusFilter === k ? 'bg-green-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              {label}
+              {L === 'ja' ? ja : L === 'bn' ? bn : en}
             </button>
           ))}
         </div>
@@ -134,44 +156,35 @@ export default function AdminSelectedPage() {
       )}
 
       <div className="text-xs text-slate-500 mb-3 px-1">
-        {filtered.length} {ja ? '件' : bn ? 'টি' : `application${filtered.length !== 1 ? 's' : ''}`}
+        {filtered.length} {t(`application${filtered.length !== 1 ? 's' : ''}`, '件', 'টি')}
       </div>
 
       {/* List */}
       {isLoading ? (
         <div className="text-center py-16 text-slate-400 text-sm animate-pulse">
-          {ja ? '読み込み中...' : bn ? 'লোড হচ্ছে...' : 'Loading...'}
+          {t('Loading...', '読み込み中...', 'লোড হচ্ছে...')}
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-400">
           <div className="text-4xl mb-3">📂</div>
           <p className="font-medium text-slate-500 mb-1">
-            {ja ? '選択済み申請はありません' : bn ? 'কোনো নির্বাচিত আবেদন নেই' : 'No selected applications'}
+            {t('No selected applications', '選択済み申請はありません', 'কোনো নির্বাচিত আবেদন নেই')}
           </p>
           <p className="text-xs">
-            {ja ? '機関が申請を選択すると、ここに表示されます。' : bn ? 'প্রতিষ্ঠান আবেদন নির্বাচন করলে এখানে দেখাবে।' : 'Applications selected by institutions will appear here.'}
+            {t('Applications selected by institutions will appear here.', '機関が申請を選択すると、ここに表示されます。', 'প্রতিষ্ঠান আবেদন নির্বাচন করলে এখানে দেখাবে।')}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map(app => {
-            const isAccepted  = app.status === 'accepted';
+            const bar = STATUS_BAR[app.status] ?? STATUS_BAR.selected;
             const isCancelled = app.status === 'cancelled';
             return (
-              <div key={app.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${
-                isAccepted ? 'border-emerald-200' : isCancelled ? 'border-slate-200 opacity-70' : 'border-indigo-100'
-              }`}>
+              <div key={app.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${isCancelled ? 'opacity-70' : ''}`}>
 
                 {/* Status bar */}
-                <div className={`px-5 py-2 flex items-center gap-2 text-xs font-semibold ${
-                  isAccepted ? 'bg-emerald-50 text-emerald-700' : isCancelled ? 'bg-slate-50 text-slate-400' : 'bg-indigo-50 text-indigo-700'
-                }`}>
-                  {isAccepted
-                    ? <>✓ {ja ? '機関が承認済み' : bn ? 'প্রতিষ্ঠান গ্রহণ করেছে' : 'Accepted by institution'}</>
-                    : isCancelled
-                    ? <>{ja ? 'キャンセル済み' : bn ? 'বাতিল করা হয়েছে' : 'Cancelled'}</>
-                    : <>{ja ? '選択済み — 承認待ち' : bn ? 'নির্বাচিত — প্রতিষ্ঠানের গ্রহণ বাকি' : 'Selected — awaiting institution acceptance'}</>
-                  }
+                <div className={`px-5 py-2 flex items-center gap-2 text-xs font-semibold ${bar.cls}`}>
+                  {bar[L]}
                 </div>
 
                 <div className="p-4 sm:p-5">
@@ -181,37 +194,41 @@ export default function AdminSelectedPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{app.lead_code}</span>
+                        {app.student_name && (
+                          <span className="text-xs font-semibold text-slate-700">👤 {app.student_name}</span>
+                        )}
                         <span className="text-[10px] text-slate-400">
-                          {ja ? '選択日: ' : bn ? 'নির্বাচন: ' : 'Selected: '}
+                          {t('Selected: ', '選択日: ', 'নির্বাচন: ')}
                           {new Date(app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs mb-3">
-                        <InfoRow label={ja ? '国' : bn ? 'দেশ' : 'Country'} value={app.target_country} />
-                        {app.target_city && <InfoRow label={ja ? '都市' : bn ? 'শহর' : 'City'} value={app.target_city} />}
-                        {app.target_course && <InfoRow label={ja ? 'コース' : bn ? 'কোর্স' : 'Course'} value={app.target_course} />}
-                        {app.last_education && <InfoRow label={ja ? '学歴' : bn ? 'শিক্ষা' : 'Education'} value={app.last_education} />}
+                        <InfoRow label={t('Country', '国', 'দেশ')} value={app.target_country} />
+                        {app.target_city && <InfoRow label={t('City', '都市', 'শহর')} value={app.target_city} />}
+                        {app.target_course && <InfoRow label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />}
+                        {app.last_education && <InfoRow label={t('Education', '学歴', 'শিক্ষা')} value={app.last_education} />}
                         {app.gpa && <InfoRow label="GPA" value={app.gpa} />}
-                        {app.target_intake && <InfoRow label={ja ? 'インテーク' : bn ? 'ইনটেক' : 'Intake'} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
+                        {app.target_intake && <InfoRow label={t('Intake', 'インテーク', 'ইনটেক')} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
+                        {app.accepted_at && <InfoRow label={t('Accepted', '承認日', 'গ্রহণ')} value={new Date(app.accepted_at).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
+                        {app.processing_at && <InfoRow label={t('Processing', '手続開始', 'প্রক্রিয়া শুরু')} value={new Date(app.processing_at).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
+                        {app.completed_at && <InfoRow label={t('Completed', '完了日', 'সম্পন্ন')} value={new Date(app.completed_at).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
                       </div>
                     </div>
 
                     {/* Right column: institution + contact */}
                     <div className="shrink-0 space-y-2 min-w-[180px]">
-                      {/* Institution */}
                       <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs">
                         <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide mb-1">
-                          {ja ? '選択した機関' : bn ? 'নির্বাচনকারী প্রতিষ্ঠান' : 'Selected by'}
+                          {t('Selected by', '選択した機関', 'নির্বাচনকারী প্রতিষ্ঠান')}
                         </p>
-                        <p className="font-bold text-slate-800 truncate">{app.institution.name}</p>
-                        {app.institution.country && <p className="text-slate-500 mt-0.5">{app.institution.country}</p>}
-                        <p className="text-slate-400 truncate mt-0.5">{app.institution.email}</p>
+                        <p className="font-bold text-slate-800 truncate">{app.institution?.name}</p>
+                        {app.institution?.country && <p className="text-slate-500 mt-0.5">{app.institution.country}</p>}
+                        <p className="text-slate-400 truncate mt-0.5">{app.institution?.email}</p>
                       </div>
-                      {/* Contact info */}
                       {(app.connect_name || app.connect_email) && (
                         <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs space-y-1">
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
-                            {ja ? '担当者' : bn ? 'যোগাযোগ' : 'Their Contact'}
+                            {t('Their Contact', '担当者', 'যোগাযোগ')}
                           </p>
                           {app.connect_name && <div className="flex gap-1.5"><span>👤</span><span className="text-slate-600 truncate">{app.connect_name}</span></div>}
                           {app.connect_email && <div className="flex gap-1.5"><span>✉️</span><span className="text-slate-600 truncate">{app.connect_email}</span></div>}
@@ -222,31 +239,31 @@ export default function AdminSelectedPage() {
                     </div>
                   </div>
 
-                  {/* Admin unselect action */}
-                  {!isCancelled && (
+                  {/* Admin unselect action — available for non-complete statuses */}
+                  {app.status !== 'complete' && (
                     <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
                       <p className="text-[11px] text-slate-400">
-                        {ja
-                          ? '選択解除すると申請はプールに戻り、他の機関が選択できます。'
-                          : bn
-                          ? 'আনসিলেক্ট করলে আবেদন পুলে ফিরে যাবে, অন্য প্রতিষ্ঠান নিতে পারবে।'
-                          : 'Unselecting returns this to the pool so other institutions can select it.'}
+                        {t(
+                          'Unselecting returns this to the pool so other institutions can select it.',
+                          '選択解除すると申請はプールに戻り、他の機関が選択できます。',
+                          'আনসিলেক্ট করলে আবেদন পুলে ফিরে যাবে, অন্য প্রতিষ্ঠান নিতে পারবে।'
+                        )}
                       </p>
                       {unselectingId === app.id ? (
                         <div className="flex gap-2 shrink-0">
                           <button onClick={() => unselect.mutate(app.id)} disabled={unselect.isPending}
                             className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50">
-                            {unselect.isPending ? '...' : (ja ? '確認' : bn ? 'নিশ্চিত' : 'Confirm')}
+                            {unselect.isPending ? '...' : t('Confirm', '確認', 'নিশ্চিত')}
                           </button>
                           <button onClick={() => setUnselectingId(null)}
                             className="px-3 py-1.5 text-xs font-semibold text-slate-500 border border-slate-200 rounded-lg">
-                            {ja ? 'キャンセル' : bn ? 'বাতিল' : 'Cancel'}
+                            {t('Cancel', 'キャンセル', 'বাতিল')}
                           </button>
                         </div>
                       ) : (
                         <button onClick={() => setUnselectingId(app.id)}
                           className="shrink-0 px-3 py-1.5 text-xs font-bold text-red-400 hover:text-red-600 border border-red-100 hover:border-red-200 rounded-lg transition-colors">
-                          {ja ? '選択解除' : bn ? 'আনসিলেক্ট' : 'Unselect'}
+                          {t('Unselect', '選択解除', 'আনসিলেক্ট')}
                         </button>
                       )}
                     </div>
