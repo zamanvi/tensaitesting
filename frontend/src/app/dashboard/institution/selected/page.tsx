@@ -12,6 +12,7 @@ type SelectionStatus = 'selected' | 'cancelled' | 'accepted' | 'rejected' | 'pro
 interface SelectedApplication {
   id: number;
   lead_code: string;
+  student_name: string | null;
   target_country: string;
   target_city: string | null;
   city_type: 'fixed' | 'preferred' | null;
@@ -288,6 +289,12 @@ export default function InstitutionSelectedPage() {
 
                     {/* Application info */}
                     <div className="flex-1 min-w-0">
+                      {app.student_name && (
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-sm">👤</span>
+                          <span className="text-sm font-bold text-slate-800">{app.student_name}</span>
+                        </div>
+                      )}
                       {app.city_type && (
                         <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-3 ${app.city_type === 'fixed' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}`}>
                           {app.city_type === 'fixed' ? t('Fixed City', '都市固定', 'ফিক্সড সিটি') : t('Preferred City', '都市希望', 'পছন্দের সিটি')}

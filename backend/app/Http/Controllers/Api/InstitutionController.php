@@ -219,6 +219,7 @@ class InstitutionController extends Controller
         $selections = InstitutionSelection::where('institution_id', $user->id)
             ->with([
                 'lead.formTemplate:id,name,country',
+                'lead.user:id,name',
                 'lead.user.studentProfile:id,user_id,highest_qualification,gpa,jlpt_level,nat_level',
             ])
             ->latest('selected_at')
@@ -231,6 +232,7 @@ class InstitutionController extends Controller
                 'id'               => $sel->id,
                 'application_id'   => $app?->id,
                 'lead_code'        => $app?->application_code,
+                'student_name'     => $app?->user?->name,
                 'target_country'   => $app?->formTemplate?->country,
                 'target_city'      => $app?->target_city ?? null,
                 'city_type'        => $app?->city_type ?? null,
