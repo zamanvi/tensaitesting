@@ -2,6 +2,7 @@
 import BranchLayout from '@/components/shared/BranchLayout';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
+import { useLang } from '@/context/LanguageContext';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -11,6 +12,8 @@ import ApplicationStarter from '@/components/applications/ApplicationStarter';
 import NewApplicationHero from '@/components/applications/NewApplicationHero';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
+
+type Lang = 'en' | 'ja' | 'bn';
 
 const STATUS_BADGE: Record<string, string> = {
   draft:       'bg-slate-100 text-slate-500',
@@ -24,24 +27,40 @@ const STATUS_BADGE: Record<string, string> = {
   rejected:    'bg-rose-100 text-rose-600',
 };
 
-function timeAgo(dateStr: string): string {
+const STATUS_LABEL: Record<string, Record<Lang, string>> = {
+  draft:      { en: 'Draft',      ja: '下書き',    bn: 'খসড়া' },
+  submitted:  { en: 'Submitted',  ja: '提出済み',  bn: 'জমা দেওয়া হয়েছে' },
+  pool:       { en: 'In Pool',    ja: 'プール中',  bn: 'পুলে আছে' },
+  selected:   { en: 'Selected',   ja: '選択済み',  bn: 'নির্বাচিত' },
+  accepted:   { en: 'Accepted',   ja: '承認済み',  bn: 'গৃহীত' },
+  processing: { en: 'Processing', ja: '手続き中',  bn: 'প্রক্রিয়াধীন' },
+  complete:   { en: 'Complete',   ja: '完了',      bn: 'সম্পন্ন' },
+  incomplete: { en: 'Incomplete', ja: '未完了',    bn: 'অসম্পূর্ণ' },
+  rejected:   { en: 'Rejected',   ja: '却下',      bn: 'প্রত্যাখ্যাত' },
+};
+
+function timeAgo(dateStr: string, L: Lang): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1)  return 'just now';
-  if (m < 60) return `${m}m ago`;
+  if (m < 1)  return L === 'ja' ? 'たった今' : L === 'bn' ? 'এইমাত্র' : 'just now';
+  if (m < 60) return L === 'ja' ? `${m}分前` : L === 'bn' ? `${m}মি আগে` : `${m}m ago`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return L === 'ja' ? `${h}時間前` : L === 'bn' ? `${h}ঘ আগে` : `${h}h ago`;
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d}d ago`;
-  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: '2-digit' });
+  return d < 30
+    ? (L === 'ja' ? `${d}日前` : L === 'bn' ? `${d}দিন আগে` : `${d}d ago`)
+    : new Date(dateStr).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' });
 }
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function BranchApplicantsPage() {
   const { user } = useAuthStore();
+  const { lang } = useLang();
   const router = useRouter();
   const qc = useQueryClient();
+  const L: Lang = lang === 'ja' ? 'ja' : lang === 'bn' ? 'bn' : 'en';
+  const t = (en: string, ja: string, bn: string) => L === 'ja' ? ja : L === 'bn' ? bn : en;
 
   const isBranchAdmin = user?.roles?.some(r => r === 'branch_admin' || r === 'branch_manager');
   useEffect(() => {
@@ -128,7 +147,7 @@ export default function BranchApplicantsPage() {
   // ── Active form view ────────────────────────────────────────────────────────
   if (activeAppId !== null && activeApp) {
     return (
-      <BranchLayout title="Applications">
+      <BranchLayout title={t('Applications', '申請一覧', 'আবেদনসমূহ')}>
         <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
           <ApplicationFormBody
             app={activeApp} template={template ?? null} templateLoading={templateLoading}
@@ -144,7 +163,7 @@ export default function BranchApplicantsPage() {
   const total = apps.length;
 
   return (
-    <BranchLayout title="Applications">
+    <BranchLayout title={t('Applications', '申請一覧', 'আবেদনসমূহ')}>
 
       {/* ── New Application ── */}
       <div className="mb-6">
@@ -154,7 +173,7 @@ export default function BranchApplicantsPage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            New Application
+            {t('New Application', '新規申請', 'নতুন আবেদন')}
           </button>
         ) : (
           <div className="max-w-[860px]">
@@ -179,23 +198,23 @@ export default function BranchApplicantsPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="font-bold text-slate-900 text-sm">Send Live to School?</p>
+                  <p className="font-bold text-slate-900 text-sm">{t('Send Live to School?', '学校にライブ送信しますか？', 'স্কুলে লাইভ পাঠাবেন?')}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{app?.student_name}</p>
                 </div>
               </div>
               <p className="text-xs text-slate-500 mb-5">
-                This will forward the application to the school and make it visible to the admin team. This action cannot be undone.
+                {t('This will forward the application to the school and make it visible to the admin team. This action cannot be undone.', 'この操作は取り消せません。申請が学校に送信されます。', 'এটি আবেদনটি স্কুলে পাঠাবে। এই ক্রিয়া পূর্বাবস্থায় ফেরানো যাবে না।')}
               </p>
               <div className="flex gap-2">
                 <button onClick={() => setConfirmLiveId(null)}
                   className="flex-1 px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-                  Cancel
+                  {t('Cancel', 'キャンセル', 'বাতিল')}
                 </button>
                 <button
                   onClick={() => liveToSchoolMutation.mutate(confirmLiveId)}
                   disabled={liveToSchoolMutation.isPending}
                   className="flex-1 px-4 py-2 rounded-xl bg-green-700 hover:bg-green-800 text-white text-sm font-bold transition-colors disabled:opacity-50">
-                  {liveToSchoolMutation.isPending ? 'Sending…' : 'Confirm'}
+                  {liveToSchoolMutation.isPending ? t('Sending…', '送信中…', 'পাঠানো হচ্ছে…') : t('Confirm', '確認', 'নিশ্চিত')}
                 </button>
               </div>
             </div>
@@ -210,22 +229,22 @@ export default function BranchApplicantsPage() {
         <div className="px-5 sm:px-6 py-4 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex-1">
-              <h3 className="font-black text-slate-900 text-sm">Branch Applications</h3>
-              <p className="text-xs text-slate-400 mt-0.5">All applications submitted by your branch</p>
+              <h3 className="font-black text-slate-900 text-sm">{t('Branch Applications', '支店申請一覧', 'শাখা আবেদনসমূহ')}</h3>
+              <p className="text-xs text-slate-400 mt-0.5">{t('All applications submitted by your branch', '支店が提出したすべての申請', 'আপনার শাখার সকল আবেদন')}</p>
             </div>
             <div className="relative w-full sm:w-64">
               <svg className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
               </svg>
               <input
-                type="search" placeholder="Search name, code, country…"
+                type="search" placeholder={t('Search name, code, country…', '名前・コード・国で検索…', 'নাম, কোড, দেশ খুঁজুন…')}
                 value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all placeholder:text-slate-300"
               />
             </div>
             {search && (
               <span className="px-3 py-1 rounded-xl text-xs font-semibold bg-green-50 border border-green-200 text-green-700 shrink-0">
-                {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+                {t(`${filtered.length} result${filtered.length !== 1 ? 's' : ''}`, `${filtered.length}件`, `${filtered.length}টি ফলাফল`)}
               </span>
             )}
           </div>
@@ -235,7 +254,7 @@ export default function BranchApplicantsPage() {
         {isLoading ? (
           <div className="py-24 flex flex-col items-center gap-3">
             <span className="w-8 h-8 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
-            <p className="text-xs text-slate-400">Loading applications…</p>
+            <p className="text-xs text-slate-400">{t('Loading applications…', '申請を読み込んでいます…', 'আবেদন লোড হচ্ছে…')}</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-24 flex flex-col items-center gap-3">
@@ -245,9 +264,9 @@ export default function BranchApplicantsPage() {
               </svg>
             </div>
             <div className="text-center">
-              <p className="text-sm font-bold text-slate-500">{search ? 'No results found' : 'No applications yet'}</p>
+              <p className="text-sm font-bold text-slate-500">{search ? t('No results found', '結果なし', 'কোনো ফলাফল নেই') : t('No applications yet', 'まだ申請がありません', 'এখনো কোনো আবেদন নেই')}</p>
               <p className="text-xs text-slate-400 mt-1">
-                {search ? `No match for "${search}"` : 'Click "New Application" above to get started.'}
+                {search ? t(`No match for "${search}"`, `「${search}」に一致する結果がありません`, `"${search}" এর সাথে কোনো মিল নেই`) : t('Click "New Application" above to get started.', '上の「新規申請」をクリックして開始してください。', 'শুরু করতে উপরে "নতুন আবেদন" ক্লিক করুন।')}
               </p>
             </div>
           </div>
@@ -258,13 +277,13 @@ export default function BranchApplicantsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50/80 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <th className="text-left px-5 py-3">Code</th>
-                    <th className="text-left px-4 py-3">Student</th>
-                    <th className="text-left px-4 py-3">Country / Form</th>
-                    <th className="text-left px-4 py-3">Progress</th>
-                    <th className="text-left px-4 py-3">Status</th>
-                    <th className="text-left px-4 py-3">Live to School</th>
-                    <th className="text-left px-4 py-3">Date</th>
+                    <th className="text-left px-5 py-3">{t('Code', 'コード', 'কোড')}</th>
+                    <th className="text-left px-4 py-3">{t('Student', '学生', 'শিক্ষার্থী')}</th>
+                    <th className="text-left px-4 py-3">{t('Country / Form', '国 / フォーム', 'দেশ / ফর্ম')}</th>
+                    <th className="text-left px-4 py-3">{t('Progress', '進捗', 'অগ্রগতি')}</th>
+                    <th className="text-left px-4 py-3">{t('Status', 'ステータス', 'অবস্থা')}</th>
+                    <th className="text-left px-4 py-3">{t('Live to School', '学校にライブ', 'স্কুলে লাইভ')}</th>
+                    <th className="text-left px-4 py-3">{t('Date', '日付', 'তারিখ')}</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
@@ -299,7 +318,7 @@ export default function BranchApplicantsPage() {
                       </td>
                       <td className="px-4 py-3.5">
                         <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                          {(STATUS_LABEL[app.status] ?? STATUS_LABEL.draft)[L]}
                         </span>
                       </td>
                       <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
@@ -312,14 +331,14 @@ export default function BranchApplicantsPage() {
                           <button
                             onClick={() => setConfirmLiveId(app.id)}
                             className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-green-700 hover:text-white text-slate-500 transition-all border border-transparent hover:border-green-700">
-                            Send Live
+                            {t('Send Live', 'ライブ送信', 'লাইভ পাঠান')}
                           </button>
                         ) : (
                           <span className="text-[11px] text-slate-300">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
-                        {timeAgo(app.created_at)}
+                        {timeAgo(app.created_at, L)}
                       </td>
                       <td className="px-4 py-3.5">
                         <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-green-100 group-hover:text-green-700 text-slate-400 transition-colors">
@@ -349,7 +368,7 @@ export default function BranchApplicantsPage() {
                     <div className="flex items-center gap-2 mb-0.5">
                       <p className="text-xs font-bold text-slate-900 truncate">{app.student_name}</p>
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status]}`}>
-                        {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                        {(STATUS_LABEL[app.status] ?? STATUS_LABEL.draft)[L]}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-400">{app.form_template?.country ?? '—'} · {app.application_code}</p>
@@ -363,10 +382,10 @@ export default function BranchApplicantsPage() {
                         <button
                           onClick={e => { e.stopPropagation(); setConfirmLiveId(app.id); }}
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
-                          Send Live
+                          {t('Send Live', 'ライブ送信', 'লাইভ পাঠান')}
                         </button>
                       ) : null}
-                      <span className="text-[11px] text-slate-400">{timeAgo(app.created_at)}</span>
+                      <span className="text-[11px] text-slate-400">{timeAgo(app.created_at, L)}</span>
                     </div>
                   </div>
                   <svg className="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,7 +398,7 @@ export default function BranchApplicantsPage() {
             {/* Footer */}
             <div className="px-5 sm:px-6 py-3 border-t border-slate-50 bg-slate-50/50">
               <p className="text-[11px] text-slate-400">
-                Showing <span className="font-bold text-slate-600">{filtered.length}</span> of <span className="font-bold text-slate-600">{total}</span> applications
+                {t(`Showing ${filtered.length} of ${total} applications`, `${total}件中${filtered.length}件を表示`, `${total}টির মধ্যে ${filtered.length}টি দেখানো হচ্ছে`)}
               </p>
             </div>
           </>
