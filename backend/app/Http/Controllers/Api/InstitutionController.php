@@ -231,10 +231,14 @@ class InstitutionController extends Controller
                 'id'               => $sel->id,
                 'application_id'   => $app?->id,
                 'lead_code'        => $app?->application_code,
-                'country'          => $app?->formTemplate?->country,
-                'form_name'        => $app?->formTemplate?->name,
-                'highest_qualification' => $sp?->highest_qualification,
+                'target_country'   => $app?->formTemplate?->country,
+                'target_city'      => $app?->target_city ?? null,
+                'city_type'        => $app?->city_type ?? null,
+                'target_course'    => $app?->target_course ?? null,
+                'target_intake'    => $app?->target_intake ? $app->target_intake->toDateString() : null,
+                'last_education'   => $sp?->highest_qualification,
                 'gpa'              => $sp?->gpa,
+                'age'              => null,
                 'jlpt_level'       => $sp?->jlpt_level,
                 'selected_at'      => $sel->selected_at,
                 'status'           => $sel->status,
@@ -246,6 +250,28 @@ class InstitutionController extends Controller
         });
 
         return response()->json(['data' => $data]);
+    }
+
+    public function acceptApplication(Request $request, int $id): JsonResponse
+    {
+        $sel = InstitutionSelection::where('id', $id)
+            ->where('institution_id', $request->user()->id)
+            ->firstOrFail();
+
+        $sel->update(['status' => 'accepted']);
+
+        return response()->json(['message' => 'Selection accepted.']);
+    }
+
+    public function unselectApplication(Request $request, int $id): JsonResponse
+    {
+        $sel = InstitutionSelection::where('id', $id)
+            ->where('institution_id', $request->user()->id)
+            ->firstOrFail();
+
+        $sel->update(['status' => 'cancelled']);
+
+        return response()->json(['message' => 'Selection cancelled.']);
     }
 
     /**

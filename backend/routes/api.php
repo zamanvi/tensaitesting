@@ -151,6 +151,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/browse-applications',   [InstitutionController::class, 'browseApplications']);
         Route::post('/select-application/{id}', [InstitutionController::class, 'selectApplication']);
         Route::get('/selected-applications', [InstitutionController::class, 'selectedApplications']);
+        Route::post('/accept-application/{id}', [InstitutionController::class, 'acceptApplication']);
+        Route::post('/unselect-application/{id}', [InstitutionController::class, 'unselectApplication']);
         Route::get('/leads', [InstitutionController::class, 'myLeads']);
         Route::get('/students', [StudentProfileController::class, 'institutionBrowse']);
         Route::post('/contact-request/{lead}', [InstitutionController::class, 'contactRequest']);
