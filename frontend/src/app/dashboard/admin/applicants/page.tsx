@@ -13,10 +13,16 @@ import NewApplicationHero from '@/components/applications/NewApplicationHero';
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 const STATUS_BADGE: Record<string, string> = {
-  draft:     'bg-slate-100 text-slate-500',
-  submitted: 'bg-amber-100 text-amber-700',
-  accepted:  'bg-emerald-100 text-emerald-700',
-  rejected:  'bg-rose-100 text-rose-600',
+  draft:       'bg-slate-100 text-slate-500',
+  submitted:   'bg-amber-100 text-amber-700',
+  pool:        'bg-slate-100 text-slate-600',
+  selected:    'bg-indigo-100 text-indigo-700',
+  accepted:    'bg-amber-100 text-amber-700',
+  processing:  'bg-blue-100 text-blue-700',
+  complete:    'bg-emerald-100 text-emerald-700',
+  incomplete:  'bg-orange-100 text-orange-700',
+  rejected:    'bg-rose-100 text-rose-600',
+  cancelled:   'bg-slate-100 text-slate-400',
 };
 
 const ROLE_BADGE: Record<string, string> = {
@@ -359,7 +365,7 @@ export default function AdminApplicantsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <p className="text-xs font-bold text-slate-900 truncate">{app.student_name}</p>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status]}`}>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[app.status] ?? 'bg-slate-100 text-slate-500'}`}>
                           {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                         </span>
                       </div>

@@ -133,7 +133,7 @@ export default function BranchSelectedPage() {
                             {ja ? '選択した機関' : bn ? 'নির্বাচনকারী প্রতিষ্ঠান' : 'Selected by'}
                           </p>
                           <p className="font-bold text-slate-800">{app.institution_name}</p>
-                          {app.institution_country && <p className="text-slate-500">{app.institution_country}</p>}
+                          {app.institution_country && <p className="text-slate-500">{app.institution_country.charAt(0).toUpperCase() + app.institution_country.slice(1)}</p>}
                           {app.connect_name && (
                             <div className="pt-1 mt-1 border-t border-amber-100 space-y-0.5">
                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">
