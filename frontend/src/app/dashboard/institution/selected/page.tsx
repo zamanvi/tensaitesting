@@ -34,123 +34,65 @@ interface SelectedApplication {
   connect_phone: string | null;
 }
 
-const HINTS: Record<SelectionStatus, { en: string; ja: string; bn: string }> = {
+const STATUS_CONFIG: Record<SelectionStatus, {
+  label: { en: string; ja: string; bn: string };
+  badge: string;
+  border: string;
+  note: { en: string; ja: string; bn: string };
+}> = {
   selected: {
-    en: 'You have selected this application. Click Accept so a Tensai manager can reach out to your team.',
-    ja: 'この申請を選択しました。承認すると、Tensaiのマネージャーがご連絡いたします。',
-    bn: 'আপনি এই আবেদন সিলেক্ট করেছেন। গ্রহণ করুন যাতে Tensai ম্যানেজার আপনার সাথে যোগাযোগ করতে পারেন।',
-  },
-  cancelled: {
-    en: 'You cancelled this selection. You can revive it within 30 days to start the process again.',
-    ja: 'この選択をキャンセルしました。30日以内であれば、再度開始することができます。',
-    bn: 'আপনি এই সিলেকশন বাতিল করেছেন। ৩০ দিনের মধ্যে পুনরুদ্ধার করে আবার শুরু করতে পারবেন।',
+    label: { en: 'Pending Review', ja: '審査待ち', bn: 'পর্যালোচনা বাকি' },
+    badge:  'bg-indigo-100 text-indigo-700',
+    border: 'border-l-indigo-400',
+    note:   { en: 'Accept this application to begin coordination with Tensai.', ja: '承認するとTensaiが手続きを開始します。', bn: 'গ্রহণ করুন — Tensai সমন্বয় শুরু করবে।' },
   },
   accepted: {
-    en: 'Your acceptance is confirmed. A Tensai manager will contact your representative within 24 hours to discuss next steps.',
-    ja: 'ご承認ありがとうございます。24時間以内にTensaiのマネージャーが担当者にご連絡いたします。',
-    bn: 'আপনার গ্রহণ নিশ্চিত হয়েছে। ২৪ ঘণ্টার মধ্যে একজন Tensai ম্যানেজার আপনার প্রতিনিধির সাথে যোগাযোগ করবেন।',
-  },
-  rejected: {
-    en: 'This application was rejected. You can revive it within 30 days if you wish to reconsider.',
-    ja: 'この申請は却下されました。30日以内であれば、再度申請を再開することができます。',
-    bn: 'এই আবেদন প্রত্যাখ্যাত হয়েছে। ৩০ দিনের মধ্যে পুনরুদ্ধার করে পুনরায় সুযোগ নিতে পারবেন।',
+    label: { en: 'Accepted', ja: '承認済み', bn: 'গৃহীত' },
+    badge:  'bg-amber-100 text-amber-700',
+    border: 'border-l-amber-400',
+    note:   { en: 'A Tensai manager will contact your representative within 24 hours.', ja: '24時間以内にTensaiマネージャーがご連絡します。', bn: '২৪ ঘণ্টার মধ্যে Tensai ম্যানেজার যোগাযোগ করবেন।' },
   },
   processing: {
-    en: 'Processing is underway. Tensai is actively coordinating with your team to move forward.',
-    ja: '手続きが進行中です。Tensaiがあなたのチームとともに進めています。',
-    bn: 'প্রক্রিয়া চলমান রয়েছে। Tensai আপনার টিমের সাথে সমন্বয় করে এগিয়ে যাচ্ছে।',
+    label: { en: 'In Progress', ja: '手続き中', bn: 'প্রক্রিয়াধীন' },
+    badge:  'bg-blue-100 text-blue-700',
+    border: 'border-l-blue-500',
+    note:   { en: 'Tensai is actively coordinating the enrollment process.', ja: '手続きが進行中です。Tensaiが連携して進めています。', bn: 'ভর্তি প্রক্রিয়া সক্রিয়ভাবে চলছে।' },
   },
   complete: {
-    en: 'The enrollment process is complete. The student has been successfully placed with your institution.',
-    ja: '入学手続きが完了しました。学生の受け入れが正式に確定しました。',
-    bn: 'ভর্তি প্রক্রিয়া সম্পন্ন হয়েছে। শিক্ষার্থী সফলভাবে আপনার প্রতিষ্ঠানে নিযুক্ত হয়েছে।',
+    label: { en: 'Enrolled', ja: '入学確定', bn: 'ভর্তি সম্পন্ন' },
+    badge:  'bg-emerald-100 text-emerald-700',
+    border: 'border-l-emerald-500',
+    note:   { en: 'Enrollment complete. The student has been successfully placed.', ja: '入学手続きが完了しました。', bn: 'ভর্তি সম্পন্ন। শিক্ষার্থী সফলভাবে নিযুক্ত হয়েছে।' },
+  },
+  rejected: {
+    label: { en: 'Withdrawn', ja: '取り下げ', bn: 'প্রত্যাহার করা হয়েছে' },
+    badge:  'bg-red-100 text-red-600',
+    border: 'border-l-red-400',
+    note:   { en: 'You withdrew this application. Revive within 30 days to reconsider.', ja: '取り下げました。30日以内であれば再開可能です。', bn: 'প্রত্যাহার করা হয়েছে। ৩০ দিনের মধ্যে পুনরুদ্ধার করুন।' },
+  },
+  cancelled: {
+    label: { en: 'Cancelled', ja: 'キャンセル', bn: 'বাতিল' },
+    badge:  'bg-slate-100 text-slate-500',
+    border: 'border-l-slate-300',
+    note:   { en: 'This selection was cancelled. Revive within 30 days if needed.', ja: 'キャンセル済みです。30日以内であれば再開可能です。', bn: 'বাতিল করা হয়েছে। ৩০ দিনের মধ্যে পুনরুদ্ধার করা যাবে।' },
   },
   incomplete: {
-    en: 'The process was not completed. You may revive this application within 30 days to try again.',
-    ja: '手続きが完了しませんでした。30日以内に申請を再開することができます。',
-    bn: 'প্রক্রিয়া অসম্পূর্ণ রয়ে গেছে। ৩০ দিনের মধ্যে পুনরুদ্ধার করে আবার চেষ্টা করতে পারবেন।',
+    label: { en: 'Incomplete', ja: '未完了', bn: 'অসম্পূর্ণ' },
+    badge:  'bg-orange-100 text-orange-700',
+    border: 'border-l-orange-400',
+    note:   { en: 'Process was not completed. Revive within 30 days to try again.', ja: '手続きが完了しませんでした。30日以内に再開できます。', bn: 'প্রক্রিয়া অসম্পূর্ণ। ৩০ দিনের মধ্যে পুনরুদ্ধার করুন।' },
   },
 };
-
-const HINT_CLS: Record<SelectionStatus, string> = {
-  selected:   'bg-amber-50 border-amber-100 text-amber-800',
-  cancelled:  'bg-slate-50 border-slate-200 text-slate-600',
-  accepted:   'bg-amber-50 border-amber-100 text-amber-800',
-  rejected:   'bg-red-50 border-red-100 text-red-700',
-  processing: 'bg-blue-50 border-blue-100 text-blue-800',
-  complete:   'bg-emerald-50 border-emerald-100 text-emerald-800',
-  incomplete: 'bg-orange-50 border-orange-100 text-orange-800',
-};
-
-const STATUS_HEADER: Record<SelectionStatus, {
-  icon: string;
-  label: { en: string; ja: string; bn: string };
-  sub: { en: string; ja: string; bn: string };
-  headerCls: string;
-  contactCls: string;
-}> = {
-  selected:   {
-    icon: '👁️',
-    label: { en: 'You Selected This Applicant', ja: 'この申請を選択しました', bn: 'আপনি এই আবেদনকারী নির্বাচন করেছেন' },
-    sub:   { en: 'Review and accept to begin the process', ja: '承認して手続きを開始してください', bn: 'গ্রহণ করুন প্রক্রিয়া শুরু করতে' },
-    headerCls:  'from-indigo-600 to-indigo-700',
-    contactCls: 'bg-indigo-50 border-indigo-100',
-  },
-  accepted:   {
-    icon: '✅',
-    label: { en: 'Accepted — Awaiting Tensai Coordination', ja: '承認済み — Tensaiが調整中', bn: 'গৃহীত — Tensai সমন্বয় করছে' },
-    sub:   { en: 'A Tensai manager will contact you within 24 hours', ja: '24時間以内にTensaiマネージャーがご連絡します', bn: '২৪ ঘণ্টার মধ্যে Tensai ম্যানেজার যোগাযোগ করবেন' },
-    headerCls:  'from-amber-500 to-amber-600',
-    contactCls: 'bg-amber-50 border-amber-100',
-  },
-  processing: {
-    icon: '🔄',
-    label: { en: 'Processing Underway', ja: '手続き進行中', bn: 'প্রক্রিয়া চলমান' },
-    sub:   { en: 'Tensai is actively coordinating with your team', ja: 'Tensaiがチームと連携して進めています', bn: 'Tensai আপনার টিমের সাথে সমন্বয় করছে' },
-    headerCls:  'from-blue-600 to-blue-700',
-    contactCls: 'bg-blue-50 border-blue-100',
-  },
-  complete:   {
-    icon: '🎓',
-    label: { en: 'Enrollment Complete', ja: '入学手続き完了', bn: 'ভর্তি সম্পন্ন' },
-    sub:   { en: 'The student has been successfully placed with your institution', ja: '学生の受け入れが正式に確定しました', bn: 'শিক্ষার্থী সফলভাবে আপনার প্রতিষ্ঠানে নিযুক্ত হয়েছে' },
-    headerCls:  'from-emerald-600 to-green-700',
-    contactCls: 'bg-emerald-50 border-emerald-100',
-  },
-  rejected:   {
-    icon: '✕',
-    label: { en: 'Rejected', ja: '却下されました', bn: 'প্রত্যাখ্যাত হয়েছে' },
-    sub:   { en: 'You may revive this application within 30 days', ja: '30日以内であれば再開可能です', bn: '৩০ দিনের মধ্যে পুনরুদ্ধার করা যাবে' },
-    headerCls:  'from-red-500 to-red-600',
-    contactCls: 'bg-red-50 border-red-100',
-  },
-  cancelled:  {
-    icon: '—',
-    label: { en: 'Cancelled', ja: 'キャンセル済み', bn: 'বাতিল করা হয়েছে' },
-    sub:   { en: 'You may revive this application within 30 days', ja: '30日以内であれば再開可能です', bn: '৩০ দিনের মধ্যে পুনরুদ্ধার করা যাবে' },
-    headerCls:  'from-slate-400 to-slate-500',
-    contactCls: 'bg-slate-50 border-slate-200',
-  },
-  incomplete: {
-    icon: '⚠️',
-    label: { en: 'Processing Incomplete', ja: '手続き未完了', bn: 'প্রক্রিয়া অসম্পূর্ণ' },
-    sub:   { en: 'You may revive this application within 30 days', ja: '30日以内であれば再開可能です', bn: '৩০ দিনের মধ্যে পুনরুদ্ধার করা যাবে' },
-    headerCls:  'from-orange-500 to-orange-600',
-    contactCls: 'bg-orange-50 border-orange-100',
-  },
-};
-
-// STATUS_BAR removed — replaced by STATUS_HEADER above
 
 function isRevivable(app: SelectedApplication): boolean {
   if (!['cancelled', 'rejected', 'incomplete'].includes(app.status)) return false;
   const ts = app.rejected_at ?? app.selected_at;
   if (!ts) return false;
-  const days = (Date.now() - new Date(ts).getTime()) / (1000 * 60 * 60 * 24);
-  return days <= 30;
+  return (Date.now() - new Date(ts).getTime()) / 86400000 <= 30;
 }
 
 function cap(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+function fmt(d: string) { return new Date(d).toLocaleDateString(undefined, { dateStyle: 'medium' }); }
 
 export default function InstitutionSelectedPage() {
   const { lang } = useLang();
@@ -158,6 +100,7 @@ export default function InstitutionSelectedPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const L = lang === 'ja' ? 'ja' : lang === 'bn' ? 'bn' : 'en';
+  const t = (en: string, ja: string, bn: string) => L === 'ja' ? ja : L === 'bn' ? bn : en;
 
   useEffect(() => {
     if (user && user.gateway_type !== 'institution') router.replace(`/dashboard/${user.gateway_type}`);
@@ -169,6 +112,7 @@ export default function InstitutionSelectedPage() {
   const [actionErr, setActionErr]       = useState('');
 
   const showSuccess = (msg: string) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
+  const onError = () => { setActionErr(t('Action failed. Please try again.', '操作に失敗しました。', 'ব্যর্থ হয়েছে।')); };
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-selected'],
@@ -178,18 +122,12 @@ export default function InstitutionSelectedPage() {
 
   const selected: SelectedApplication[] = data?.data ?? [];
 
-  const onError = () => setActionErr(
-    L === 'ja' ? '操作に失敗しました。もう一度お試しください。'
-    : L === 'bn' ? 'ব্যর্থ হয়েছে। আবার চেষ্টা করুন।'
-    : 'Action failed. Please try again.'
-  );
-
   const accept = useMutation({
     mutationFn: (id: number) => api.post(`/institution/accept-application/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['institution-selected'] });
       setActionErr('');
-      showSuccess(L === 'ja' ? '承認しました。Tensaiのマネージャーが24時間以内にご連絡します。' : L === 'bn' ? 'সফলভাবে গ্রহণ করা হয়েছে। Tensai ম্যানেজার ২৪ ঘণ্টার মধ্যে যোগাযোগ করবেন।' : 'Accepted successfully. A Tensai manager will contact you within 24 hours.');
+      showSuccess(t('Accepted. A Tensai manager will contact you within 24 hours.', '承認しました。24時間以内にご連絡します。', 'গৃহীত হয়েছে। ২৪ ঘণ্টার মধ্যে যোগাযোগ করা হবে।'));
     },
     onError,
   });
@@ -208,236 +146,185 @@ export default function InstitutionSelectedPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['institution-selected'] });
       setActionErr('');
-      showSuccess(L === 'ja' ? '申請を再開しました。' : L === 'bn' ? 'আবেদন পুনরুদ্ধার করা হয়েছে।' : 'Application revived successfully.');
+      showSuccess(t('Application revived.', '申請を再開しました。', 'আবেদন পুনরুদ্ধার হয়েছে।'));
     },
     onError,
   });
 
   if (!user || user.gateway_type !== 'institution') return null;
 
-  const t = (en: string, ja: string, bn: string) => L === 'ja' ? ja : L === 'bn' ? bn : en;
-
   return (
     <DashboardLayout title={t('Selected Applications', '選択済み申請', 'নির্বাচিত আবেদন')}>
 
       {successMsg && (
-        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-700 font-medium">
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700 font-medium">
           ✓ {successMsg}
         </div>
       )}
       {actionErr && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">⚠️ {actionErr}</div>
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">⚠ {actionErr}</div>
       )}
 
       {isLoading ? (
-        <div className="text-center py-16 text-slate-400 text-sm animate-pulse">
-          {t('Loading...', '読み込み中...', 'লোড হচ্ছে...')}
-        </div>
+        <div className="text-center py-20 text-slate-400 text-sm">{t('Loading…', '読み込み中…', 'লোড হচ্ছে…')}</div>
       ) : selected.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-14 text-center">
-          <div className="text-5xl mb-3">📂</div>
-          <p className="font-semibold text-slate-600 mb-1">
-            {t('No selected applications yet', '選択済み申請はありません', 'কোনো নির্বাচিত আবেদন নেই')}
-          </p>
-          <p className="text-xs text-slate-400 mt-1">
-            {t("Go to Application Pool and select candidates you're interested in.", '申請一覧から候補者を選択してください。', 'Application Pool থেকে আগ্রহী প্রার্থী নির্বাচন করুন।')}
-          </p>
+        <div className="bg-white rounded-xl border border-dashed border-slate-200 p-16 text-center">
+          <p className="text-2xl mb-3">📋</p>
+          <p className="font-semibold text-slate-600 mb-1">{t('No selected applications', '選択済み申請はありません', 'কোনো নির্বাচিত আবেদন নেই')}</p>
+          <p className="text-xs text-slate-400">{t('Go to Application Pool to select candidates.', '申請一覧から候補者を選択してください。', 'Application Pool থেকে প্রার্থী নির্বাচন করুন।')}</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {selected.map(app => {
-            const hdr            = STATUS_HEADER[app.status];
-            const hint           = HINTS[app.status];
-            const hintCls        = HINT_CLS[app.status];
-            const revivable      = isRevivable(app);
+            const cfg = STATUS_CONFIG[app.status];
+            const revivable = isRevivable(app);
             const revivableEligible = ['cancelled', 'rejected', 'incomplete'].includes(app.status);
-
-            const fmtDate = (d: string) => new Date(d).toLocaleDateString(undefined, { dateStyle: 'medium' });
+            const dimmed = ['cancelled', 'rejected'].includes(app.status);
 
             return (
-              <div key={app.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div key={app.id}
+                className={`bg-white rounded-xl border border-slate-200 border-l-4 ${cfg.border} shadow-sm overflow-hidden ${dimmed ? 'opacity-70' : ''}`}>
 
-                {/* Colored header */}
-                <div className={`bg-gradient-to-r ${hdr.headerCls} px-5 py-4`}>
-                  <div className="flex items-start justify-between gap-3">
+                <div className="p-5">
+
+                  {/* ── Row 1: name + status ── */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{hdr.icon}</span>
-                        <p className="text-sm font-black text-white leading-tight">{hdr.label[L]}</p>
+                      <h3 className="text-base font-bold text-slate-900 leading-tight">
+                        {app.student_name ?? t('Unnamed Applicant', '申請者', 'আবেদনকারী')}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="font-mono text-[11px] text-slate-400">{app.lead_code}</span>
+                        <span className="text-slate-300">·</span>
+                        <span className="text-[11px] text-slate-400">
+                          {t('Selected', '選択', 'নির্বাচন')} {fmt(app.selected_at)}
+                        </span>
                       </div>
-                      <p className="text-xs text-white/75 leading-snug">{hdr.sub[L]}</p>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className="font-mono text-[11px] text-white/60">{app.lead_code}</p>
-                      <p className="text-[10px] text-white/50 mt-0.5">{t('Selected', '選択日', 'নির্বাচন')}: {fmtDate(app.selected_at)}</p>
-                    </div>
+                    <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.badge}`}>
+                      {cfg.label[L]}
+                    </span>
                   </div>
 
-                  {/* Timeline chips */}
+                  {/* ── Row 2: applicant quality ── */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-lg mb-3 text-xs">
+                    <Field label={t('Education', '学歴', 'শিক্ষা')}    value={app.last_education} />
+                    <Field label="GPA"                                   value={app.gpa} />
+                    <Field label="JLPT"                                  value={app.jlpt_level} />
+                    <Field label={t('Age', '年齢', 'বয়স')}             value={app.age ? `${app.age} ${t('yrs', '歳', 'বছর')}` : null} />
+                  </div>
+
+                  {/* ── Row 3: application targets ── */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4">
+                    <Field label={t('Country', '国', 'দেশ')}     value={app.target_country ? cap(app.target_country) : null} />
+                    <Field label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />
+                    <Field label={t('Intake', '入学', 'ইনটেক')}  value={app.target_intake ? fmt(app.target_intake) : null} />
+                    <Field
+                      label={t('City', '都市', 'শহর')}
+                      value={app.target_city
+                        ? `${app.target_city}${app.city_type === 'fixed' ? ` (${t('fixed', '固定', 'ফিক্সড')})` : ''}`
+                        : null}
+                    />
+                  </div>
+
+                  {/* ── Timeline (if progressed) ── */}
                   {(app.accepted_at || app.processing_at || app.completed_at) && (
-                    <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/20">
-                      {app.accepted_at   && <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full">{t('Accepted', '承認', 'গৃহীত')}: {fmtDate(app.accepted_at)}</span>}
-                      {app.processing_at && <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full">{t('Processing', '手続開始', 'প্রক্রিয়া')}: {fmtDate(app.processing_at)}</span>}
-                      {app.completed_at  && <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full">{t('Completed', '完了', 'সম্পন্ন')}: {fmtDate(app.completed_at)}</span>}
+                    <div className="flex flex-wrap gap-3 text-[11px] text-slate-500 mb-4 pb-4 border-b border-slate-100">
+                      {app.accepted_at   && <span>✓ {t('Accepted', '承認', 'গৃহীত')} {fmt(app.accepted_at)}</span>}
+                      {app.processing_at && <span>→ {t('Processing from', '手続開始', 'প্রক্রিয়া শুরু')} {fmt(app.processing_at)}</span>}
+                      {app.completed_at  && <span>✓ {t('Completed', '完了', 'সম্পন্ন')} {fmt(app.completed_at)}</span>}
                     </div>
                   )}
-                </div>
 
-                {/* Card body */}
-                <div className="p-4 sm:p-5">
+                  {/* ── Status note ── */}
+                  <p className="text-xs text-slate-500 mb-4">{cfg.note[L]}</p>
 
-                  {/* Applicant profile */}
-                  <div className="mb-4">
-                    {app.student_name && (
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-base">👤</span>
-                        <span className="text-sm font-bold text-slate-800">{app.student_name}</span>
-                        <span className="font-mono text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{app.lead_code}</span>
-                      </div>
-                    )}
+                  {/* ── Actions ── */}
+                  <div className="flex flex-wrap items-center gap-2">
 
-                    {/* Quality badges */}
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {app.last_education && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg">
-                          🎓 {app.last_education}
-                        </span>
-                      )}
-                      {app.gpa && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg">
-                          📊 GPA {app.gpa}
-                        </span>
-                      )}
-                      {app.jlpt_level && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded-lg">
-                          🇯🇵 JLPT {app.jlpt_level}
-                        </span>
-                      )}
-                      {app.age && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg">
-                          🎂 {app.age} {t('yrs', '歳', 'বছর')}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Application targets */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1.5 text-xs border-t border-slate-100 pt-3">
-                      {app.target_country && <InfoRow label={t('Country', '国', 'দেশ')} value={cap(app.target_country)} />}
-                      {app.target_city    && (
-                        <InfoRow
-                          label={t('City', '都市', 'শহর')}
-                          value={`${app.target_city}${app.city_type === 'fixed' ? ` (${t('fixed', '固定', 'ফিক্সড')})` : ''}`}
-                        />
-                      )}
-                      {app.target_course  && <InfoRow label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />}
-                      {app.target_intake  && <InfoRow label={t('Intake', '入学', 'ইনটেক')} value={fmtDate(app.target_intake)} />}
-                    </div>
-                  </div>
-
-                  {/* Hint + actions */}
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-
-                    {/* Hint */}
-                    <div className={`flex items-start gap-2.5 mb-4 p-3.5 border rounded-xl ${hintCls}`}>
-                      <span className="text-sm shrink-0 mt-px">ℹ️</span>
-                      <p className="text-xs font-medium leading-relaxed">{hint[L]}</p>
-                    </div>
-
-                    {/* Actions — selected */}
+                    {/* selected */}
                     {app.status === 'selected' && (
-                      <div className="flex flex-wrap gap-2">
+                      <>
                         <button onClick={() => accept.mutate(app.id)} disabled={accept.isPending}
-                          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm shadow-emerald-600/20 disabled:opacity-50">
-                          {accept.isPending ? '...' : t('✓ Accept Application', '✓ 承認する', '✓ আবেদন গ্রহণ করুন')}
+                          className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                          {accept.isPending ? '…' : t('Accept Application', '承認する', 'আবেদন গ্রহণ করুন')}
                         </button>
                         {confirmingId === app.id && confirmType === 'cancel' ? (
-                          <div className="flex gap-2">
+                          <>
                             <button onClick={() => cancel.mutate(app.id)} disabled={cancel.isPending}
-                              className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl disabled:opacity-50">
-                              {cancel.isPending ? '...' : t('Confirm Cancel', '確認', 'নিশ্চিত করুন')}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50">
+                              {cancel.isPending ? '…' : t('Confirm', '確認', 'নিশ্চিত')}
                             </button>
                             <button onClick={() => { setConfirmingId(null); setConfirmType(null); }}
-                              className="px-3 py-2.5 text-xs text-slate-500 border border-slate-200 rounded-xl hover:bg-slate-50">
+                              className="px-3 py-2 text-xs text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50">
                               {t('Back', '戻る', 'ফিরুন')}
                             </button>
-                          </div>
+                          </>
                         ) : (
                           <button onClick={() => { setConfirmingId(app.id); setConfirmType('cancel'); }}
-                            className="px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-200 rounded-xl transition-colors">
-                            {t('✕ Cancel Selection', '✕ キャンセル', '✕ বাতিল করুন')}
+                            className="px-3 py-2 text-xs text-slate-400 border border-slate-200 rounded-lg hover:text-red-600 hover:border-red-200 transition-colors">
+                            {t('Remove from List', 'リストから削除', 'তালিকা থেকে সরান')}
                           </button>
                         )}
-                      </div>
+                      </>
                     )}
 
-                    {/* Actions — accepted */}
+                    {/* accepted */}
                     {app.status === 'accepted' && (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl">
-                          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                          <span className="text-xs text-amber-700 font-semibold">
-                            {t('Awaiting Tensai manager contact', 'Tensaiマネージャーからの連絡をお待ちください', 'Tensai ম্যানেজারের যোগাযোগের অপেক্ষায়')}
-                          </span>
+                      <>
+                        <div className="flex items-center gap-1.5 text-xs text-amber-700 font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          {t('Awaiting Tensai coordination', 'Tensaiの連絡をお待ちください', 'Tensai সমন্বয়ের অপেক্ষায়')}
                         </div>
                         {confirmingId === app.id && confirmType === 'reject' ? (
-                          <div className="flex gap-2">
+                          <>
                             <button onClick={() => reject.mutate(app.id)} disabled={reject.isPending}
-                              className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl disabled:opacity-50">
-                              {reject.isPending ? '...' : t('Confirm Reject', '確認', 'নিশ্চিত করুন')}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg disabled:opacity-50">
+                              {reject.isPending ? '…' : t('Confirm Withdrawal', '確認', 'নিশ্চিত')}
                             </button>
                             <button onClick={() => { setConfirmingId(null); setConfirmType(null); }}
-                              className="px-3 py-2.5 text-xs text-slate-500 border border-slate-200 rounded-xl hover:bg-slate-50">
+                              className="px-3 py-2 text-xs text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50">
                               {t('Back', '戻る', 'ফিরুন')}
                             </button>
-                          </div>
+                          </>
                         ) : (
                           <button onClick={() => { setConfirmingId(app.id); setConfirmType('reject'); }}
-                            className="px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-200 rounded-xl transition-colors">
-                            {t('✕ Withdraw Acceptance', '✕ 承認を取り消す', '✕ গ্রহণ প্রত্যাহার করুন')}
+                            className="ml-auto px-3 py-2 text-xs text-slate-400 border border-slate-200 rounded-lg hover:text-red-600 hover:border-red-200 transition-colors">
+                            {t('Withdraw Acceptance', '承認を取り消す', 'গ্রহণ প্রত্যাহার')}
                           </button>
                         )}
-                      </div>
+                      </>
                     )}
 
-                    {/* Actions — processing */}
+                    {/* processing */}
                     {app.status === 'processing' && (
-                      <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-100 rounded-xl">
-                        <span className="text-xl shrink-0">🔄</span>
-                        <div>
-                          <p className="text-xs font-bold text-blue-800">{t('Processing is underway', '手続きが進行中です', 'প্রক্রিয়া চলমান রয়েছে')}</p>
-                          <p className="text-[11px] text-blue-600 mt-0.5">{t('Tensai will keep you updated on every step.', 'Tensaiより随時ご連絡いたします。', 'Tensai প্রতিটি ধাপে আপনাকে আপডেট রাখবে।')}</p>
-                        </div>
-                      </div>
+                      <span className="text-xs text-blue-600 font-medium">
+                        {t('Processing underway — Tensai will keep you updated.', '手続き進行中。Tensaiより随時ご連絡します。', 'প্রক্রিয়া চলমান — Tensai আপডেট রাখবে।')}
+                      </span>
                     )}
 
-                    {/* Actions — complete */}
+                    {/* complete */}
                     {app.status === 'complete' && (
-                      <div className="flex items-center gap-3 px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-xl">
-                        <span className="text-xl shrink-0">🎓</span>
-                        <div>
-                          <p className="text-xs font-bold text-emerald-800">{t('Enrollment Complete', '入学手続き完了', 'ভর্তি সম্পন্ন')}</p>
-                          <p className="text-[11px] text-emerald-600 mt-0.5">{t('Thank you for choosing Tensai.', 'Tensaiをご利用いただきありがとうございます。', 'Tensai ব্যবহার করার জন্য ধন্যবাদ।')}</p>
-                        </div>
-                      </div>
+                      <span className="text-xs text-emerald-700 font-medium">
+                        {t('Enrollment complete. Thank you for partnering with Tensai.', '入学手続き完了。ご協力ありがとうございます。', 'ভর্তি সম্পন্ন। Tensai-এর সাথে অংশীদারিত্বের জন্য ধন্যবাদ।')}
+                      </span>
                     )}
 
-                    {/* Revive or expired */}
+                    {/* revive */}
                     {revivableEligible && (
-                      <div className="mt-3">
-                        {revivable ? (
-                          <button onClick={() => revive.mutate(app.id)} disabled={revive.isPending}
-                            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-sm disabled:opacity-50">
-                            {revive.isPending ? '...' : t('↩ Revive Application', '↩ 申請を再開する', '↩ আবেদন পুনরুদ্ধার করুন')}
-                          </button>
-                        ) : (
-                          <p className="text-xs text-slate-400 italic">
-                            {t('Revival period has expired (30 days). Please contact Tensai to proceed.', '30日が経過し再開期限が切れました。Tensaiまでご連絡ください。', 'পুনরুদ্ধারের মেয়াদ শেষ (৩০ দিন)। এগিয়ে যেতে Tensai-এ যোগাযোগ করুন।')}
-                          </p>
-                        )}
-                      </div>
+                      revivable ? (
+                        <button onClick={() => revive.mutate(app.id)} disabled={revive.isPending}
+                          className="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50">
+                          {revive.isPending ? '…' : t('Revive Application', '申請を再開', 'আবেদন পুনরুদ্ধার')}
+                        </button>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">
+                          {t('Revival period expired (30 days). Contact Tensai to proceed.', '再開期限切れ（30日）。Tensaiにご連絡ください。', 'পুনরুদ্ধারের মেয়াদ শেষ। Tensai-এ যোগাযোগ করুন।')}
+                        </span>
+                      )
                     )}
-
                   </div>
+
                 </div>
               </div>
             );
@@ -448,20 +335,11 @@ export default function InstitutionSelectedPage() {
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function Field({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div className="flex gap-1">
-      <span className="text-slate-400 shrink-0">{label}:</span>
-      <span className="font-semibold text-slate-700 truncate">{value}</span>
-    </div>
-  );
-}
-
-function ContactRow({ icon, value }: { icon: string; value: string }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-xs shrink-0">{icon}</span>
-      <span className="text-slate-600 truncate">{value}</span>
+    <div>
+      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
+      <p className="font-semibold text-slate-700">{value ?? <span className="text-slate-300 font-normal">—</span>}</p>
     </div>
   );
 }
