@@ -17,10 +17,18 @@ class InstitutionSelection extends Model
         'connect_phone',
         'status',
         'selected_at',
+        'accepted_at',
+        'rejected_at',
+        'processing_at',
+        'completed_at',
     ];
 
     protected $casts = [
-        'selected_at' => 'datetime',
+        'selected_at'   => 'datetime',
+        'accepted_at'   => 'datetime',
+        'rejected_at'   => 'datetime',
+        'processing_at' => 'datetime',
+        'completed_at'  => 'datetime',
     ];
 
     public function lead(): BelongsTo

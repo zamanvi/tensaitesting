@@ -241,6 +241,10 @@ class InstitutionController extends Controller
                 'age'              => null,
                 'jlpt_level'       => $sp?->jlpt_level,
                 'selected_at'      => $sel->selected_at,
+                'accepted_at'      => $sel->accepted_at,
+                'rejected_at'      => $sel->rejected_at,
+                'processing_at'    => $sel->processing_at,
+                'completed_at'     => $sel->completed_at,
                 'status'           => $sel->status,
                 'connect_name'     => $sel->connect_name,
                 'connect_email'    => $sel->connect_email,
@@ -256,6 +260,7 @@ class InstitutionController extends Controller
     {
         $sel = InstitutionSelection::where('id', $id)
             ->where('institution_id', $request->user()->id)
+            ->where('status', 'selected')
             ->firstOrFail();
 
         $sel->update(['status' => 'accepted', 'accepted_at' => now()]);
