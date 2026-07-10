@@ -17,7 +17,7 @@ interface SelectedApp {
   last_education: string | null;
   gpa: string | null;
   selected_at: string;
-  status: 'selected' | 'accepted' | 'cancelled';
+  status: 'selected' | 'accepted' | 'rejected' | 'processing' | 'complete' | 'incomplete' | 'cancelled';
   student_name: string | null;
   institution_name: string | null;
   institution_country: string | null;
@@ -51,9 +51,13 @@ export default function BranchSelectedPage() {
   if (!user || !isBranchAdmin) return null;
 
   const STATUS_CLS: Record<string, { bar: string; badge: string; label: string }> = {
-    selected:  { bar: 'bg-indigo-50 text-indigo-700',  badge: 'bg-indigo-100 text-indigo-700',  label: ja ? '選択済み'   : bn ? 'নির্বাচিত'  : 'Selected' },
-    accepted:  { bar: 'bg-emerald-50 text-emerald-700', badge: 'bg-emerald-100 text-emerald-700', label: ja ? '承認済み'   : bn ? 'গৃহীত'       : 'Accepted' },
-    cancelled: { bar: 'bg-slate-50 text-slate-400',    badge: 'bg-slate-100 text-slate-400',    label: ja ? 'キャンセル' : bn ? 'বাতিল'       : 'Cancelled' },
+    selected:   { bar: 'bg-indigo-50 text-indigo-700',   badge: 'bg-indigo-100 text-indigo-700',   label: ja ? '選択済み'     : bn ? 'নির্বাচিত'         : 'Selected' },
+    accepted:   { bar: 'bg-amber-50 text-amber-700',     badge: 'bg-amber-100 text-amber-700',     label: ja ? '承認済み'     : bn ? 'গৃহীত'             : 'Accepted' },
+    processing: { bar: 'bg-blue-50 text-blue-700',       badge: 'bg-blue-100 text-blue-700',       label: ja ? '手続き進行中' : bn ? 'প্রক্রিয়া চলমান'  : 'Processing' },
+    complete:   { bar: 'bg-emerald-50 text-emerald-700', badge: 'bg-emerald-100 text-emerald-700', label: ja ? '手続き完了'   : bn ? 'প্রক্রিয়া সম্পন্ন' : 'Complete' },
+    incomplete: { bar: 'bg-orange-50 text-orange-700',   badge: 'bg-orange-100 text-orange-700',   label: ja ? '手続き未完了' : bn ? 'প্রক্রিয়া অসম্পূর্ণ': 'Incomplete' },
+    rejected:   { bar: 'bg-red-50 text-red-600',         badge: 'bg-red-100 text-red-600',         label: ja ? '却下'         : bn ? 'প্রত্যাখ্যাত'      : 'Rejected' },
+    cancelled:  { bar: 'bg-slate-50 text-slate-400',     badge: 'bg-slate-100 text-slate-400',     label: ja ? 'キャンセル'   : bn ? 'বাতিল'             : 'Cancelled' },
   };
 
   return (

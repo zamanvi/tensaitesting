@@ -8,6 +8,14 @@ import { useRouter } from 'next/navigation';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
 
+const STATUS_BADGE: Record<string, { cls: string; label: string }> = {
+  selected:   { cls: 'bg-indigo-100 text-indigo-700',   label: 'Selected' },
+  accepted:   { cls: 'bg-amber-100 text-amber-700',     label: 'Accepted' },
+  processing: { cls: 'bg-blue-100 text-blue-700',       label: 'Processing' },
+  complete:   { cls: 'bg-emerald-100 text-emerald-700', label: 'Complete' },
+  incomplete: { cls: 'bg-orange-100 text-orange-700',   label: 'Incomplete' },
+};
+
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const m = Math.floor(diff / 60000);
@@ -41,7 +49,9 @@ export default function AgencySelectedPage() {
   });
 
   const allApps = appsData?.data ?? [];
-  const selected = allApps.filter(a => a.status === 'accepted');
+  const selected = allApps.filter(a =>
+    ['selected', 'accepted', 'processing', 'complete', 'incomplete'].includes(a.status)
+  );
   const activeApp = selected.find(a => a.id === activeAppId) ?? null;
 
   const { data: template, isLoading: templateLoading } = useQuery<FormTemplateData | null>({
@@ -111,9 +121,9 @@ export default function AgencySelectedPage() {
             </p>
           </div>
           {selected.length > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-xs font-bold text-emerald-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              {selected.length} Accepted
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-xs font-bold text-blue-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              {selected.length} In Progress
             </span>
           )}
         </div>
@@ -124,8 +134,8 @@ export default function AgencySelectedPage() {
           {/* Toolbar */}
           <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h3 className="font-black text-slate-900 text-sm">Accepted Applications</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Applicants whose applications were accepted</p>
+              <h3 className="font-black text-slate-900 text-sm">Applications In Progress</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Applications accepted by an institution or currently being processed</p>
             </div>
             {selected.length > 0 && (
               <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-xl">
@@ -206,9 +216,9 @@ export default function AgencySelectedPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                            Accepted
-                          </span>
+                          {(() => { const b = STATUS_BADGE[app.status] ?? STATUS_BADGE.accepted; return (
+                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${b.cls}`}>{b.label}</span>
+                          ); })()}
                         </td>
                         <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
                           {timeAgo(app.updated_at ?? app.created_at)}
@@ -240,7 +250,9 @@ export default function AgencySelectedPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <p className="text-xs font-bold text-slate-900 truncate">{app.student_name}</p>
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 shrink-0">Accepted</span>
+                        {(() => { const b = STATUS_BADGE[app.status] ?? STATUS_BADGE.accepted; return (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${b.cls}`}>{b.label}</span>
+                        ); })()}
                       </div>
                       <p className="text-[11px] text-slate-400">{app.form_template?.country ?? '—'} · {app.application_code}</p>
                       <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(app.created_at)}</p>
