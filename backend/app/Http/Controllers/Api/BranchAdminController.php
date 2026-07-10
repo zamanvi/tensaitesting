@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\Branch;
 use App\Models\BranchGalleryItem;
 use App\Models\BranchTeamMember;
+use App\Models\InstitutionSelection;
 use App\Models\Lead;
 use App\Models\StudentProfile;
 use App\Models\User;
@@ -54,6 +56,53 @@ class BranchAdminController extends Controller
         $b->update($validated);
 
         return response()->json(['message' => 'Settings updated.', 'branch' => $b->fresh()]);
+    }
+
+    // ── Selected Applications (institution selections for this branch's students) ──
+
+    public function selectedApplications(Request $request): JsonResponse
+    {
+        $branchId = $request->user()->branch_id;
+        if (!$branchId) abort(403, 'You are not assigned to a branch.');
+
+        $selections = InstitutionSelection::whereHas('lead', fn ($q) => $q->where('branch_id', $branchId))
+            ->with([
+                'lead.formTemplate:id,name,country',
+                'lead.user:id,name',
+                'lead.user.studentProfile:id,user_id,highest_qualification,gpa',
+                'institution:id,name',
+                'institution.institutionProfile:id,user_id,country',
+            ])
+            ->whereNotIn('status', ['cancelled'])
+            ->latest('selected_at')
+            ->get();
+
+        $data = $selections->map(function (InstitutionSelection $sel) {
+            $app  = $sel->lead;
+            $sp   = $app?->user?->studentProfile;
+            $inst = $sel->institution;
+            return [
+                'id'                 => $sel->id,
+                'lead_code'          => $app?->application_code,
+                'target_country'     => $app?->formTemplate?->country,
+                'target_city'        => $app?->target_city ?? null,
+                'target_course'      => $app?->target_course ?? null,
+                'target_intake'      => $app?->target_intake ? $app->target_intake->toDateString() : null,
+                'last_education'     => $sp?->highest_qualification,
+                'gpa'                => $sp?->gpa,
+                'selected_at'        => $sel->selected_at,
+                'status'             => $sel->status,
+                'student_name'       => $app?->user?->name,
+                'institution_name'   => $inst?->name,
+                'institution_country'=> $inst?->institutionProfile?->country,
+                'connect_name'       => $sel->connect_name,
+                'connect_email'      => $sel->connect_email,
+                'connect_whatsapp'   => $sel->connect_whatsapp,
+                'connect_phone'      => $sel->connect_phone,
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     // ── Leads ─────────────────────────────────────────────────────────────────

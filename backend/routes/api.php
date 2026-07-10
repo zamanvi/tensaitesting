@@ -203,6 +203,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/gallery',                [BranchAdminController::class, 'storeGallery']);
         Route::post('/gallery/{id}',           [BranchAdminController::class, 'updateGallery']);
         Route::delete('/gallery/{id}',         [BranchAdminController::class, 'deleteGallery']);
+        Route::get('/selected-applications', [BranchAdminController::class, 'selectedApplications']);
         // Legacy application forms (keep for old data)
         Route::get('/application-forms',                              [ApplicationFormController::class, 'index']);
         Route::post('/application-forms',                             [ApplicationFormController::class, 'store']);
