@@ -285,45 +285,53 @@ export default function InstitutionSelectedPage() {
 
                 {/* Card body */}
                 <div className="p-4 sm:p-5">
-                  <div className="flex flex-wrap gap-4">
 
-                    {/* Application info */}
-                    <div className="flex-1 min-w-0">
-                      {app.student_name && (
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-sm">👤</span>
-                          <span className="text-sm font-bold text-slate-800">{app.student_name}</span>
-                        </div>
-                      )}
-                      {app.city_type && (
-                        <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-3 ${app.city_type === 'fixed' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}`}>
-                          {app.city_type === 'fixed' ? t('Fixed City', '都市固定', 'ফিক্সড সিটি') : t('Preferred City', '都市希望', 'পছন্দের সিটি')}
-                        </span>
-                      )}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-5 gap-y-2 text-xs">
-                        {app.target_country && <InfoRow label={t('Country', '国', 'দেশ')} value={cap(app.target_country)} />}
-                        {app.target_city    && <InfoRow label={t('City', '都市', 'শহর')} value={app.target_city} />}
-                        {app.target_course  && <InfoRow label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />}
-                        {app.target_intake  && <InfoRow label={t('Intake', '入学', 'ইনটেক')} value={fmtDate(app.target_intake)} />}
-                        {app.last_education && <InfoRow label={t('Education', '学歴', 'শিক্ষা')} value={app.last_education} />}
-                        {app.gpa            && <InfoRow label="GPA" value={app.gpa} />}
-                        {app.jlpt_level     && <InfoRow label="JLPT" value={app.jlpt_level} />}
-                        {app.age            && <InfoRow label={t('Age', '年齢', 'বয়স')} value={`${app.age} ${t('yrs', '歳', 'বছর')}`} />}
-                      </div>
-                    </div>
-
-                    {/* Contact info — color matches status */}
-                    {(app.connect_name || app.connect_email) && (
-                      <div className={`shrink-0 min-w-[190px] border rounded-xl p-3 text-xs space-y-1.5 ${hdr.contactCls}`}>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">
-                          {t('Your Contact Info', '担当者情報', 'আপনার যোগাযোগ')}
-                        </p>
-                        {app.connect_name     && <ContactRow icon="👤" value={app.connect_name} />}
-                        {app.connect_email    && <ContactRow icon="✉️" value={app.connect_email} />}
-                        {app.connect_whatsapp && <ContactRow icon="💬" value={app.connect_whatsapp} />}
-                        {app.connect_phone    && <ContactRow icon="📞" value={app.connect_phone} />}
+                  {/* Applicant profile */}
+                  <div className="mb-4">
+                    {app.student_name && (
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-base">👤</span>
+                        <span className="text-sm font-bold text-slate-800">{app.student_name}</span>
+                        <span className="font-mono text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{app.lead_code}</span>
                       </div>
                     )}
+
+                    {/* Quality badges */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {app.last_education && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg">
+                          🎓 {app.last_education}
+                        </span>
+                      )}
+                      {app.gpa && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg">
+                          📊 GPA {app.gpa}
+                        </span>
+                      )}
+                      {app.jlpt_level && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded-lg">
+                          🇯🇵 JLPT {app.jlpt_level}
+                        </span>
+                      )}
+                      {app.age && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg">
+                          🎂 {app.age} {t('yrs', '歳', 'বছর')}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Application targets */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1.5 text-xs border-t border-slate-100 pt-3">
+                      {app.target_country && <InfoRow label={t('Country', '国', 'দেশ')} value={cap(app.target_country)} />}
+                      {app.target_city    && (
+                        <InfoRow
+                          label={t('City', '都市', 'শহর')}
+                          value={`${app.target_city}${app.city_type === 'fixed' ? ` (${t('fixed', '固定', 'ফিক্সড')})` : ''}`}
+                        />
+                      )}
+                      {app.target_course  && <InfoRow label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />}
+                      {app.target_intake  && <InfoRow label={t('Intake', '入学', 'ইনটেক')} value={fmtDate(app.target_intake)} />}
+                    </div>
                   </div>
 
                   {/* Hint + actions */}
