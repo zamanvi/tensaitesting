@@ -12,10 +12,15 @@ import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
 
 const STATUS_CLS: Record<string, { dot: string; badge: string }> = {
-  draft:     { dot: 'bg-slate-400',    badge: 'bg-slate-100 text-slate-500' },
-  submitted: { dot: 'bg-amber-500',    badge: 'bg-amber-100 text-amber-700' },
-  accepted:  { dot: 'bg-emerald-500',  badge: 'bg-emerald-100 text-emerald-700' },
-  rejected:  { dot: 'bg-rose-500',     badge: 'bg-rose-100 text-rose-600' },
+  draft:       { dot: 'bg-slate-400',   badge: 'bg-slate-100 text-slate-500' },
+  submitted:   { dot: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-700' },
+  pool:        { dot: 'bg-slate-500',   badge: 'bg-slate-100 text-slate-600' },
+  selected:    { dot: 'bg-indigo-500',  badge: 'bg-indigo-100 text-indigo-700' },
+  accepted:    { dot: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-700' },
+  processing:  { dot: 'bg-blue-500',    badge: 'bg-blue-100 text-blue-700' },
+  complete:    { dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
+  incomplete:  { dot: 'bg-orange-500',  badge: 'bg-orange-100 text-orange-700' },
+  rejected:    { dot: 'bg-rose-500',    badge: 'bg-rose-100 text-rose-600' },
 };
 
 export default function StudentApplicationPage() {
@@ -262,6 +267,40 @@ export default function StudentApplicationPage() {
       );
     }
 
+    // Pool / processing statuses
+    const processingStatuses: Record<string, { icon: string; headerCls: string; titleKey: keyof typeof sl; hintKey: keyof typeof sl }> = {
+      pool:        { icon: '🔍', headerCls: 'from-slate-500 to-slate-600',   titleKey: 'statusPool',               hintKey: 'poolHint' },
+      selected:    { icon: '👁️',  headerCls: 'from-indigo-500 to-indigo-600', titleKey: 'statusInstitutionSelected', hintKey: 'institutionSelectedHint' },
+      accepted:    { icon: '✅', headerCls: 'from-amber-500 to-amber-600',   titleKey: 'statusAccepted',           hintKey: 'acceptedHint' },
+      processing:  { icon: '🔄', headerCls: 'from-blue-600 to-blue-700',     titleKey: 'statusProcessing',         hintKey: 'processingHint' },
+      complete:    { icon: '🎓', headerCls: 'from-emerald-600 to-green-600', titleKey: 'statusComplete',           hintKey: 'completeHint' },
+      incomplete:  { icon: '⚠️', headerCls: 'from-orange-500 to-orange-600', titleKey: 'statusIncomplete',         hintKey: 'incompleteHint' },
+    };
+
+    if (processingStatuses[app.status]) {
+      const s = processingStatuses[app.status];
+      return (
+        <div>
+          {backBtn}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className={`bg-gradient-to-r ${s.headerCls} px-6 py-6 text-center`}>
+              <div className="text-4xl mb-3">{s.icon}</div>
+              <h3 className="text-base font-black text-white">{sl[s.titleKey] as string}</h3>
+              <p className="text-white/80 text-xs mt-1">{app.form_template?.country} · {app.form_template?.name}</p>
+              <p className="font-mono text-[10px] text-white/60 mt-1">{app.application_code}</p>
+            </div>
+            <div className="px-6 py-5">
+              <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl p-4">
+                <span className="text-base shrink-0">ℹ️</span>
+                <p className="text-sm text-amber-800 leading-relaxed">{sl[s.hintKey] as string}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Rejected / not selected
     return (
       <div>
         {backBtn}
@@ -275,9 +314,9 @@ export default function StudentApplicationPage() {
             <h3 className="text-lg font-black text-white">{sl.notSelected}</h3>
             <p className="text-rose-100 text-sm mt-1">{app.form_template?.country} — {app.form_template?.name}</p>
           </div>
-          <div className="px-6 py-6 text-center">
-            <p className="text-sm text-slate-600 leading-relaxed">{sl.notSelectedMsg}</p>
-            <p className="font-mono text-xs text-slate-400 mt-4">{app.application_code}</p>
+          <div className="px-6 py-6">
+            <p className="text-sm text-slate-600 leading-relaxed text-center">{sl.rejectedHint}</p>
+            <p className="font-mono text-xs text-slate-400 mt-4 text-center">{app.application_code}</p>
           </div>
         </div>
       </div>
@@ -285,10 +324,15 @@ export default function StudentApplicationPage() {
   }
 
   const statusLabel = (status: string) => {
-    if (status === 'draft')     return sl.statusDraft;
-    if (status === 'submitted') return sl.statusSubmitted;
-    if (status === 'accepted')  return sl.statusSelected;
-    if (status === 'rejected')  return sl.statusNotSelected;
+    if (status === 'draft')       return sl.statusDraft;
+    if (status === 'submitted')   return sl.statusSubmitted;
+    if (status === 'pool')        return sl.statusPool;
+    if (status === 'selected')    return sl.statusInstitutionSelected;
+    if (status === 'accepted')    return sl.statusAccepted;
+    if (status === 'processing')  return sl.statusProcessing;
+    if (status === 'complete')    return sl.statusComplete;
+    if (status === 'incomplete')  return sl.statusIncomplete;
+    if (status === 'rejected')    return sl.statusNotSelected;
     return status;
   };
 

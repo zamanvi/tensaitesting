@@ -11,10 +11,15 @@ import ApplicationStarter from '@/components/applications/ApplicationStarter';
 import NewApplicationHero from '@/components/applications/NewApplicationHero';
 
 const STATUS_BADGE: Record<string, string> = {
-  draft:     'bg-slate-100 text-slate-500',
-  submitted: 'bg-amber-100 text-amber-700',
-  accepted:  'bg-emerald-100 text-emerald-700',
-  rejected:  'bg-rose-100 text-rose-600',
+  draft:       'bg-slate-100 text-slate-500',
+  submitted:   'bg-amber-100 text-amber-700',
+  pool:        'bg-slate-100 text-slate-600',
+  selected:    'bg-indigo-100 text-indigo-700',
+  accepted:    'bg-amber-100 text-amber-700',
+  processing:  'bg-blue-100 text-blue-700',
+  complete:    'bg-emerald-100 text-emerald-700',
+  incomplete:  'bg-orange-100 text-orange-700',
+  rejected:    'bg-rose-100 text-rose-600',
 };
 
 function timeAgo(dateStr: string): string {
