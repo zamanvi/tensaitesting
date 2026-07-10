@@ -19,6 +19,7 @@ interface SelectedApplication {
   target_intake: string | null;
   last_education: string | null;
   gpa: string | null;
+  jlpt_level: string | null;
   age: number | null;
   selected_at: string;
   accepted_at: string | null;
@@ -32,17 +33,16 @@ interface SelectedApplication {
   connect_phone: string | null;
 }
 
-// ── hint texts ────────────────────────────────────────────────────────────────
 const HINTS: Record<SelectionStatus, { en: string; ja: string; bn: string }> = {
   selected: {
     en: 'You have selected this application. Click Accept so a Tensai manager can reach out to your team.',
     ja: 'この申請を選択しました。承認すると、Tensaiのマネージャーがご連絡いたします。',
-    bn: 'আপনি এই আবেদন সিলেক্ট করেছেন। Accept করুন যাতে Tensai ম্যানেজার আপনার সাথে যোগাযোগ করতে পারেন।',
+    bn: 'আপনি এই আবেদন সিলেক্ট করেছেন। গ্রহণ করুন যাতে Tensai ম্যানেজার আপনার সাথে যোগাযোগ করতে পারেন।',
   },
   cancelled: {
     en: 'You cancelled this selection. You can revive it within 30 days to start the process again.',
     ja: 'この選択をキャンセルしました。30日以内であれば、再度開始することができます。',
-    bn: 'আপনি এই সিলেকশন বাতিল করেছেন। ৩০ দিনের মধ্যে Revive করে পুনরায় শুরু করতে পারবেন।',
+    bn: 'আপনি এই সিলেকশন বাতিল করেছেন। ৩০ দিনের মধ্যে পুনরুদ্ধার করে আবার শুরু করতে পারবেন।',
   },
   accepted: {
     en: 'Your acceptance is confirmed. A Tensai manager will contact your representative within 24 hours to discuss next steps.',
@@ -52,7 +52,7 @@ const HINTS: Record<SelectionStatus, { en: string; ja: string; bn: string }> = {
   rejected: {
     en: 'This application was rejected. You can revive it within 30 days if you wish to reconsider.',
     ja: 'この申請は却下されました。30日以内であれば、再度申請を再開することができます。',
-    bn: 'এই আবেদন প্রত্যাখ্যাত হয়েছে। ৩০ দিনের মধ্যে Revive করে পুনরায় সুযোগ নিতে পারবেন।',
+    bn: 'এই আবেদন প্রত্যাখ্যাত হয়েছে। ৩০ দিনের মধ্যে পুনরুদ্ধার করে পুনরায় সুযোগ নিতে পারবেন।',
   },
   processing: {
     en: 'Processing is underway. Tensai is actively coordinating with your team to move forward.',
@@ -62,13 +62,23 @@ const HINTS: Record<SelectionStatus, { en: string; ja: string; bn: string }> = {
   complete: {
     en: 'The enrollment process is complete. The student has been successfully placed with your institution.',
     ja: '入学手続きが完了しました。学生の受け入れが正式に確定しました。',
-    bn: 'ভর্তি প্রক্রিয়া সম্পন্ন হয়েছে। শিক্ষার্থী সফলভাবে নিযুক্ত হয়েছে।',
+    bn: 'ভর্তি প্রক্রিয়া সম্পন্ন হয়েছে। শিক্ষার্থী সফলভাবে আপনার প্রতিষ্ঠানে নিযুক্ত হয়েছে।',
   },
   incomplete: {
-    en: 'The process was not completed. You may revive this application within 30 days to start again.',
+    en: 'The process was not completed. You may revive this application within 30 days to try again.',
     ja: '手続きが完了しませんでした。30日以内に申請を再開することができます。',
-    bn: 'প্রক্রিয়া অসম্পূর্ণ রয়ে গেছে। ৩০ দিনের মধ্যে Revive করে পুনরায় চেষ্টা করতে পারবেন।',
+    bn: 'প্রক্রিয়া অসম্পূর্ণ রয়ে গেছে। ৩০ দিনের মধ্যে পুনরুদ্ধার করে আবার চেষ্টা করতে পারবেন।',
   },
+};
+
+const HINT_CLS: Record<SelectionStatus, string> = {
+  selected:   'bg-amber-50 border-amber-100 text-amber-800',
+  cancelled:  'bg-slate-50 border-slate-200 text-slate-600',
+  accepted:   'bg-amber-50 border-amber-100 text-amber-800',
+  rejected:   'bg-red-50 border-red-100 text-red-700',
+  processing: 'bg-blue-50 border-blue-100 text-blue-800',
+  complete:   'bg-emerald-50 border-emerald-100 text-emerald-800',
+  incomplete: 'bg-orange-50 border-orange-100 text-orange-800',
 };
 
 const STATUS_BAR: Record<SelectionStatus, { label: { en: string; ja: string; bn: string }; cls: string }> = {
@@ -89,6 +99,8 @@ function isRevivable(app: SelectedApplication): boolean {
   return days <= 30;
 }
 
+function cap(s: string) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
 export default function InstitutionSelectedPage() {
   const { lang } = useLang();
   const { user } = useAuthStore();
@@ -102,7 +114,10 @@ export default function InstitutionSelectedPage() {
 
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [confirmType, setConfirmType]   = useState<'cancel' | 'reject' | null>(null);
+  const [successMsg, setSuccessMsg]     = useState('');
   const [actionErr, setActionErr]       = useState('');
+
+  const showSuccess = (msg: string) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-selected'],
@@ -118,10 +133,34 @@ export default function InstitutionSelectedPage() {
     : 'Action failed. Please try again.'
   );
 
-  const accept  = useMutation({ mutationFn: (id: number) => api.post(`/institution/accept-application/${id}`),   onSuccess: () => { qc.invalidateQueries({ queryKey: ['institution-selected'] }); setActionErr(''); }, onError });
-  const reject  = useMutation({ mutationFn: (id: number) => api.post(`/institution/reject-application/${id}`),   onSuccess: () => { qc.invalidateQueries({ queryKey: ['institution-selected'] }); setConfirmingId(null); setConfirmType(null); setActionErr(''); }, onError });
-  const cancel  = useMutation({ mutationFn: (id: number) => api.post(`/institution/unselect-application/${id}`), onSuccess: () => { qc.invalidateQueries({ queryKey: ['institution-selected'] }); setConfirmingId(null); setConfirmType(null); setActionErr(''); }, onError });
-  const revive  = useMutation({ mutationFn: (id: number) => api.post(`/institution/revive-application/${id}`),   onSuccess: () => { qc.invalidateQueries({ queryKey: ['institution-selected'] }); setActionErr(''); }, onError });
+  const accept = useMutation({
+    mutationFn: (id: number) => api.post(`/institution/accept-application/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['institution-selected'] });
+      setActionErr('');
+      showSuccess(L === 'ja' ? '承認しました。Tensaiのマネージャーが24時間以内にご連絡します。' : L === 'bn' ? 'সফলভাবে গ্রহণ করা হয়েছে। Tensai ম্যানেজার ২৪ ঘণ্টার মধ্যে যোগাযোগ করবেন।' : 'Accepted successfully. A Tensai manager will contact you within 24 hours.');
+    },
+    onError,
+  });
+  const reject = useMutation({
+    mutationFn: (id: number) => api.post(`/institution/reject-application/${id}`),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['institution-selected'] }); setConfirmingId(null); setConfirmType(null); setActionErr(''); },
+    onError,
+  });
+  const cancel = useMutation({
+    mutationFn: (id: number) => api.post(`/institution/unselect-application/${id}`),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['institution-selected'] }); setConfirmingId(null); setConfirmType(null); setActionErr(''); },
+    onError,
+  });
+  const revive = useMutation({
+    mutationFn: (id: number) => api.post(`/institution/revive-application/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['institution-selected'] });
+      setActionErr('');
+      showSuccess(L === 'ja' ? '申請を再開しました。' : L === 'bn' ? 'আবেদন পুনরুদ্ধার করা হয়েছে।' : 'Application revived successfully.');
+    },
+    onError,
+  });
 
   if (!user || user.gateway_type !== 'institution') return null;
 
@@ -130,6 +169,11 @@ export default function InstitutionSelectedPage() {
   return (
     <DashboardLayout title={t('Selected Applications', '選択済み申請', 'নির্বাচিত আবেদন')}>
 
+      {successMsg && (
+        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-700 font-medium">
+          ✓ {successMsg}
+        </div>
+      )}
       {actionErr && (
         <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-xl text-sm text-red-600">⚠️ {actionErr}</div>
       )}
@@ -151,12 +195,14 @@ export default function InstitutionSelectedPage() {
       ) : (
         <div className="space-y-4">
           {selected.map(app => {
-            const bar     = STATUS_BAR[app.status];
-            const hint    = HINTS[app.status];
+            const bar       = STATUS_BAR[app.status];
+            const hint      = HINTS[app.status];
+            const hintCls   = HINT_CLS[app.status];
             const revivable = isRevivable(app);
+            const revivableEligible = ['cancelled', 'rejected', 'incomplete'].includes(app.status);
 
             return (
-              <div key={app.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden`}>
+              <div key={app.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
                 {/* Status bar */}
                 <div className={`px-5 py-2 flex items-center gap-2 text-xs font-semibold ${bar.cls}`}>
@@ -183,12 +229,13 @@ export default function InstitutionSelectedPage() {
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 text-xs">
-                        {app.target_country && <InfoRow label={t('Country', '国', 'দেশ')} value={app.target_country.charAt(0).toUpperCase() + app.target_country.slice(1)} />}
+                        {app.target_country && <InfoRow label={t('Country', '国', 'দেশ')} value={cap(app.target_country)} />}
                         {app.target_city    && <InfoRow label={t('City', '都市', 'শহর')} value={app.target_city} />}
                         {app.target_course  && <InfoRow label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />}
                         {app.target_intake  && <InfoRow label={t('Intake', '入学', 'ইনটেক')} value={new Date(app.target_intake).toLocaleDateString(undefined, { dateStyle: 'medium' })} />}
                         {app.last_education && <InfoRow label={t('Education', '学歴', 'শিক্ষা')} value={app.last_education} />}
                         {app.gpa            && <InfoRow label="GPA" value={app.gpa} />}
+                        {app.jlpt_level     && <InfoRow label="JLPT" value={app.jlpt_level} />}
                         {app.age            && <InfoRow label={t('Age', '年齢', 'বয়স')} value={`${app.age} ${t('yrs', '歳', 'বছর')}`} />}
                       </div>
                     </div>
@@ -210,10 +257,10 @@ export default function InstitutionSelectedPage() {
                   {/* Hint + actions */}
                   <div className="mt-4 pt-4 border-t border-slate-100">
 
-                    {/* Hint text */}
-                    <div className="flex items-start gap-2 mb-4 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                    {/* Hint text — color matches status */}
+                    <div className={`flex items-start gap-2 mb-4 p-3 border rounded-xl ${hintCls}`}>
                       <span className="text-base shrink-0">ℹ️</span>
-                      <p className="text-xs text-amber-800 font-medium leading-relaxed">{hint[L]}</p>
+                      <p className="text-xs font-medium leading-relaxed">{hint[L]}</p>
                     </div>
 
                     {/* Action buttons by status */}
@@ -282,21 +329,28 @@ export default function InstitutionSelectedPage() {
 
                     {app.status === 'complete' && (
                       <div className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border border-emerald-100 rounded-xl">
-                        <span className="text-base">✅</span>
+                        <span className="text-base">🎓</span>
                         <span className="text-xs text-emerald-700 font-semibold">
                           {t('Enrollment complete. Thank you for choosing Tensai.', '入学手続きが完了しました。Tensaiをご利用いただきありがとうございます。', 'ভর্তি সম্পন্ন। Tensai ব্যবহার করার জন্য ধন্যবাদ।')}
                         </span>
                       </div>
                     )}
 
-                    {(app.status === 'rejected' || app.status === 'cancelled' || app.status === 'incomplete') && revivable && (
-                      <button
-                        onClick={() => revive.mutate(app.id)}
-                        disabled={revive.isPending}
-                        className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
-                      >
-                        {revive.isPending ? '...' : t('↩ Revive Application', '↩ 申請を再開する', '↩ আবেদন Revive করুন')}
-                      </button>
+                    {/* Revive or expired notice */}
+                    {revivableEligible && (
+                      revivable ? (
+                        <button
+                          onClick={() => revive.mutate(app.id)}
+                          disabled={revive.isPending}
+                          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+                        >
+                          {revive.isPending ? '...' : t('↩ Revive Application', '↩ 申請を再開する', '↩ আবেদন পুনরুদ্ধার করুন')}
+                        </button>
+                      ) : (
+                        <p className="text-xs text-slate-400 italic">
+                          {t('Revival period has expired (30 days). Please contact Tensai if you wish to proceed.', '30日が経過し、再開期限が切れました。ご希望の場合はTensaiまでお問い合わせください。', 'পুনরুদ্ধারের মেয়াদ (৩০ দিন) শেষ হয়েছে। এগিয়ে যেতে চাইলে Tensai-এ যোগাযোগ করুন।')}
+                        </p>
+                      )
                     )}
 
                   </div>

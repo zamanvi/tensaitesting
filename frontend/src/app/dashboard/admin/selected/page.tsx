@@ -13,7 +13,7 @@ interface SelectedApp {
   id: number;
   lead_code: string;
   student_name: string | null;
-  target_country: string;
+  target_country: string | null;
   target_city: string | null;
   target_course: string | null;
   target_intake: string | null;
@@ -203,7 +203,7 @@ export default function AdminSelectedPage() {
                         </span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs mb-3">
-                        <InfoRow label={t('Country', '国', 'দেশ')} value={app.target_country.charAt(0).toUpperCase() + app.target_country.slice(1)} />
+                        {app.target_country && <InfoRow label={t('Country', '国', 'দেশ')} value={app.target_country.charAt(0).toUpperCase() + app.target_country.slice(1)} />}
                         {app.target_city && <InfoRow label={t('City', '都市', 'শহর')} value={app.target_city} />}
                         {app.target_course && <InfoRow label={t('Course', 'コース', 'কোর্স')} value={app.target_course} />}
                         {app.last_education && <InfoRow label={t('Education', '学歴', 'শিক্ষা')} value={app.last_education} />}

@@ -17,6 +17,10 @@ interface SelectedApp {
   last_education: string | null;
   gpa: string | null;
   selected_at: string;
+  accepted_at: string | null;
+  rejected_at: string | null;
+  processing_at: string | null;
+  completed_at: string | null;
   status: 'selected' | 'accepted' | 'rejected' | 'processing' | 'complete' | 'incomplete' | 'cancelled';
   student_name: string | null;
   institution_name: string | null;
@@ -65,7 +69,7 @@ export default function BranchSelectedPage() {
       <div className="max-w-4xl">
 
         <h1 className="text-2xl font-bold text-slate-800 mb-5">
-          {ja ? '選択済み申請' : bn ? 'নির্বাচিত আবেদন' : 'Selected Applications'}
+          {ja ? '進行中の申請' : bn ? 'চলমান আবেদন' : 'Applications In Progress'}
         </h1>
 
         {isLoading ? (
@@ -92,11 +96,14 @@ export default function BranchSelectedPage() {
                   {/* Status bar */}
                   <div className={`px-5 py-2 text-xs font-semibold ${cls.bar}`}>
                     {cls.label}
-                    {app.selected_at && (
-                      <span className="ml-2 font-normal opacity-70">
-                        · {new Date(app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                      </span>
-                    )}
+                    {(() => {
+                      const ts = app.completed_at ?? app.processing_at ?? app.accepted_at ?? app.selected_at;
+                      return ts ? (
+                        <span className="ml-2 font-normal opacity-70">
+                          · {new Date(ts).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                        </span>
+                      ) : null;
+                    })()}
                   </div>
 
                   <div className="p-4 sm:p-5">
