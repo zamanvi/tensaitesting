@@ -258,20 +258,55 @@ class InstitutionController extends Controller
             ->where('institution_id', $request->user()->id)
             ->firstOrFail();
 
-        $sel->update(['status' => 'accepted']);
+        $sel->update(['status' => 'accepted', 'accepted_at' => now()]);
+        $sel->lead?->update(['status' => 'accepted']);
 
         return response()->json(['message' => 'Selection accepted.']);
+    }
+
+    public function rejectApplication(Request $request, int $id): JsonResponse
+    {
+        $sel = InstitutionSelection::where('id', $id)
+            ->where('institution_id', $request->user()->id)
+            ->whereIn('status', ['selected', 'accepted'])
+            ->firstOrFail();
+
+        $sel->update(['status' => 'rejected', 'rejected_at' => now()]);
+        $sel->lead?->update(['status' => 'pool']);
+
+        return response()->json(['message' => 'Selection rejected.']);
     }
 
     public function unselectApplication(Request $request, int $id): JsonResponse
     {
         $sel = InstitutionSelection::where('id', $id)
             ->where('institution_id', $request->user()->id)
+            ->where('status', 'selected')
             ->firstOrFail();
 
-        $sel->update(['status' => 'cancelled']);
+        $sel->update(['status' => 'cancelled', 'rejected_at' => now()]);
+        $sel->lead?->update(['status' => 'pool']);
 
         return response()->json(['message' => 'Selection cancelled.']);
+    }
+
+    public function reviveApplication(Request $request, int $id): JsonResponse
+    {
+        $sel = InstitutionSelection::where('id', $id)
+            ->where('institution_id', $request->user()->id)
+            ->whereIn('status', ['cancelled', 'rejected', 'incomplete'])
+            ->firstOrFail();
+
+        // Only allow revival within 30 days
+        $rejectedAt = $sel->rejected_at ?? $sel->selected_at;
+        if ($rejectedAt && $rejectedAt->diffInDays(now()) > 30) {
+            return response()->json(['message' => 'Revival window has expired (30 days).'], 422);
+        }
+
+        $sel->update(['status' => 'selected', 'rejected_at' => null]);
+        $sel->lead?->update(['status' => 'pool']);
+
+        return response()->json(['message' => 'Application revived successfully.']);
     }
 
     /**
