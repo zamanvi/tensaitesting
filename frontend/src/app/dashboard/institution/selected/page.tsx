@@ -226,6 +226,24 @@ export default function InstitutionSelectedPage() {
                           {t('Selected: ', '選択日: ', 'নির্বাচন: ')}
                           {new Date(app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                         </span>
+                        {app.accepted_at && (
+                          <span className="text-[10px] text-amber-600 font-medium">
+                            {t('Accepted: ', '承認日: ', 'গৃহীত: ')}
+                            {new Date(app.accepted_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                          </span>
+                        )}
+                        {app.processing_at && (
+                          <span className="text-[10px] text-blue-600 font-medium">
+                            {t('Processing since: ', '手続開始: ', 'প্রক্রিয়া শুরু: ')}
+                            {new Date(app.processing_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                          </span>
+                        )}
+                        {app.completed_at && (
+                          <span className="text-[10px] text-emerald-600 font-medium">
+                            {t('Completed: ', '完了日: ', 'সম্পন্ন: ')}
+                            {new Date(app.completed_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                          </span>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 text-xs">
