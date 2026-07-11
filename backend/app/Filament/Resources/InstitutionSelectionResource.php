@@ -125,13 +125,26 @@ class InstitutionSelectionResource extends Resource
                     ->label('Contact')
                     ->icon('heroicon-o-phone')
                     ->color('success')
-                    ->modalHeading(fn (InstitutionSelection $r) => '📇 ' . ($r->connect_name ?? 'Contact Person'))
-                    ->modalDescription(fn (InstitutionSelection $r) => $r->institution?->name)
+                    ->modalHeading('📇 Contact Person')
+                    ->modalDescription('Click any card below to connect instantly')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->modalWidth('sm')
                     ->modalContent(fn (InstitutionSelection $r): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString('
                         <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0;">
+
+                            <!-- Contact person identity card -->
+                            <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:4px;">
+                                <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800;flex-shrink:0;">
+                                    ' . strtoupper(substr($r->connect_name ?? '?', 0, 1)) . '
+                                </div>
+                                <div>
+                                    <p style="font-size:15px;font-weight:800;color:#0f172a;margin:0 0 2px;">' . e($r->connect_name ?? '—') . '</p>
+                                    <p style="font-size:11px;font-weight:600;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:99px;display:inline-block;margin:0;">Institution Representative</p>
+                                    <p style="font-size:11px;color:#64748b;margin:4px 0 0;">' . e($r->institution?->name ?? '') . '</p>
+                                </div>
+                            </div>
+
                             ' . ($r->connect_whatsapp ? '
                             <a href="https://wa.me/' . preg_replace('/\D/', '', $r->connect_whatsapp) . '" target="_blank"
                                 style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;text-decoration:none;transition:all .15s;">
