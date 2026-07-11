@@ -139,8 +139,8 @@ class InstitutionSelectionResource extends Resource
                     ->label('Student Details')
                     ->icon('heroicon-o-user-circle')
                     ->color('gray')
-                    ->modalHeading(fn (InstitutionSelection $r) => $r->lead?->user?->name ?? 'Student Details')
-                    ->modalDescription(fn (InstitutionSelection $r) => $r->lead?->application_code)
+                    ->modalHeading(fn ($record) => $record->lead?->user?->name ?? 'Student Details')
+                    ->modalDescription(fn ($record) => $record->lead?->application_code)
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->infolist(fn (Infolist $infolist) =>
@@ -173,7 +173,7 @@ class InstitutionSelectionResource extends Resource
                         ])
                     ),
 
-                // accepted → Start Processing
+                // selected/accepted → Start Processing
                 Tables\Actions\Action::make('start_processing')
                     ->label('Start Processing')
                     ->icon('heroicon-o-arrow-right-circle')
@@ -182,14 +182,18 @@ class InstitutionSelectionResource extends Resource
                     ->modalHeading('Start Processing')
                     ->modalDescription('Both sides have agreed. This will move the application to active processing.')
                     ->modalSubmitActionLabel('Yes, Start Processing')
-                    ->visible(fn (InstitutionSelection $r) => $r->status === 'accepted')
-                    ->action(function (InstitutionSelection $r) {
-                        $r->update(['status' => 'processing', 'processing_at' => now()]);
-                        $r->lead?->update(['status' => 'processing']);
-                        Notification::make()->title('Processing Started')->body('Application is now in active processing.')->success()->send();
+                    ->visible(fn ($record) => $record->status === 'accepted')
+                    ->action(function ($record) {
+                        try {
+                            $record->update(['status' => 'processing', 'processing_at' => now()]);
+                            $record->lead?->update(['status' => 'processing']);
+                            Notification::make()->title('Processing Started')->body('Application is now in active processing.')->success()->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
+                        }
                     }),
 
-                // accepted → Reject (admin side)
+                // selected/accepted → Reject
                 Tables\Actions\Action::make('admin_reject')
                     ->label('Reject')
                     ->icon('heroicon-o-x-circle')
@@ -198,11 +202,15 @@ class InstitutionSelectionResource extends Resource
                     ->modalHeading('Reject Selection')
                     ->modalDescription('This will reject the selection. The institution will be able to revive it within 30 days.')
                     ->modalSubmitActionLabel('Yes, Reject')
-                    ->visible(fn (InstitutionSelection $r) => in_array($r->status, ['selected', 'accepted']))
-                    ->action(function (InstitutionSelection $r) {
-                        $r->update(['status' => 'rejected', 'rejected_at' => now()]);
-                        $r->lead?->update(['status' => 'pool']);
-                        Notification::make()->title('Selection Rejected')->warning()->send();
+                    ->visible(fn ($record) => in_array($record->status, ['selected', 'accepted']))
+                    ->action(function ($record) {
+                        try {
+                            $record->update(['status' => 'rejected', 'rejected_at' => now()]);
+                            $record->lead?->update(['status' => 'pool']);
+                            Notification::make()->title('Selection Rejected')->warning()->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
+                        }
                     }),
 
                 // processing → Mark Complete
@@ -214,11 +222,15 @@ class InstitutionSelectionResource extends Resource
                     ->modalHeading('Mark as Complete')
                     ->modalDescription('Confirm that the enrollment process has been successfully completed for this student.')
                     ->modalSubmitActionLabel('Yes, Mark Complete')
-                    ->visible(fn (InstitutionSelection $r) => $r->status === 'processing')
-                    ->action(function (InstitutionSelection $r) {
-                        $r->update(['status' => 'complete', 'completed_at' => now()]);
-                        $r->lead?->update(['status' => 'complete']);
-                        Notification::make()->title('Marked Complete')->body('Enrollment process complete.')->success()->send();
+                    ->visible(fn ($record) => $record->status === 'processing')
+                    ->action(function ($record) {
+                        try {
+                            $record->update(['status' => 'complete', 'completed_at' => now()]);
+                            $record->lead?->update(['status' => 'complete']);
+                            Notification::make()->title('Marked Complete')->body('Enrollment process complete.')->success()->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
+                        }
                     }),
 
                 // processing → Mark Incomplete
@@ -230,11 +242,15 @@ class InstitutionSelectionResource extends Resource
                     ->modalHeading('Mark as Incomplete')
                     ->modalDescription('Mark that the process broke down before completion. The institution may revive within 30 days.')
                     ->modalSubmitActionLabel('Yes, Mark Incomplete')
-                    ->visible(fn (InstitutionSelection $r) => $r->status === 'processing')
-                    ->action(function (InstitutionSelection $r) {
-                        $r->update(['status' => 'incomplete', 'rejected_at' => now()]);
-                        $r->lead?->update(['status' => 'pool']);
-                        Notification::make()->title('Marked Incomplete')->warning()->send();
+                    ->visible(fn ($record) => $record->status === 'processing')
+                    ->action(function ($record) {
+                        try {
+                            $record->update(['status' => 'incomplete', 'rejected_at' => now()]);
+                            $record->lead?->update(['status' => 'pool']);
+                            Notification::make()->title('Marked Incomplete')->warning()->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
+                        }
                     }),
 
                 // Revive (cancelled/rejected/incomplete within 30 days)
@@ -246,15 +262,19 @@ class InstitutionSelectionResource extends Resource
                     ->modalHeading('Revive Application')
                     ->modalDescription('This will reset the selection back to "Selected" so the institution can re-engage.')
                     ->modalSubmitActionLabel('Yes, Revive')
-                    ->visible(function (InstitutionSelection $r) {
-                        if (!in_array($r->status, ['cancelled', 'rejected', 'incomplete'])) return false;
-                        $ts = $r->rejected_at ?? $r->selected_at;
+                    ->visible(function ($record) {
+                        if (!in_array($record->status, ['cancelled', 'rejected', 'incomplete'])) return false;
+                        $ts = $record->rejected_at ?? $record->selected_at;
                         return $ts && $ts->diffInDays(now()) <= 30;
                     })
-                    ->action(function (InstitutionSelection $r) {
-                        $r->update(['status' => 'selected', 'rejected_at' => null]);
-                        $r->lead?->update(['status' => 'pool']);
-                        Notification::make()->title('Application Revived')->body('Selection reset to Selected.')->success()->send();
+                    ->action(function ($record) {
+                        try {
+                            $record->update(['status' => 'selected', 'rejected_at' => null]);
+                            $record->lead?->update(['status' => 'pool']);
+                            Notification::make()->title('Application Revived')->body('Selection reset to Selected.')->success()->send();
+                        } catch (\Throwable $e) {
+                            Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
+                        }
                     }),
 
                 ])->tooltip('Actions')->icon('heroicon-m-ellipsis-horizontal'),
