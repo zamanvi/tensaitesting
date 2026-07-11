@@ -130,55 +130,9 @@ class InstitutionSelectionResource extends Resource
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->modalWidth('sm')
-                    ->modalContent(fn (InstitutionSelection $r): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString('
-                        <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0;">
-
-                            <!-- Contact person identity card -->
-                            <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:4px;">
-                                <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800;flex-shrink:0;">
-                                    ' . strtoupper(substr($r->connect_name ?? '?', 0, 1)) . '
-                                </div>
-                                <div>
-                                    <p style="font-size:15px;font-weight:800;color:#0f172a;margin:0 0 2px;">' . e($r->connect_name ?? '—') . '</p>
-                                    <p style="font-size:11px;font-weight:600;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:99px;display:inline-block;margin:0;">Institution Representative</p>
-                                    <p style="font-size:11px;color:#64748b;margin:4px 0 0;">' . e($r->institution?->name ?? '') . '</p>
-                                </div>
-                            </div>
-
-                            ' . ($r->connect_whatsapp ? '
-                            <a href="https://wa.me/' . preg_replace('/\D/', '', $r->connect_whatsapp) . '" target="_blank"
-                                style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;text-decoration:none;transition:all .15s;">
-                                <span style="font-size:22px;line-height:1;">📱</span>
-                                <div>
-                                    <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#15803d;margin:0 0 2px;">WhatsApp</p>
-                                    <p style="font-size:14px;font-weight:700;color:#14532d;margin:0;">' . e($r->connect_whatsapp) . '</p>
-                                </div>
-                                <span style="margin-left:auto;font-size:18px;">↗</span>
-                            </a>' : '') . '
-                            ' . ($r->connect_phone ? '
-                            <a href="tel:' . e($r->connect_phone) . '"
-                                style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;text-decoration:none;">
-                                <span style="font-size:22px;line-height:1;">📞</span>
-                                <div>
-                                    <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0 0 2px;">Phone</p>
-                                    <p style="font-size:14px;font-weight:700;color:#1e3a8a;margin:0;">' . e($r->connect_phone) . '</p>
-                                </div>
-                                <span style="margin-left:auto;font-size:18px;">↗</span>
-                            </a>' : '') . '
-                            ' . ($r->connect_email ? '
-                            <a href="mailto:' . e($r->connect_email) . '"
-                                style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:12px;text-decoration:none;">
-                                <span style="font-size:22px;line-height:1;">✉️</span>
-                                <div>
-                                    <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7c3aed;margin:0 0 2px;">Email</p>
-                                    <p style="font-size:14px;font-weight:700;color:#4c1d95;margin:0;">' . e($r->connect_email) . '</p>
-                                </div>
-                                <span style="margin-left:auto;font-size:18px;">↗</span>
-                            </a>' : '') . '
-                            ' . (!$r->connect_whatsapp && !$r->connect_phone && !$r->connect_email ? '
-                            <p style="text-align:center;color:#9ca3af;padding:20px;">No contact details available.</p>' : '') . '
-                        </div>
-                    ')),
+                    ->modalContent(fn (InstitutionSelection $r): \Illuminate\Support\HtmlString =>
+                        self::buildContactCard($r)
+                    ),
 
                 // View full student profile in a modal
                 Tables\Actions\Action::make('view_student')
@@ -318,5 +272,59 @@ class InstitutionSelectionResource extends Resource
         return [
             'index' => Pages\ListInstitutionSelections::route('/'),
         ];
+    }
+
+    protected static function buildContactCard(InstitutionSelection $r): \Illuminate\Support\HtmlString
+    {
+        $initial      = strtoupper(substr($r->connect_name ?? 'R', 0, 1));
+        $name         = e($r->connect_name ?? '—');
+        $institution  = e($r->institution?->name ?? '');
+        $waNum        = preg_replace('/\D/', '', $r->connect_whatsapp ?? '');
+        $wa           = e($r->connect_whatsapp ?? '');
+        $phone        = e($r->connect_phone ?? '');
+        $email        = e($r->connect_email ?? '');
+
+        $html  = '<div style="display:flex;flex-direction:column;gap:12px;padding:4px 0;">';
+
+        // Identity card
+        $html .= '<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:4px;">';
+        $html .= '<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800;flex-shrink:0;">' . $initial . '</div>';
+        $html .= '<div>';
+        $html .= '<p style="font-size:15px;font-weight:800;color:#0f172a;margin:0 0 4px;">' . $name . '</p>';
+        $html .= '<span style="font-size:11px;font-weight:600;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:99px;display:inline-block;">Institution Representative</span>';
+        if ($institution) $html .= '<p style="font-size:11px;color:#64748b;margin:4px 0 0;">' . $institution . '</p>';
+        $html .= '</div></div>';
+
+        // WhatsApp
+        if ($wa) {
+            $html .= '<a href="https://wa.me/' . $waNum . '" target="_blank" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;text-decoration:none;">';
+            $html .= '<span style="font-size:22px;">📱</span>';
+            $html .= '<div><p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#15803d;margin:0 0 2px;">WhatsApp</p><p style="font-size:14px;font-weight:700;color:#14532d;margin:0;">' . $wa . '</p></div>';
+            $html .= '<span style="margin-left:auto;font-size:18px;color:#15803d;">↗</span></a>';
+        }
+
+        // Phone
+        if ($phone) {
+            $html .= '<a href="tel:' . $phone . '" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;text-decoration:none;">';
+            $html .= '<span style="font-size:22px;">📞</span>';
+            $html .= '<div><p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0 0 2px;">Phone</p><p style="font-size:14px;font-weight:700;color:#1e3a8a;margin:0;">' . $phone . '</p></div>';
+            $html .= '<span style="margin-left:auto;font-size:18px;color:#1d4ed8;">↗</span></a>';
+        }
+
+        // Email
+        if ($email) {
+            $html .= '<a href="mailto:' . $email . '" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:12px;text-decoration:none;">';
+            $html .= '<span style="font-size:22px;">✉️</span>';
+            $html .= '<div><p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7c3aed;margin:0 0 2px;">Email</p><p style="font-size:14px;font-weight:700;color:#4c1d95;margin:0;">' . $email . '</p></div>';
+            $html .= '<span style="margin-left:auto;font-size:18px;color:#7c3aed;">↗</span></a>';
+        }
+
+        if (!$wa && !$phone && !$email) {
+            $html .= '<p style="text-align:center;color:#9ca3af;padding:20px;">No contact details available.</p>';
+        }
+
+        $html .= '</div>';
+
+        return new \Illuminate\Support\HtmlString($html);
     }
 }
