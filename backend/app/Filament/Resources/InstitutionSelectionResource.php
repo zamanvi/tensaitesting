@@ -69,19 +69,7 @@ class InstitutionSelectionResource extends Resource
                 Tables\Columns\TextColumn::make('connect_name')
                     ->label('Contact Person')
                     ->searchable()
-                    ->description(fn (InstitutionSelection $r): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString(
-                        collect([
-                            $r->connect_whatsapp
-                                ? '<a href="https://wa.me/' . preg_replace('/\D/', '', $r->connect_whatsapp) . '" target="_blank" style="color:#16a34a;font-weight:600;">📱 ' . e($r->connect_whatsapp) . '</a>'
-                                : null,
-                            $r->connect_phone
-                                ? '<a href="tel:' . e($r->connect_phone) . '" style="color:#2563eb;">📞 ' . e($r->connect_phone) . '</a>'
-                                : null,
-                            $r->connect_email
-                                ? '<a href="mailto:' . e($r->connect_email) . '" style="color:#7c3aed;">✉ ' . e($r->connect_email) . '</a>'
-                                : null,
-                        ])->filter()->join(' &nbsp;·&nbsp; ') ?: '—'
-                    )),
+                    ->description(fn (InstitutionSelection $r) => $r->connect_email ?? '—'),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -131,6 +119,53 @@ class InstitutionSelectionResource extends Resource
                     ->native(false),
             ])
             ->actions([
+                // Contact Person card
+                Tables\Actions\Action::make('contact_person')
+                    ->label('Contact')
+                    ->icon('heroicon-o-phone')
+                    ->color('success')
+                    ->modalHeading(fn (InstitutionSelection $r) => '📇 ' . ($r->connect_name ?? 'Contact Person'))
+                    ->modalDescription(fn (InstitutionSelection $r) => $r->institution?->name)
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
+                    ->modalWidth('sm')
+                    ->modalContent(fn (InstitutionSelection $r): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString('
+                        <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0;">
+                            ' . ($r->connect_whatsapp ? '
+                            <a href="https://wa.me/' . preg_replace('/\D/', '', $r->connect_whatsapp) . '" target="_blank"
+                                style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;text-decoration:none;transition:all .15s;">
+                                <span style="font-size:22px;line-height:1;">📱</span>
+                                <div>
+                                    <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#15803d;margin:0 0 2px;">WhatsApp</p>
+                                    <p style="font-size:14px;font-weight:700;color:#14532d;margin:0;">' . e($r->connect_whatsapp) . '</p>
+                                </div>
+                                <span style="margin-left:auto;font-size:18px;">↗</span>
+                            </a>' : '') . '
+                            ' . ($r->connect_phone ? '
+                            <a href="tel:' . e($r->connect_phone) . '"
+                                style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;text-decoration:none;">
+                                <span style="font-size:22px;line-height:1;">📞</span>
+                                <div>
+                                    <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#1d4ed8;margin:0 0 2px;">Phone</p>
+                                    <p style="font-size:14px;font-weight:700;color:#1e3a8a;margin:0;">' . e($r->connect_phone) . '</p>
+                                </div>
+                                <span style="margin-left:auto;font-size:18px;">↗</span>
+                            </a>' : '') . '
+                            ' . ($r->connect_email ? '
+                            <a href="mailto:' . e($r->connect_email) . '"
+                                style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:12px;text-decoration:none;">
+                                <span style="font-size:22px;line-height:1;">✉️</span>
+                                <div>
+                                    <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7c3aed;margin:0 0 2px;">Email</p>
+                                    <p style="font-size:14px;font-weight:700;color:#4c1d95;margin:0;">' . e($r->connect_email) . '</p>
+                                </div>
+                                <span style="margin-left:auto;font-size:18px;">↗</span>
+                            </a>' : '') . '
+                            ' . (!$r->connect_whatsapp && !$r->connect_phone && !$r->connect_email ? '
+                            <p style="text-align:center;color:#9ca3af;padding:20px;">No contact details available.</p>' : '') . '
+                        </div>
+                    ')),
+
                 // View full student profile in a modal
                 Tables\Actions\Action::make('view_student')
                     ->label('Student Details')
