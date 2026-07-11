@@ -130,8 +130,8 @@ class InstitutionSelectionResource extends Resource
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->modalWidth('sm')
-                    ->modalContent(fn (InstitutionSelection $r) =>
-                        view('filament.modals.contact-card', ['record' => $r])
+                    ->modalContent(fn (InstitutionSelection $record) =>
+                        view('filament.modals.contact-card', ['record' => $record])
                     ),
 
                 // View full student profile in a modal
@@ -143,8 +143,8 @@ class InstitutionSelectionResource extends Resource
                     ->modalDescription(fn (InstitutionSelection $r) => $r->lead?->application_code)
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
-                    ->infolist(fn (InstitutionSelection $r, Infolist $infolist) =>
-                        $infolist->record($r)->schema([
+                    ->infolist(fn (Infolist $infolist) =>
+                        $infolist->schema([
                             Section::make('Personal Information')->schema([
                                 Grid::make(2)->schema([
                                     TextEntry::make('lead.user.name')->label('Full Name'),
