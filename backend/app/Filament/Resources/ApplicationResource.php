@@ -658,14 +658,22 @@ class ApplicationResource extends Resource
     {
         return $table
             ->columns([
-                // #  Application code + created date
+                // Row number
+                Tables\Columns\TextColumn::make('row_number')
+                    ->label('#')
+                    ->rowIndex()
+                    ->alignCenter()
+                    ->width('48px'),
+
+                // Application code + created date
                 Tables\Columns\TextColumn::make('application_code')
                     ->label('App. Code')
                     ->searchable()
                     ->fontFamily('mono')
-                    ->copyable()
-                    ->copyMessage('Copied!')
                     ->weight('bold')
+                    ->color('primary')
+                    ->url(fn (Application $r) => ApplicationResource::getUrl('view', ['record' => $r->id]))
+                    ->openUrlInNewTab()
                     ->description(fn (Application $r) => $r->created_at?->format('d M Y')),
 
                 // Student name + email
