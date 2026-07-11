@@ -119,6 +119,7 @@ class InstitutionSelectionResource extends Resource
                     ->native(false),
             ])
             ->actions([
+                Tables\Actions\ActionGroup::make([
                 // Contact Person card
                 Tables\Actions\Action::make('contact_person')
                     ->label('Contact')
@@ -290,6 +291,7 @@ class InstitutionSelectionResource extends Resource
                     }),
 
                 Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions')->icon('heroicon-m-ellipsis-horizontal'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
