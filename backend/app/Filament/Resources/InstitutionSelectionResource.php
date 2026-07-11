@@ -3,8 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\InstitutionSelectionResource\Pages;
+use App\Filament\Resources\ApplicationResource;
 use App\Models\InstitutionSelection;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -38,6 +43,10 @@ class InstitutionSelectionResource extends Resource
                     ->weight('bold')
                     ->searchable()
                     ->copyable()
+                    ->color('primary')
+                    ->url(fn (InstitutionSelection $r) =>
+                        $r->lead_id ? ApplicationResource::getUrl('view', ['record' => $r->lead_id]) : null)
+                    ->openUrlInNewTab()
                     ->description(fn (InstitutionSelection $r) =>
                         implode(' · ', array_filter([
                             $r->lead?->formTemplate?->country,
@@ -112,6 +121,45 @@ class InstitutionSelectionResource extends Resource
                     ->native(false),
             ])
             ->actions([
+                // View full student profile in a modal
+                Tables\Actions\Action::make('view_student')
+                    ->label('Student Details')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('gray')
+                    ->modalHeading(fn (InstitutionSelection $r) => $r->lead?->user?->name ?? 'Student Details')
+                    ->modalDescription(fn (InstitutionSelection $r) => $r->lead?->application_code)
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
+                    ->infolist(fn (InstitutionSelection $r, Infolist $infolist) =>
+                        $infolist->record($r)->schema([
+                            Section::make('Personal Information')->schema([
+                                Grid::make(2)->schema([
+                                    TextEntry::make('lead.user.name')->label('Full Name'),
+                                    TextEntry::make('lead.user.email')->label('Email')->copyable(),
+                                    TextEntry::make('lead.user.studentProfile.highest_qualification')->label('Education')->default('—'),
+                                    TextEntry::make('lead.user.studentProfile.gpa')->label('GPA')->default('—'),
+                                    TextEntry::make('lead.user.studentProfile.jlpt_level')->label('JLPT Level')->default('—'),
+                                    TextEntry::make('lead.user.studentProfile.nat_level')->label('NAT Level')->default('—'),
+                                ]),
+                            ]),
+                            Section::make('Application Target')->schema([
+                                Grid::make(2)->schema([
+                                    TextEntry::make('lead.formTemplate.country')->label('Country')->default('—'),
+                                    TextEntry::make('lead.formTemplate.name')->label('Form / Course')->default('—'),
+                                    TextEntry::make('lead.application_code')->label('App. Code')->fontFamily('mono')->copyable(),
+                                    TextEntry::make('lead.submitted_at')->label('Submitted')->dateTime()->default('—'),
+                                    TextEntry::make('status')->label('Selection Status')->badge()
+                                        ->color(fn ($state) => match ($state) {
+                                            'selected' => 'info', 'accepted' => 'warning',
+                                            'processing' => 'primary', 'complete' => 'success',
+                                            default => 'gray',
+                                        }),
+                                    TextEntry::make('selected_at')->label('Selected On')->date()->default('—'),
+                                ]),
+                            ]),
+                        ])
+                    ),
+
                 // accepted → Start Processing
                 Tables\Actions\Action::make('start_processing')
                     ->label('Start Processing')
