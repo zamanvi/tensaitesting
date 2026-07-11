@@ -11,6 +11,43 @@ import { Application, AppDoc, FormTemplateData } from '@/components/applications
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
 import ApplicationStarter from '@/components/applications/ApplicationStarter';
 
+const JOURNEY_STEPS = [
+  { key: 'selected',   en: 'Selected',   ja: '選択済み',  bn: 'নির্বাচিত' },
+  { key: 'accepted',   en: 'Accepted',   ja: '承認済み',  bn: 'গৃহীত' },
+  { key: 'processing', en: 'Processing', ja: '手続き中',  bn: 'প্রক্রিয়া' },
+  { key: 'complete',   en: 'Enrolled',   ja: '入学確定',  bn: 'ভর্তি সম্পন্ন' },
+] as const;
+
+function StudentStepper({ status, lang }: { status: string; lang: string }) {
+  const idx = JOURNEY_STEPS.findIndex(s => s.key === status);
+  const label = (s: typeof JOURNEY_STEPS[number]) =>
+    lang === 'ja' ? s.ja : lang === 'bn' ? s.bn : s.en;
+  return (
+    <div className="px-6 py-4 border-b border-slate-100">
+      <div className="flex items-start gap-0">
+        {JOURNEY_STEPS.map((step, i) => {
+          const done = i < idx, cur = i === idx;
+          return (
+            <div key={step.key} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black shrink-0
+                  ${done ? 'bg-emerald-500 text-white' : cur ? 'bg-green-700 text-white ring-4 ring-green-700/20' : 'bg-slate-100 text-slate-300'}`}>
+                  {done ? '✓' : i + 1}
+                </div>
+                <span className={`text-[9px] font-semibold whitespace-nowrap text-center leading-tight
+                  ${done ? 'text-emerald-600' : cur ? 'text-green-700' : 'text-slate-300'}`}>
+                  {label(step)}
+                </span>
+              </div>
+              {i < 3 && <div className={`flex-1 h-0.5 mx-1 mb-4 rounded-full ${done ? 'bg-emerald-400' : 'bg-slate-100'}`} />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 const STATUS_CLS: Record<string, { dot: string; badge: string }> = {
   draft:       { dot: 'bg-slate-400',   badge: 'bg-slate-100 text-slate-500' },
   submitted:   { dot: 'bg-amber-500',   badge: 'bg-amber-100 text-amber-700' },
@@ -24,7 +61,7 @@ const STATUS_CLS: Record<string, { dot: string; badge: string }> = {
 };
 
 export default function StudentApplicationPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const sl = t.studentLeads;
   const { user } = useAuthStore();
   const router   = useRouter();
@@ -279,6 +316,7 @@ export default function StudentApplicationPage() {
 
     if (processingStatuses[app.status]) {
       const s = processingStatuses[app.status];
+      const showStepper = ['selected','accepted','processing','complete'].includes(app.status);
       return (
         <div>
           {backBtn}
@@ -289,6 +327,7 @@ export default function StudentApplicationPage() {
               <p className="text-white/80 text-xs mt-1">{app.form_template?.country} · {app.form_template?.name}</p>
               <p className="font-mono text-[10px] text-white/60 mt-1">{app.application_code}</p>
             </div>
+            {showStepper && <StudentStepper status={app.status} lang={lang} />}
             <div className="px-6 py-5">
               <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl p-4">
                 <span className="text-base shrink-0">ℹ️</span>
