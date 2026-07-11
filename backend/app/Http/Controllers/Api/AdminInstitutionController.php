@@ -131,6 +131,24 @@ class AdminInstitutionController extends Controller
         return response()->json(['message' => 'Application revived.']);
     }
 
+    public function sendNote(Request $request, int $id): JsonResponse
+    {
+        $request->validate(['note' => 'required|string|max:2000']);
+        $sel = InstitutionSelection::findOrFail($id);
+        $sel->update([
+            'admin_note'    => $request->input('note'),
+            'admin_note_at' => now(),
+        ]);
+        return response()->json(['message' => 'Note sent to institution.']);
+    }
+
+    public function clearNote(Request $request, int $id): JsonResponse
+    {
+        $sel = InstitutionSelection::findOrFail($id);
+        $sel->update(['admin_note' => null, 'admin_note_at' => null]);
+        return response()->json(['message' => 'Note cleared.']);
+    }
+
     private function format(User $u): array
     {
         return [

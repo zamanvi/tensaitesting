@@ -264,5 +264,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/selected-applications/{id}/mark-incomplete',  [AdminInstitutionController::class, 'markIncomplete']);
         Route::post('/selected-applications/{id}/reject',           [AdminInstitutionController::class, 'adminReject']);
         Route::post('/selected-applications/{id}/revive',           [AdminInstitutionController::class, 'adminRevive']);
+        Route::post('/selected-applications/{id}/send-note',        [AdminInstitutionController::class, 'sendNote']);
+        Route::post('/selected-applications/{id}/clear-note',       [AdminInstitutionController::class, 'clearNote']);
     });
 });
