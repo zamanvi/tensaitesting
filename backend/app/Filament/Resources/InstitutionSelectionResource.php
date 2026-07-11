@@ -42,7 +42,6 @@ class InstitutionSelectionResource extends Resource
                     ->fontFamily('mono')
                     ->weight('bold')
                     ->searchable()
-                    ->copyable()
                     ->color('primary')
                     ->url(fn (InstitutionSelection $r) =>
                         $r->lead_id ? ApplicationResource::getUrl('view', ['record' => $r->lead_id]) : null)
