@@ -265,7 +265,7 @@ class InstitutionController extends Controller
             ->where('status', 'selected')
             ->firstOrFail();
 
-        $sel->update(['status' => 'accepted', 'accepted_at' => now()]);
+        $sel->update(['status' => 'accepted']);
         $sel->lead?->update(['status' => 'accepted']);
 
         return response()->json(['message' => 'Selection accepted.']);
@@ -278,7 +278,7 @@ class InstitutionController extends Controller
             ->whereIn('status', ['selected', 'accepted'])
             ->firstOrFail();
 
-        $sel->update(['status' => 'rejected', 'rejected_at' => now()]);
+        $sel->update(['status' => 'rejected']);
         $sel->lead?->update(['status' => 'pool']);
 
         return response()->json(['message' => 'Selection rejected.']);
@@ -291,7 +291,7 @@ class InstitutionController extends Controller
             ->where('status', 'selected')
             ->firstOrFail();
 
-        $sel->update(['status' => 'cancelled', 'rejected_at' => now()]);
+        $sel->update(['status' => 'cancelled']);
         $sel->lead?->update(['status' => 'pool']);
 
         return response()->json(['message' => 'Selection cancelled.']);
@@ -304,13 +304,13 @@ class InstitutionController extends Controller
             ->whereIn('status', ['cancelled', 'rejected', 'incomplete'])
             ->firstOrFail();
 
-        // Only allow revival within 30 days
-        $rejectedAt = $sel->rejected_at ?? $sel->selected_at;
-        if ($rejectedAt && $rejectedAt->diffInDays(now()) > 30) {
+        // Only allow revival within 30 days (use updated_at as proxy since rejected_at column may not exist)
+        $ts = $sel->updated_at ?? $sel->selected_at;
+        if ($ts && $ts->diffInDays(now()) > 30) {
             return response()->json(['message' => 'Revival window has expired (30 days).'], 422);
         }
 
-        $sel->update(['status' => 'selected', 'rejected_at' => null]);
+        $sel->update(['status' => 'selected']);
         $sel->lead?->update(['status' => 'pool']);
 
         return response()->json(['message' => 'Application revived successfully.']);
