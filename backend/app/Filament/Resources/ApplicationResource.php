@@ -7,6 +7,11 @@ use App\Models\Application;
 use App\Models\FormTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Notifications\Notification;
@@ -532,6 +537,121 @@ class ApplicationResource extends Resource
         }
 
         return $fields;
+    }
+
+    // ── Infolist (clean view page) ────────────────────────────────────────────
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist->schema([
+
+            // ── Status banner ─────────────────────────────────────────────────
+            Section::make()->schema([
+                Grid::make(4)->schema([
+                    TextEntry::make('application_code')
+                        ->label('Application Code')
+                        ->fontFamily('mono')
+                        ->weight('bold')
+                        ->copyable()
+                        ->copyMessage('Copied!'),
+                    TextEntry::make('status')
+                        ->label('Status')
+                        ->badge()
+                        ->color(fn ($state) => match ($state ?? '') {
+                            'draft'      => 'gray',
+                            'submitted'  => 'warning',
+                            'pool'       => 'success',
+                            'selected'   => 'info',
+                            'accepted'   => 'success',
+                            'processing' => 'primary',
+                            'complete'   => 'success',
+                            'rejected'   => 'danger',
+                            default      => 'gray',
+                        }),
+                    TextEntry::make('progress')
+                        ->label('Completion')
+                        ->suffix('%')
+                        ->badge()
+                        ->color(fn ($state) => ($state ?? 0) >= 80 ? 'success' : (($state ?? 0) >= 50 ? 'warning' : 'danger')),
+                    TextEntry::make('submitted_at')
+                        ->label('Submitted')
+                        ->dateTime('d M Y, H:i')
+                        ->placeholder('Not submitted'),
+                ]),
+            ]),
+
+            // ── Student & Contact ─────────────────────────────────────────────
+            Section::make('👤 Student & Contact')
+                ->columns(2)
+                ->schema([
+                    TextEntry::make('student_name')->label('Full Name'),
+                    TextEntry::make('student_email')->label('Email')->copyable()->placeholder('—'),
+                    TextEntry::make('student_phone')->label('Phone')->placeholder('—'),
+                    TextEntry::make('whatsapp_no')->label('WhatsApp')->placeholder('—'),
+                    TextEntry::make('permanent_address')->label('Address')->placeholder('—')->columnSpanFull(),
+                    TextEntry::make('form_data.birth_date')->label('Date of Birth')->placeholder('—'),
+                    TextEntry::make('form_data.passport_no')->label('Passport No.')->placeholder('—'),
+                ]),
+
+            // ── Academic Profile ──────────────────────────────────────────────
+            Section::make('🎓 Academic Profile')
+                ->columns(3)
+                ->schema([
+                    TextEntry::make('user.studentProfile.highest_qualification')->label('Education')->placeholder('—'),
+                    TextEntry::make('user.studentProfile.gpa')->label('GPA')->placeholder('—'),
+                    TextEntry::make('user.studentProfile.jlpt_level')->label('JLPT Level')->placeholder('—'),
+                    TextEntry::make('user.studentProfile.nat_level')->label('NAT Level')->placeholder('—'),
+                ]),
+
+            // ── Application Target ────────────────────────────────────────────
+            Section::make('🌏 Application Target')
+                ->columns(3)
+                ->schema([
+                    TextEntry::make('formTemplate.country')->label('Country')->placeholder('—'),
+                    TextEntry::make('formTemplate.name')->label('Form / Course')->placeholder('—'),
+                    TextEntry::make('form_data.intake')->label('Intake')->placeholder('—'),
+                    TextEntry::make('target_city')->label('City')->placeholder('—'),
+                    TextEntry::make('city_type')->label('City Type')->placeholder('—'),
+                    TextEntry::make('target_course')->label('Course Detail')->placeholder('—'),
+                ]),
+
+            // ── Form Data (all extra fields) ──────────────────────────────────
+            Section::make('📋 Application Form Data')
+                ->collapsible()
+                ->collapsed()
+                ->schema(function (Application $record): array {
+                    $formData = $record->form_data ?? [];
+                    $skip = ['intake', 'birth_date', 'passport_no'];
+                    $entries = [];
+                    foreach ($formData as $key => $value) {
+                        if (in_array($key, $skip) || is_array($value)) continue;
+                        $entries[] = TextEntry::make("form_data.{$key}")
+                            ->label(ucwords(str_replace('_', ' ', $key)))
+                            ->placeholder('—');
+                    }
+                    return empty($entries)
+                        ? [TextEntry::make('_empty')->label('')->getStateUsing(fn () => 'No extra form data recorded.')]
+                        : $entries;
+                })
+                ->columns(2),
+
+            // ── Source info ───────────────────────────────────────────────────
+            Section::make('📁 Submission Info')
+                ->columns(3)
+                ->collapsed()
+                ->collapsible()
+                ->schema([
+                    TextEntry::make('submitted_by_role')->label('Submitted By')->placeholder('—'),
+                    TextEntry::make('branch.name')->label('Branch')->placeholder('—'),
+                    TextEntry::make('live_to_school')
+                        ->label('Live to School')
+                        ->badge()
+                        ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
+                        ->color(fn ($state) => $state ? 'success' : 'gray'),
+                    TextEntry::make('created_at')->label('Created')->dateTime('d M Y, H:i'),
+                    TextEntry::make('updated_at')->label('Last Updated')->dateTime('d M Y, H:i'),
+                ]),
+        ]);
     }
 
     // ── Table ─────────────────────────────────────────────────────────────────
