@@ -249,8 +249,6 @@ class InstitutionController extends Controller
                 'connect_email'    => $sel->connect_email,
                 'connect_whatsapp' => $sel->connect_whatsapp,
                 'connect_phone'    => $sel->connect_phone,
-                'admin_note'       => $sel->admin_note,
-                'admin_note_at'    => $sel->admin_note_at,
             ];
         });
 

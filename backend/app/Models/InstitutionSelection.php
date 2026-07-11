@@ -21,8 +21,6 @@ class InstitutionSelection extends Model
         'rejected_at',
         'processing_at',
         'completed_at',
-        'admin_note',
-        'admin_note_at',
     ];
 
     protected $casts = [
@@ -31,7 +29,6 @@ class InstitutionSelection extends Model
         'rejected_at'   => 'datetime',
         'processing_at' => 'datetime',
         'completed_at'  => 'datetime',
-        'admin_note_at' => 'datetime',
     ];
 
     public function lead(): BelongsTo

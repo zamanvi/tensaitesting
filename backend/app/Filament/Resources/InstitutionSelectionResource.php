@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\InstitutionSelectionResource\Pages;
 use App\Filament\Resources\ApplicationResource;
 use App\Models\InstitutionSelection;
-use Filament\Forms\Components\Textarea as FormTextarea;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -273,51 +272,6 @@ class InstitutionSelectionResource extends Resource
                             $record->update(['status' => 'selected']);
                             $record->lead?->update(['status' => 'pool']);
                             Notification::make()->title('Application Revived')->body('Selection reset to Selected.')->success()->send();
-                        } catch (\Throwable $e) {
-                            Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
-                        }
-                    }),
-
-                // Send Note to institution
-                Tables\Actions\Action::make('send_note')
-                    ->label(fn ($record) => $record->admin_note ? 'Update Note' : 'Send Note')
-                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                    ->color('warning')
-                    ->modalHeading('Send Task / Note to Institution')
-                    ->modalDescription('This message will be shown to the institution in their portal. Use it to request documents, share instructions, or follow up.')
-                    ->form([
-                        FormTextarea::make('note')
-                            ->label('Note / Task for Institution')
-                            ->placeholder('e.g. Please submit the student\'s visa documents by Friday.')
-                            ->required()
-                            ->rows(4)
-                            ->maxLength(2000)
-                            ->default(fn ($record) => $record->admin_note ?? ''),
-                    ])
-                    ->action(function ($record, array $data) {
-                        try {
-                            $record->update([
-                                'admin_note'    => $data['note'],
-                                'admin_note_at' => now(),
-                            ]);
-                            Notification::make()->title('Note Sent')->body('The institution will see this in their portal.')->success()->send();
-                        } catch (\Throwable $e) {
-                            Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
-                        }
-                    }),
-
-                Tables\Actions\Action::make('clear_note')
-                    ->label('Clear Note')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('gray')
-                    ->requiresConfirmation()
-                    ->modalHeading('Clear Note')
-                    ->modalDescription('Remove the current note from the institution\'s view.')
-                    ->visible(fn ($record) => !empty($record->admin_note))
-                    ->action(function ($record) {
-                        try {
-                            $record->update(['admin_note' => null, 'admin_note_at' => null]);
-                            Notification::make()->title('Note Cleared')->success()->send();
                         } catch (\Throwable $e) {
                             Notification::make()->title('Error')->body($e->getMessage())->danger()->send();
                         }
