@@ -185,7 +185,7 @@ class InstitutionSelectionResource extends Resource
                     ->visible(fn ($record) => $record->status === 'accepted')
                     ->action(function ($record) {
                         try {
-                            $record->update(['status' => 'processing', 'processing_at' => now()]);
+                            $record->update(['status' => 'processing']);
                             $record->lead?->update(['status' => 'processing']);
                             Notification::make()->title('Processing Started')->body('Application is now in active processing.')->success()->send();
                         } catch (\Throwable $e) {
@@ -205,7 +205,7 @@ class InstitutionSelectionResource extends Resource
                     ->visible(fn ($record) => in_array($record->status, ['selected', 'accepted']))
                     ->action(function ($record) {
                         try {
-                            $record->update(['status' => 'rejected', 'rejected_at' => now()]);
+                            $record->update(['status' => 'rejected']);
                             $record->lead?->update(['status' => 'pool']);
                             Notification::make()->title('Selection Rejected')->warning()->send();
                         } catch (\Throwable $e) {
@@ -225,7 +225,7 @@ class InstitutionSelectionResource extends Resource
                     ->visible(fn ($record) => $record->status === 'processing')
                     ->action(function ($record) {
                         try {
-                            $record->update(['status' => 'complete', 'completed_at' => now()]);
+                            $record->update(['status' => 'complete']);
                             $record->lead?->update(['status' => 'complete']);
                             Notification::make()->title('Marked Complete')->body('Enrollment process complete.')->success()->send();
                         } catch (\Throwable $e) {
@@ -245,7 +245,7 @@ class InstitutionSelectionResource extends Resource
                     ->visible(fn ($record) => $record->status === 'processing')
                     ->action(function ($record) {
                         try {
-                            $record->update(['status' => 'incomplete', 'rejected_at' => now()]);
+                            $record->update(['status' => 'incomplete']);
                             $record->lead?->update(['status' => 'pool']);
                             Notification::make()->title('Marked Incomplete')->warning()->send();
                         } catch (\Throwable $e) {
@@ -264,12 +264,12 @@ class InstitutionSelectionResource extends Resource
                     ->modalSubmitActionLabel('Yes, Revive')
                     ->visible(function ($record) {
                         if (!in_array($record->status, ['cancelled', 'rejected', 'incomplete'])) return false;
-                        $ts = $record->rejected_at ?? $record->selected_at;
+                        $ts = $record->updated_at ?? $record->selected_at;
                         return $ts && $ts->diffInDays(now()) <= 30;
                     })
                     ->action(function ($record) {
                         try {
-                            $record->update(['status' => 'selected', 'rejected_at' => null]);
+                            $record->update(['status' => 'selected']);
                             $record->lead?->update(['status' => 'pool']);
                             Notification::make()->title('Application Revived')->body('Selection reset to Selected.')->success()->send();
                         } catch (\Throwable $e) {
