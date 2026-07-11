@@ -141,7 +141,11 @@ export default function InstitutionSelectedPage() {
   const [actionErr, setActionErr]       = useState('');
 
   const showSuccess = (msg: string) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
-  const onError = () => { setActionErr(t('Action failed. Please try again.', '操作に失敗しました。', 'ব্যর্থ হয়েছে।')); };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onError = (err: any) => {
+    const msg = err?.response?.data?.message ?? err?.message ?? 'Action failed. Please try again.';
+    setActionErr(msg);
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-selected'],
