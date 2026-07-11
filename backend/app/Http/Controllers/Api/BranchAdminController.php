@@ -91,6 +91,7 @@ class BranchAdminController extends Controller
                 'last_education'     => $sp?->highest_qualification,
                 'gpa'                => $sp?->gpa,
                 'selected_at'        => $sel->selected_at,
+                'updated_at'         => $sel->updated_at,
                 'status'             => $sel->status,
                 'student_name'       => $app?->user?->name,
                 'institution_name'   => $inst?->name,

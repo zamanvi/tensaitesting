@@ -23,10 +23,7 @@ interface SelectedApplication {
   jlpt_level: string | null;
   age: number | null;
   selected_at: string;
-  accepted_at: string | null;
-  rejected_at: string | null;
-  processing_at: string | null;
-  completed_at: string | null;
+  updated_at: string | null;
   status: SelectionStatus;
   connect_name: string | null;
   connect_email: string | null;
@@ -319,13 +316,9 @@ export default function InstitutionSelectedPage() {
                       ))}
                     </div>
 
-                    {/* ── Timeline ── */}
-                    {(app.accepted_at || app.processing_at || app.completed_at) && (
-                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-3 border-t border-slate-100">
-                        {app.accepted_at   && <TimelineStep icon="✓" color="text-amber-600"   label={t('Accepted', '承認', 'গৃহীত')}    date={fmt(app.accepted_at)} />}
-                        {app.processing_at && <TimelineStep icon="→" color="text-blue-600"    label={t('Processing', '手続中', 'প্রক্রিয়া')} date={fmt(app.processing_at)} />}
-                        {app.completed_at  && <TimelineStep icon="✓" color="text-emerald-600" label={t('Enrolled', '入学', 'ভর্তি')}    date={fmt(app.completed_at)} />}
-                      </div>
+                    {/* ── Progress Stepper ── */}
+                    {!['rejected','cancelled','incomplete'].includes(app.status) && (
+                      <StatusStepper status={app.status} lang={L} />
                     )}
 
                     {/* ── Status note ── */}
@@ -468,6 +461,47 @@ function Field({ label, value }: { label: string; value: string | null | undefin
     <div>
       <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
       <p className="font-semibold text-slate-700">{value ?? <span className="text-slate-300 font-normal">—</span>}</p>
+    </div>
+  );
+}
+
+type Lang = 'en' | 'ja' | 'bn';
+const JOURNEY = [
+  { key: 'selected',   en: 'Selected',   ja: '選択済み',  bn: 'নির্বাচিত' },
+  { key: 'accepted',   en: 'Accepted',   ja: '承認済み',  bn: 'গৃহীত' },
+  { key: 'processing', en: 'Processing', ja: '手続き中',  bn: 'প্রক্রিয়া' },
+  { key: 'complete',   en: 'Enrolled',   ja: '入学確定',  bn: 'ভর্তি সম্পন্ন' },
+] as const;
+
+function StatusStepper({ status, lang }: { status: string; lang: Lang }) {
+  const idx = JOURNEY.findIndex(s => s.key === status);
+  return (
+    <div className="pt-3 border-t border-slate-100">
+      <div className="flex items-center gap-0">
+        {JOURNEY.map((step, i) => {
+          const done    = i < idx;
+          const current = i === idx;
+          const future  = i > idx;
+          return (
+            <div key={step.key} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1 min-w-0">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shrink-0
+                  ${done    ? 'bg-emerald-500 text-white' : ''}
+                  ${current ? 'bg-green-700 text-white ring-4 ring-green-700/20' : ''}
+                  ${future  ? 'bg-slate-100 text-slate-300' : ''}`}>
+                  {done ? '✓' : i + 1}
+                </div>
+                <span className={`text-[9px] font-semibold whitespace-nowrap ${done ? 'text-emerald-600' : current ? 'text-green-700' : 'text-slate-300'}`}>
+                  {step[lang]}
+                </span>
+              </div>
+              {i < 3 && (
+                <div className={`flex-1 h-0.5 mx-1 mb-3.5 rounded-full ${done ? 'bg-emerald-400' : 'bg-slate-100'}`} />
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

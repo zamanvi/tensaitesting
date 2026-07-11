@@ -17,10 +17,7 @@ interface SelectedApp {
   last_education: string | null;
   gpa: string | null;
   selected_at: string;
-  accepted_at: string | null;
-  rejected_at: string | null;
-  processing_at: string | null;
-  completed_at: string | null;
+  updated_at: string | null;
   status: 'selected' | 'accepted' | 'rejected' | 'processing' | 'complete' | 'incomplete' | 'cancelled';
   student_name: string | null;
   institution_name: string | null;
@@ -94,17 +91,19 @@ export default function BranchSelectedPage() {
                 <div key={app.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
 
                   {/* Status bar */}
-                  <div className={`px-5 py-2 text-xs font-semibold ${cls.bar}`}>
-                    {cls.label}
-                    {(() => {
-                      const ts = app.completed_at ?? app.processing_at ?? app.accepted_at ?? app.selected_at;
-                      return ts ? (
-                        <span className="ml-2 font-normal opacity-70">
-                          · {new Date(ts).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                        </span>
-                      ) : null;
-                    })()}
+                  <div className={`px-5 py-2 flex items-center justify-between text-xs font-semibold ${cls.bar}`}>
+                    <span>{cls.label}</span>
+                    {(app.updated_at ?? app.selected_at) && (
+                      <span className="font-normal opacity-70">
+                        {new Date(app.updated_at ?? app.selected_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                      </span>
+                    )}
                   </div>
+
+                  {/* Journey stepper */}
+                  {!['rejected','cancelled','incomplete'].includes(app.status) && (
+                    <JourneyStepper status={app.status} ja={ja} bn={bn} />
+                  )}
 
                   <div className="p-4 sm:p-5">
                     <div className="flex flex-wrap gap-4">
@@ -156,6 +155,42 @@ export default function BranchSelectedPage() {
         )}
       </div>
     </BranchLayout>
+  );
+}
+
+const JOURNEY_STEPS = [
+  { key: 'selected',   en: 'Selected',   ja: '選択済み',  bn: 'নির্বাচিত' },
+  { key: 'accepted',   en: 'Accepted',   ja: '承認済み',  bn: 'গৃহীত' },
+  { key: 'processing', en: 'Processing', ja: '手続き中',  bn: 'প্রক্রিয়া' },
+  { key: 'complete',   en: 'Enrolled',   ja: '入学確定',  bn: 'ভর্তি সম্পন্ন' },
+] as const;
+
+function JourneyStepper({ status, ja, bn }: { status: string; ja: boolean; bn: boolean }) {
+  const idx = JOURNEY_STEPS.findIndex(s => s.key === status);
+  const label = (s: typeof JOURNEY_STEPS[number]) => ja ? s.ja : bn ? s.bn : s.en;
+  return (
+    <div className="px-5 pb-3 pt-1">
+      <div className="flex items-start gap-0">
+        {JOURNEY_STEPS.map((step, i) => {
+          const done = i < idx, cur = i === idx, future = i > idx;
+          return (
+            <div key={step.key} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center gap-1">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0
+                  ${done ? 'bg-emerald-500 text-white' : cur ? 'bg-green-700 text-white ring-4 ring-green-700/20' : 'bg-slate-100 text-slate-300'}`}>
+                  {done ? '✓' : i + 1}
+                </div>
+                <span className={`text-[8px] font-semibold whitespace-nowrap text-center leading-tight
+                  ${done ? 'text-emerald-600' : cur ? 'text-green-700' : 'text-slate-300'}`}>
+                  {label(step)}
+                </span>
+              </div>
+              {i < 3 && <div className={`flex-1 h-0.5 mx-1 mb-3 rounded-full ${done ? 'bg-emerald-400' : 'bg-slate-100'}`} />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

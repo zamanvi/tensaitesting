@@ -11,6 +11,31 @@ import { Application, AppDoc, FormTemplateData } from '@/components/applications
 
 type L = 'en' | 'ja' | 'bn';
 
+const JOURNEY_STEPS = [
+  { key: 'selected',   en: 'Selected',   ja: '選択済み', bn: 'নির্বাচিত' },
+  { key: 'accepted',   en: 'Accepted',   ja: '承認済み', bn: 'গৃহীত' },
+  { key: 'processing', en: 'Processing', ja: '手続き中', bn: 'প্রক্রিয়া' },
+  { key: 'complete',   en: 'Enrolled',   ja: '入学確定', bn: 'ভর্তি' },
+] as const;
+
+function MiniStepper({ status, lang }: { status: string; lang: L }) {
+  const idx = JOURNEY_STEPS.findIndex(s => s.key === status);
+  return (
+    <div className="flex items-center gap-0.5">
+      {JOURNEY_STEPS.map((step, i) => {
+        const done = i < idx, cur = i === idx;
+        return (
+          <div key={step.key} title={step[lang]} className="flex items-center">
+            <div className={`w-2 h-2 rounded-full
+              ${done ? 'bg-emerald-500' : cur ? 'bg-green-700 ring-2 ring-green-700/25' : 'bg-slate-200'}`} />
+            {i < 3 && <div className={`w-3 h-0.5 ${done ? 'bg-emerald-400' : 'bg-slate-200'}`} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const STATUS_BADGE: Record<string, { cls: string; label: Record<L, string> }> = {
   selected:   { cls: 'bg-indigo-100 text-indigo-700',   label: { en: 'Selected',   ja: '選択済み',  bn: 'নির্বাচিত' } },
   accepted:   { cls: 'bg-amber-100 text-amber-700',     label: { en: 'Accepted',   ja: '承認済み',  bn: 'গৃহীত' } },
@@ -227,7 +252,10 @@ export default function AgencySelectedPage() {
                             </div>
                           </td>
                           <td className="px-4 py-3.5">
-                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${badge.cls}`}>{badge.label[L]}</span>
+                            <div className="flex flex-col gap-1.5">
+                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full inline-block w-fit ${badge.cls}`}>{badge.label[L]}</span>
+                              <MiniStepper status={app.status} lang={L} />
+                            </div>
                           </td>
                           <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">
                             {timeAgo(app.updated_at ?? app.created_at, L)}
@@ -265,7 +293,10 @@ export default function AgencySelectedPage() {
                           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${badge.cls}`}>{badge.label[L]}</span>
                         </div>
                         <p className="text-[11px] text-slate-400">{cap(app.form_template?.country)} · {app.application_code}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(app.updated_at ?? app.created_at, L)}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <MiniStepper status={app.status} lang={L} />
+                          <span className="text-[11px] text-slate-400">{timeAgo(app.updated_at ?? app.created_at, L)}</span>
+                        </div>
                       </div>
                       <svg className="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
