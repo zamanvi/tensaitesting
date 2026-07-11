@@ -69,8 +69,19 @@ class InstitutionSelectionResource extends Resource
                 Tables\Columns\TextColumn::make('connect_name')
                     ->label('Contact Person')
                     ->searchable()
-                    ->description(fn (InstitutionSelection $r) =>
-                        collect([$r->connect_whatsapp, $r->connect_phone])->filter()->join(' / ') ?: '—'),
+                    ->description(fn (InstitutionSelection $r): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString(
+                        collect([
+                            $r->connect_whatsapp
+                                ? '<a href="https://wa.me/' . preg_replace('/\D/', '', $r->connect_whatsapp) . '" target="_blank" style="color:#16a34a;font-weight:600;">📱 ' . e($r->connect_whatsapp) . '</a>'
+                                : null,
+                            $r->connect_phone
+                                ? '<a href="tel:' . e($r->connect_phone) . '" style="color:#2563eb;">📞 ' . e($r->connect_phone) . '</a>'
+                                : null,
+                            $r->connect_email
+                                ? '<a href="mailto:' . e($r->connect_email) . '" style="color:#7c3aed;">✉ ' . e($r->connect_email) . '</a>'
+                                : null,
+                        ])->filter()->join(' &nbsp;·&nbsp; ') ?: '—'
+                    )),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
