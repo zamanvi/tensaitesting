@@ -286,7 +286,7 @@ export default function AgencyApplicantsPage() {
                         onClick={() => setActiveAppId(app.id)}
                         className="hover:bg-green-50/30 cursor-pointer transition-colors group">
                         <td className="px-5 py-3.5">
-                          <span className="font-mono text-[11px] text-slate-500 bg-slate-100 px-2 py-1 rounded-lg group-hover:bg-white transition-colors">
+                          <span className="font-mono text-[11px] text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg group-hover:bg-indigo-100 transition-colors underline underline-offset-2 decoration-indigo-300">
                             {app.application_code}
                           </span>
                         </td>
