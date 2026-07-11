@@ -618,7 +618,6 @@ class ApplicationResource extends Resource
             // ── Form Data (all extra fields) ──────────────────────────────────
             Section::make('📋 Application Form Data')
                 ->collapsible()
-                ->collapsed()
                 ->schema(function (Application $record): array {
                     $formData = $record->form_data ?? [];
                     $skip = ['intake', 'birth_date', 'passport_no'];
@@ -638,7 +637,6 @@ class ApplicationResource extends Resource
             // ── Source info ───────────────────────────────────────────────────
             Section::make('📁 Submission Info')
                 ->columns(3)
-                ->collapsed()
                 ->collapsible()
                 ->schema([
                     TextEntry::make('submitted_by_role')->label('Submitted By')->placeholder('—'),
