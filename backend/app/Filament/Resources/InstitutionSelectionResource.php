@@ -257,14 +257,9 @@ class InstitutionSelectionResource extends Resource
                         Notification::make()->title('Application Revived')->body('Selection reset to Selected.')->success()->send();
                     }),
 
-                Tables\Actions\DeleteAction::make(),
                 ])->tooltip('Actions')->icon('heroicon-m-ellipsis-horizontal'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getPages(): array
