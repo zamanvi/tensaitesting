@@ -65,10 +65,7 @@ class AdminInstitutionController extends Controller
                 'last_education'      => $sp?->highest_qualification,
                 'gpa'                 => $sp?->gpa,
                 'selected_at'         => $sel->selected_at,
-                'accepted_at'         => $sel->accepted_at,
-                'rejected_at'         => $sel->rejected_at,
-                'processing_at'       => $sel->processing_at,
-                'completed_at'        => $sel->completed_at,
+                'updated_at'          => $sel->updated_at,
                 'status'              => $sel->status,
                 'connect_name'        => $sel->connect_name,
                 'connect_email'       => $sel->connect_email,
@@ -89,7 +86,7 @@ class AdminInstitutionController extends Controller
     public function unselectApplication(Request $request, int $id): JsonResponse
     {
         $sel = InstitutionSelection::findOrFail($id);
-        $sel->update(['status' => 'cancelled', 'rejected_at' => now()]);
+        $sel->update(['status' => 'cancelled']);
         $sel->lead?->update(['status' => 'pool']);
         return response()->json(['message' => 'Application unselected and returned to pool.']);
     }
@@ -97,7 +94,7 @@ class AdminInstitutionController extends Controller
     public function startProcessing(Request $request, int $id): JsonResponse
     {
         $sel = InstitutionSelection::findOrFail($id);
-        $sel->update(['status' => 'processing', 'processing_at' => now()]);
+        $sel->update(['status' => 'processing']);
         $sel->lead?->update(['status' => 'processing']);
         return response()->json(['message' => 'Processing started.']);
     }
@@ -105,7 +102,7 @@ class AdminInstitutionController extends Controller
     public function markComplete(Request $request, int $id): JsonResponse
     {
         $sel = InstitutionSelection::findOrFail($id);
-        $sel->update(['status' => 'complete', 'completed_at' => now()]);
+        $sel->update(['status' => 'complete']);
         $sel->lead?->update(['status' => 'complete']);
         return response()->json(['message' => 'Marked as complete.']);
     }
@@ -113,7 +110,7 @@ class AdminInstitutionController extends Controller
     public function markIncomplete(Request $request, int $id): JsonResponse
     {
         $sel = InstitutionSelection::findOrFail($id);
-        $sel->update(['status' => 'incomplete', 'rejected_at' => now()]);
+        $sel->update(['status' => 'incomplete']);
         $sel->lead?->update(['status' => 'pool']);
         return response()->json(['message' => 'Marked as incomplete.']);
     }
@@ -121,7 +118,7 @@ class AdminInstitutionController extends Controller
     public function adminReject(Request $request, int $id): JsonResponse
     {
         $sel = InstitutionSelection::findOrFail($id);
-        $sel->update(['status' => 'rejected', 'rejected_at' => now()]);
+        $sel->update(['status' => 'rejected']);
         $sel->lead?->update(['status' => 'pool']);
         return response()->json(['message' => 'Selection rejected.']);
     }
@@ -129,7 +126,7 @@ class AdminInstitutionController extends Controller
     public function adminRevive(Request $request, int $id): JsonResponse
     {
         $sel = InstitutionSelection::findOrFail($id);
-        $sel->update(['status' => 'selected', 'rejected_at' => null]);
+        $sel->update(['status' => 'selected']);
         $sel->lead?->update(['status' => 'pool']);
         return response()->json(['message' => 'Application revived.']);
     }

@@ -99,7 +99,7 @@ const STATUS_CONFIG: Record<SelectionStatus, {
 
 function isRevivable(app: SelectedApplication): boolean {
   if (!['cancelled', 'rejected', 'incomplete'].includes(app.status)) return false;
-  const ts = app.rejected_at ?? app.selected_at;
+  const ts = app.updated_at ?? app.selected_at;
   if (!ts) return false;
   return (Date.now() - new Date(ts).getTime()) / 86400000 <= 30;
 }

@@ -20,10 +20,7 @@ interface SelectedApp {
   last_education: string | null;
   gpa: string | null;
   selected_at: string;
-  accepted_at: string | null;
-  rejected_at: string | null;
-  processing_at: string | null;
-  completed_at: string | null;
+  updated_at: string | null;
   status: SelectionStatus;
   connect_name: string | null;
   connect_email: string | null;
