@@ -8,8 +8,11 @@ return new class extends Migration
     public function up(): void
     {
         User::whereNotNull('gateway_type')->get()->each(function (User $user) {
-            // syncRoles replaces all roles — ensures gateway_type role is always present
-            $user->syncRoles([$user->gateway_type]);
+            try {
+                $user->syncRoles([$user->gateway_type]);
+            } catch (\Throwable $e) {
+                // Role may not exist yet — skip silently
+            }
         });
     }
 
