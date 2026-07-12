@@ -1,6 +1,6 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -23,6 +23,14 @@ const COLOR_MAP: Record<string, string> = {
 };
 
 export default function FeedPage() {
+  return (
+    <Suspense>
+      <FeedInner />
+    </Suspense>
+  );
+}
+
+function FeedInner() {
   const { lang } = useLang();
   const { user } = useAuthStore();
   const t = (en: string, ja: string, bn: string) => lang === 'ja' ? ja : lang === 'bn' ? bn : en;

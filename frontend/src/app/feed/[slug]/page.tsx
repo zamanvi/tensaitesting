@@ -134,7 +134,7 @@ export default function FeedPostPage() {
           <div>
             {post.body ? (
               <div
-                className="prose prose-slate prose-sm max-w-none prose-headings:font-black prose-a:text-green-700"
+                className="rich-body"
                 dangerouslySetInnerHTML={{ __html: post.body }}
               />
             ) : (
