@@ -56,7 +56,7 @@ function FeedNav({ user, t }: { user: unknown; t: (a:string,b:string,c:string)=>
           ) : (
             <>
               <Link href="/auth/login"
-                className="h-9 px-3 text-slate-600 text-xs font-semibold hover:text-slate-900 transition-colors hidden xs:flex items-center">
+                className="h-9 px-3 text-slate-600 text-xs font-semibold hover:text-slate-900 transition-colors hidden sm:flex items-center">
                 {t('Sign In','サインイン','সাইন ইন')}
               </Link>
               <Link href="/auth/register"

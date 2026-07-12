@@ -144,12 +144,12 @@ function PostInner() {
           {post.categories.map(c => (
             <Link key={c.slug}
               href={`/feed?${c.type === 'country' ? 'country' : 'purpose'}=${c.slug}`}
-              className="inline-flex items-center h-7 px-3 rounded-full bg-white border border-slate-150 text-slate-600 text-xs font-bold
+              className="inline-flex items-center h-7 px-3 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-bold
                 hover:bg-green-50 hover:border-green-200 hover:text-green-700 transition-colors shadow-sm active:scale-95">
               {c.flag} {c.name}
             </Link>
           ))}
-          <span className="inline-flex items-center h-7 px-3 rounded-full bg-white border border-slate-150 text-slate-500 text-xs font-bold shadow-sm">
+          <span className="inline-flex items-center h-7 px-3 rounded-full bg-white border border-slate-200 text-slate-500 text-xs font-bold shadow-sm">
             {post.type === 'video'   ? `🎬 ${t('Video','動画','ভিডিও')}`
             : post.type === 'article' ? `📰 ${t('Article','記事','আর্টিকেল')}`
             :                           `✍️ ${t('Post','投稿','পোস্ট')}`}
