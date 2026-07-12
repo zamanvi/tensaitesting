@@ -1,6 +1,7 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { useLang } from '@/context/LanguageContext';
@@ -25,10 +26,21 @@ export default function FeedPage() {
   const { lang } = useLang();
   const { user } = useAuthStore();
   const t = (en: string, ja: string, bn: string) => lang === 'ja' ? ja : lang === 'bn' ? bn : en;
+  const searchParams = useSearchParams();
 
   const [country, setCountry]   = useState('');
   const [purpose, setPurpose]   = useState('');
   const [type, setType]         = useState('');
+
+  // Sync state from URL params (e.g. links from /feed/[slug] category tags)
+  useEffect(() => {
+    const c = searchParams.get('country') ?? '';
+    const p = searchParams.get('purpose') ?? '';
+    const tp = searchParams.get('type') ?? '';
+    setCountry(c);
+    setPurpose(p);
+    setType(tp);
+  }, [searchParams]);
 
   const { data: cats } = useQuery({
     queryKey: ['feed-categories'],

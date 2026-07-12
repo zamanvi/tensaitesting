@@ -43,8 +43,9 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('flag')->label(''),
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
-                Tables\Columns\BadgeColumn::make('type')
-                    ->colors(['primary' => 'country', 'success' => 'purpose']),
+                Tables\Columns\TextColumn::make('type')
+                    ->badge()
+                    ->color(fn ($state) => $state === 'country' ? 'primary' : 'success'),
                 Tables\Columns\TextColumn::make('sort_order')->sortable(),
             ])
             ->defaultSort('type')

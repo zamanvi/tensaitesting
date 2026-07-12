@@ -103,8 +103,9 @@ class PostResource extends Resource
                     ->badge()
                     ->separator(',')
                     ->limit(3),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors(['warning' => 'draft', 'success' => 'published']),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn ($state) => $state === 'published' ? 'success' : 'warning'),
                 Tables\Columns\TextColumn::make('published_at')->dateTime()->sortable()->since(),
             ])
             ->defaultSort('created_at', 'desc')
