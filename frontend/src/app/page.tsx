@@ -264,6 +264,7 @@ export default function HomePage() {
             <Link href="/team"     className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{navTeam}</Link>
             <Link href="/gallery"  className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{l.gallery}</Link>
             <Link href="/branches" className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <Link href="/feed"     className="text-sm text-white/50 hover:text-white transition-colors px-2 py-1 hidden md:inline">{ja ? 'ガイド' : bn ? 'গাইড' : 'Guide'}</Link>
             <Link href="/auth/login" className="text-sm text-white/65 hover:text-white transition-colors px-3 py-1.5 hidden sm:inline">{l.login}</Link>
             <Link
               href="/auth/register"
@@ -291,6 +292,7 @@ export default function HomePage() {
             <Link href="/team"     onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{navTeam}</Link>
             <Link href="/gallery"  onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{l.gallery}</Link>
             <Link href="/branches" onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
+            <Link href="/feed"     onClick={() => setMobileOpen(false)} className="text-sm text-white/60 hover:text-white px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-all">{ja ? 'ガイド' : bn ? 'গাইড' : 'Guide'}</Link>
             <div className="border-t border-white/[0.08] mt-2 pt-3 flex gap-2">
               <Link href="/auth/login"    onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm text-white/70 hover:text-white border border-white/10 hover:border-white/25 px-4 py-2.5 rounded-full transition-all">{l.login}</Link>
               <Link href="/auth/register" onClick={() => setMobileOpen(false)} className="flex-1 text-center text-sm bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-full font-semibold transition-all">{l.getStarted}</Link>

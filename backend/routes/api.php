@@ -27,7 +27,13 @@ use App\Http\Controllers\Api\AdminSettingsController;
 use App\Http\Controllers\Api\AdminAffiliateController;
 use App\Http\Controllers\Api\AdminInstitutionController;
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\PostController;
 use Illuminate\Support\Facades\Route;
+
+// Public feed (no auth required, but content is limited for guests)
+Route::get('/feed',               [PostController::class, 'index']);
+Route::get('/feed/{slug}',        [PostController::class, 'show']);
+Route::get('/feed-categories',    [PostController::class, 'categories']);
 
 // Form Templates (authenticated)
 Route::middleware('auth:sanctum')->group(function () {
