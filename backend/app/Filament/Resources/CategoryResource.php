@@ -27,30 +27,33 @@ class CategoryResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->maxLength(100),
+            Forms\Components\Section::make('Category Details')
+                ->description('Country = destination (Japan, UK…). Purpose = goal (Higher Study, Work…).')
+                ->schema([
+                    Forms\Components\TextInput::make('name')
+                        ->required()
+                        ->maxLength(100),
 
-            Forms\Components\TextInput::make('slug')
-                ->required()
-                ->unique(ignoreRecord: true)
-                ->maxLength(100)
-                ->helperText('Used in URL filters, e.g. /feed?country=japan'),
+                    Forms\Components\TextInput::make('slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(100)
+                        ->helperText('Used in URL: /feed?country=japan'),
 
-            Forms\Components\Select::make('type')
-                ->options(['country' => 'Country', 'purpose' => 'Purpose'])
-                ->required()
-                ->helperText('Country = destination (Japan, UK…). Purpose = goal (Higher Study, Work…).'),
+                    Forms\Components\Select::make('type')
+                        ->options(['country' => 'Country', 'purpose' => 'Purpose'])
+                        ->required(),
 
-            Forms\Components\TextInput::make('flag')
-                ->label('Flag / Emoji')
-                ->maxLength(10)
-                ->helperText('e.g. 🇯🇵 or 🎓'),
+                    Forms\Components\TextInput::make('flag')
+                        ->label('Emoji')
+                        ->maxLength(10)
+                        ->placeholder('🇯🇵'),
 
-            Forms\Components\TextInput::make('sort_order')
-                ->numeric()
-                ->default(0)
-                ->helperText('Lower number = shown first in filters.'),
+                    Forms\Components\TextInput::make('sort_order')
+                        ->numeric()
+                        ->default(0)
+                        ->helperText('Lower = shown first'),
+                ]),
         ]);
     }
 

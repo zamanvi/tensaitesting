@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostResource\Pages;
-use App\Models\Category;
 use App\Models\Post;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -31,79 +30,77 @@ class PostResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Section::make('Content')->schema([
-                Forms\Components\Hidden::make('created_by')
-                    ->default(fn () => auth()->id()),
+            Forms\Components\Section::make('Content')
+                ->description('The post title, body, and media.')
+                ->schema([
+                    Forms\Components\Hidden::make('created_by')
+                        ->default(fn () => auth()->id()),
 
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) =>
-                        $set('slug', Str::slug($state))
-                    ),
+                    Forms\Components\TextInput::make('title')
+                        ->required()
+                        ->maxLength(255)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn ($state, callable $set) =>
+                            $set('slug', Str::slug($state))
+                        ),
 
-                Forms\Components\TextInput::make('slug')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->maxLength(255)
-                    ->helperText('Auto-generated from title. URL-safe, lowercase, hyphens only.'),
+                    Forms\Components\TextInput::make('slug')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(255),
 
-                Forms\Components\Select::make('type')
-                    ->options([
-                        'video'   => '🎬 YouTube Video',
-                        'article' => '📰 Article / Link',
-                        'text'    => '✍️ Original Text',
-                    ])
-                    ->required()
-                    ->live(),
+                    Forms\Components\Select::make('type')
+                        ->options([
+                            'video'   => '🎬 YouTube Video',
+                            'article' => '📰 Article / Link',
+                            'text'    => '✍️ Original Text',
+                        ])
+                        ->required()
+                        ->live(),
 
-                Forms\Components\TextInput::make('video_url')
-                    ->label('YouTube URL')
-                    ->url()
-                    ->placeholder('https://www.youtube.com/watch?v=...')
-                    ->required(fn (Get $get) => $get('type') === 'video')
-                    ->visible(fn (Get $get) => $get('type') === 'video')
-                    ->helperText('Paste the full YouTube video URL.'),
+                    Forms\Components\TextInput::make('video_url')
+                        ->label('YouTube URL')
+                        ->url()
+                        ->placeholder('https://www.youtube.com/watch?v=...')
+                        ->required(fn (Get $get) => $get('type') === 'video')
+                        ->visible(fn (Get $get) => $get('type') === 'video'),
 
-                Forms\Components\Textarea::make('excerpt')
-                    ->label('Preview Text (shown to guests without login)')
-                    ->required()
-                    ->rows(3)
-                    ->maxLength(500)
-                    ->helperText('Keep it short and enticing — this is all guests see.'),
+                    Forms\Components\Textarea::make('excerpt')
+                        ->label('Preview Text')
+                        ->helperText('Shown to guests. Keep it short and compelling.')
+                        ->required()
+                        ->rows(3)
+                        ->maxLength(500),
 
-                Forms\Components\RichEditor::make('body')
-                    ->label('Full Content (shown after login)')
-                    ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link', 'blockquote'])
-                    ->nullable()
-                    ->helperText('Optional for video posts. Required if this is an article or text post.'),
+                    Forms\Components\RichEditor::make('body')
+                        ->label('Full Content')
+                        ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link', 'blockquote'])
+                        ->nullable(),
 
-                Forms\Components\TextInput::make('thumbnail_url')
-                    ->label('Thumbnail URL')
-                    ->url()
-                    ->nullable()
-                    ->helperText('Optional — auto-detected from YouTube if left blank.'),
-            ]),
+                    Forms\Components\TextInput::make('thumbnail_url')
+                        ->label('Thumbnail URL')
+                        ->url()
+                        ->nullable(),
+                ]),
 
-            Forms\Components\Section::make('Categories & Publishing')->schema([
-                Forms\Components\CheckboxList::make('categories')
-                    ->relationship('categories', 'name')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->flag} {$record->name}")
-                    ->columns(3)
-                    ->label('Tags (Country + Purpose)')
-                    ->helperText('Select at least one country and one purpose for best discoverability.'),
+            Forms\Components\Section::make('Publishing')
+                ->description('Categories, status, and publish date.')
+                ->schema([
+                    Forms\Components\CheckboxList::make('categories')
+                        ->relationship('categories', 'name')
+                        ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->flag} {$record->name}")
+                        ->columns(3)
+                        ->label('Tags'),
 
-                Forms\Components\Select::make('status')
-                    ->options(['draft' => 'Draft', 'published' => 'Published'])
-                    ->required()
-                    ->default('draft'),
+                    Forms\Components\Select::make('status')
+                        ->options(['draft' => 'Draft', 'published' => 'Published'])
+                        ->required()
+                        ->default('draft'),
 
-                Forms\Components\DateTimePicker::make('published_at')
-                    ->label('Publish Date')
-                    ->nullable()
-                    ->helperText('Leave blank to use current time when publishing.'),
-            ]),
+                    Forms\Components\DateTimePicker::make('published_at')
+                        ->label('Publish Date')
+                        ->nullable(),
+                ]),
         ]);
     }
 
@@ -116,12 +113,12 @@ class PostResource extends Resource
                     ->getStateUsing(fn ($record) => $record->thumbnail)
                     ->width(64)
                     ->height(42)
-                    ->extraImgAttributes(['style' => 'object-fit:cover;border-radius:6px;']),
+                    ->rounded(),
 
                 Tables\Columns\TextColumn::make('type')
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                        'video'   => 'danger',
+                        'video'   => 'info',
                         'article' => 'warning',
                         default   => 'primary',
                     })

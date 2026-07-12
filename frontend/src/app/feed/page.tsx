@@ -14,24 +14,17 @@ interface Post {
   published_at: string; categories: Category[]; locked: boolean;
 }
 
-const CM: Record<string, string> = {
-  red:    'bg-red-100 text-red-700',
-  yellow: 'bg-yellow-100 text-yellow-700',
-  blue:   'bg-blue-100 text-blue-700',
-  gray:   'bg-slate-100 text-slate-600',
-  green:  'bg-green-100 text-green-700',
-  indigo: 'bg-indigo-100 text-indigo-700',
-  amber:  'bg-amber-100 text-amber-700',
-  teal:   'bg-teal-100 text-teal-700',
-  orange: 'bg-orange-100 text-orange-700',
-};
+function catChip(c: Category) {
+  if (c.type === 'country') return 'bg-emerald-50 text-emerald-700';
+  if (c.type === 'purpose') return 'bg-violet-50 text-violet-700';
+  return 'bg-slate-100 text-slate-500';
+}
 
 /* ── Navbar ─────────────────────────────────────────────────── */
 function FeedNav({ user, t }: { user: unknown; t: (a:string,b:string,c:string)=>string }) {
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
-        {/* Left: logo + label */}
         <div className="flex items-center gap-2 min-w-0">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <div className="w-8 h-8 rounded-xl bg-green-700 flex items-center justify-center shadow-sm">
@@ -46,7 +39,6 @@ function FeedNav({ user, t }: { user: unknown; t: (a:string,b:string,c:string)=>
             {t('Study Guide','留学ガイド','স্টাডি গাইড')}
           </span>
         </div>
-        {/* Right: auth */}
         <div className="flex items-center gap-1.5 shrink-0">
           {user ? (
             <Link href="/dashboard/student"
@@ -56,7 +48,7 @@ function FeedNav({ user, t }: { user: unknown; t: (a:string,b:string,c:string)=>
           ) : (
             <>
               <Link href="/auth/login"
-                className="h-9 px-3 text-slate-600 text-xs font-semibold hover:text-slate-900 transition-colors hidden sm:flex items-center">
+                className="h-9 px-3 text-slate-500 text-xs font-semibold hover:text-slate-900 transition-colors hidden sm:flex items-center">
                 {t('Sign In','サインイン','সাইন ইন')}
               </Link>
               <Link href="/auth/register"
@@ -114,25 +106,31 @@ function FeedInner() {
   const posts: Post[]         = data?.data    ?? [];
   const countries: Category[] = cats?.countries ?? [];
   const purposes: Category[]  = cats?.purposes  ?? [];
+  const total: number         = data?.total    ?? 0;
   const hasFilter = !!(country || purpose || type);
   const activeCount = [country, purpose, type].filter(Boolean).length;
 
   const clearAll = () => { setCountry(''); setPurpose(''); setType(''); };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa]">
+    <div className="min-h-screen bg-[#f4f6f9]">
       <FeedNav user={user} t={t} />
 
       {/* ── Hero ──────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#0d1a12] via-[#0f2a18] to-[#0d1a12] px-4 py-10 sm:py-14">
-        <div className="max-w-6xl mx-auto text-center">
-          <span className="inline-block text-green-400 text-[10px] font-black tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-full border border-green-800/60 bg-green-900/30">
+      <div className="relative overflow-hidden bg-[#0b1812] px-4 py-12 sm:py-16">
+        {/* texture */}
+        <div className="absolute inset-0 opacity-[0.04]"
+          style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0b1812]/80" />
+        <div className="relative max-w-6xl mx-auto text-center">
+          <span className="inline-flex items-center gap-1.5 text-green-400 text-[10px] font-black tracking-[0.18em] uppercase mb-4 px-3.5 py-1.5 rounded-full border border-green-800/50 bg-green-950/60">
+            <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg>
             {t('Tensai Knowledge Hub','Tensai 知識ハブ','Tensai নলেজ হাব')}
           </span>
-          <h1 className="text-[1.75rem] sm:text-4xl font-black text-white leading-tight mb-3">
+          <h1 className="text-3xl sm:text-[2.5rem] font-black text-white leading-[1.1] tracking-tight mb-3">
             {t('Your Study Abroad Guide','海外留学ガイド','বিদেশে পড়াশোনার গাইড')}
           </h1>
-          <p className="text-slate-400 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+          <p className="text-slate-400 text-sm sm:text-[0.95rem] max-w-md mx-auto leading-relaxed">
             {t(
               'Videos, articles, and tips for studying in Japan, Australia, Canada and beyond.',
               '日本・オーストラリア・カナダなど、海外留学に役立つ動画・記事を厳選。',
@@ -142,18 +140,18 @@ function FeedInner() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-7">
 
         {/* ── Filter panel ─────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm mb-5 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] mb-5 overflow-hidden">
 
-          {/* Mobile filter toggle bar */}
+          {/* Mobile toggle */}
           <button
             onClick={() => setFiltersOpen(o => !o)}
             className="w-full flex items-center justify-between px-4 py-3.5 sm:hidden"
           >
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2.5">
+              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
               </svg>
               <span className="text-sm font-bold text-slate-700">
@@ -165,28 +163,28 @@ function FeedInner() {
                 )}
               </span>
             </div>
-            <svg className={`w-4 h-4 text-slate-400 transition-transform ${filtersOpen ? 'rotate-180' : ''}`}
+            <svg className={`w-4 h-4 text-slate-300 transition-transform duration-200 ${filtersOpen ? 'rotate-180' : ''}`}
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
             </svg>
           </button>
 
-          {/* Filter rows — always visible on sm+, collapsible on mobile */}
+          {/* Filter rows */}
           <div className={`${filtersOpen ? 'block' : 'hidden'} sm:block`}>
 
             {/* Country */}
-            <div className="px-4 py-3 border-t border-slate-50 sm:border-t-0 sm:border-b sm:border-slate-50">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
-                {t('Country','国','দেশ')}
+            <div className="px-4 py-3 border-t border-slate-50 sm:border-t-0 sm:border-b sm:border-slate-100">
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2.5">
+                {t('Destination','国・地域','গন্তব্য দেশ')}
               </p>
               <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
                 {countries.map(c => (
                   <button key={c.slug}
                     onClick={() => setCountry(country === c.slug ? '' : c.slug)}
-                    className={`shrink-0 h-8 px-3 rounded-full text-xs font-bold border transition-all
+                    className={`shrink-0 h-8 px-3 rounded-full text-xs font-bold border transition-all duration-150
                       ${country === c.slug
-                        ? 'bg-green-700 text-white border-green-700'
-                        : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-green-300 hover:bg-green-50'}`}>
+                        ? 'bg-green-700 text-white border-green-700 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-green-200 hover:bg-emerald-50 hover:text-emerald-700'}`}>
                     {c.flag} {c.name}
                   </button>
                 ))}
@@ -194,18 +192,18 @@ function FeedInner() {
             </div>
 
             {/* Purpose */}
-            <div className="px-4 py-3 border-t border-slate-50 sm:border-b sm:border-slate-50">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+            <div className="px-4 py-3 border-t border-slate-100 sm:border-b sm:border-slate-100">
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2.5">
                 {t('Purpose','目的','উদ্দেশ্য')}
               </p>
               <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
                 {purposes.map(p => (
                   <button key={p.slug}
                     onClick={() => setPurpose(purpose === p.slug ? '' : p.slug)}
-                    className={`shrink-0 h-8 px-3 rounded-full text-xs font-bold border transition-all
+                    className={`shrink-0 h-8 px-3 rounded-full text-xs font-bold border transition-all duration-150
                       ${purpose === p.slug
-                        ? 'bg-indigo-600 text-white border-indigo-600'
-                        : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-indigo-300 hover:bg-indigo-50'}`}>
+                        ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700'}`}>
                     {p.flag} {p.name}
                   </button>
                 ))}
@@ -213,55 +211,64 @@ function FeedInner() {
             </div>
 
             {/* Type + clear */}
-            <div className="px-4 py-3 border-t border-slate-50 flex flex-wrap items-center gap-2">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest w-full sm:w-auto sm:mr-1">
-                {t('Content Type','タイプ','ধরন')}
+            <div className="px-4 py-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+              <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] w-full sm:w-auto sm:mr-1">
+                {t('Format','フォーマット','ফরম্যাট')}
               </p>
               <div className="flex gap-1.5">
                 {([['video','🎬','Video'],['article','📰','Article'],['text','✍️','Post']] as const).map(([v,e,l]) => (
                   <button key={v}
                     onClick={() => setType(type === v ? '' : v)}
-                    className={`shrink-0 h-8 px-3 rounded-full text-xs font-bold border transition-all
+                    className={`shrink-0 h-8 px-3 rounded-full text-xs font-bold border transition-all duration-150
                       ${type === v
-                        ? 'bg-slate-800 text-white border-slate-800'
-                        : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-slate-400'}`}>
+                        ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 border-slate-100 hover:border-slate-300 hover:bg-slate-100'}`}>
                     {e} {l}
                   </button>
                 ))}
               </div>
               {hasFilter && (
                 <button onClick={clearAll}
-                  className="ml-auto h-8 px-3 text-xs font-bold text-red-500 hover:text-red-700 border border-red-100 rounded-full hover:bg-red-50 transition-all">
-                  ✕ {t('Clear all','クリア','সব মুছুন')}
+                  className="ml-auto h-8 px-3 text-xs font-semibold text-slate-400 hover:text-red-500 border border-slate-100 rounded-full hover:border-red-100 hover:bg-red-50 transition-all duration-150">
+                  ✕ {t('Clear','クリア','মুছুন')}
                 </button>
               )}
             </div>
           </div>
 
-          {/* Active filter chips strip (mobile summary when collapsed) */}
+          {/* Active chips strip (mobile only, when collapsed) */}
           {hasFilter && !filtersOpen && (
             <div className="sm:hidden flex items-center gap-2 px-4 pb-3 overflow-x-auto scrollbar-none">
               {country && (
-                <span className="shrink-0 flex items-center gap-1 h-6 px-2.5 rounded-full bg-green-50 border border-green-200 text-green-700 text-[11px] font-bold">
+                <span className="shrink-0 flex items-center gap-1 h-6 px-2.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] font-bold">
                   {countries.find(c=>c.slug===country)?.flag} {countries.find(c=>c.slug===country)?.name}
-                  <button onClick={() => setCountry('')} className="ml-0.5 text-green-500 hover:text-green-800">✕</button>
+                  <button onClick={() => setCountry('')} className="ml-0.5 opacity-60 hover:opacity-100">✕</button>
                 </span>
               )}
               {purpose && (
-                <span className="shrink-0 flex items-center gap-1 h-6 px-2.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-bold">
+                <span className="shrink-0 flex items-center gap-1 h-6 px-2.5 rounded-full bg-violet-50 border border-violet-100 text-violet-700 text-[11px] font-bold">
                   {purposes.find(p=>p.slug===purpose)?.flag} {purposes.find(p=>p.slug===purpose)?.name}
-                  <button onClick={() => setPurpose('')} className="ml-0.5 text-indigo-400 hover:text-indigo-700">✕</button>
+                  <button onClick={() => setPurpose('')} className="ml-0.5 opacity-60 hover:opacity-100">✕</button>
                 </span>
               )}
               {type && (
-                <span className="shrink-0 flex items-center gap-1 h-6 px-2.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold capitalize">
+                <span className="shrink-0 flex items-center gap-1 h-6 px-2.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-bold capitalize">
                   {type}
-                  <button onClick={() => setType('')} className="ml-0.5 text-slate-400 hover:text-slate-700">✕</button>
+                  <button onClick={() => setType('')} className="ml-0.5 opacity-60 hover:opacity-100">✕</button>
                 </span>
               )}
             </div>
           )}
         </div>
+
+        {/* ── Result count ─────────────────────────────────────── */}
+        {!isLoading && posts.length > 0 && (
+          <p className="text-[11px] font-semibold text-slate-400 mb-3 px-0.5">
+            {hasFilter
+              ? t(`${total} result${total !== 1 ? 's' : ''} found`, `${total}件の結果`, `${total}টি ফলাফল`)
+              : t(`${total} article${total !== 1 ? 's' : ''} & videos`, `${total}本のコンテンツ`, `${total}টি কনটেন্ট`)}
+          </p>
+        )}
 
         {/* ── Posts ────────────────────────────────────────────── */}
         {isLoading ? (
@@ -283,12 +290,17 @@ function FeedInner() {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 sm:py-28">
-            <div className="text-5xl mb-4">📭</div>
-            <p className="font-black text-slate-600 text-lg mb-1">
-              {t('No posts found','投稿が見つかりません','কোনো পোস্ট পাওয়া যায়নি')}
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-7 h-7 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <p className="font-black text-slate-700 text-lg mb-1">
+              {t('No results','投稿が見つかりません','কোনো ফলাফল নেই')}
             </p>
-            <p className="text-slate-400 text-sm mb-5">
-              {t('Try a different filter.','別のフィルターをお試しください。','অন্য ফিল্টার চেষ্টা করুন।')}
+            <p className="text-slate-400 text-sm mb-6">
+              {t('Try adjusting your filters.','別のフィルターをお試しください。','ফিল্টার পরিবর্তন করে দেখুন।')}
             </p>
             {hasFilter && (
               <button onClick={clearAll}
@@ -308,29 +320,35 @@ function FeedInner() {
 
         {/* ── Guest CTA ─────────────────────────────────────────── */}
         {!user && posts.length > 0 && (
-          <div className="mt-8 sm:mt-10 rounded-2xl overflow-hidden bg-gradient-to-br from-[#0d2414] to-green-800 px-5 sm:px-8 py-8 sm:py-10 text-center">
-            <span className="inline-block text-green-300 text-[10px] font-black tracking-[0.2em] uppercase mb-3 px-3 py-1 rounded-full border border-green-700/60 bg-green-900/40">
-              {t('Free Account','無料アカウント','ফ্রি অ্যাকাউন্ট')}
-            </span>
-            <p className="font-black text-white text-xl sm:text-2xl mb-2 leading-tight">
-              {t('Unlock every article & video','全記事・動画を無料で閲覧','সব কনটেন্ট আনলক করুন')}
-            </p>
-            <p className="text-green-200 text-sm mb-6 max-w-md mx-auto leading-relaxed">
-              {t(
-                'Create a free Tensai account to read full articles, watch videos, and apply to schools abroad.',
-                '無料登録して記事・動画の全コンテンツと留学サポートをご利用ください。',
-                'ফ্রি Tensai অ্যাকাউন্ট তৈরি করুন — আর্টিকেল পড়ুন, ভিডিও দেখুন, বিদেশে আবেদন করুন।'
-              )}
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-3">
-              <Link href="/auth/register"
-                className="h-11 px-8 bg-white text-green-800 font-black rounded-xl text-sm hover:bg-green-50 transition-colors flex items-center justify-center">
-                {t('Create Free Account','無料で登録','ফ্রি অ্যাকাউন্ট তৈরি')}
-              </Link>
-              <Link href="/auth/login"
-                className="h-11 px-8 bg-green-900/50 text-white font-bold rounded-xl text-sm border border-green-600 hover:bg-green-900/70 transition-colors flex items-center justify-center">
-                {t('Sign In','サインイン','সাইন ইন')}
-              </Link>
+          <div className="mt-8 sm:mt-10 rounded-2xl overflow-hidden relative">
+            <div className="absolute inset-0 bg-[#0b1e11]" />
+            <div className="absolute inset-0 opacity-[0.035]"
+              style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            <div className="relative px-5 sm:px-10 py-9 sm:py-12 text-center">
+              <span className="inline-flex items-center gap-1.5 text-green-400 text-[10px] font-black tracking-[0.18em] uppercase mb-4 px-3 py-1 rounded-full border border-green-800/50 bg-green-950/60">
+                <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg>
+                {t('Free Account','無料アカウント','ফ্রি অ্যাকাউন্ট')}
+              </span>
+              <p className="font-black text-white text-xl sm:text-2xl mb-2.5 leading-tight tracking-tight">
+                {t('Unlock every article & video','全記事・動画を無料で閲覧','সব কনটেন্ট আনলক করুন')}
+              </p>
+              <p className="text-slate-400 text-sm mb-7 max-w-sm mx-auto leading-relaxed">
+                {t(
+                  'Create a free account to read full articles, watch videos, and apply to schools abroad.',
+                  '無料登録して全コンテンツと留学サポートをご利用ください。',
+                  'ফ্রি অ্যাকাউন্টে আর্টিকেল পড়ুন, ভিডিও দেখুন, বিদেশে আবেদন করুন।'
+                )}
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-2.5">
+                <Link href="/auth/register"
+                  className="h-11 px-8 bg-white text-slate-900 font-black rounded-xl text-sm hover:bg-slate-100 transition-colors flex items-center justify-center">
+                  {t('Create Free Account','無料で登録','ফ্রি অ্যাকাউন্ট তৈরি')}
+                </Link>
+                <Link href="/auth/login"
+                  className="h-11 px-8 bg-white/8 text-white font-semibold rounded-xl text-sm border border-white/12 hover:bg-white/12 transition-colors flex items-center justify-center">
+                  {t('Sign In','サインイン','সাইন ইন')}
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -369,86 +387,94 @@ function PostCard({ post, user, t, featured }: {
 
   return (
     <Link href={`/feed/${post.slug}`}
-      className={`group flex flex-col bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden
-        hover:shadow-md hover:border-green-200 transition-all duration-200 active:scale-[0.99]
+      className={`group flex flex-col bg-white rounded-2xl border border-slate-100 overflow-hidden
+        shadow-[0_1px_4px_rgba(15,23,42,0.06)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)]
+        hover:border-green-100 transition-all duration-200 active:scale-[0.99]
         ${featured ? 'sm:col-span-2 lg:col-span-3 sm:flex-row' : ''}`}>
 
-      {/* ── Image ── */}
+      {/* Image */}
       <div className={`relative bg-slate-100 overflow-hidden shrink-0
         ${featured ? 'h-52 sm:h-auto sm:w-[45%]' : 'h-44 sm:h-48'}`}>
 
         {post.thumbnail
           ? <img src={post.thumbnail} alt={post.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-          : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-              <span className="text-5xl opacity-20">{typeIcon}</span>
+              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out" />
+          : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-50">
+              <span className="text-5xl opacity-10">{typeIcon}</span>
             </div>
         }
+
+        {/* Featured badge */}
+        {featured && (
+          <div className="absolute top-3 left-3 bg-amber-500 text-white text-[9px] font-black tracking-wide uppercase px-2.5 py-1 rounded-full shadow-sm">
+            {t('Featured','注目','ফিচার্ড')}
+          </div>
+        )}
 
         {/* Play button (video, authenticated) */}
         {post.type === 'video' && !isGuest && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-14 h-14 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center
-              group-hover:bg-black/70 group-hover:scale-110 transition-all duration-200">
-              <svg className="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center
+              group-hover:bg-black/60 group-hover:scale-110 transition-all duration-200 shadow-lg">
+              <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
               </svg>
             </div>
           </div>
         )}
 
-        {/* Lock badge (guests only) */}
+        {/* Members-only badge (guests) */}
         {isGuest && (
-          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-black/65 backdrop-blur-sm rounded-full px-2.5 py-1">
-            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-black/55 backdrop-blur-sm rounded-full px-2.5 py-1">
+            <svg className="w-2.5 h-2.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
-            <span className="text-[10px] font-bold text-white leading-none">
-              {t('Login to read','ログインで読む','লগইন করুন')}
+            <span className="text-[10px] font-bold text-white/90 leading-none">
+              {t('Members only','会員限定','সদস্যদের জন্য')}
             </span>
           </div>
         )}
 
         {/* Type badge */}
-        <div className="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+        <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
           {typeIcon} {typeLabel}
         </div>
       </div>
 
-      {/* ── Content ── */}
+      {/* Content */}
       <div className="flex flex-col flex-1 p-4 sm:p-5">
-        {/* Tags */}
+        {/* Category chips */}
         <div className="flex flex-wrap gap-1 mb-2.5">
           {post.categories.slice(0, 3).map(c => (
             <span key={c.slug}
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${CM[c.color] ?? 'bg-slate-100 text-slate-600'}`}>
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${catChip(c)}`}>
               {c.flag} {c.name}
             </span>
           ))}
         </div>
 
         <h3 className={`font-black text-slate-900 leading-snug mb-2
-          group-hover:text-green-700 transition-colors line-clamp-2
+          group-hover:text-green-700 transition-colors duration-150 line-clamp-2
           ${featured ? 'text-base sm:text-xl' : 'text-sm sm:text-[0.9rem]'}`}>
           {post.title}
         </h3>
 
-        <p className={`text-slate-500 leading-relaxed flex-1 line-clamp-2 sm:line-clamp-3
-          ${featured ? 'text-sm' : 'text-xs'}`}>
+        <p className={`text-slate-400 leading-relaxed flex-1 line-clamp-2 sm:line-clamp-3
+          ${featured ? 'text-sm' : 'text-[0.8125rem]'}`}>
           {post.excerpt}
         </p>
 
         <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between gap-2">
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-slate-300 font-medium">
             {post.published_at
-              ? new Date(post.published_at).toLocaleDateString(undefined,{dateStyle:'medium'})
+              ? new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'medium' })
               : ''}
           </span>
-          <span className={`font-black text-green-700 group-hover:underline shrink-0
+          <span className={`font-black text-green-700 group-hover:text-green-600 shrink-0 transition-colors
             ${featured ? 'text-sm' : 'text-xs'}`}>
             {post.type === 'video'
-              ? t('Watch →','視聴 →','দেখুন →')
+              ? t('Watch →','視聴する →','দেখুন →')
               : t('Read →','読む →','পড়ুন →')}
           </span>
         </div>
