@@ -39,6 +39,7 @@ export default function AdminGalleryPage() {
   const [file, setFile]       = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
   const [formErr, setFormErr] = useState('');
+  const [actionErr, setActionErr] = useState('');
   const fileRef               = useRef<HTMLInputElement>(null);
 
   const isAdmin = user?.roles?.some((r: string) => r === 'admin' || r === 'super_admin');
@@ -70,11 +71,13 @@ export default function AdminGalleryPage() {
     mutationFn: ({ id, field }: { id: number; field: string }) =>
       api.post(`/admin/gallery/${id}/toggle`, { field }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-gallery'] }),
+    onError: () => setActionErr(ja ? '操作に失敗しました。' : bn ? 'ব্যর্থ হয়েছে।' : 'Action failed.'),
   });
 
   const del = useMutation({
     mutationFn: (id: number) => api.delete(`/admin/gallery/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-gallery'] }),
+    onError: () => setActionErr(ja ? '削除に失敗しました。' : bn ? 'মুছতে ব্যর্থ হয়েছে।' : 'Failed to delete.'),
   });
 
   // ── Guard: don't render until we know the user ──
@@ -160,6 +163,10 @@ export default function AdminGalleryPage() {
           {ja ? '+ 画像を追加' : bn ? '+ ছবি যোগ করুন' : '+ Add Image'}
         </button>
       </div>
+
+      {actionErr && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">⚠ {actionErr}</div>
+      )}
 
       {isLoading && (
         <div>

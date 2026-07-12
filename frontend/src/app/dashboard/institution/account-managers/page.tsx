@@ -45,6 +45,7 @@ export default function AccountManagersPage() {
   const [form, setForm] = useState<ManagerForm>(blank);
   const [formError, setFormError] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [removeErr, setRemoveErr] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-managers'],
@@ -87,7 +88,7 @@ export default function AccountManagersPage() {
       qc.invalidateQueries({ queryKey: ['institution-managers'] });
       setDeletingId(null);
     },
-    onError: () => setDeletingId(null),
+    onError: () => { setDeletingId(null); setRemoveErr(ja ? '削除に失敗しました。' : bn ? 'মুছতে ব্যর্থ হয়েছে।' : 'Failed to remove.'); },
   });
 
   function handleSubmit(e: React.FormEvent) {
@@ -190,6 +191,10 @@ export default function AccountManagersPage() {
             </div>
           </form>
         </div>
+      )}
+
+      {removeErr && (
+        <div className="mb-3 p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600">⚠️ {removeErr}</div>
       )}
 
       {/* Managers list */}

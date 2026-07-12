@@ -38,6 +38,7 @@ export default function BranchTeamPage() {
   const [editing, setEditing] = useState<TeamMember | null>(null);
   const [form, setForm] = useState(EMPTY);
   const [err, setErr] = useState('');
+  const [actionErr, setActionErr] = useState('');
 
   const { data: members = [], isLoading } = useQuery<TeamMember[]>({
     queryKey: ['branch-team'],
@@ -60,6 +61,7 @@ export default function BranchTeamPage() {
   const del = useMutation({
     mutationFn: (id: number) => api.delete(`/branch-admin/team/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['branch-team'] }),
+    onError: () => setActionErr(ja ? '削除に失敗しました。' : bn ? 'মুছতে ব্যর্থ হয়েছে।' : 'Failed to delete.'),
   });
 
   function openAdd() { setEditing(null); setForm(EMPTY); setErr(''); setModal('add'); }
@@ -94,6 +96,10 @@ export default function BranchTeamPage() {
           {ja ? 'メンバー追加' : bn ? 'সদস্য যোগ করুন' : 'Add Member'}
         </button>
       </div>
+
+      {actionErr && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">⚠ {actionErr}</div>
+      )}
 
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

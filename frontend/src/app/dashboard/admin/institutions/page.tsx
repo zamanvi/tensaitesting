@@ -89,6 +89,7 @@ export default function AdminInstitutionsPage() {
     mutationFn: ({ id, verified }: { id: number; verified: boolean }) =>
       api.patch(`/admin/institutions/${id}/verify`, { verified }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-institutions'] }),
+    onError: () => setActionErr(ja ? '操作に失敗しました。' : bn ? 'ব্যর্থ হয়েছে।' : 'Action failed.'),
   });
 
   if (!user || !isAdmin) return null;

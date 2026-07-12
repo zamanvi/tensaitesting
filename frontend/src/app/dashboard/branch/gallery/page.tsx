@@ -38,6 +38,7 @@ export default function BranchGalleryPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [preview, setPreview]   = useState('');
   const [err, setErr] = useState('');
+  const [actionErr, setActionErr] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: items = [], isLoading } = useQuery<GalleryItem[]>({
@@ -69,6 +70,7 @@ export default function BranchGalleryPage() {
   const del = useMutation({
     mutationFn: (id: number) => api.delete(`/branch-admin/gallery/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['branch-gallery'] }),
+    onError: () => setActionErr('Failed to delete.'),
   });
 
   function openAdd() {
@@ -119,6 +121,10 @@ export default function BranchGalleryPage() {
           Add Image
         </button>
       </div>
+
+      {actionErr && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">⚠ {actionErr}</div>
+      )}
 
       {/* Grid */}
       {isLoading ? (
