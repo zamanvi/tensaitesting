@@ -34,10 +34,8 @@ class PostController extends Controller
 
         $posts = $query->paginate(12);
 
-        $isAuth = auth('sanctum')->check();
-
-        $posts->getCollection()->transform(function (Post $post) use ($isAuth) {
-            return $this->formatPost($post, $isAuth);
+        $posts->getCollection()->transform(function (Post $post) {
+            return $this->formatPost($post);
         });
 
         return response()->json($posts);
@@ -50,9 +48,7 @@ class PostController extends Controller
             ->where('status', 'published')
             ->firstOrFail();
 
-        $isAuth = auth('sanctum')->check();
-
-        return response()->json($this->formatPost($post, $isAuth, full: true));
+        return response()->json($this->formatPost($post, full: true));
     }
 
     public function categories(): JsonResponse
@@ -64,7 +60,7 @@ class PostController extends Controller
         ]);
     }
 
-    private function formatPost(Post $post, bool $isAuth, bool $full = false): array
+    private function formatPost(Post $post, bool $full = false): array
     {
         $base = [
             'id'          => $post->id,
@@ -82,10 +78,10 @@ class PostController extends Controller
                 'flag'  => $c->flag,
                 'color' => $c->color,
             ]),
-            'locked' => !$isAuth,
+            'locked' => false,
         ];
 
-        if ($isAuth && $full) {
+        if ($full) {
             $base['body']      = $post->body;
             $base['video_url'] = $post->video_url;
         }

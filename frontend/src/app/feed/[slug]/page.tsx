@@ -91,7 +91,6 @@ function PostInner() {
     staleTime: 60_000,
   });
 
-  const isLocked = !!post?.locked && !user;
 
   /* ── Loading ─────────────────────────────────────────────── */
   if (isLoading) return (
@@ -180,59 +179,19 @@ function PostInner() {
         </p>
 
         {/* ── VIDEO ───────────────────────────────────────── */}
-        {post.type === 'video' && (
+        {post.type === 'video' && post.youtube_id && (
           <div className="mb-7 sm:mb-9">
-            {!isLocked && post.youtube_id ? (
-              <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)] bg-black"
-                style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  className="absolute inset-0 w-full h-full"
-                  src={`https://www.youtube.com/embed/${post.youtube_id}?rel=0&modestbranding=1&color=white`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                  loading="lazy"
-                  title={post.title}
-                />
-              </div>
-            ) : (
-              <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)]"
-                style={{ paddingBottom: '56.25%' }}>
-                {post.thumbnail
-                  ? <img src={post.thumbnail} alt={post.title}
-                      className="absolute inset-0 w-full h-full object-cover" />
-                  : <div className="absolute inset-0 bg-slate-800" />
-                }
-                <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-[3px]
-                  flex flex-col items-center justify-center gap-5 p-5 sm:p-8 text-center">
-                  <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20
-                    flex items-center justify-center shadow-lg">
-                    <svg className="w-7 h-7 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-white font-black text-lg sm:text-xl mb-1.5 tracking-tight">
-                      {t('Sign in to watch','サインインして視聴','দেখতে সাইন ইন করুন')}
-                    </p>
-                    <p className="text-white/50 text-xs sm:text-sm">
-                      {t('Free Tensai account required','無料登録が必要です','ফ্রি অ্যাকাউন্ট প্রয়োজন')}
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
-                    <Link href="/auth/register"
-                      className="h-11 sm:h-9 px-7 bg-green-600 text-white text-sm font-black rounded-xl
-                        hover:bg-green-500 transition-colors flex items-center justify-center">
-                      {t('Join Free','無料登録','ফ্রি যোগ দিন')}
-                    </Link>
-                    <Link href="/auth/login"
-                      className="h-11 sm:h-9 px-7 bg-white/10 text-white text-sm font-semibold rounded-xl
-                        border border-white/20 hover:bg-white/20 transition-colors flex items-center justify-center">
-                      {t('Sign In','サインイン','সাইন ইন')}
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)] bg-black"
+              style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${post.youtube_id}?rel=0&modestbranding=1&color=white`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
+                loading="lazy"
+                title={post.title}
+              />
+            </div>
           </div>
         )}
 
@@ -245,72 +204,12 @@ function PostInner() {
         )}
 
         {/* ── CONTENT ─────────────────────────────────────── */}
-        {!isLocked ? (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] p-5 sm:p-9">
-            {post.body
-              ? <div className="rich-body" dangerouslySetInnerHTML={{ __html: post.body }} />
-              : <p className="text-slate-600 leading-[1.8] text-[15px]">{post.excerpt}</p>
-            }
-          </div>
-        ) : (
-          <div className="rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(15,23,42,0.06)] border border-slate-100">
-
-            {/* Visible excerpt */}
-            <div className="bg-white px-5 sm:px-9 pt-7 sm:pt-9 pb-5">
-              <p className="text-slate-700 leading-[1.85] text-[15px] sm:text-base">
-                {post.excerpt}
-              </p>
-            </div>
-
-            {/* Blurred continuation hint */}
-            <div className="relative bg-white px-5 sm:px-9 pb-2 select-none pointer-events-none overflow-hidden">
-              <div className="space-y-3 opacity-[0.15] blur-[5px]">
-                {[100, 94, 87, 100, 76, 91, 58].map((w, i) => (
-                  <div key={i} className="h-3.5 bg-slate-600 rounded-full" style={{ width: `${w}%` }} />
-                ))}
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-white/70 to-white" />
-            </div>
-
-            {/* CTA gate */}
-            <div className="relative overflow-hidden">
-              <div className="absolute inset-0 bg-[#0b1e11]" />
-              <div className="absolute inset-0 opacity-[0.035]"
-                style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-              <div className="relative px-5 sm:px-10 py-9 sm:py-11 text-center">
-                <div className="w-11 h-11 rounded-2xl bg-green-900/60 border border-green-700/30
-                  flex items-center justify-center mx-auto mb-5 shadow-inner">
-                  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                  </svg>
-                </div>
-                <p className="font-black text-white text-xl sm:text-2xl mb-2.5 tracking-tight">
-                  {t('Continue reading — it\'s free','無料で続きを読む','ফ্রিতে পড়া চালিয়ে যান')}
-                </p>
-                <p className="text-slate-400 text-sm sm:text-[0.9rem] mb-7 max-w-sm mx-auto leading-relaxed">
-                  {t(
-                    'Create a free account to unlock full articles, watch videos, and start your study abroad journey.',
-                    '無料登録で記事全文・動画・留学サポートをすべてご利用いただけます。',
-                    'ফ্রি অ্যাকাউন্টে সব কনটেন্ট পড়ুন এবং বিদেশে পড়ার যাত্রা শুরু করুন।'
-                  )}
-                </p>
-                <div className="flex flex-col sm:flex-row justify-center gap-2.5">
-                  <Link href="/auth/register"
-                    className="h-12 sm:h-11 px-8 bg-white text-slate-900 font-black rounded-xl text-sm
-                      hover:bg-slate-100 transition-colors flex items-center justify-center">
-                    {t('Create Free Account','無料で登録','ফ্রি অ্যাকাউন্ট তৈরি')}
-                  </Link>
-                  <Link href="/auth/login"
-                    className="h-12 sm:h-11 px-8 bg-white/8 text-white font-semibold rounded-xl text-sm
-                      border border-white/12 hover:bg-white/12 transition-colors flex items-center justify-center">
-                    {t('Sign In','サインイン','সাইন ইন')}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] p-5 sm:p-9">
+          {post.body
+            ? <div className="rich-body" dangerouslySetInnerHTML={{ __html: post.body }} />
+            : <p className="text-slate-600 leading-[1.8] text-[15px]">{post.excerpt}</p>
+          }
+        </div>
 
         {/* ── Bottom nav ───────────────────────────────────── */}
         <div className="mt-8 sm:mt-10 pt-5 border-t border-slate-200
@@ -323,12 +222,6 @@ function PostInner() {
             </svg>
             {t('Back to Guide','ガイドへ戻る','গাইডে ফিরুন')}
           </Link>
-          {!user && (
-            <Link href="/auth/register"
-              className="text-sm font-bold text-green-700 hover:text-green-800 hover:underline transition-colors active:opacity-70">
-              {t('Start free — unlock everything →','無料登録で全コンテンツを解放 →','ফ্রিতে শুরু করুন — সব আনলক করুন →')}
-            </Link>
-          )}
         </div>
       </div>
     </div>
