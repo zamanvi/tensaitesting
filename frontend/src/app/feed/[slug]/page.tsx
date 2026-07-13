@@ -11,7 +11,8 @@ interface Category { name: string; slug: string; type: string; flag: string; col
 interface Post {
   id: number; title: string; slug: string; type: string;
   excerpt: string; body?: string; thumbnail: string | null;
-  youtube_id: string | null; published_at: string; categories: Category[]; locked: boolean;
+  youtube_id: string | null; published_at: string; categories: Category[];
+  locked: boolean; is_premium: boolean;
 }
 
 function catChip(c: Category) {
@@ -91,6 +92,8 @@ function PostInner() {
     staleTime: 60_000,
   });
 
+  const isLocked = !!post?.is_premium && !user;
+
 
   /* ── Loading ─────────────────────────────────────────────── */
   if (isLoading) return (
@@ -164,6 +167,14 @@ function PostInner() {
             : post.type === 'article' ? `📰 ${t('Article','記事','আর্টিকেল')}`
             :                           `✍️ ${t('Post','投稿','পোস্ট')}`}
           </span>
+          {post.is_premium && (
+            <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-xs font-black">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+              {t('Premium','プレミアム','প্রিমিয়াম')}
+            </span>
+          )}
         </div>
 
         {/* ── Title ───────────────────────────────────────── */}
@@ -179,19 +190,44 @@ function PostInner() {
         </p>
 
         {/* ── VIDEO ───────────────────────────────────────── */}
-        {post.type === 'video' && post.youtube_id && (
+        {post.type === 'video' && (
           <div className="mb-7 sm:mb-9">
-            <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)] bg-black"
-              style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                className="absolute inset-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${post.youtube_id}?rel=0&modestbranding=1&color=white`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                allowFullScreen
-                loading="lazy"
-                title={post.title}
-              />
-            </div>
+            {!isLocked && post.youtube_id ? (
+              <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)] bg-black"
+                style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${post.youtube_id}?rel=0&modestbranding=1&color=white`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                  loading="lazy"
+                  title={post.title}
+                />
+              </div>
+            ) : isLocked ? (
+              <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.15)]"
+                style={{ paddingBottom: '56.25%' }}>
+                {post.thumbnail
+                  ? <img src={post.thumbnail} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
+                  : <div className="absolute inset-0 bg-slate-800" />
+                }
+                <div className="absolute inset-0 bg-slate-900/75 backdrop-blur-[3px] flex items-center justify-center">
+                  <div className="text-center px-6">
+                    <div className="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-6 h-6 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                    </div>
+                    <p className="text-white font-black text-lg mb-1">{t('Premium Content','プレミアムコンテンツ','প্রিমিয়াম কনটেন্ট')}</p>
+                    <p className="text-white/50 text-sm mb-5">{t('Create an account to get this content','アカウントを作成してコンテンツを入手','এই কনটেন্ট পেতে অ্যাকাউন্ট তৈরি করুন')}</p>
+                    <div className="flex gap-2.5 justify-center">
+                      <a href="/auth/register" className="h-9 px-5 bg-amber-500 text-white text-sm font-black rounded-xl hover:bg-amber-400 transition-colors flex items-center">{t('Join Free','無料登録','ফ্রি যোগ দিন')}</a>
+                      <a href="/auth/login" className="h-9 px-5 bg-white/10 text-white text-sm font-semibold rounded-xl border border-white/20 hover:bg-white/20 transition-colors flex items-center">{t('Sign In','サインイン','সাইন ইন')}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         )}
 
@@ -204,12 +240,64 @@ function PostInner() {
         )}
 
         {/* ── CONTENT ─────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] p-5 sm:p-9">
-          {post.body
-            ? <div className="rich-body" dangerouslySetInnerHTML={{ __html: post.body }} />
-            : <p className="text-slate-600 leading-[1.8] text-[15px]">{post.excerpt}</p>
-          }
-        </div>
+        {!isLocked ? (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] p-5 sm:p-9">
+            {post.body
+              ? <div className="rich-body" dangerouslySetInnerHTML={{ __html: post.body }} />
+              : <p className="text-slate-600 leading-[1.8] text-[15px]">{post.excerpt}</p>
+            }
+          </div>
+        ) : (
+          <div className="rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(15,23,42,0.06)] border border-slate-100">
+            {/* Visible excerpt */}
+            <div className="bg-white px-5 sm:px-9 pt-7 sm:pt-9 pb-5">
+              <p className="text-slate-700 leading-[1.85] text-[15px] sm:text-base">{post.excerpt}</p>
+            </div>
+            {/* Blurred hint */}
+            <div className="relative bg-white px-5 sm:px-9 pb-2 select-none pointer-events-none overflow-hidden">
+              <div className="space-y-3 opacity-[0.15] blur-[5px]">
+                {[100, 94, 87, 100, 76, 91, 58].map((w, i) => (
+                  <div key={i} className="h-3.5 bg-slate-600 rounded-full" style={{ width: `${w}%` }} />
+                ))}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-white/70 to-white" />
+            </div>
+            {/* CTA */}
+            <div className="relative overflow-hidden">
+              <div className="absolute inset-0 bg-[#1a1200]" />
+              <div className="absolute inset-0 opacity-[0.035]"
+                style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+              <div className="relative px-5 sm:px-10 py-9 sm:py-11 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center mx-auto mb-5">
+                  <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </div>
+                <span className="inline-flex items-center gap-1.5 bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded-full mb-4">
+                  {t('Premium Content','プレミアムコンテンツ','প্রিমিয়াম কনটেন্ট')}
+                </span>
+                <p className="font-black text-white text-xl sm:text-2xl mb-2.5 tracking-tight">
+                  {t('Create an account to get this content','アカウントを作成してコンテンツを入手','এই কনটেন্ট পেতে অ্যাকাউন্ট তৈরি করুন')}
+                </p>
+                <p className="text-slate-400 text-sm mb-7 max-w-sm mx-auto leading-relaxed">
+                  {t('Free to join. Unlock all premium articles and videos instantly.',
+                    '無料登録でプレミアム記事・動画を即時解放。',
+                    'যোগ দেওয়া বিনামূল্যে। সব প্রিমিয়াম কনটেন্ট তাৎক্ষণিক আনলক।')}
+                </p>
+                <div className="flex flex-col sm:flex-row justify-center gap-2.5">
+                  <a href="/auth/register"
+                    className="h-12 sm:h-11 px-8 bg-amber-500 text-white font-black rounded-xl text-sm hover:bg-amber-400 transition-colors flex items-center justify-center">
+                    {t('Join Free','無料で登録','ফ্রি যোগ দিন')}
+                  </a>
+                  <a href="/auth/login"
+                    className="h-12 sm:h-11 px-8 bg-white/8 text-white font-semibold rounded-xl text-sm border border-white/12 hover:bg-white/12 transition-colors flex items-center justify-center">
+                    {t('Sign In','サインイン','সাইন ইন')}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Bottom nav ───────────────────────────────────── */}
         <div className="mt-8 sm:mt-10 pt-5 border-t border-slate-200

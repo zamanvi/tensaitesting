@@ -97,6 +97,11 @@ class PostResource extends Resource
                         ->required()
                         ->default('draft'),
 
+                    Forms\Components\Toggle::make('is_premium')
+                        ->label('Premium content')
+                        ->helperText('Guests must create a free account to view this.')
+                        ->default(false),
+
                     Forms\Components\DateTimePicker::make('published_at')
                         ->label('Publish Date')
                         ->nullable(),
@@ -140,6 +145,14 @@ class PostResource extends Resource
                     ->limit(3)
                     ->color('gray'),
 
+                Tables\Columns\IconColumn::make('is_premium')
+                    ->label('Premium')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-star')
+                    ->falseIcon('heroicon-o-minus')
+                    ->trueColor('warning')
+                    ->falseColor('gray'),
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn ($state) => $state === 'published' ? 'success' : 'warning'),
@@ -156,6 +169,8 @@ class PostResource extends Resource
                     ->options(['draft' => 'Draft', 'published' => 'Published']),
                 Tables\Filters\SelectFilter::make('type')
                     ->options(['video' => '🎬 Video', 'article' => '📰 Article', 'text' => '✍️ Text']),
+                Tables\Filters\TernaryFilter::make('is_premium')
+                    ->label('Premium'),
             ])
             ->actions([
                 Tables\Actions\Action::make('view_site')

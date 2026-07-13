@@ -11,7 +11,7 @@ interface Category { name: string; slug: string; type: string; flag: string; col
 interface Post {
   id: number; title: string; slug: string; type: string;
   excerpt: string; thumbnail: string | null; youtube_id: string | null;
-  published_at: string; categories: Category[]; locked: boolean;
+  published_at: string; categories: Category[]; locked: boolean; is_premium: boolean;
 }
 
 function catChip(c: Category) {
@@ -429,8 +429,8 @@ function FeaturedCard({ post, user, t }: {
   user: unknown;
   t: (a:string,b:string,c:string)=>string;
 }) {
-  const typeIcon = post.type === 'video' ? '🎬' : post.type === 'article' ? '📰' : '✍️';
-  const isGuest  = !user;
+  const typeIcon  = post.type === 'video' ? '🎬' : post.type === 'article' ? '📰' : '✍️';
+  const isLocked  = post.is_premium && !user;
 
   return (
     <Link href={`/feed/${post.slug}`}
@@ -464,19 +464,20 @@ function FeaturedCard({ post, user, t }: {
         {typeIcon} {post.type === 'video' ? t('Video','動画','ভিডিও') : post.type === 'article' ? t('Article','記事','আর্টিকেল') : t('Post','投稿','পোস্ট')}
       </div>
 
-      {/* Lock badge */}
-      {isGuest && (
-        <div className="absolute top-12 right-4 mt-1 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
-          <svg className="w-2.5 h-2.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      {/* Premium badge */}
+      {post.is_premium && (
+        <div className="absolute top-12 right-4 mt-1 flex items-center gap-1 bg-amber-500/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
+          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
           </svg>
-          <span className="text-[9px] font-bold text-white/90">{t('Members only','会員限定','সদস্যদের জন্য')}</span>
+          <span className="text-[9px] font-black text-white tracking-wide uppercase">
+            {t('Premium','プレミアム','প্রিমিয়াম')}
+          </span>
         </div>
       )}
 
       {/* Video play button */}
-      {post.type === 'video' && !isGuest && (
+      {post.type === 'video' && !isLocked && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center
             group-hover:bg-white/25 group-hover:scale-110 transition-all duration-300 shadow-xl">
@@ -538,7 +539,7 @@ function PostCard({ post, user, t }: {
                   : post.type === 'article' ? t('Article','記事','আর্টিকেল')
                   :                           t('Post','投稿','পোস্ট');
   const typeIcon  = post.type === 'video' ? '🎬' : post.type === 'article' ? '📰' : '✍️';
-  const isGuest   = !user;
+  const isLocked  = post.is_premium && !user;
   const rt        = readTime(post.type, post.excerpt);
   const fresh     = post.published_at && isNew(post.published_at);
 
@@ -568,7 +569,7 @@ function PostCard({ post, user, t }: {
         </div>
 
         {/* Play button */}
-        {post.type === 'video' && !isGuest && (
+        {post.type === 'video' && !isLocked && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center
               group-hover:bg-black/65 group-hover:scale-110 transition-all duration-200 shadow-lg">
@@ -579,15 +580,14 @@ function PostCard({ post, user, t }: {
           </div>
         )}
 
-        {/* Members-only */}
-        {isGuest && (
-          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-black/55 backdrop-blur-sm rounded-full px-2.5 py-1">
-            <svg className="w-2.5 h-2.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        {/* Premium badge */}
+        {post.is_premium && (
+          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-amber-500/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
+            <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
             </svg>
-            <span className="text-[10px] font-bold text-white/90 leading-none">
-              {t('Members only','会員限定','সদস্যদের জন্য')}
+            <span className="text-[10px] font-black text-white leading-none">
+              {t('Premium','プレミアム','প্রিমিয়াম')}
             </span>
           </div>
         )}

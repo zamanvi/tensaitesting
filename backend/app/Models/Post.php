@@ -9,11 +9,12 @@ class Post extends Model
 {
     protected $fillable = [
         'title', 'slug', 'excerpt', 'body', 'type',
-        'video_url', 'thumbnail_url', 'status', 'published_at', 'created_by',
+        'video_url', 'thumbnail_url', 'status', 'is_premium', 'published_at', 'created_by',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
+        'is_premium'   => 'boolean',
     ];
 
     public function categories(): BelongsToMany

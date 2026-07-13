@@ -34,8 +34,10 @@ class PostController extends Controller
 
         $posts = $query->paginate(12);
 
-        $posts->getCollection()->transform(function (Post $post) {
-            return $this->formatPost($post);
+        $isAuth = auth('sanctum')->check();
+
+        $posts->getCollection()->transform(function (Post $post) use ($isAuth) {
+            return $this->formatPost($post, $isAuth);
         });
 
         return response()->json($posts);
@@ -48,7 +50,9 @@ class PostController extends Controller
             ->where('status', 'published')
             ->firstOrFail();
 
-        return response()->json($this->formatPost($post, full: true));
+        $isAuth = auth('sanctum')->check();
+
+        return response()->json($this->formatPost($post, $isAuth, full: true));
     }
 
     public function categories(): JsonResponse
@@ -60,8 +64,10 @@ class PostController extends Controller
         ]);
     }
 
-    private function formatPost(Post $post, bool $full = false): array
+    private function formatPost(Post $post, bool $isAuth = false, bool $full = false): array
     {
+        $locked = $post->is_premium && !$isAuth;
+
         $base = [
             'id'          => $post->id,
             'title'       => $post->title,
@@ -71,6 +77,8 @@ class PostController extends Controller
             'thumbnail'   => $post->thumbnail,
             'youtube_id'  => $post->youtube_id,
             'published_at'=> $post->published_at,
+            'is_premium'  => $post->is_premium,
+            'locked'      => $locked,
             'categories'  => $post->categories->map(fn ($c) => [
                 'name'  => $c->name,
                 'slug'  => $c->slug,
@@ -78,10 +86,9 @@ class PostController extends Controller
                 'flag'  => $c->flag,
                 'color' => $c->color,
             ]),
-            'locked' => false,
         ];
 
-        if ($full) {
+        if ($full && !$locked) {
             $base['body']      = $post->body;
             $base['video_url'] = $post->video_url;
         }
