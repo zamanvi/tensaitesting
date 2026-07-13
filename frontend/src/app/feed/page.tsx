@@ -20,6 +20,17 @@ function catChip(c: Category) {
   return 'bg-slate-100 text-slate-500';
 }
 
+function isNew(published_at: string) {
+  return Date.now() - new Date(published_at).getTime() < 7 * 24 * 60 * 60 * 1000;
+}
+
+function readTime(type: string, excerpt: string) {
+  if (type === 'video') return null;
+  const words = excerpt.split(' ').length;
+  const mins = Math.max(3, Math.round(words / 40));
+  return `${mins} min read`;
+}
+
 /* ── Navbar ─────────────────────────────────────────────────── */
 function FeedNav({ user, t }: { user: unknown; t: (a:string,b:string,c:string)=>string }) {
   return (
@@ -112,13 +123,15 @@ function FeedInner() {
 
   const clearAll = () => { setCountry(''); setPurpose(''); setType(''); };
 
+  const featuredPost  = !hasFilter && posts.length >= 3 ? posts[0] : null;
+  const remainingPosts = featuredPost ? posts.slice(1) : posts;
+
   return (
     <div className="min-h-screen bg-[#f4f6f9]">
       <FeedNav user={user} t={t} />
 
       {/* ── Hero ──────────────────────────────────────────────── */}
       <div className="relative overflow-hidden bg-[#0b1812] px-4 py-12 sm:py-16">
-        {/* texture */}
         <div className="absolute inset-0 opacity-[0.04]"
           style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0b1812]/80" />
@@ -143,9 +156,7 @@ function FeedInner() {
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-7">
 
         {/* ── Filter panel ─────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] mb-5 overflow-hidden">
-
-          {/* Mobile toggle */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] mb-6 overflow-hidden">
           <button
             onClick={() => setFiltersOpen(o => !o)}
             className="w-full flex items-center justify-between px-4 py-3.5 sm:hidden"
@@ -169,10 +180,7 @@ function FeedInner() {
             </svg>
           </button>
 
-          {/* Filter rows */}
           <div className={`${filtersOpen ? 'block' : 'hidden'} sm:block`}>
-
-            {/* Country */}
             <div className="px-4 py-3 border-t border-slate-50 sm:border-t-0 sm:border-b sm:border-slate-100">
               <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2.5">
                 {t('Destination','国・地域','গন্তব্য দেশ')}
@@ -190,8 +198,6 @@ function FeedInner() {
                 ))}
               </div>
             </div>
-
-            {/* Purpose */}
             <div className="px-4 py-3 border-t border-slate-100 sm:border-b sm:border-slate-100">
               <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2.5">
                 {t('Purpose','目的','উদ্দেশ্য')}
@@ -209,8 +215,6 @@ function FeedInner() {
                 ))}
               </div>
             </div>
-
-            {/* Type + clear */}
             <div className="px-4 py-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
               <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] w-full sm:w-auto sm:mr-1">
                 {t('Format','フォーマット','ফরম্যাট')}
@@ -236,7 +240,6 @@ function FeedInner() {
             </div>
           </div>
 
-          {/* Active chips strip (mobile only, when collapsed) */}
           {hasFilter && !filtersOpen && (
             <div className="sm:hidden flex items-center gap-2 px-4 pb-3 overflow-x-auto scrollbar-none">
               {country && (
@@ -261,32 +264,22 @@ function FeedInner() {
           )}
         </div>
 
-        {/* ── Result count ─────────────────────────────────────── */}
-        {!isLoading && posts.length > 0 && (
-          <p className="text-[11px] font-semibold text-slate-400 mb-3 px-0.5">
-            {hasFilter
-              ? t(`${total} result${total !== 1 ? 's' : ''} found`, `${total}件の結果`, `${total}টি ফলাফল`)
-              : t(`${total} article${total !== 1 ? 's' : ''} & videos`, `${total}本のコンテンツ`, `${total}টি কনটেন্ট`)}
-          </p>
-        )}
-
         {/* ── Posts ────────────────────────────────────────────── */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
-                <div className="h-44 sm:h-48 bg-slate-100" />
-                <div className="p-4 space-y-2.5">
-                  <div className="flex gap-1.5">
-                    <div className="h-4 bg-slate-100 rounded-full w-16" />
-                    <div className="h-4 bg-slate-100 rounded-full w-12" />
+          <div className="space-y-4">
+            <div className="h-[340px] sm:h-[420px] bg-white rounded-2xl animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden animate-pulse">
+                  <div className="h-44 sm:h-48 bg-slate-100" />
+                  <div className="p-4 space-y-2.5">
+                    <div className="flex gap-1.5"><div className="h-4 bg-slate-100 rounded-full w-16"/><div className="h-4 bg-slate-100 rounded-full w-12"/></div>
+                    <div className="h-4 bg-slate-100 rounded w-full"/>
+                    <div className="h-4 bg-slate-100 rounded w-4/5"/>
                   </div>
-                  <div className="h-4 bg-slate-100 rounded w-full" />
-                  <div className="h-4 bg-slate-100 rounded w-4/5" />
-                  <div className="h-3 bg-slate-100 rounded w-3/4 mt-1" />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-20 sm:py-28">
@@ -310,11 +303,37 @@ function FeedInner() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {posts.map((post, i) => (
-              <PostCard key={post.id} post={post} user={user} t={t}
-                featured={i === 0 && !hasFilter && posts.length >= 3} />
-            ))}
+          <div className="space-y-4">
+
+            {/* ── Featured hero card ─────────────────────────── */}
+            {featuredPost && (
+              <FeaturedCard post={featuredPost} user={user} t={t} />
+            )}
+
+            {/* ── Section label ──────────────────────────────── */}
+            {remainingPosts.length > 0 && (
+              <div className="flex items-center justify-between pt-1 pb-0.5">
+                <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                  {featuredPost
+                    ? t('More Articles & Videos','その他のコンテンツ','আরও কনটেন্ট')
+                    : t(`${total} Result${total !== 1 ? 's' : ''}`, `${total}件`, `${total}টি ফলাফল`)}
+                </p>
+                {!hasFilter && (
+                  <span className="text-[11px] text-slate-300 font-medium">
+                    {t(`${total} total`, `全${total}本`, `মোট ${total}টি`)}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* ── Grid ───────────────────────────────────────── */}
+            {remainingPosts.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {remainingPosts.map(post => (
+                  <PostCard key={post.id} post={post} user={user} t={t} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -372,58 +391,163 @@ function FeedInner() {
   );
 }
 
-/* ── Post card ───────────────────────────────────────────────── */
-function PostCard({ post, user, t, featured }: {
+/* ── Featured hero card ──────────────────────────────────────── */
+function FeaturedCard({ post, user, t }: {
   post: Post;
   user: unknown;
   t: (a:string,b:string,c:string)=>string;
-  featured?: boolean;
+}) {
+  const typeIcon = post.type === 'video' ? '🎬' : post.type === 'article' ? '📰' : '✍️';
+  const isGuest  = !user;
+
+  return (
+    <Link href={`/feed/${post.slug}`}
+      className="group relative block w-full rounded-2xl overflow-hidden
+        shadow-[0_2px_12px_rgba(15,23,42,0.10)] hover:shadow-[0_12px_40px_rgba(15,23,42,0.16)]
+        transition-all duration-300 active:scale-[0.995]"
+      style={{ height: 'clamp(280px, 45vw, 440px)' }}>
+
+      {/* Background image */}
+      {post.thumbnail
+        ? <img src={post.thumbnail} alt={post.title}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+        : <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
+      }
+
+      {/* Gradient overlay — stronger at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
+
+      {/* Top badges */}
+      <div className="absolute top-4 left-4 flex items-center gap-2">
+        <span className="bg-amber-500 text-white text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm">
+          {t('Featured','注目','ফিচার্ড')}
+        </span>
+        {post.published_at && isNew(post.published_at) && (
+          <span className="bg-green-500 text-white text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-full shadow-sm">
+            {t('New','新着','নতুন')}
+          </span>
+        )}
+      </div>
+      <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm text-white text-[9px] font-bold px-2.5 py-1 rounded-full">
+        {typeIcon} {post.type === 'video' ? t('Video','動画','ভিডিও') : post.type === 'article' ? t('Article','記事','আর্টিকেল') : t('Post','投稿','পোস্ট')}
+      </div>
+
+      {/* Lock badge */}
+      {isGuest && (
+        <div className="absolute top-12 right-4 mt-1 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
+          <svg className="w-2.5 h-2.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span className="text-[9px] font-bold text-white/90">{t('Members only','会員限定','সদস্যদের জন্য')}</span>
+        </div>
+      )}
+
+      {/* Video play button */}
+      {post.type === 'video' && !isGuest && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center
+            group-hover:bg-white/25 group-hover:scale-110 transition-all duration-300 shadow-xl">
+            <svg className="w-7 h-7 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom content */}
+      <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
+        {/* Category chips */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {post.categories.slice(0, 3).map(c => (
+            <span key={c.slug}
+              className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-white border border-white/20">
+              {c.flag} {c.name}
+            </span>
+          ))}
+        </div>
+
+        {/* Title */}
+        <h2 className="text-xl sm:text-3xl font-black text-white leading-[1.15] tracking-tight mb-2.5 max-w-3xl
+          group-hover:text-green-300 transition-colors duration-200">
+          {post.title}
+        </h2>
+
+        {/* Excerpt */}
+        <p className="text-white/65 text-sm sm:text-[0.9rem] leading-relaxed line-clamp-2 max-w-2xl mb-4 hidden sm:block">
+          {post.excerpt}
+        </p>
+
+        {/* Footer row */}
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-2 h-9 px-5 bg-green-700 hover:bg-green-600 text-white text-xs font-black rounded-xl transition-colors shadow-lg">
+            {post.type === 'video'
+              ? <>{t('Watch Now','今すぐ視聴','এখন দেখুন')} <span className="ml-0.5">▶</span></>
+              : <>{t('Read Now','今すぐ読む','এখন পড়ুন')} <span className="ml-0.5">→</span></>}
+          </span>
+          {post.published_at && (
+            <span className="text-white/45 text-xs font-medium">
+              {new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* ── Regular post card ───────────────────────────────────────── */
+function PostCard({ post, user, t }: {
+  post: Post;
+  user: unknown;
+  t: (a:string,b:string,c:string)=>string;
 }) {
   const typeLabel = post.type === 'video'   ? t('Video','動画','ভিডিও')
                   : post.type === 'article' ? t('Article','記事','আর্টিকেল')
                   :                           t('Post','投稿','পোস্ট');
   const typeIcon  = post.type === 'video' ? '🎬' : post.type === 'article' ? '📰' : '✍️';
   const isGuest   = !user;
+  const rt        = readTime(post.type, post.excerpt);
+  const fresh     = post.published_at && isNew(post.published_at);
 
   return (
     <Link href={`/feed/${post.slug}`}
-      className={`group flex flex-col bg-white rounded-2xl border border-slate-100 overflow-hidden
+      className="group flex flex-col bg-white rounded-2xl border border-slate-100 overflow-hidden
         shadow-[0_1px_4px_rgba(15,23,42,0.06)] hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)]
-        hover:border-green-100 transition-all duration-200 active:scale-[0.99]
-        ${featured ? 'sm:col-span-2 lg:col-span-3 sm:flex-row' : ''}`}>
+        hover:border-green-100 transition-all duration-200 active:scale-[0.99]">
 
       {/* Image */}
-      <div className={`relative bg-slate-100 overflow-hidden shrink-0
-        ${featured ? 'h-52 sm:h-auto sm:w-[45%]' : 'h-44 sm:h-48'}`}>
-
+      <div className="relative bg-slate-100 overflow-hidden shrink-0 h-44 sm:h-48">
         {post.thumbnail
           ? <img src={post.thumbnail} alt={post.title}
-              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out" />
+              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500 ease-out" />
           : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-50">
               <span className="text-5xl opacity-10">{typeIcon}</span>
             </div>
         }
 
-        {/* Featured badge */}
-        {featured && (
-          <div className="absolute top-3 left-3 bg-amber-500 text-white text-[9px] font-black tracking-wide uppercase px-2.5 py-1 rounded-full shadow-sm">
-            {t('Featured','注目','ফিচার্ড')}
-          </div>
-        )}
+        {/* Top-left badges */}
+        <div className="absolute top-3 left-3 flex gap-1.5">
+          {fresh && (
+            <span className="bg-green-500 text-white text-[9px] font-black tracking-wide uppercase px-2 py-0.5 rounded-full shadow-sm">
+              {t('New','新','নতুন')}
+            </span>
+          )}
+        </div>
 
-        {/* Play button (video, authenticated) */}
+        {/* Play button */}
         {post.type === 'video' && !isGuest && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center
-              group-hover:bg-black/60 group-hover:scale-110 transition-all duration-200 shadow-lg">
-              <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+            <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center
+              group-hover:bg-black/65 group-hover:scale-110 transition-all duration-200 shadow-lg">
+              <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
               </svg>
             </div>
           </div>
         )}
 
-        {/* Members-only badge (guests) */}
+        {/* Members-only */}
         {isGuest && (
           <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-black/55 backdrop-blur-sm rounded-full px-2.5 py-1">
             <svg className="w-2.5 h-2.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -447,35 +571,37 @@ function PostCard({ post, user, t, featured }: {
         {/* Category chips */}
         <div className="flex flex-wrap gap-1 mb-2.5">
           {post.categories.slice(0, 3).map(c => (
-            <span key={c.slug}
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${catChip(c)}`}>
+            <span key={c.slug} className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${catChip(c)}`}>
               {c.flag} {c.name}
             </span>
           ))}
         </div>
 
-        <h3 className={`font-black text-slate-900 leading-snug mb-2
-          group-hover:text-green-700 transition-colors duration-150 line-clamp-2
-          ${featured ? 'text-base sm:text-xl' : 'text-sm sm:text-[0.9rem]'}`}>
+        <h3 className="font-black text-slate-900 leading-snug mb-2
+          group-hover:text-green-700 transition-colors duration-150 line-clamp-2 text-sm sm:text-[0.9rem]">
           {post.title}
         </h3>
 
-        <p className={`text-slate-400 leading-relaxed flex-1 line-clamp-2 sm:line-clamp-3
-          ${featured ? 'text-sm' : 'text-[0.8125rem]'}`}>
+        <p className="text-slate-400 text-[0.8125rem] leading-relaxed flex-1 line-clamp-2 sm:line-clamp-3">
           {post.excerpt}
         </p>
 
         <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between gap-2">
-          <span className="text-[10px] text-slate-300 font-medium">
-            {post.published_at
-              ? new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'medium' })
-              : ''}
-          </span>
-          <span className={`font-black text-green-700 group-hover:text-green-600 shrink-0 transition-colors
-            ${featured ? 'text-sm' : 'text-xs'}`}>
-            {post.type === 'video'
-              ? t('Watch →','視聴する →','দেখুন →')
-              : t('Read →','読む →','পড়ুন →')}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-slate-300 font-medium">
+              {post.published_at
+                ? new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'medium' })
+                : ''}
+            </span>
+            {rt && (
+              <>
+                <span className="text-slate-200">·</span>
+                <span className="text-[10px] text-slate-300 font-medium">{rt}</span>
+              </>
+            )}
+          </div>
+          <span className="font-black text-green-700 group-hover:text-green-600 shrink-0 text-xs transition-colors">
+            {post.type === 'video' ? t('Watch →','視聴 →','দেখুন →') : t('Read →','読む →','পড়ুন →')}
           </span>
         </div>
       </div>
