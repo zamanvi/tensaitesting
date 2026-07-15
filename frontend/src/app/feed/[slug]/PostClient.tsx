@@ -1,11 +1,38 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { Suspense, useState, useCallback } from 'react';
+import { Suspense, useState, useCallback, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
+
+/* ── Reading progress bar ────────────────────────────────────── */
+function ReadingProgress() {
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const el  = document.documentElement;
+      const top = el.scrollTop || document.body.scrollTop;
+      const h   = el.scrollHeight - el.clientHeight;
+      setPct(h > 0 ? Math.min(100, (top / h) * 100) : 0);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[60] h-[3px] bg-transparent pointer-events-none">
+      <div className="h-full bg-green-500 transition-none shadow-[0_0_8px_rgba(34,197,94,0.5)]"
+        style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+function readTime(body: string | undefined, excerpt: string): string {
+  const words = ((body ?? '') + ' ' + excerpt).trim().split(/\s+/).length;
+  const mins  = Math.max(2, Math.round(words / 200));
+  return `${mins} min read`;
+}
 
 interface Category { name: string; slug: string; type: string; flag: string; color: string; }
 interface Post {
@@ -221,8 +248,11 @@ function PostInner() {
     </div>
   );
 
+  const rt = readTime(post.body, post.excerpt);
+
   return (
     <div className="min-h-screen bg-[#f4f6f9]">
+      <ReadingProgress />
       <PostNav title={post.title} user={user} t={t} />
 
       <div className="max-w-3xl mx-auto px-4 py-7 sm:py-9">
@@ -252,16 +282,27 @@ function PostInner() {
         </div>
 
         {/* ── Title ───────────────────────────────────────── */}
-        <h1 className="text-[1.75rem] sm:text-[2.1rem] font-black text-slate-900 leading-[1.15] tracking-tight mb-3">
+        <h1 className="text-[1.75rem] sm:text-[2.1rem] font-black text-slate-900 leading-[1.2] tracking-tight mb-4">
           {post.title}
         </h1>
 
-        {/* ── Date ────────────────────────────────────────── */}
-        <p className="text-xs text-slate-400 font-medium mb-7 sm:mb-9">
-          {post.published_at
-            ? new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'long' })
-            : ''}
-        </p>
+        {/* ── Meta row: date + read time ───────────────────── */}
+        <div className="flex items-center gap-3 text-xs text-slate-400 font-medium mb-7 sm:mb-9">
+          {post.published_at && (
+            <span>{new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+          )}
+          {post.type !== 'video' && (
+            <>
+              <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
+              <span className="flex items-center gap-1">
+                <svg className="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {rt}
+              </span>
+            </>
+          )}
+        </div>
 
         {/* ── VIDEO ───────────────────────────────────────── */}
         {post.type === 'video' && (
@@ -307,24 +348,51 @@ function PostInner() {
 
         {/* ── Article thumbnail ────────────────────────────── */}
         {post.type !== 'video' && post.thumbnail && (
-          <div className="mb-7 sm:mb-9 rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
-            style={{ height: 'clamp(180px, 45vw, 280px)' }}>
+          <div className="mb-7 sm:mb-9 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.10)]"
+            style={{ height: 'clamp(200px, 48vw, 320px)' }}>
             <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
+          </div>
+        )}
+
+        {/* ── No-thumbnail decorative header ───────────────── */}
+        {post.type !== 'video' && !post.thumbnail && (
+          <div className="mb-7 sm:mb-9 rounded-2xl overflow-hidden bg-gradient-to-br from-[#0b1e11] to-[#0f2d1a] px-6 py-8 sm:py-10 relative">
+            <div className="absolute inset-0 opacity-[0.06]"
+              style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            <div className="relative flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-green-900/60 border border-green-700/40 flex items-center justify-center shrink-0 shadow-inner">
+                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-green-400 text-[10px] font-black tracking-[0.18em] uppercase mb-1">
+                  {t('Tensai Knowledge Hub','Tensai 知識ハブ','Tensai নলেজ হাব')}
+                </p>
+                <p className="text-white/60 text-sm leading-relaxed max-w-lg">
+                  {post.excerpt.slice(0, 120)}{post.excerpt.length > 120 ? '…' : ''}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
         {/* ── CONTENT ─────────────────────────────────────── */}
         {!isLocked ? (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] p-5 sm:p-9">
-            {post.body
-              ? <div className="rich-body" dangerouslySetInnerHTML={{ __html: post.body }} />
-              : <p className="text-slate-600 leading-[1.8] text-[15px]">{post.excerpt}</p>
-            }
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_4px_rgba(15,23,42,0.06)] overflow-hidden">
+            <div className="h-[3px] bg-gradient-to-r from-green-600 via-green-500 to-emerald-400" />
+            <div className="p-5 sm:p-10">
+              {post.body
+                ? <div className="rich-body" dangerouslySetInnerHTML={{ __html: post.body }} />
+                : <p className="text-slate-600 leading-[1.9] text-base">{post.excerpt}</p>
+              }
+            </div>
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden shadow-[0_1px_4px_rgba(15,23,42,0.06)] border border-slate-100">
+            <div className="h-[3px] bg-gradient-to-r from-amber-500 to-yellow-400" />
             <div className="bg-white px-5 sm:px-9 pt-7 sm:pt-9 pb-5">
-              <p className="text-slate-700 leading-[1.85] text-[15px] sm:text-base">{post.excerpt}</p>
+              <p className="text-slate-700 leading-[1.9] text-base">{post.excerpt}</p>
             </div>
             <div className="relative bg-white px-5 sm:px-9 pb-2 select-none pointer-events-none overflow-hidden">
               <div className="space-y-3 opacity-[0.15] blur-[5px]">
