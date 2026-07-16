@@ -348,7 +348,7 @@ function FeaturedCard({ post, user, t }: {
       {/* Background image */}
       {post.thumbnail
         ? <img src={post.thumbnail} alt={post.title}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
+            className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-[1.04] transition-transform duration-700 ease-out" />
         : <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
       }
 
@@ -459,7 +459,7 @@ function PostCard({ post, user, t }: {
       <div className="relative bg-slate-100 overflow-hidden shrink-0 h-44 sm:h-48">
         {post.thumbnail
           ? <img src={post.thumbnail} alt={post.title}
-              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500 ease-out" />
+              className="w-full h-full object-cover object-top group-hover:scale-[1.04] transition-transform duration-500 ease-out" />
           : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-50">
               <span className="text-5xl opacity-10">{typeIcon}</span>
             </div>

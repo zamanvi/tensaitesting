@@ -474,7 +474,7 @@ function PostInner() {
                 alt={post.title}
                 loading="eager"
                 decoding="async"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover object-top"
                 style={{ minHeight: '320px' }}
               />
             ) : (
