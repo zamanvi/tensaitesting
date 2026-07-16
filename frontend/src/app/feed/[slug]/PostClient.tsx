@@ -29,9 +29,33 @@ function ReadingProgress() {
 }
 
 function readTime(body: string | undefined, excerpt: string): string {
-  const words = ((body ?? '') + ' ' + excerpt).trim().split(/\s+/).length;
-  const mins  = Math.max(2, Math.round(words / 200));
+  const text  = ((body ?? '') + ' ' + excerpt).replace(/<[^>]+>/g, ' ').trim();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const mins  = Math.max(2, Math.round(words / 180));
   return `${mins} min read`;
+}
+
+/* ── Back to top ─────────────────────────────────────────────── */
+function BackToTop() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const check = () => setVisible(window.scrollY > 500);
+    window.addEventListener('scroll', check, { passive: true });
+    return () => window.removeEventListener('scroll', check);
+  }, []);
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      aria-label="Back to top"
+      className={`fixed bottom-6 right-5 sm:right-7 z-50 w-11 h-11 rounded-2xl bg-green-700 text-white
+        shadow-[0_4px_16px_rgba(21,128,61,0.35)] hover:bg-green-600 hover:shadow-[0_6px_20px_rgba(21,128,61,0.45)]
+        flex items-center justify-center transition-all duration-300
+        ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7"/>
+      </svg>
+    </button>
+  );
 }
 
 interface Category { name: string; slug: string; type: string; flag: string; color: string; }
@@ -253,6 +277,7 @@ function PostInner() {
   return (
     <div className="min-h-screen bg-[#f4f6f9]">
       <ReadingProgress />
+      <BackToTop />
       <PostNav title={post.title} user={user} t={t} />
 
       <div className="max-w-3xl mx-auto px-4 py-7 sm:py-9">

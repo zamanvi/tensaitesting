@@ -262,12 +262,29 @@ body {
   flex-shrink: 0;
 }
 
+/* First paragraph — lead text treatment */
+.rich-body > p:first-of-type {
+  font-size: 1.07rem;
+  color: #1f2937;
+  line-height: 1.95;
+}
+
 /* Emphasis */
 .rich-body strong, .rich-body b {
   font-weight: 800;
   color: #0f172a;
 }
 .rich-body em, .rich-body i { font-style: italic; color: #4b5563; }
+
+/* Salary / currency figures — numbers inside strong get a subtle tint */
+.rich-body li strong,
+.rich-body li b {
+  color: #064e3b;
+  background: #f0fdf4;
+  padding: 0.05em 0.3em;
+  border-radius: 4px;
+  font-size: 0.97em;
+}
 
 /* Blockquote */
 .rich-body blockquote {
@@ -280,6 +297,30 @@ body {
   font-style: normal;
   font-size: 1.02rem;
 }
+
+/* Callout — table used as info card */
+.rich-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.92rem;
+}
+.rich-body th {
+  background: #f0fdf4;
+  color: #064e3b;
+  font-weight: 800;
+  text-align: left;
+  padding: 0.6em 0.9em;
+  border-bottom: 2px solid #bbf7d0;
+}
+.rich-body td {
+  padding: 0.55em 0.9em;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+  vertical-align: top;
+}
+.rich-body tr:last-child td { border-bottom: none; }
+.rich-body tr:nth-child(even) td { background: #fafafa; }
 
 /* Divider */
 .rich-body hr {
