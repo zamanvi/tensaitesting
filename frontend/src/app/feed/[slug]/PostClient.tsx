@@ -431,54 +431,108 @@ function PostInner() {
 
       <div className="max-w-3xl mx-auto px-4 py-7 sm:py-9">
 
-        {/* ── Category + type tags ─────────────────────────── */}
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          {post.categories.map(c => (
-            <Link key={c.slug}
-              href={`/feed?${c.type === 'country' ? 'country' : 'purpose'}=${c.slug}`}
-              className={`inline-flex items-center h-7 px-3 rounded-full border text-xs font-bold transition-colors duration-150 active:scale-95 ${catChip(c)}`}>
-              {c.flag} {c.name}
-            </Link>
-          ))}
-          <span className="inline-flex items-center h-7 px-3 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">
-            {post.type === 'video'   ? `🎬 ${t('Video','動画','ভিডিও')}`
-            : post.type === 'article' ? `📰 ${t('Article','記事','আর্টিকেল')}`
-            :                           `✍️ ${t('Post','投稿','পোস্ট')}`}
-          </span>
-          {post.is_premium && (
-            <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-xs font-black">
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-              </svg>
-              {t('Premium','プレミアム','প্রিমিয়াম')}
-            </span>
-          )}
-        </div>
-
-        {/* ── Title ───────────────────────────────────────── */}
-        <h1 className="text-[1.75rem] sm:text-[2.1rem] font-black text-slate-900 leading-[1.2] tracking-tight mb-4">
-          {post.title}
-        </h1>
-
-        {/* ── Meta row: date + read time ───────────────────── */}
-        <div className="flex items-center gap-3 text-xs text-slate-400 font-medium mb-7 sm:mb-9">
-          {post.published_at && (
-            <span>{new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
-          )}
-          {post.type !== 'video' && (
-            <>
-              <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
-              <span className="flex items-center gap-1">
-                <svg className="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                {rt}
+        {/* ── VIDEO header (categories + title + meta above embed) ── */}
+        {post.type === 'video' && (
+          <>
+            <div className="flex flex-wrap gap-1.5 mb-5">
+              {post.categories.map(c => (
+                <Link key={c.slug}
+                  href={`/feed?${c.type === 'country' ? 'country' : 'purpose'}=${c.slug}`}
+                  className={`inline-flex items-center h-7 px-3 rounded-full border text-xs font-bold transition-colors duration-150 active:scale-95 ${catChip(c)}`}>
+                  {c.flag} {c.name}
+                </Link>
+              ))}
+              <span className="inline-flex items-center h-7 px-3 rounded-full bg-slate-100 text-slate-500 text-xs font-bold">
+                🎬 {t('Video','動画','ভিডিও')}
               </span>
-            </>
-          )}
-        </div>
+              {post.is_premium && (
+                <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-amber-50 border border-amber-200 text-amber-600 text-xs font-black">
+                  ★ {t('Premium','プレミアム','প্রিমিয়াম')}
+                </span>
+              )}
+            </div>
+            <h1 className="text-[1.75rem] sm:text-[2.1rem] font-black text-slate-900 leading-[1.2] tracking-tight mb-4">
+              {post.title}
+            </h1>
+            <div className="flex items-center gap-3 text-xs text-slate-400 font-medium mb-7 sm:mb-9">
+              {post.published_at && (
+                <span>{new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+              )}
+            </div>
+          </>
+        )}
 
-        {/* ── VIDEO ───────────────────────────────────────── */}
+        {/* ── PREMIUM MAGAZINE HERO (non-video) ───────────── */}
+        {post.type !== 'video' && (
+          <div className="mb-8 sm:mb-10 rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.18)] relative bg-slate-900"
+            style={{ minHeight: '320px' }}>
+
+            {/* Background image */}
+            {post.thumbnail ? (
+              <img
+                src={post.thumbnail}
+                alt={post.title}
+                loading="eager"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ minHeight: '320px' }}
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0b1e11] to-[#0f2d1a]">
+                <div className="absolute inset-0 opacity-[0.06]"
+                  style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+              </div>
+            )}
+
+            {/* Gradient overlay — stronger at bottom for text legibility */}
+            <div className="absolute inset-0"
+              style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.18) 35%, rgba(0,0,0,0.72) 70%, rgba(0,0,0,0.88) 100%)' }} />
+
+            {/* Top row: category chips + badges */}
+            <div className="absolute top-0 left-0 right-0 p-4 sm:p-5 flex flex-wrap gap-1.5">
+              {post.categories.map(c => (
+                <Link key={c.slug}
+                  href={`/feed?${c.type === 'country' ? 'country' : 'purpose'}=${c.slug}`}
+                  className="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-bold backdrop-blur-sm transition-colors active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.18)', color: '#fff', border: '1px solid rgba(255,255,255,0.25)' }}>
+                  {c.flag} {c.name}
+                </Link>
+              ))}
+              <span className="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-bold backdrop-blur-sm"
+                style={{ background: 'rgba(255,255,255,0.13)', color: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.18)' }}>
+                {post.type === 'article' ? `📰 ${t('Article','記事','আর্টিকেল')}` : `✍️ ${t('Post','投稿','পোস্ট')}`}
+              </span>
+              {post.is_premium && (
+                <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-black backdrop-blur-sm"
+                  style={{ background: 'rgba(245,158,11,0.25)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)' }}>
+                  ★ {t('Premium','プレミアム','প্রিমিয়াম')}
+                </span>
+              )}
+            </div>
+
+            {/* Bottom: title + meta */}
+            <div className="relative px-5 pt-28 pb-5 sm:px-7 sm:pt-36 sm:pb-7 flex flex-col justify-end"
+              style={{ minHeight: '320px' }}>
+              <h1 className="text-[1.5rem] sm:text-[1.85rem] font-black text-white leading-[1.2] tracking-tight mb-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                {post.title}
+              </h1>
+              <div className="flex items-center gap-3 text-[11px] font-semibold" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                {post.published_at && (
+                  <span>{new Date(post.published_at).toLocaleDateString(undefined, { dateStyle: 'long' })}</span>
+                )}
+                {post.published_at && <span className="w-1 h-1 rounded-full bg-white/30 shrink-0" />}
+                <span className="flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  {rt}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── VIDEO embed ─────────────────────────────────── */}
         {post.type === 'video' && (
           <div className="mb-7 sm:mb-9">
             {!isLocked && post.youtube_id ? (
@@ -520,42 +574,6 @@ function PostInner() {
           </div>
         )}
 
-        {/* ── Article feature image ────────────────────────── */}
-        {post.type !== 'video' && post.thumbnail && (
-          <div className="mb-7 sm:mb-9 rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.12)] bg-slate-100">
-            <img
-              src={post.thumbnail}
-              alt={post.title}
-              loading="lazy"
-              decoding="async"
-              className="w-full object-cover"
-              style={{ aspectRatio: '16/9', maxHeight: '420px', display: 'block' }}
-            />
-          </div>
-        )}
-
-        {/* ── No-thumbnail decorative header ───────────────── */}
-        {post.type !== 'video' && !post.thumbnail && (
-          <div className="mb-7 sm:mb-9 rounded-2xl overflow-hidden bg-gradient-to-br from-[#0b1e11] to-[#0f2d1a] px-6 py-8 sm:py-10 relative">
-            <div className="absolute inset-0 opacity-[0.06]"
-              style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-            <div className="relative flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-green-900/60 border border-green-700/40 flex items-center justify-center shrink-0 shadow-inner">
-                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-              </div>
-              <div>
-                <p className="text-green-400 text-[10px] font-black tracking-[0.18em] uppercase mb-1">
-                  {t('Tensai Knowledge Hub','Tensai 知識ハブ','Tensai নলেজ হাব')}
-                </p>
-                <p className="text-white/60 text-sm leading-relaxed max-w-lg">
-                  {post.excerpt.slice(0, 120)}{post.excerpt.length > 120 ? '…' : ''}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── CONTENT ─────────────────────────────────────── */}
         {!isLocked ? (
