@@ -9,7 +9,7 @@ class Post extends Model
 {
     protected $fillable = [
         'title', 'slug', 'excerpt', 'body', 'type',
-        'video_url', 'thumbnail_url', 'status', 'is_premium', 'published_at', 'created_by',
+        'video_url', 'thumbnail_url', 'thumbnail_file', 'status', 'is_premium', 'published_at', 'created_by',
     ];
 
     protected $casts = [
@@ -31,6 +31,9 @@ class Post extends Model
 
     public function getThumbnailAttribute(): ?string
     {
+        if ($this->thumbnail_file) {
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($this->thumbnail_file);
+        }
         if ($this->thumbnail_url) return $this->thumbnail_url;
         if ($this->youtube_id) return "https://img.youtube.com/vi/{$this->youtube_id}/hqdefault.jpg";
         return null;

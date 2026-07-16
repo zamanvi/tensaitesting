@@ -77,29 +77,37 @@ class PostResource extends Resource
                         ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link', 'blockquote'])
                         ->nullable(),
 
-                    Forms\Components\TextInput::make('thumbnail_url')
-                        ->label('Feature Image URL')
-                        ->url()
-                        ->placeholder('https://images.unsplash.com/photo-...')
-                        ->nullable()
-                        ->helperText('Paste any image URL — Unsplash, CDN, etc. 16:9 ratio looks best (e.g. 1200×675).')
-                        ->suffixAction(
-                            Forms\Components\Actions\Action::make('preview')
-                                ->icon('heroicon-o-eye')
-                                ->url(fn ($state) => $state)
-                                ->openUrlInNewTab()
-                                ->visible(fn ($state) => filled($state))
-                        ),
+                    Forms\Components\Section::make('Feature Image')
+                        ->schema([
+                            Forms\Components\FileUpload::make('thumbnail_file')
+                                ->label('Upload from your computer')
+                                ->image()
+                                ->disk('public')
+                                ->directory('post-thumbnails')
+                                ->visibility('public')
+                                ->imageResizeMode('cover')
+                                ->imageCropAspectRatio('16:9')
+                                ->imageResizeTargetWidth('1200')
+                                ->imageResizeTargetHeight('675')
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                ->maxSize(4096)
+                                ->nullable()
+                                ->helperText('JPG / PNG / WebP — max 4 MB. Will be cropped to 16:9.'),
 
-                    Forms\Components\Placeholder::make('thumbnail_preview')
-                        ->label('Preview')
-                        ->content(fn ($record) => $record?->thumbnail
-                            ? new \Illuminate\Support\HtmlString(
-                                '<img src="' . e($record->thumbnail) . '" style="max-height:200px;border-radius:10px;object-fit:cover;width:100%;" />'
-                            )
-                            : 'No image set yet.'
-                        )
-                        ->visible(fn ($record) => filled($record?->thumbnail)),
+                            Forms\Components\TextInput::make('thumbnail_url')
+                                ->label('— or paste an external URL')
+                                ->url()
+                                ->placeholder('https://images.unsplash.com/photo-...')
+                                ->nullable()
+                                ->helperText('Used only if no file is uploaded above.')
+                                ->suffixAction(
+                                    Forms\Components\Actions\Action::make('preview_url')
+                                        ->icon('heroicon-o-eye')
+                                        ->url(fn ($state) => $state)
+                                        ->openUrlInNewTab()
+                                        ->visible(fn ($state) => filled($state))
+                                ),
+                        ]),
                 ]),
 
             Forms\Components\Section::make('Publishing')
