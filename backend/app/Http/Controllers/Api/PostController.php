@@ -55,6 +55,32 @@ class PostController extends Controller
         return response()->json($this->formatPost($post, $isAuth, full: true));
     }
 
+    public function related(string $slug): JsonResponse
+    {
+        $post = Post::with('categories')
+            ->where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
+
+        $categoryIds = $post->categories->pluck('id');
+
+        $related = Post::with('categories')
+            ->where('status', 'published')
+            ->where('id', '!=', $post->id)
+            ->when($categoryIds->isNotEmpty(), fn ($q) =>
+                $q->whereHas('categories', fn ($q2) => $q2->whereIn('categories.id', $categoryIds))
+            )
+            ->orderByDesc('published_at')
+            ->limit(3)
+            ->get();
+
+        $isAuth = auth('sanctum')->check();
+
+        return response()->json(
+            $related->map(fn ($p) => $this->formatPost($p, $isAuth))
+        );
+    }
+
     public function categories(): JsonResponse
     {
         $cats = Category::orderBy('type')->orderBy('sort_order')->get();

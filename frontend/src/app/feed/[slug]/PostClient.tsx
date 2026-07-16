@@ -201,6 +201,72 @@ function ShareBar({ title, t }: {
   );
 }
 
+/* ── Related posts ───────────────────────────────────────────── */
+function RelatedPosts({ slug, t }: {
+  slug: string;
+  t: (a: string, b: string, c: string) => string;
+}) {
+  const { data: posts } = useQuery<Post[]>({
+    queryKey: ['related', slug],
+    queryFn: () => api.get(`/feed/${slug}/related`).then(r => r.data),
+    staleTime: 300_000,
+  });
+
+  if (!posts || posts.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+        {t('More from the Guide','ガイドのその他','গাইড থেকে আরও')}
+      </h2>
+      <div className="grid gap-3">
+        {posts.map(p => (
+          <Link key={p.slug} href={`/feed/${p.slug}`}
+            className="group flex gap-3 bg-white rounded-2xl border border-slate-100
+              shadow-[0_1px_4px_rgba(15,23,42,0.05)] p-3 hover:border-green-200
+              hover:shadow-[0_2px_12px_rgba(21,128,61,0.10)] transition-all duration-150">
+            {p.thumbnail ? (
+              <div className="w-20 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+                <img src={p.thumbnail} alt={p.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy" decoding="async" />
+              </div>
+            ) : (
+              <div className="w-20 h-16 rounded-xl shrink-0 bg-gradient-to-br from-[#0b1e11] to-[#0f2d1a] flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+            )}
+            <div className="min-w-0 flex flex-col justify-center gap-1">
+              <p className="text-[0.82rem] font-black text-slate-800 leading-snug line-clamp-2
+                group-hover:text-green-800 transition-colors">
+                {p.title}
+              </p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {p.categories.slice(0, 2).map(c => (
+                  <span key={c.slug}
+                    className="text-[10px] font-bold text-slate-400">{c.flag} {c.name}</span>
+                ))}
+                {p.is_premium && (
+                  <span className="text-[10px] font-black text-amber-500">★ Premium</span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center shrink-0 ml-auto pl-1">
+              <svg className="w-4 h-4 text-slate-300 group-hover:text-green-500 group-hover:translate-x-0.5 transition-all"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ── Page export ─────────────────────────────────────────────── */
 export default function PostClient() {
   return <Suspense><PostInner /></Suspense>;
@@ -468,6 +534,9 @@ function PostInner() {
             </div>
           </div>
         )}
+
+        {/* ── Related posts ────────────────────────────────── */}
+        <RelatedPosts slug={slug} t={t} />
 
         {/* ── Share ────────────────────────────────────────── */}
         <ShareBar title={post.title} t={t} />
