@@ -78,9 +78,28 @@ class PostResource extends Resource
                         ->nullable(),
 
                     Forms\Components\TextInput::make('thumbnail_url')
-                        ->label('Thumbnail URL')
+                        ->label('Feature Image URL')
                         ->url()
-                        ->nullable(),
+                        ->placeholder('https://images.unsplash.com/photo-...')
+                        ->nullable()
+                        ->helperText('Paste any image URL — Unsplash, CDN, etc. 16:9 ratio looks best (e.g. 1200×675).')
+                        ->suffixAction(
+                            Forms\Components\Actions\Action::make('preview')
+                                ->icon('heroicon-o-eye')
+                                ->url(fn ($state) => $state)
+                                ->openUrlInNewTab()
+                                ->visible(fn ($state) => filled($state))
+                        ),
+
+                    Forms\Components\Placeholder::make('thumbnail_preview')
+                        ->label('Preview')
+                        ->content(fn ($record) => $record?->thumbnail
+                            ? new \Illuminate\Support\HtmlString(
+                                '<img src="' . e($record->thumbnail) . '" style="max-height:200px;border-radius:10px;object-fit:cover;width:100%;" />'
+                            )
+                            : 'No image set yet.'
+                        )
+                        ->visible(fn ($record) => filled($record?->thumbnail)),
                 ]),
 
             Forms\Components\Section::make('Publishing')
