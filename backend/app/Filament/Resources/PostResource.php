@@ -92,7 +92,7 @@ class PostResource extends Resource
                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                 ->maxSize(4096)
                                 ->nullable()
-                                ->helperText('JPG / PNG / WebP — max 4 MB. Will be cropped to 16:9.'),
+                                ->helperText('Recommended: 1200 × 675 px (16:9). JPG / PNG / WebP — max 4 MB. Portrait photos also work — they will be auto-cropped to 16:9.'),
 
                             Forms\Components\TextInput::make('thumbnail_url')
                                 ->label('— or paste an external URL')
