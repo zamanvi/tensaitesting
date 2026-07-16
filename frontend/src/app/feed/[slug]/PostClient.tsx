@@ -371,11 +371,17 @@ function PostInner() {
           </div>
         )}
 
-        {/* ── Article thumbnail ────────────────────────────── */}
+        {/* ── Article feature image ────────────────────────── */}
         {post.type !== 'video' && post.thumbnail && (
-          <div className="mb-7 sm:mb-9 rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.10)]"
-            style={{ height: 'clamp(200px, 48vw, 320px)' }}>
-            <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
+          <div className="mb-7 sm:mb-9 rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.12)] bg-slate-100">
+            <img
+              src={post.thumbnail}
+              alt={post.title}
+              loading="lazy"
+              decoding="async"
+              className="w-full object-cover"
+              style={{ aspectRatio: '16/9', maxHeight: '420px', display: 'block' }}
+            />
           </div>
         )}
 
