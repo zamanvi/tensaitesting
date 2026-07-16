@@ -54,7 +54,7 @@ export async function generateMetadata(
       description,
       siteName:    SITE_NAME,
       images: [{
-        url,
+        url:    image,
         width:  1200,
         height: 630,
         alt:    post.title,
