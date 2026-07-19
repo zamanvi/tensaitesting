@@ -154,7 +154,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/account',          [AccountController::class, 'update']);
         Route::patch('/account',        [AccountController::class, 'update']);
         Route::post('/account/avatar',  [AccountController::class, 'avatar']);
-        Route::get('/account-managers', [InstitutionController::class, 'profile']);
+        Route::get('/account-managers',           [InstitutionController::class, 'listAccountManagers']);
+        Route::post('/account-managers',          [InstitutionController::class, 'storeAccountManager']);
+        Route::put('/account-managers/{manager}', [InstitutionController::class, 'updateAccountManager']);
+        Route::delete('/account-managers/{manager}', [InstitutionController::class, 'destroyAccountManager']);
         Route::get('/referrals',        [AffiliateController::class, 'referredStudents']);
         Route::get('/browse-applications',   [InstitutionController::class, 'browseApplications']);
         Route::post('/select-application/{id}', [InstitutionController::class, 'selectApplication']);

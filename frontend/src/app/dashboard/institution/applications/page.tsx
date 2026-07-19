@@ -47,18 +47,21 @@ export default function InstitutionApplicationsPage() {
     if (user && user.gateway_type !== 'institution') router.replace(`/dashboard/${user.gateway_type}`);
   }, [user, router]);
 
-  const [filters, setFilters] = useState({ education: '', jlpt: '' });
+  const [filters, setFilters] = useState({ education: '', jlpt: '', gpa: '' });
+  const [page, setPage] = useState(1);
   const [selectingId, setSelectingId] = useState<number | null>(null);
   const [contact, setContact] = useState<ContactForm>(blank);
   const [contactErr, setContactErr] = useState('');
   const [doneId, setDoneId] = useState<number | null>(null);
 
-  function setF(k: keyof typeof filters, v: string) { setFilters(f => ({ ...f, [k]: v })); }
+  function setF(k: keyof typeof filters, v: string) { setFilters(f => ({ ...f, [k]: v })); setPage(1); }
   function setC(k: keyof ContactForm, v: string) { setContact(c => ({ ...c, [k]: v })); }
 
   const params: Record<string, string> = {};
   if (filters.education) params.education = filters.education;
   if (filters.jlpt)      params.jlpt      = filters.jlpt;
+  if (filters.gpa)       params.gpa       = filters.gpa;
+  params.page = String(page);
 
   const { data, isLoading } = useQuery({
     queryKey: ['institution-browse', params],
@@ -68,6 +71,7 @@ export default function InstitutionApplicationsPage() {
 
   const applications: AnonApplication[] = data?.data ?? [];
   const institutionCountry: string = data?.institution_country ?? '';
+  const lastPage: number = data?.last_page ?? 1;
 
   const select = useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: ContactForm }) =>
@@ -148,7 +152,14 @@ export default function InstitutionApplicationsPage() {
               {JLPT_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
             </select>
           </div>
-          <button onClick={() => setFilters({ education: '', jlpt: '' })}
+          <div>
+            <label className="block text-[11px] font-semibold text-slate-400 mb-1">GPA {ja ? '以上' : bn ? '(ন্যূনতম)' : 'min'}</label>
+            <select className={selectCls} value={filters.gpa} onChange={e => setF('gpa', e.target.value)}>
+              <option value="">{ja ? 'すべて' : bn ? 'সব' : 'All'}</option>
+              {['2.0','2.5','3.0','3.5','4.0'].map(g => <option key={g} value={g}>{g}+</option>)}
+            </select>
+          </div>
+          <button onClick={() => { setFilters({ education: '', jlpt: '', gpa: '' }); setPage(1); }}
             className="py-2 px-4 text-xs font-semibold text-slate-500 hover:text-slate-700 border border-slate-200 rounded-xl transition-colors">
             {ja ? 'リセット' : bn ? 'রিসেট' : 'Reset'}
           </button>
@@ -180,6 +191,7 @@ export default function InstitutionApplicationsPage() {
                   <th className="text-left px-4 py-3">{ja ? '学歴' : bn ? 'শিক্ষা' : 'Education'}</th>
                   <th className="text-left px-4 py-3">GPA</th>
                   <th className="text-left px-4 py-3">JLPT/NAT</th>
+                  <th className="text-left px-4 py-3">{ja ? '提出日' : bn ? 'জমার তারিখ' : 'Submitted'}</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -203,6 +215,9 @@ export default function InstitutionApplicationsPage() {
                       <td className="px-4 py-3.5 text-xs text-slate-600">{app.gpa ?? '—'}</td>
                       <td className="px-4 py-3.5 text-xs text-slate-600">
                         {[app.jlpt_level, app.nat_level].filter(Boolean).join(' / ') || '—'}
+                      </td>
+                      <td className="px-4 py-3.5 text-xs text-slate-500">
+                        {app.submitted_at ? new Date(app.submitted_at).toLocaleDateString() : '—'}
                       </td>
                       <td className="px-4 py-3.5 text-right">
                         {app.already_selected ? (
@@ -333,6 +348,23 @@ export default function InstitutionApplicationsPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {lastPage > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-5">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}
+            className="px-4 py-2 text-xs font-semibold border border-slate-200 rounded-xl disabled:opacity-30 hover:bg-slate-50 transition-colors">
+            {ja ? '前へ' : bn ? 'আগে' : 'Previous'}
+          </button>
+          <span className="text-xs text-slate-500 tabular-nums">
+            {ja ? `${page} / ${lastPage}` : bn ? `${page} / ${lastPage}` : `Page ${page} of ${lastPage}`}
+          </span>
+          <button onClick={() => setPage(p => Math.min(lastPage, p + 1))} disabled={page >= lastPage}
+            className="px-4 py-2 text-xs font-semibold border border-slate-200 rounded-xl disabled:opacity-30 hover:bg-slate-50 transition-colors">
+            {ja ? '次へ' : bn ? 'পরে' : 'Next'}
+          </button>
         </div>
       )}
     </DashboardLayout>

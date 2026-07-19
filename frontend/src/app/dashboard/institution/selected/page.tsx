@@ -136,6 +136,7 @@ export default function InstitutionSelectedPage() {
   const [confirmType, setConfirmType]   = useState<'cancel' | 'reject' | null>(null);
   const [successMsg, setSuccessMsg]     = useState('');
   const [actionErr, setActionErr]       = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
 
   const showSuccess = (msg: string) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(''), 4000); };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -223,6 +224,26 @@ export default function InstitutionSelectedPage() {
         </div>
       ) : (
         <>
+          {/* ── Status filter ── */}
+          <div className="flex flex-wrap gap-2 mb-5">
+            {(['', 'selected', 'accepted', 'processing', 'complete', 'cancelled', 'rejected'] as const).map(s => (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
+                  statusFilter === s
+                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    : 'border-slate-200 text-slate-500 hover:border-indigo-300'
+                }`}>
+                {s === ''          ? t('All', 'すべて', 'সব')
+                  : s === 'selected'   ? t('Pending', '審査待ち', 'পর্যালোচনা')
+                  : s === 'accepted'   ? t('Accepted', '承認済み', 'গৃহীত')
+                  : s === 'processing' ? t('Processing', '手続き中', 'প্রক্রিয়া')
+                  : s === 'complete'   ? t('Enrolled', '入学確定', 'ভর্তি')
+                  : s === 'cancelled'  ? t('Cancelled', 'キャンセル', 'বাতিল')
+                  : t('Withdrawn', '取り下げ', 'প্রত্যাহার')}
+              </button>
+            ))}
+          </div>
+
           {/* ── Summary bar ── */}
           <div className="grid grid-cols-3 gap-3 mb-6">
             {[
@@ -239,7 +260,7 @@ export default function InstitutionSelectedPage() {
 
           {/* ── Cards ── */}
           <div className="space-y-4">
-            {selected.map((app, idx) => {
+            {selected.filter(a => !statusFilter || a.status === statusFilter).map((app, idx) => {
               const cfg = STATUS_CONFIG[app.status];
               const revivable = isRevivable(app);
               const revivableEligible = ['cancelled', 'rejected', 'incomplete'].includes(app.status);
@@ -315,6 +336,21 @@ export default function InstitutionSelectedPage() {
                         </div>
                       ))}
                     </div>
+
+                    {/* ── Tensai contact person ── */}
+                    {(app.connect_name || app.connect_email) && (
+                      <div className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                          {t('Your Contact at Tensai Reaches', 'Tensai連絡先', 'Tensai যোগাযোগ করবে')}
+                        </p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                          {app.connect_name  && <span className="font-semibold">{app.connect_name}</span>}
+                          {app.connect_email && <a href={`mailto:${app.connect_email}`} className="text-indigo-600 hover:underline">✉️ {app.connect_email}</a>}
+                          {app.connect_whatsapp && <a href={`https://wa.me/${app.connect_whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:underline">💬 {app.connect_whatsapp}</a>}
+                          {app.connect_phone && <span>📞 {app.connect_phone}</span>}
+                        </div>
+                      </div>
+                    )}
 
                     {/* ── Progress Stepper ── */}
                     {!['rejected','cancelled','incomplete'].includes(app.status) && (
@@ -456,15 +492,6 @@ export default function InstitutionSelectedPage() {
   );
 }
 
-function Field({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div>
-      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
-      <p className="font-semibold text-slate-700">{value ?? <span className="text-slate-300 font-normal">—</span>}</p>
-    </div>
-  );
-}
-
 type Lang = 'en' | 'ja' | 'bn';
 const JOURNEY = [
   { key: 'selected',   en: 'Selected',   ja: '選択済み',  bn: 'নির্বাচিত' },
@@ -506,12 +533,3 @@ function StatusStepper({ status, lang }: { status: string; lang: Lang }) {
   );
 }
 
-function TimelineStep({ icon, color, label, date }: { icon: string; color: string; label: string; date: string }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className={`text-xs font-bold ${color}`}>{icon}</span>
-      <span className="text-[11px] text-slate-500">{label}</span>
-      <span className="text-[11px] text-slate-400">{date}</span>
-    </div>
-  );
-}

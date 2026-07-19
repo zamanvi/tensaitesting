@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\ContactPaper;
+use App\Models\InstitutionAccountManager;
 use App\Models\InstitutionProfile;
 use App\Models\InstitutionSelection;
 use App\Models\Lead;
@@ -405,5 +406,61 @@ class InstitutionController extends Controller
             'message' => 'Contact request sent. Our team will follow up shortly.',
             'reference' => $paper->reference_number,
         ], 201);
+    }
+
+    // Account Managers CRUD
+
+    public function listAccountManagers(Request $request): JsonResponse
+    {
+        $managers = InstitutionAccountManager::where('institution_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json(['data' => $managers]);
+    }
+
+    public function storeAccountManager(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name'  => 'required|string|max:255',
+            'role'  => 'nullable|string|max:100',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:50',
+        ]);
+
+        $manager = InstitutionAccountManager::create(
+            array_merge($validated, ['institution_id' => $request->user()->id])
+        );
+
+        return response()->json(['data' => $manager], 201);
+    }
+
+    public function updateAccountManager(Request $request, InstitutionAccountManager $manager): JsonResponse
+    {
+        if ($manager->institution_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $validated = $request->validate([
+            'name'  => 'required|string|max:255',
+            'role'  => 'nullable|string|max:100',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:50',
+        ]);
+
+        $manager->update($validated);
+
+        return response()->json(['data' => $manager]);
+    }
+
+    public function destroyAccountManager(Request $request, InstitutionAccountManager $manager): JsonResponse
+    {
+        if ($manager->institution_id !== $request->user()->id) {
+            return response()->json(['message' => 'Forbidden.'], 403);
+        }
+
+        $manager->delete();
+
+        return response()->json(['message' => 'Removed.']);
     }
 }

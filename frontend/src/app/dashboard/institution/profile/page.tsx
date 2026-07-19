@@ -265,9 +265,16 @@ export default function InstitutionProfilePage() {
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '国' : bn ? 'দেশ' : 'Country'} <span className="text-red-400">*</span>
               </label>
-              <input className={inputCls()} placeholder="Japan"
-                value={form.country} onChange={e => set('country', e.target.value)}
-                required disabled={isLocked} />
+              <select className={inputCls()} value={form.country}
+                onChange={e => set('country', e.target.value)} required disabled={isLocked}>
+                <option value="">{ja ? '国を選択' : bn ? 'দেশ নির্বাচন করুন' : 'Select country'}</option>
+                {['Japan','South Korea','Germany','Canada','Australia','United Kingdom','United States',
+                  'Malaysia','Singapore','New Zealand','France','Netherlands','Sweden','Denmark',
+                  'Norway','Finland','Austria','Switzerland','Ireland','Portugal','Italy','Spain',
+                  'Belgium','Czech Republic','Poland','Hungary','Romania','Bulgaria','Other'].map(c =>
+                  <option key={c} value={c}>{c}</option>
+                )}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">

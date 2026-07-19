@@ -264,12 +264,14 @@ export default function InstitutionHome() {
           <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
             {t('Quick Access', 'クイックアクセス', 'দ্রুত অ্যাক্সেস')}
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             {[
-              { href: '/dashboard/institution/applications', icon: '🔍', label: t('Application Pool', '申請プール', 'আবেদন পুল') },
-              { href: '/dashboard/institution/selected',     icon: '✅', label: t('Selected',          '選考済み',   'বাছাইকৃত') },
-              { href: '/dashboard/institution/profile',      icon: '🏫', label: t('Our Profile',       'プロフィール', 'আমাদের প্রোফাইল') },
-              { href: '/dashboard/institution/settings',     icon: '⚙️', label: t('Settings',          '設定',        'সেটিংস') },
+              { href: '/dashboard/institution/applications',    icon: '🔍', label: t('Application Pool',   '申請プール',           'আবেদন পুল') },
+              { href: '/dashboard/institution/selected',        icon: '✅', label: t('Selected',            '選考済み',             'বাছাইকৃত') },
+              { href: '/dashboard/institution/profile',         icon: '🏫', label: t('Our Profile',         'プロフィール',          'আমাদের প্রোফাইল') },
+              { href: '/dashboard/institution/account-managers',icon: '👥', label: t('Account Managers',   '担当者',               'অ্যাকাউন্ট ম্যানেজার') },
+              { href: '/dashboard/institution/referral',        icon: '🏷️', label: t('Referral',           '紹介',                 'রেফারেল') },
+              { href: '/dashboard/institution/settings',        icon: '⚙️', label: t('Settings',           '設定',                 'সেটিংস') },
             ].map(l => (
               <Link key={l.href} href={l.href}
                 className="flex flex-col items-center justify-center gap-2 bg-white rounded-2xl border border-slate-100
