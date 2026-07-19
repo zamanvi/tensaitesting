@@ -298,50 +298,70 @@ function RelatedPosts({ slug, t }: {
   if (!posts || posts.length === 0) return null;
 
   return (
-    <div className="mt-8">
-      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
-        {t('More from the Guide','ガイドのその他','গাইড থেকে আরও')}
-      </h2>
-      <div className="grid gap-3">
+    <div className="mt-10 pt-8 border-t border-slate-200">
+      {/* Section header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-px flex-1 bg-slate-200" />
+        <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] shrink-0">
+          {t('More from the Guide','ガイドのその他','গাইড থেকে আরও')}
+        </h2>
+        <div className="h-px flex-1 bg-slate-200" />
+      </div>
+
+      {/* Cards grid: 1 col on mobile, 2 col on sm+ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {posts.map(p => (
           <Link key={p.slug} href={`/feed/${p.slug}`}
-            className="group flex gap-3 bg-white rounded-2xl border border-slate-100
-              shadow-[0_1px_4px_rgba(15,23,42,0.05)] p-3 hover:border-green-200
-              hover:shadow-[0_2px_12px_rgba(21,128,61,0.10)] transition-all duration-150">
-            {p.thumbnail ? (
-              <div className="w-20 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+            className="group bg-white rounded-2xl border border-slate-100 overflow-hidden
+              shadow-[0_2px_8px_rgba(15,23,42,0.06)] hover:border-green-200
+              hover:shadow-[0_4px_20px_rgba(21,128,61,0.12)] transition-all duration-200 active:scale-[0.99]">
+
+            {/* Thumbnail */}
+            <div className="relative overflow-hidden bg-slate-100" style={{ aspectRatio: '16/9' }}>
+              {p.thumbnail ? (
                 <img src={p.thumbnail} alt={p.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover object-top group-hover:scale-[1.04] transition-transform duration-500"
                   loading="lazy" decoding="async" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#0b1e11] to-[#0f2d1a] flex items-center justify-center">
+                  <svg className="w-8 h-8 text-green-600 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+              )}
+              {p.is_premium && (
+                <span className="absolute top-2 right-2 text-[9px] font-black text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                  ★ Premium
+                </span>
+              )}
+            </div>
+
+            {/* Card body */}
+            <div className="p-4">
+              {/* Categories */}
+              <div className="flex flex-wrap gap-x-2 gap-y-1 mb-2">
+                {p.categories.slice(0, 3).map(c => (
+                  <span key={c.slug} className="text-[10px] font-bold text-slate-400">
+                    {c.flag} {c.name}
+                  </span>
+                ))}
               </div>
-            ) : (
-              <div className="w-20 h-16 rounded-xl shrink-0 bg-gradient-to-br from-[#0b1e11] to-[#0f2d1a] flex items-center justify-center">
-                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-              </div>
-            )}
-            <div className="min-w-0 flex flex-col justify-center gap-1">
-              <p className="text-[0.82rem] font-black text-slate-800 leading-snug line-clamp-2
-                group-hover:text-green-800 transition-colors">
+
+              {/* Title */}
+              <p className="text-sm font-black text-slate-800 leading-snug line-clamp-3
+                group-hover:text-green-800 transition-colors duration-150">
                 {p.title}
               </p>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {p.categories.slice(0, 2).map(c => (
-                  <span key={c.slug}
-                    className="text-[10px] font-bold text-slate-400">{c.flag} {c.name}</span>
-                ))}
-                {p.is_premium && (
-                  <span className="text-[10px] font-black text-amber-500">★ Premium</span>
-                )}
+
+              {/* Read arrow */}
+              <div className="flex items-center gap-1 mt-3 text-[11px] font-bold text-green-600
+                group-hover:gap-2 transition-all duration-150">
+                <span>{t('Read','読む','পড়ুন')}</span>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7"/>
+                </svg>
               </div>
-            </div>
-            <div className="flex items-center shrink-0 ml-auto pl-1">
-              <svg className="w-4 h-4 text-slate-300 group-hover:text-green-500 group-hover:translate-x-0.5 transition-all"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-              </svg>
             </div>
           </Link>
         ))}
