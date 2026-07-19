@@ -424,7 +424,7 @@ function PostInner() {
   const rt = readTime(post.body, post.excerpt);
 
   return (
-    <div className="min-h-screen bg-[#f4f6f9]">
+    <div className="min-h-screen bg-[#f4f6f9] overflow-x-hidden">
       <ReadingProgress />
       <BackToTop />
       <PostNav title={post.title} user={user} t={t} />
@@ -487,7 +487,7 @@ function PostInner() {
                   loading="eager"
                   decoding="async"
                   className="w-full object-cover object-top"
-                  style={{ maxHeight: '520px', display: 'block' }}
+                  style={{ maxHeight: '420px', display: 'block' }}
                 />
               </div>
             )}
