@@ -417,7 +417,7 @@ export default function TeamPage() {
               </div>
               <div className="flex items-center gap-3">
                 <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${r.tagColor}`}>{r.tag}</span>
-                <a href="mailto:support@tensai.com" className="text-xs font-semibold text-green-400 opacity-0 group-hover:opacity-100 transition-opacity hover:underline">
+                <a href="mailto:support@tensai.com" className="text-xs font-semibold text-green-400 hover:underline transition-colors">
                   {ja ? '応募 →' : bn ? 'আবেদন →' : 'Apply →'}
                 </a>
               </div>
@@ -456,19 +456,28 @@ export default function TeamPage() {
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-white/[0.06] py-8 px-4 bg-alt-section">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/tensai-logo.png" alt="Tensai" width={28} height={28} className="rounded-full object-contain" />
-            <span className="text-sm font-bold text-white/75">Tensai</span>
-          </Link>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/38">
-            <Link href="/about"   className="hover:text-white/65 transition-colors">{a.navAbout}</Link>
-            <Link href="/team"    className="text-green-400 font-medium">{a.navTeam}</Link>
-            <Link href="/gallery" className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
-            <Link href="/terms"   className="hover:text-white/65 transition-colors">{termsText}</Link>
-            <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
+        <div className="max-w-7xl mx-auto">
+          <p className="text-[10px] text-white/20 text-center leading-relaxed mb-5 italic max-w-2xl mx-auto">
+            {ja
+              ? '天才は教育・人材マーケットプレイスです。ビザ代理店でも人材派遣業者でもありません。トレーニング、検証、接続を提供します。ビザの保証やファイル処理は行いません。'
+              : bn
+              ? 'টেনসাই একটি টেক-চালিত শিক্ষা ও প্রতিভা মার্কেটপ্লেস — ভিসা এজেন্সি বা জনশক্তি সরবরাহকারী নয়। আমরা প্রশিক্ষণ, যাচাই ও সংযোগ প্রদান করি। আমরা ফাইল প্রক্রিয়া করি না বা ভিসার নিশ্চয়তা দিই না।'
+              : 'Tensai is a tech-enabled Education & Talent Marketplace — not a visa agency or manpower recruiter. We train, verify, and connect. We do not process files, guarantee visas, or supply labour.'}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
+            <Link href="/" className="flex items-center gap-2.5">
+              <Image src="/tensai-logo.png" alt="Tensai" width={28} height={28} className="rounded-full object-contain" />
+              <span className="text-sm font-bold text-white/75">Tensai</span>
+            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/38">
+              <Link href="/about"   className="hover:text-white/65 transition-colors">{a.navAbout}</Link>
+              <Link href="/team"    className="text-green-400 font-medium">{a.navTeam}</Link>
+              <Link href="/gallery" className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
+              <Link href="/terms"   className="hover:text-white/65 transition-colors">{termsText}</Link>
+              <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
+            </div>
+            <p className="text-xs text-white/30">{l.footer}</p>
           </div>
-          <p className="text-xs text-white/30">{l.footer}</p>
         </div>
       </footer>
 

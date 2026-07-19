@@ -648,6 +648,9 @@ export default function AboutPage() {
               <Link href="/auth/register?type=agency" className="w-full sm:w-auto border border-slate-700 hover:border-cyan-500/50 text-slate-300 hover:text-white px-7 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
                 {ja ? 'エージェンシーとして参加' : bn ? 'এজেন্সি হিসেবে যোগ দিন' : 'Join as Agency'}
               </Link>
+              <Link href="/auth/register?type=institution" className="w-full sm:w-auto border border-slate-700 hover:border-violet-500/50 text-slate-300 hover:text-white px-7 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
+                {ja ? '教育機関として参加' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন' : 'Join as Institution'}
+              </Link>
               <Link href="/auth/register?type=affiliate" className="w-full sm:w-auto border border-slate-700 hover:border-amber-500/50 text-slate-300 hover:text-white px-7 py-3.5 rounded-full font-semibold text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500">
                 {ja ? 'アフィリエイトとして参加' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন' : 'Join as Affiliate'}
               </Link>
@@ -664,21 +667,30 @@ export default function AboutPage() {
 
       {/* ── Footer ─────────────────────────────────────────── */}
       <footer className="border-t border-white/[0.06] py-8 px-4 bg-alt-section">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/tensai-logo.png" alt="Tensai" width={26} height={26} className="rounded-full object-contain opacity-70" />
-            <span className="text-sm font-bold text-white/50">Tensai</span>
-          </Link>
-          <nav aria-label={ja ? 'フッターナビゲーション' : bn ? 'ফুটার নেভিগেশন' : 'Footer navigation'}>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/35">
-              <Link href="/about"   className="text-green-400 font-medium">{a.navAbout}</Link>
-              <Link href="/team"    className="hover:text-white/65 transition-colors">{a.navTeam}</Link>
-              <Link href="/gallery" className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
-              <Link href="/terms"   className="hover:text-white/65 transition-colors">{termsText}</Link>
-              <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
-            </div>
-          </nav>
-          <p className="text-xs text-white/30">{l.footer}</p>
+        <div className="max-w-7xl mx-auto">
+          <p className="text-[10px] text-white/20 text-center leading-relaxed mb-5 italic max-w-2xl mx-auto">
+            {ja
+              ? '天才は教育・人材マーケットプレイスです。ビザ代理店でも人材派遣業者でもありません。トレーニング、検証、接続を提供します。ビザの保証やファイル処理は行いません。'
+              : bn
+              ? 'টেনসাই একটি টেক-চালিত শিক্ষা ও প্রতিভা মার্কেটপ্লেস — ভিসা এজেন্সি বা জনশক্তি সরবরাহকারী নয়। আমরা প্রশিক্ষণ, যাচাই ও সংযোগ প্রদান করি। আমরা ফাইল প্রক্রিয়া করি না বা ভিসার নিশ্চয়তা দিই না।'
+              : 'Tensai is a tech-enabled Education & Talent Marketplace — not a visa agency or manpower recruiter. We train, verify, and connect. We do not process files, guarantee visas, or supply labour.'}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <Image src="/tensai-logo.png" alt="Tensai" width={26} height={26} className="rounded-full object-contain opacity-70" />
+              <span className="text-sm font-bold text-white/50">Tensai</span>
+            </Link>
+            <nav aria-label={ja ? 'フッターナビゲーション' : bn ? 'ফুটার নেভিগেশন' : 'Footer navigation'}>
+              <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/35">
+                <Link href="/about"   className="text-green-400 font-medium">{a.navAbout}</Link>
+                <Link href="/team"    className="hover:text-white/65 transition-colors">{a.navTeam}</Link>
+                <Link href="/gallery" className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
+                <Link href="/terms"   className="hover:text-white/65 transition-colors">{termsText}</Link>
+                <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
+              </div>
+            </nav>
+            <p className="text-xs text-white/30">{l.footer}</p>
+          </div>
         </div>
       </footer>
 
