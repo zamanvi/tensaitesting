@@ -189,6 +189,76 @@ export default function InstitutionHome() {
           </div>
         </div>
 
+        {/* Why Tensai — value proposition */}
+        <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+          <div className="px-6 py-5 border-b border-slate-100 bg-slate-50">
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">
+              {t('Why Tensai', 'なぜTensaiか', 'কেন টেনসাই')}
+            </p>
+            <p className="text-sm font-bold text-slate-700">
+              {t(
+                "Bangladesh's first tech-enabled, asset-light recruitment network — with absolute peace of mind.",
+                'バングラデシュ初のテクノロジー活用型採用ネットワーク — 完全な安心感とともに。',
+                'বাংলাদেশের প্রথম টেক-চালিত রিক্রুটমেন্ট নেটওয়ার্ক — সম্পূর্ণ নিশ্চিন্তে।'
+              )}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
+            {[
+              {
+                icon: '♾️',
+                color: 'bg-blue-50 text-blue-600',
+                title: t('Lifetime Intake Coverage', '生涯インテークカバレッジ', 'আজীবন ইনটেক কভারেজ'),
+                body: t(
+                  'Once onboarded, enjoy a continuous, automated pipeline of qualified students for all your upcoming intakes — year after year.',
+                  'オンボーディング後は、毎年すべてのインテークに向けた資格ある学生の継続的なパイプラインをお楽しみください。',
+                  'একবার অনবোর্ড হলে, প্রতি বছর সব ইনটেকের জন্য যোগ্য শিক্ষার্থীর নিরবচ্ছিন্ন পাইপলাইন উপভোগ করুন।'
+                ),
+              },
+              {
+                icon: '🧑‍💼',
+                color: 'bg-green-50 text-green-600',
+                title: t('Dedicated Account Manager', '専任アカウントマネージャー', 'ডেডিকেটেড অ্যাকাউন্ট ম্যানেজার'),
+                body: t(
+                  'No automated bots. A dedicated human manager handles your custom criteria, interviews, and queries instantly.',
+                  '自動ボットなし。専任の人間マネージャーがカスタム条件、面接、問い合わせを即座に対応します。',
+                  'কোনো অটোমেটেড বট নয়। একজন ডেডিকেটেড মানব ম্যানেজার আপনার কাস্টম মানদণ্ড, ইন্টারভিউ ও প্রশ্নের তাৎক্ষণিক সমাধান দেন।'
+                ),
+              },
+              {
+                icon: '✅',
+                color: 'bg-emerald-50 text-emerald-600',
+                title: t('100% Paper Legality', '100%書類の合法性', '১০০% কাগজপত্রের বৈধতা'),
+                body: t(
+                  'Zero tolerance for fraud. Every file undergoes strict background and financial screening to completely eliminate visa risks.',
+                  '詐欺ゼロトレランス。すべてのファイルは厳格な身元・財務審査を経てビザリスクを完全に排除します。',
+                  'জালিয়াতির প্রতি শূন্য সহনশীলতা। প্রতিটি ফাইল কঠোর ব্যাকগ্রাউন্ড ও আর্থিক যাচাইয়ের মধ্য দিয়ে যায় — ভিসা ঝুঁকি সম্পূর্ণ দূর করতে।'
+                ),
+              },
+              {
+                icon: '🎯',
+                color: 'bg-violet-50 text-violet-600',
+                title: t('Pre-Verified Student Supply', '事前審査済み学生の供給', 'প্রি-ভেরিফাইড শিক্ষার্থী সরবরাহ'),
+                body: t(
+                  'Say goodbye to expensive marketing. Filter and shortlist a steady stream of pre-screened candidates from our nationwide franchise hubs.',
+                  '高額なマーケティングとはお別れ。全国フランチャイズハブから事前審査済み候補者を絞り込み、ショートリストへ。',
+                  'ব্যয়বহুল মার্কেটিংকে বিদায় বলুন। আমাদের দেশব্যাপী ফ্র্যাঞ্চাইজ হাব থেকে প্রি-স্ক্রিনড প্রার্থীদের ফিল্টার করুন।'
+                ),
+              },
+            ].map((f, i) => (
+              <div key={i} className="p-5 flex gap-4">
+                <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center text-lg shrink-0`}>
+                  {f.icon}
+                </div>
+                <div>
+                  <p className="text-sm font-black text-slate-800 mb-1">{f.title}</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">{f.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Quick links */}
         <div>
           <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
