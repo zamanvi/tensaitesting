@@ -477,17 +477,16 @@ function PostInner() {
               </span>
             </div>
 
-            {/* Feature image — full bleed, breaks out of content column */}
+            {/* Feature image — 16:9 within column */}
             {post.thumbnail && (
-              <div className="mt-6 mb-1 overflow-hidden bg-slate-100"
-                style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)', marginRight: 'calc(50% - 50vw)' }}>
+              <div className="mt-6 rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.12)] bg-slate-100"
+                style={{ aspectRatio: '16/9' }}>
                 <img
                   src={post.thumbnail}
                   alt={post.title}
                   loading="eager"
                   decoding="async"
-                  className="w-full object-cover object-top"
-                  style={{ maxHeight: '420px', display: 'block' }}
+                  className="w-full h-full object-cover object-top"
                 />
               </div>
             )}
