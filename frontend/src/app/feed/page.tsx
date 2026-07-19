@@ -352,8 +352,11 @@ function FeaturedCard({ post, user, t }: {
         : <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
       }
 
-      {/* Gradient overlay — stronger at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      {/* Extra scrim over bottom 55% so image text can't bleed through */}
+      <div className="absolute inset-x-0 bottom-0 h-[55%]"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.82) 40%, rgba(0,0,0,0.0) 100%)' }} />
 
       {/* Top badges */}
       <div className="absolute top-4 left-4 flex items-center gap-2">
@@ -408,7 +411,8 @@ function FeaturedCard({ post, user, t }: {
 
         {/* Title */}
         <h2 className="text-xl sm:text-3xl font-black text-white leading-[1.15] tracking-tight mb-2.5 max-w-3xl
-          group-hover:text-green-300 transition-colors duration-200">
+          group-hover:text-green-300 transition-colors duration-200"
+          style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.8)' }}>
           {post.title}
         </h2>
 
