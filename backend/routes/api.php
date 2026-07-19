@@ -149,6 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Institution gateway
     Route::prefix('institution')->middleware('role:institution')->group(function () {
         Route::get('/profile', [InstitutionController::class, 'profile']);
+        Route::get('/stats',   [InstitutionController::class, 'stats']);
         Route::post('/profile', [InstitutionController::class, 'updateProfile']);
         Route::get('/account',          [AccountController::class, 'update']);
         Route::patch('/account',        [AccountController::class, 'update']);

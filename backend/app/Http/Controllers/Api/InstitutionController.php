@@ -109,6 +109,48 @@ class InstitutionController extends Controller
         return response()->json($leads);
     }
 
+    public function stats(Request $request): JsonResponse
+    {
+        $user    = $request->user();
+        $profile = $user->institutionProfile;
+        $country = $profile?->country;
+
+        // Platform-wide numbers (social proof for institution)
+        $totalStudents  = User::where('gateway_type', 'student')->count();
+        $totalApps      = Application::where('status', 'submitted')->count();
+
+        // Country-specific pool (applications matching this institution's country)
+        $poolQuery = Application::where('status', 'submitted');
+        if ($country) {
+            $poolQuery->where('country', $country);
+        }
+        $poolCount = $poolQuery->count();
+
+        // Institution-specific counts
+        $mySelections = InstitutionSelection::where('institution_id', $user->id);
+        $selectedCount  = (clone $mySelections)->count();
+        $pendingCount   = (clone $mySelections)->where('status', 'selected')->count();
+        $acceptedCount  = (clone $mySelections)->where('status', 'accepted')->count();
+        $processingCount= (clone $mySelections)->where('status', 'processing')->count();
+        $completeCount  = (clone $mySelections)->where('status', 'complete')->count();
+
+        return response()->json([
+            'platform' => [
+                'total_students'     => $totalStudents,
+                'total_applications' => $totalApps,
+                'pool_for_country'   => $poolCount,
+                'country'            => $country,
+            ],
+            'my' => [
+                'selected'   => $selectedCount,
+                'pending'    => $pendingCount,
+                'accepted'   => $acceptedCount,
+                'processing' => $processingCount,
+                'complete'   => $completeCount,
+            ],
+        ]);
+    }
+
     /**
      * Anonymous pool of submitted applications matching institution's country.
      * Student personal info (name, email, phone, address) is stripped.
