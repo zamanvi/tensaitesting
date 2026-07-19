@@ -23,7 +23,16 @@ export default function BranchesFooter() {
           <Link href="/gallery"  className="hover:text-white/65 transition-colors">{a.navGallery}</Link>
           <Link href="/branches" className="text-green-400 font-medium">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
         </div>
-        <p className="text-xs text-white/30">{l.footer}</p>
+        <div className="text-right">
+          <p className="text-xs text-white/30">{l.footer}</p>
+          <p className="text-[10px] text-white/20 mt-0.5 max-w-sm text-right leading-relaxed">
+            {ja
+              ? '天才は教育・人材マーケットプレイスです。ビザ代理店でも人材派遣業者でもありません。'
+              : bn
+              ? 'টেনসাই একটি টেক-চালিত শিক্ষা ও প্রতিভা মার্কেটপ্লেস — ভিসা এজেন্সি বা জনশক্তি সরবরাহকারী নয়।'
+              : 'Tensai is a tech-enabled Education & Talent Marketplace — not a visa agency or manpower recruiter. We train, verify, and connect.'}
+          </p>
+        </div>
       </div>
     </footer>
   );

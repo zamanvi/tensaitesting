@@ -364,10 +364,13 @@ export default function BranchLayout({ children, title }: Props) {
               </div>
             </div>
           )}
-          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-            <p className="text-xs text-slate-400">© 2026 Tensai. All rights reserved.</p>
-            <div className="flex gap-4 text-[11px] text-slate-400">
-              <span>Powered by Tensai</span>
+          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
+            <p className="text-[10px] text-slate-400 leading-relaxed mb-2 italic">
+              Tensai is a tech-enabled Education &amp; Talent Marketplace — not a visa agency or manpower recruiter. We train, verify, and connect. We do not process files, guarantee visas, or supply labour.
+            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">© 2026 Tensai. All rights reserved.</p>
+              <span className="text-[11px] text-slate-400">Powered by Tensai</span>
             </div>
           </div>
         </footer>

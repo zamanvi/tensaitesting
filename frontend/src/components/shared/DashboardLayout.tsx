@@ -418,17 +418,26 @@ export default function DashboardLayout({ children, title }: Props) {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-100 mt-auto">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Image src="/tensai-logo.png" alt="Tensai" width={16} height={16} className="rounded-full object-contain opacity-50" />
-            <span className="text-xs text-slate-400">{t.landing.footer}</span>
-          </div>
-          <div className="flex items-center gap-5 text-xs text-slate-400">
-            <Link href="/privacy" className="hover:text-slate-600 transition-colors">{t.landing.privacy}</Link>
-            <Link href="/terms" className="hover:text-slate-600 transition-colors">{t.landing.terms}</Link>
-            <a href="mailto:support@tensaiconsultancy.com" className="hover:text-slate-600 transition-colors">
-              {lang === 'ja' ? 'サポート' : lang === 'bn' ? 'সহায়তা' : 'Support'}
-            </a>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-4 pb-3">
+          <p className="text-[10px] text-slate-400 leading-relaxed italic mb-3">
+            {lang === 'ja'
+              ? '天才は教育・人材マーケットプレイスです。ビザ代理店でも人材派遣業者でもありません。当社はトレーニング、検証、接続を提供します。ビザの保証やファイル処理は行いません。'
+              : lang === 'bn'
+              ? 'টেনসাই একটি টেক-চালিত শিক্ষা ও প্রতিভা মার্কেটপ্লেস — ভিসা এজেন্সি বা জনশক্তি সরবরাহকারী নয়। আমরা প্রশিক্ষণ, যাচাই ও সংযোগ প্রদান করি। আমরা ফাইল প্রক্রিয়া করি না বা ভিসার নিশ্চয়তা দিই না।'
+              : 'Tensai is a tech-enabled Education & Talent Marketplace — not a visa agency or manpower recruiter. We train, verify, and connect. We do not process files, guarantee visas, or supply labour.'}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Image src="/tensai-logo.png" alt="Tensai" width={16} height={16} className="rounded-full object-contain opacity-50" />
+              <span className="text-xs text-slate-400">{t.landing.footer}</span>
+            </div>
+            <div className="flex items-center gap-5 text-xs text-slate-400">
+              <Link href="/privacy" className="hover:text-slate-600 transition-colors">{t.landing.privacy}</Link>
+              <Link href="/terms" className="hover:text-slate-600 transition-colors">{t.landing.terms}</Link>
+              <a href="mailto:support@tensaiconsultancy.com" className="hover:text-slate-600 transition-colors">
+                {lang === 'ja' ? 'サポート' : lang === 'bn' ? 'সহায়তা' : 'Support'}
+              </a>
+            </div>
           </div>
         </div>
       </footer>
