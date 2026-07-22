@@ -82,7 +82,7 @@ class PostResource extends Resource
                             Forms\Components\FileUpload::make('thumbnail_file')
                                 ->label('Upload from your computer')
                                 ->image()
-                                ->disk('public')
+                                ->disk(app()->environment('production') ? 'r2' : 'public')
                                 ->directory('post-thumbnails')
                                 ->visibility('public')
                                 ->imageResizeMode('cover')
