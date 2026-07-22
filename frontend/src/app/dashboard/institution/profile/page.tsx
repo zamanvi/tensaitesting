@@ -38,6 +38,9 @@ interface ProfileForm {
   accepted_qualifications: string[];
   required_jlpt: string;
   required_nat: string;
+  commission_type: 'percentage' | 'flat';
+  commission_value: string;
+  commission_currency: string;
 }
 
 const blank: ProfileForm = {
@@ -46,6 +49,7 @@ const blank: ProfileForm = {
   tuition_fee_min: '', tuition_fee_max: '', currency: 'JPY',
   intake_months: [], accepted_qualifications: [],
   required_jlpt: '', required_nat: '',
+  commission_type: 'percentage', commission_value: '', commission_currency: 'JPY',
 };
 
 export default function InstitutionProfilePage() {
@@ -84,6 +88,9 @@ export default function InstitutionProfilePage() {
         accepted_qualifications:data.accepted_qualifications?? [],
         required_jlpt: data.required_language_scores?.jlpt  ?? '',
         required_nat:  data.required_language_scores?.nat   ?? '',
+        commission_type:     data.commission_type     ?? 'percentage',
+        commission_value:    data.commission_value    ?? '',
+        commission_currency: data.commission_currency ?? 'JPY',
       });
       // Show saved logo if present, but only if no new file selected
       if (data.logo_url && !logoFile) setLogoPreview(data.logo_url);
@@ -147,9 +154,13 @@ export default function InstitutionProfilePage() {
     if (logoFile) fd.append('logo', logoFile);
     Object.entries(form).forEach(([k, v]) => {
       if (k === 'required_jlpt' || k === 'required_nat') return;
+      // for flat commission, commission_currency comes from form; for percentage, use tuition currency
+      if (k === 'commission_currency' && form.commission_type === 'percentage') return;
       if (Array.isArray(v)) v.forEach(i => fd.append(`${k}[]`, String(i)));
       else if (v !== null && v !== undefined && v !== '') fd.append(k, String(v));
     });
+    // For percentage type, store commission_currency same as tuition currency
+    if (form.commission_type === 'percentage') fd.append('commission_currency', form.currency);
     mutation.mutate(fd);
   }
 
@@ -398,9 +409,11 @@ export default function InstitutionProfilePage() {
             <div>
               <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
                 {ja ? '最低学費' : bn ? 'সর্বনিম্ন ফি' : 'Min Fee'}
+                {form.commission_type === 'percentage' && <span className="text-red-400 ml-1">*</span>}
               </label>
               <input className={inputCls()} type="number" min="0" placeholder="0"
                 value={form.tuition_fee_min} onChange={e => set('tuition_fee_min', e.target.value)}
+                required={form.commission_type === 'percentage'}
                 disabled={isLocked} />
             </div>
             <div>
@@ -417,14 +430,100 @@ export default function InstitutionProfilePage() {
               </label>
               <select className={inputCls()} value={form.currency}
                 onChange={e => set('currency', e.target.value)} disabled={isLocked}>
-                <option value="JPY">JPY</option>
-                <option value="USD">USD</option>
-                <option value="BDT">BDT</option>
-                <option value="KRW">KRW</option>
-                <option value="EUR">EUR</option>
+                {['JPY','USD','BDT','KRW','EUR','GBP','AUD','CAD','SGD','MYR'].map(c =>
+                  <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
+          {form.commission_type === 'percentage' && !form.tuition_fee_min && (
+            <p className="mt-2 text-xs text-amber-600">
+              ⚠️ {ja ? '％コミッションには最低学費が必要です。' : bn ? 'শতাংশ কমিশনের জন্য ন্যূনতম ফি আবশ্যক।' : 'Minimum tuition fee is required for percentage commission.'}
+            </p>
+          )}
+        </div>
+
+        {/* Agent Commission */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-3 mb-1">
+            {ja ? 'エージェントへの手数料' : bn ? 'এজেন্ট কমিশন' : 'Agent Commission'}
+          </h3>
+          <p className="text-xs text-slate-400 mb-4">
+            {ja ? 'エージェントが学生を紹介して入学した場合に支払うコミッション。' : bn ? 'এজেন্ট প্রতি ভর্তি শিক্ষার্থীর জন্য যে কমিশন পাবে।' : 'Commission you offer agents per successfully enrolled student.'}
+          </p>
+
+          {/* Type toggle */}
+          <div className="flex gap-2 mb-4">
+            {(['percentage', 'flat'] as const).map(type => (
+              <button key={type} type="button"
+                onClick={() => { if (!isLocked) set('commission_type', type); }}
+                disabled={isLocked}
+                className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                  form.commission_type === type
+                    ? 'bg-indigo-600 text-white border-indigo-600'
+                    : 'border-slate-200 text-slate-500 hover:border-indigo-300'
+                } ${isLocked ? 'cursor-not-allowed opacity-60' : ''}`}>
+                {type === 'percentage'
+                  ? (ja ? '割合 (%)' : bn ? 'শতাংশ (%)' : 'Percentage (%)')
+                  : (ja ? '固定額' : bn ? 'নির্দিষ্ট পরিমাণ' : 'Flat Amount')}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {form.commission_type === 'percentage' ? (
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                  {ja ? 'コミッション率 (%)' : bn ? 'কমিশন হার (%)' : 'Commission Rate (%)'}
+                </label>
+                <div className="flex items-center gap-2">
+                  <input className={inputCls('max-w-[140px]')} type="number" min="0" max="100" step="0.5"
+                    placeholder="10" value={form.commission_value}
+                    onChange={e => set('commission_value', e.target.value)}
+                    disabled={isLocked} />
+                  <span className="text-slate-400 text-sm font-bold">%</span>
+                  {form.commission_value && form.tuition_fee_min && (
+                    <span className="ml-2 text-xs text-emerald-600 font-semibold bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-xl">
+                      ≈ {form.currency} {(parseFloat(form.tuition_fee_min) * parseFloat(form.commission_value) / 100).toLocaleString()} {ja ? '/入学者' : bn ? '/শিক্ষার্থী' : '/ enrolled student'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                    {ja ? '固定コミッション額' : bn ? 'নির্দিষ্ট কমিশন পরিমাণ' : 'Flat Commission Amount'}
+                  </label>
+                  <input className={inputCls()} type="number" min="0" placeholder="50000"
+                    value={form.commission_value} onChange={e => set('commission_value', e.target.value)}
+                    disabled={isLocked} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+                    {ja ? '通貨' : bn ? 'মুদ্রা' : 'Currency'}
+                  </label>
+                  <select className={inputCls()} value={form.commission_currency}
+                    onChange={e => set('commission_currency', e.target.value)} disabled={isLocked}>
+                    {['JPY','USD','BDT','KRW','EUR','GBP','AUD','CAD','SGD','MYR'].map(c =>
+                      <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Live preview */}
+          {form.commission_value && (
+            <div className="mt-4 p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs text-slate-600">
+              <span className="font-bold text-slate-700">
+                {ja ? 'エージェントには表示されます：' : bn ? 'এজেন্ট দেখবে:' : 'Agents will see:'}
+              </span>{' '}
+              {form.commission_type === 'percentage'
+                ? `${form.commission_value}% ${ja ? 'の授業料' : bn ? 'টিউশন ফির' : 'of tuition fee'}`
+                : `${form.commission_currency} ${parseFloat(form.commission_value || '0').toLocaleString()} ${ja ? '固定' : bn ? 'ফ্ল্যাট' : 'flat'}`}
+              {' '}{ja ? '/入学者' : bn ? 'প্রতি শিক্ষার্থী' : 'per enrolled student'}
+            </div>
+          )}
         </div>
 
         {/* Feedback */}

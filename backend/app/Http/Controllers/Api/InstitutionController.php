@@ -46,6 +46,9 @@ class InstitutionController extends Controller
             'tuition_fee_min'           => 'nullable|numeric|min:0',
             'tuition_fee_max'           => 'nullable|numeric|min:0',
             'currency'                  => 'nullable|string|max:10',
+            'commission_type'           => 'nullable|in:percentage,flat',
+            'commission_value'          => 'nullable|numeric|min:0',
+            'commission_currency'       => 'nullable|string|max:10',
             'logo'                      => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 

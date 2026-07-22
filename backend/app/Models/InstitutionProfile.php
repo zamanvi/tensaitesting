@@ -16,7 +16,8 @@ class InstitutionProfile extends Model
         'country', 'city', 'address', 'website', 'logo', 'description',
         'intake_months', 'accepted_qualifications', 'required_language_scores',
         'tuition_fee_min', 'tuition_fee_max', 'currency',
-        'commission_percent', 'status', 'verified_at', 'admin_notes',
+        'commission_percent', 'commission_type', 'commission_value', 'commission_currency',
+        'status', 'verified_at', 'admin_notes',
     ];
 
     protected $appends = ['logo_url'];
@@ -28,6 +29,7 @@ class InstitutionProfile extends Model
         'tuition_fee_min' => 'decimal:2',
         'tuition_fee_max' => 'decimal:2',
         'commission_percent' => 'decimal:2',
+        'commission_value'   => 'decimal:2',
         'verified_at' => 'datetime',
     ];
 
