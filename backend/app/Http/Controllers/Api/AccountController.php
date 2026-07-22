@@ -16,6 +16,7 @@ class AccountController extends Controller
         $user = $request->user();
         $data = $request->validate([
             'phone'            => 'sometimes|nullable|string|max:30',
+            'whatsapp'         => 'sometimes|nullable|string|max:30',
             'current_password' => 'sometimes|required_with:password|string',
             'password'         => 'sometimes|string|min:8|confirmed',
         ]);
@@ -27,9 +28,8 @@ class AccountController extends Controller
             $user->password = Hash::make($data['password']);
         }
 
-        if (array_key_exists('phone', $data)) {
-            $user->phone = $data['phone'];
-        }
+        if (array_key_exists('phone', $data))    $user->phone    = $data['phone'];
+        if (array_key_exists('whatsapp', $data)) $user->whatsapp = $data['whatsapp'];
 
         $user->save();
         return response()->json(['message' => 'Account updated.', 'user' => $user]);

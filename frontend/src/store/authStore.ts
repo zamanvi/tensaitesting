@@ -7,9 +7,11 @@ interface User {
   name: string;
   email: string;
   phone?: string;
+  whatsapp?: string;
   avatar_url?: string | null;
   gateway_type: 'student' | 'agency' | 'institution' | 'affiliate' | string;
   status: 'pending' | 'active' | 'suspended';
+  institution_status?: 'pending' | 'active' | 'suspended';
   affiliate_code?: string;
   roles?: string[];
   email_verified_at?: string | null;
@@ -78,7 +80,12 @@ export const useAuthStore = create<AuthState>()(
       fetchMe: async () => {
         try {
           const res = await api.get('/auth/me');
-          set({ user: { ...res.data.user, roles: res.data.roles ?? [] } });
+          const profile = res.data.profile as { status?: string } | null;
+          set({ user: {
+            ...res.data.user,
+            roles: res.data.roles ?? [],
+            institution_status: profile?.status as User['institution_status'] ?? undefined,
+          } });
         } catch (e: unknown) {
           const err = e as { response?: { status?: number } };
           if (err.response?.status === 401) {
