@@ -108,8 +108,10 @@ export default function StudentSettingsPage() {
       fetchMe().catch(() => {});
       setAvatarSaved(true); setAvatarErr('');
       setTimeout(() => setAvatarSaved(false), 3000);
-      // Revoke the blob URL now that the server copy is confirmed
+      // Revoke the blob URL now that the server copy is confirmed, and drop the
+      // local preview so we fall back to the real (now-populated) avatar_url
       if (avatarObjectUrl.current) { URL.revokeObjectURL(avatarObjectUrl.current); avatarObjectUrl.current = null; }
+      setAvatarPreview(null);
     },
     onError: (e: unknown) => {
       const ax = e as { response?: { data?: { message?: string } } };

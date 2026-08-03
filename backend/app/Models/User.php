@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -24,6 +25,15 @@ class User extends Authenticatable implements FilamentUser
     ];
 
     protected $hidden = ['password', 'remember_token'];
+
+    protected $appends = ['avatar_url'];
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (!$this->avatar) return null;
+        $disk = app()->environment('production') ? 'r2' : 'public';
+        return Storage::disk($disk)->url($this->avatar);
+    }
 
     protected $casts = [
         'email_verified_at'  => 'datetime',
