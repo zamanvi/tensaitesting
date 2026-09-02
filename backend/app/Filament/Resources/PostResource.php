@@ -247,14 +247,18 @@ class PostResource extends Resource
                                 ->dehydrated(fn ($state) => filled($state))
                                 ->saveUploadedFileUsing(function ($file) {
                                     $disk = app()->environment('production') ? 'r2' : 'public';
+                                    // 1200×630 (1.91:1) — the standard og:image size WhatsApp/Facebook/Twitter
+                                    // expect. The old 1200×675 (16:9) crop didn't match the og:image:width/height
+                                    // meta tags declared in the frontend, which is what made shared links show
+                                    // as a small, oddly-cropped thumbnail instead of a full-width preview.
                                     $image = (new ImageManager(new Driver()))
                                         ->read($file->getRealPath())
-                                        ->cover(1200, 675);
+                                        ->cover(1200, 630);
                                     $path = 'post-thumbnails/' . Str::uuid() . '.jpg';
                                     Storage::disk($disk)->put($path, (string) $image->toJpeg(85));
                                     return $path;
                                 })
-                                ->helperText('Automatically cropped and resized to 1200 × 675 px (16:9). JPG / PNG / WebP — max 4 MB.'),
+                                ->helperText('Automatically cropped and resized to 1200 × 630 px. JPG / PNG / WebP — max 4 MB.'),
 
                             Forms\Components\TextInput::make('thumbnail_url')
                                 ->label('— or paste an external URL')
