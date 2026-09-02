@@ -138,8 +138,8 @@ export default function BranchesPage() {
               <Link key={branch.id} href={`/branches/${branch.slug}`}
                 className="group rounded-2xl overflow-hidden border border-white/[0.08] hover:border-green-500/30 transition-all duration-300 bg-white/[0.02] hover:bg-white/[0.04] flex flex-col">
 
-                {/* Cover */}
-                <div className="h-44 bg-gradient-to-br from-green-900/30 to-slate-900/50 overflow-hidden relative shrink-0">
+                {/* Cover - Larger & More Prominent */}
+                <div className="h-56 bg-gradient-to-br from-green-900/30 to-slate-900/50 overflow-hidden relative shrink-0">
                   {branch.cover_image_url ? (
                     <Image src={branch.cover_image_url} alt={branch.name} fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -171,10 +171,6 @@ export default function BranchesPage() {
                     </svg>
                     {branch.city}{branch.country && branch.country !== 'Bangladesh' ? `, ${branch.country}` : ''}
                   </div>
-
-                  {branch.tagline && (
-                    <p className="text-white/45 text-xs leading-relaxed mb-4 line-clamp-2">{branch.tagline}</p>
-                  )}
 
                   {branch.stats && Object.keys(branch.stats).length > 0 && (
                     <div className="flex gap-3 mb-4">
