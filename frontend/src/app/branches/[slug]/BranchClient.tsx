@@ -203,60 +203,15 @@ export default function BranchPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-16 space-y-20 flex-1 w-full">
-
-        {/* About */}
-        {branch.description && (
-          <section>
-            <h2 className="text-xl font-bold text-white mb-4">
-              {ja ? `${branch.name}について` : bn ? `${branch.name} সম্পর্কে` : `Why ${branch.name}?`}
-            </h2>
-            <p className="text-white/55 leading-relaxed max-w-3xl">{branch.description}</p>
-          </section>
-        )}
-
-        {/* Stats — after About so context is clear */}
-        {branch.stats && Object.keys(branch.stats).length > 0 && (
-          <section className="-mx-4 border-y border-white/[0.06] bg-white/[0.04]">
-            <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
-              {Object.entries(branch.stats).map(([key, val]) => (
-                <div key={key} className="text-center">
-                  <div className="text-2xl sm:text-3xl font-black text-green-400">{String(val)}</div>
-                  <div className="text-white/40 text-xs mt-1 truncate">{key}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Services */}
-        {branch.services.length > 0 && (
-          <section>
-            <h2 className="text-xl font-bold text-white mb-2">
-              {ja ? 'サービス内容' : bn ? 'আমরা যা করি' : 'How We Help You'}
-            </h2>
-            <p className="text-white/40 text-sm mb-6">
-              {ja ? 'あなたの留学を成功させるために提供するサービス' : bn ? 'আপনার বিদেশে পড়াশোনার স্বপ্ন পূরণে আমাদের সেবাসমূহ' : 'Everything you need to study abroad — under one roof.'}
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {branch.services.map(s => (
-                <div key={s.id} className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:border-green-500/20 transition-all">
-                  {s.icon && <div className="text-3xl mb-3" role="img" aria-label={s.title}>{s.icon}</div>}
-                  <h3 className="font-bold text-white text-sm mb-2">{s.title}</h3>
-                  {s.description && <p className="text-white/55 text-xs leading-relaxed">{s.description}</p>}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+      <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16 space-y-20 flex-1 w-full">
 
         {/* Team */}
         {branch.team.length > 0 && (
           <section>
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-fluid-2xl font-bold text-white mb-2">
               {ja ? 'チームメンバー' : bn ? 'আমাদের বিশেষজ্ঞ টিম' : 'Meet Your Team'}
             </h2>
-            <p className="text-white/40 text-sm mb-6">
+            <p className="text-white/50 text-fluid-base mb-6">
               {ja ? 'あなたの留学をサポートする専門家チーム' : bn ? 'এরাই আপনার বিদেশে পড়াশোনার পথ সহজ করবেন' : 'The people who will guide you every step of the way.'}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
@@ -290,13 +245,58 @@ export default function BranchPage() {
           </section>
         )}
 
+        {/* About */}
+        {branch.description && (
+          <section>
+            <h2 className="text-fluid-2xl font-bold text-white mb-4">
+              {ja ? `${branch.name}について` : bn ? `${branch.name} সম্পর্কে` : `Why ${branch.name}?`}
+            </h2>
+            <p className="text-white/55 leading-relaxed max-w-3xl">{branch.description}</p>
+          </section>
+        )}
+
+        {/* Stats — after Team for credibility proof point */}
+        {branch.stats && Object.keys(branch.stats).length > 0 && (
+          <section className="-mx-4 border-y border-white/[0.06] bg-white/[0.04]">
+            <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
+              {Object.entries(branch.stats).map(([key, val]) => (
+                <div key={key} className="text-center">
+                  <div className="text-2xl sm:text-3xl font-black text-green-400">{String(val)}</div>
+                  <div className="text-white/40 text-xs mt-1 truncate">{key}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Services */}
+        {branch.services.length > 0 && (
+          <section>
+            <h2 className="text-fluid-2xl font-bold text-white mb-2">
+              {ja ? 'サービス内容' : bn ? 'আমরা যা করি' : 'How We Help You'}
+            </h2>
+            <p className="text-white/50 text-fluid-base mb-6">
+              {ja ? 'あなたの留学を成功させるために提供するサービス' : bn ? 'আপনার বিদেশে পড়াশোনার স্বপ্ন পূরণে আমাদের সেবাসমূহ' : 'Everything you need to study abroad — under one roof.'}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {branch.services.map(s => (
+                <div key={s.id} className="p-5 rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:border-green-500/20 transition-all">
+                  {s.icon && <div className="text-3xl mb-3" role="img" aria-label={s.title}>{s.icon}</div>}
+                  <h3 className="font-bold text-white text-sm mb-2">{s.title}</h3>
+                  {s.description && <p className="text-white/55 text-xs leading-relaxed">{s.description}</p>}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Gallery */}
         {branch.gallery.length > 0 && (
           <section>
-            <h2 className="text-xl font-bold text-white mb-2">
+            <h2 className="text-fluid-2xl font-bold text-white mb-2">
               {ja ? 'ギャラリー' : bn ? 'আমাদের কার্যক্রম' : 'See Us in Action'}
             </h2>
-            <p className="text-white/40 text-sm mb-6">
+            <p className="text-white/50 text-fluid-base mb-6">
               {ja ? 'オフィスの様子、学生イベント、面談の雰囲気' : bn ? 'অফিস, ইভেন্ট এবং শিক্ষার্থীদের সাফল্যের মুহূর্ত' : 'Office tours, student events, and success celebrations.'}
             </p>
             {/* Fixed-size flex-wrap instead of a rigid grid — a handful of photos
@@ -304,7 +304,7 @@ export default function BranchPage() {
             <div className="flex flex-wrap gap-3">
               {displayedGallery.map(g => (
                 <button key={g.id}
-                  className="w-[calc(50%-0.375rem)] sm:w-40 lg:w-44 aspect-square rounded-xl overflow-hidden group border border-white/[0.06] hover:border-green-500/30 transition-all relative"
+                  className="w-[calc(50%-0.375rem)] sm:w-40 lg:w-56 aspect-square rounded-xl overflow-hidden group border border-white/[0.06] hover:border-green-500/30 transition-all relative"
                   onClick={() => setActiveGalleryId(g.id)}
                   aria-label={g.title ?? g.caption ?? (ja ? '画像を拡大' : bn ? 'ছবি বড় করুন' : 'View image')}>
                   <Image src={g.display_image_url} alt={g.title || g.caption || `${branch.name} gallery`} fill
@@ -381,7 +381,7 @@ export default function BranchPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
           {/* Address / Maps / Social */}
           <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.07]">
