@@ -47,6 +47,7 @@ class AdminPanelProvider extends PanelProvider
                 'Applicant Management',
                 'Branches',
                 'Earnings & Payouts',
+                'Revenue',
                 'Content',
                 'Support',
                 'Settings',

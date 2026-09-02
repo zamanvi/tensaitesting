@@ -47,6 +47,16 @@ class Branch extends Model
         return $this->hasMany(BranchService::class)->orderBy('sort_order');
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function fundTransfers()
+    {
+        return $this->hasMany(FundTransfer::class);
+    }
+
     public function admins()
     {
         return $this->hasMany(User::class)

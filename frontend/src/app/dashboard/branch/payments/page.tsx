@@ -1,0 +1,397 @@
+'use client';
+import BranchLayout from '@/components/shared/BranchLayout';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
+import { useLang } from '@/context/LanguageContext';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+type Lang = 'en' | 'ja' | 'bn';
+
+interface PaymentCategory {
+  id: number;
+  key: string;
+  label: string;
+  fund_target: 'branch' | 'head_office';
+}
+
+interface ApplicationOption {
+  id: number;
+  application_code: string;
+  student_name: string;
+  student_email: string;
+  student_phone: string;
+}
+
+interface Payment {
+  id: number;
+  receipt_no: string;
+  amount: string;
+  currency: string;
+  method: 'cash' | 'bank';
+  customer_name: string;
+  fund_target: 'branch' | 'head_office';
+  created_at: string;
+  category: { id: number; label: string } | null;
+  application: { id: number; application_code: string } | null;
+}
+
+interface PaymentsPage {
+  data: Payment[];
+  total: number;
+}
+
+function timeAgo(dateStr: string, L: Lang): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return L === 'ja' ? 'たった今' : L === 'bn' ? 'এইমাত্র' : 'just now';
+  if (m < 60) return L === 'ja' ? `${m}分前` : L === 'bn' ? `${m}মি আগে` : `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return L === 'ja' ? `${h}時間前` : L === 'bn' ? `${h}ঘ আগে` : `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return d < 30
+    ? (L === 'ja' ? `${d}日前` : L === 'bn' ? `${d}দিন আগে` : `${d}d ago`)
+    : new Date(dateStr).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' });
+}
+
+// ── Page ───────────────────────────────────────────────────────────────────────
+
+export default function BranchPaymentsPage() {
+  const { user } = useAuthStore();
+  const { lang } = useLang();
+  const router = useRouter();
+  const qc = useQueryClient();
+  const L: Lang = lang === 'ja' ? 'ja' : lang === 'bn' ? 'bn' : 'en';
+  const t = (en: string, ja: string, bn: string) => L === 'ja' ? ja : L === 'bn' ? bn : en;
+
+  const isBranchAdmin = user?.roles?.some(r => r === 'branch_admin' || r === 'branch_manager');
+  useEffect(() => {
+    if (user && !isBranchAdmin) router.replace(`/dashboard/${user.gateway_type ?? ''}`);
+  }, [user, isBranchAdmin, router]);
+
+  // ── Form state ──────────────────────────────────────────────────────────────
+  const [appSearch, setAppSearch]         = useState('');
+  const [appPickerOpen, setAppPickerOpen] = useState(false);
+  const [selectedApp, setSelectedApp]     = useState<ApplicationOption | null>(null);
+  const [categoryId, setCategoryId]       = useState<number | ''>('');
+  const [amount, setAmount]               = useState('');
+  const [method, setMethod]               = useState<'cash' | 'bank'>('cash');
+  const [customerName, setCustomerName]   = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [notes, setNotes]                 = useState('');
+  const [justReceipt, setJustReceipt]     = useState<Payment | null>(null);
+  const [formError, setFormError]         = useState('');
+  const appPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onOutsideClick(e: MouseEvent) {
+      if (appPickerRef.current && !appPickerRef.current.contains(e.target as Node)) setAppPickerOpen(false);
+    }
+    document.addEventListener('mousedown', onOutsideClick);
+    return () => document.removeEventListener('mousedown', onOutsideClick);
+  }, []);
+
+  const { data: categories } = useQuery<PaymentCategory[]>({
+    queryKey: ['payment-categories'],
+    queryFn: () => api.get('/branch-admin/payment-categories').then(r => r.data),
+    enabled: !!isBranchAdmin,
+    staleTime: 300_000,
+  });
+
+  const { data: appsData } = useQuery<{ data: ApplicationOption[] }>({
+    queryKey: ['branch-applications'],
+    queryFn: () => api.get('/applications').then(r => r.data),
+    enabled: !!isBranchAdmin,
+    staleTime: 300_000,
+  });
+  const apps = appsData?.data ?? [];
+  const filteredApps = useMemo(() => {
+    const q = appSearch.trim().toLowerCase();
+    if (!q) return apps.slice(0, 8);
+    return apps.filter(a =>
+      a.student_name?.toLowerCase().includes(q) ||
+      a.application_code?.toLowerCase().includes(q)
+    ).slice(0, 8);
+  }, [apps, appSearch]);
+
+  const paymentsKey = ['branch-payments'];
+  const { data: paymentsData, isLoading: paymentsLoading } = useQuery<PaymentsPage>({
+    queryKey: paymentsKey,
+    queryFn: () => api.get('/branch-admin/payments').then(r => r.data),
+    enabled: !!isBranchAdmin,
+  });
+  const payments = paymentsData?.data ?? [];
+
+  const createPayment = useMutation({
+    mutationFn: () => api.post('/branch-admin/payments', {
+      application_id: selectedApp?.id ?? null,
+      payment_category_id: categoryId,
+      amount,
+      method,
+      customer_name: customerName || undefined,
+      customer_phone: customerPhone || undefined,
+      customer_email: customerEmail || undefined,
+      notes: notes || undefined,
+    }).then(r => r.data),
+    onSuccess: (payment: Payment) => {
+      qc.invalidateQueries({ queryKey: paymentsKey });
+      setJustReceipt(payment);
+      setSelectedApp(null); setAppSearch(''); setCategoryId(''); setAmount('');
+      setMethod('cash'); setCustomerName(''); setCustomerPhone(''); setCustomerEmail(''); setNotes('');
+      setFormError('');
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setFormError(msg || t('Something went wrong. Please try again.', '問題が発生しました。もう一度お試しください。', 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।'));
+    },
+  });
+
+  if (!user || !isBranchAdmin) return null;
+
+  const selectedCategory = categories?.find(c => c.id === categoryId) ?? null;
+  const canSubmit = !!categoryId && Number(amount) > 0 && (!!selectedApp || customerName.trim().length > 0);
+
+  return (
+    <BranchLayout title={t('Payments', '入金', 'পেমেন্ট')}>
+      <div className="max-w-4xl space-y-6">
+
+        {/* ── Just-completed receipt confirmation ── */}
+        {justReceipt && (
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-5 flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-green-600 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-green-900 text-sm">
+                {t('Receipt sent ✓', '受領書を送信しました ✓', 'রিসিপ্ট পাঠানো হয়েছে ✓')}
+              </p>
+              <p className="text-xs text-green-700 mt-0.5">
+                {t('Receipt no.', '受領書番号', 'রিসিপ্ট নং')} <span className="font-mono font-bold">{justReceipt.receipt_no}</span>
+                {' · '}{justReceipt.amount} {justReceipt.currency}
+              </p>
+            </div>
+            <button onClick={() => setJustReceipt(null)} className="text-green-600 hover:text-green-800 shrink-0">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {/* ── Entry form ── */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
+          <h3 className="font-black text-slate-900 text-sm mb-1">{t('New Payment Entry', '新規入金登録', 'নতুন পেমেন্ট এন্ট্রি')}</h3>
+          <p className="text-xs text-slate-400 mb-5">
+            {t('Recorded instantly — no approval step. A receipt is emailed to the customer right away.', '即座に記録されます — 承認は不要です。領収書は直ちにメールで送信されます。', 'সাথে সাথেই এন্ট্রি হয়ে যাবে — কোনো অ্যাপ্রুভাল লাগবে না। রিসিপ্ট সাথে সাথেই ইমেইলে চলে যাবে।')}
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Application picker (optional) */}
+            <div className="sm:col-span-2 relative" ref={appPickerRef}>
+              <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
+                {t('Link to Application (optional)', '申請にリンク（任意）', 'অ্যাপ্লিকেশনের সাথে যুক্ত করুন (ঐচ্ছিক)')}
+              </label>
+              {selectedApp ? (
+                <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-green-50 border border-green-200">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{selectedApp.student_name}</p>
+                    <p className="text-[11px] font-mono text-green-700">{selectedApp.application_code}</p>
+                  </div>
+                  <button onClick={() => setSelectedApp(null)} className="text-slate-400 hover:text-slate-600 shrink-0 ml-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={appSearch}
+                    onChange={e => { setAppSearch(e.target.value); setAppPickerOpen(true); }}
+                    onFocus={() => setAppPickerOpen(true)}
+                    placeholder={t('Search by name or application code…', '名前または申請コードで検索…', 'নাম বা অ্যাপ্লিকেশন কোড দিয়ে খুঁজুন…')}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all"
+                  />
+                  {appPickerOpen && filteredApps.length > 0 && (
+                    <div className="absolute z-20 mt-1 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-56 overflow-y-auto">
+                      {filteredApps.map(a => (
+                        <button
+                          key={a.id}
+                          onClick={() => { setSelectedApp(a); setAppPickerOpen(false); setAppSearch(''); }}
+                          className="w-full text-left px-3.5 py-2.5 hover:bg-green-50 transition-colors border-b border-slate-50 last:border-0"
+                        >
+                          <p className="text-xs font-semibold text-slate-800">{a.student_name}</p>
+                          <p className="text-[11px] font-mono text-slate-400">{a.application_code}</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+              <p className="text-[11px] text-slate-400 mt-1">
+                {t('Leave empty for a walk-in payment not tied to an application.', 'アプリケーションに関連しない支払いの場合は空欄のままにしてください。', 'কোনো অ্যাপ্লিকেশন ছাড়া ওয়াক-ইন পেমেন্ট হলে খালি রাখুন।')}
+              </p>
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Category', 'カテゴリ', 'ক্যাটাগরি')}</label>
+              <select
+                value={categoryId}
+                onChange={e => setCategoryId(e.target.value ? Number(e.target.value) : '')}
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all"
+              >
+                <option value="">{t('Select category…', 'カテゴリを選択…', 'ক্যাটাগরি বাছুন…')}</option>
+                {(categories ?? []).map(c => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+              {selectedCategory && (
+                <span className={`inline-block mt-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  selectedCategory.fund_target === 'branch' ? 'bg-green-50 text-green-700' : 'bg-indigo-50 text-indigo-700'
+                }`}>
+                  {selectedCategory.fund_target === 'branch'
+                    ? t('→ Branch Fund', '→ 支店ファンド', '→ ব্রাঞ্চ ফান্ড')
+                    : t('→ Head Office Fund', '→ 本部ファンド', '→ হেড অফিস ফান্ড')}
+                </span>
+              )}
+            </div>
+
+            {/* Amount + Method */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Amount (BDT)', '金額 (BDT)', 'পরিমাণ (BDT)')}</label>
+                <input
+                  type="number" min="1" value={amount} onChange={e => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Method', '方法', 'পদ্ধতি')}</label>
+                <select
+                  value={method} onChange={e => setMethod(e.target.value as 'cash' | 'bank')}
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all"
+                >
+                  <option value="cash">{t('Cash', '現金', 'ক্যাশ')}</option>
+                  <option value="bank">{t('Bank', '銀行', 'ব্যাংক')}</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Customer info — required unless an application is linked */}
+            {!selectedApp && (
+              <>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Customer Name', '顧客名', 'কাস্টমারের নাম')}</label>
+                  <input type="text" value={customerName} onChange={e => setCustomerName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Phone', '電話', 'ফোন')}</label>
+                  <input type="text" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all" />
+                </div>
+              </>
+            )}
+
+            <div className="sm:col-span-2">
+              <label className="text-xs font-semibold text-slate-500 mb-1.5 block">
+                {t('Email (for receipt)', 'メール（受領書送付先）', 'ইমেইল (রিসিপ্টের জন্য)')}
+              </label>
+              <input type="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)}
+                placeholder={selectedApp?.student_email || ''}
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all" />
+              {!customerEmail && !selectedApp?.student_email && (
+                <p className="text-[11px] text-amber-600 mt-1">
+                  {t('No receipt will be emailed without an address — the payment is still recorded.', 'メールアドレスがない場合、受領書は送信されません（入金は記録されます）。', 'ইমেইল না দিলে রিসিপ্ট পাঠানো হবে না — তবে পেমেন্ট এন্ট্রি ঠিকই সেভ হবে।')}
+                </p>
+              )}
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Notes (optional)', 'メモ（任意）', 'নোট (ঐচ্ছিক)')}</label>
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2}
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all resize-none" />
+            </div>
+          </div>
+
+          {formError && <p className="text-xs text-rose-600 mt-4">{formError}</p>}
+
+          <div className="mt-5 flex justify-end">
+            <button
+              onClick={() => createPayment.mutate()}
+              disabled={!canSubmit || createPayment.isPending}
+              className="px-6 py-2.5 bg-green-700 hover:bg-green-800 text-white rounded-xl font-bold text-sm shadow-md shadow-green-700/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {createPayment.isPending
+                ? t('Recording…', '記録中…', 'এন্ট্রি হচ্ছে…')
+                : t('Record Payment & Send Receipt', '入金を記録して受領書を送信', 'পেমেন্ট এন্ট্রি করুন ও রিসিপ্ট পাঠান')}
+            </button>
+          </div>
+        </div>
+
+        {/* ── History ── */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="px-5 sm:px-6 py-4 border-b border-slate-100">
+            <h3 className="font-black text-slate-900 text-sm">{t('Payment History', '入金履歴', 'পেমেন্ট হিস্ট্রি')}</h3>
+          </div>
+
+          {paymentsLoading ? (
+            <div className="py-16 flex flex-col items-center gap-3">
+              <span className="w-8 h-8 border-2 border-slate-200 border-t-green-600 rounded-full animate-spin" />
+            </div>
+          ) : payments.length === 0 ? (
+            <div className="py-16 flex flex-col items-center gap-2">
+              <p className="text-sm font-bold text-slate-500">{t('No payments yet', 'まだ入金がありません', 'এখনো কোনো পেমেন্ট এন্ট্রি নেই')}</p>
+              <p className="text-xs text-slate-400">{t('New entries will show up here.', '新しい入金はここに表示されます。', 'নতুন এন্ট্রি এখানে দেখা যাবে।')}</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-slate-50/80 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <th className="text-left px-5 py-3">{t('Receipt', '受領書', 'রিসিপ্ট')}</th>
+                    <th className="text-left px-4 py-3">{t('Customer', '顧客', 'কাস্টমার')}</th>
+                    <th className="text-left px-4 py-3">{t('Category', 'カテゴリ', 'ক্যাটাগরি')}</th>
+                    <th className="text-left px-4 py-3">{t('Amount', '金額', 'পরিমাণ')}</th>
+                    <th className="text-left px-4 py-3">{t('Date', '日付', 'তারিখ')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {payments.map(p => (
+                    <tr key={p.id}>
+                      <td className="px-5 py-3.5">
+                        <span className="font-mono text-[11px] text-slate-700">{p.receipt_no}</span>
+                        {p.application && (
+                          <p className="text-[11px] text-slate-400 mt-0.5">{p.application.application_code}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5 text-xs font-semibold text-slate-700">{p.customer_name}</td>
+                      <td className="px-4 py-3.5">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          p.fund_target === 'branch' ? 'bg-green-50 text-green-700' : 'bg-indigo-50 text-indigo-700'
+                        }`}>
+                          {p.category?.label ?? '—'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-xs font-bold text-slate-800 tabular-nums">{p.amount} {p.currency}</td>
+                      <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">{timeAgo(p.created_at, L)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </BranchLayout>
+  );
+}

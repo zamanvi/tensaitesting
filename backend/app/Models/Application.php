@@ -56,6 +56,11 @@ class Application extends Model
         return $this->hasOne(Commission::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function institutionSelections(): HasMany
     {
         return $this->hasMany(InstitutionSelection::class, 'lead_id');
