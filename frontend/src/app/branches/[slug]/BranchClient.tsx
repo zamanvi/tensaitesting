@@ -3,6 +3,7 @@ import BranchesFooter from '@/components/branches/BranchesFooter';
 import SiteHeader from '@/components/shared/SiteHeader';
 import { useLang } from '@/context/LanguageContext';
 import { PUBLIC_API } from '@/lib/publicApi';
+import { normalizeBdWhatsapp } from '@/lib/phone';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -359,7 +360,7 @@ export default function BranchPage() {
                 </div>
               )}
               {branch.whatsapp && (
-                <a href={`https://wa.me/${branch.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+                <a href={`https://wa.me/${normalizeBdWhatsapp(branch.whatsapp)}`} target="_blank" rel="noopener noreferrer"
                   className="bg-green-500/10 border border-green-500/25 rounded-2xl p-6 flex flex-col items-center text-center gap-3 hover:bg-green-500/20 transition-all">
                   <div className="w-12 h-12 rounded-full bg-green-500/15 flex items-center justify-center text-green-400">{WHATSAPP_SVG}</div>
                   <div className="text-xs font-semibold uppercase tracking-wider text-green-400/80">WhatsApp</div>
@@ -438,9 +439,9 @@ export default function BranchPage() {
                     </a>
                   )}
                   {hq.support_whatsapp && (
-                    <a href={`https://wa.me/${hq.support_whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+                    <a href={`https://wa.me/${normalizeBdWhatsapp(hq.support_whatsapp)}`} target="_blank" rel="noopener noreferrer"
                       className="hover:text-green-400 transition-colors" dir="ltr">
-                      WhatsApp: +{hq.support_whatsapp.replace(/[^0-9]/g, '')}
+                      WhatsApp: +{normalizeBdWhatsapp(hq.support_whatsapp)}
                     </a>
                   )}
                   {hq.support_email && (
@@ -503,7 +504,7 @@ export default function BranchPage() {
               </a>
             )}
             {branch.whatsapp && (
-              <a href={`https://wa.me/${branch.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+              <a href={`https://wa.me/${normalizeBdWhatsapp(branch.whatsapp)}`} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white/[0.06] border border-white/[0.15] text-white rounded-full text-sm font-semibold hover:bg-white/[0.1] transition-all">
                 {WHATSAPP_SVG}
                 WhatsApp

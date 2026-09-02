@@ -3,6 +3,7 @@ import BranchesFooter from '@/components/branches/BranchesFooter';
 import SiteHeader from '@/components/shared/SiteHeader';
 import { useLang } from '@/context/LanguageContext';
 import { PUBLIC_API } from '@/lib/publicApi';
+import { normalizeBdWhatsapp } from '@/lib/phone';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -188,7 +189,7 @@ export default function BranchesPage() {
                     {/* Phone 1 */}
                     {branch.phone && (
                       <a href={`tel:${branch.phone.replace(/[^\d+]/g, '')}`}
-                        onClick={(e) => e.preventDefault()}
+                        onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] hover:border-green-500/40 text-white rounded-lg transition-all duration-200 group/phone"
                         title={branch.phone}>
                         <svg className="w-3.5 h-3.5 text-white/60 group-hover/phone:text-green-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,7 +202,7 @@ export default function BranchesPage() {
                     {/* Phone 2 */}
                     {branch.phone_2 && (
                       <a href={`tel:${branch.phone_2.replace(/[^\d+]/g, '')}`}
-                        onClick={(e) => e.preventDefault()}
+                        onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] hover:border-green-500/40 text-white rounded-lg transition-all duration-200 group/phone"
                         title={branch.phone_2}>
                         <svg className="w-3.5 h-3.5 text-white/60 group-hover/phone:text-green-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +214,8 @@ export default function BranchesPage() {
 
                     {/* WhatsApp */}
                     {branch.whatsapp && (
-                      <a href={`https://wa.me/${branch.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+                      <a href={`https://wa.me/${normalizeBdWhatsapp(branch.whatsapp)}`} target="_blank" rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="flex items-center justify-center px-3 py-2.5 bg-green-600/20 hover:bg-green-600/40 border border-green-500/30 hover:border-green-400/60 text-green-300 hover:text-green-200 rounded-lg transition-all duration-200 group/wa"
                         title="WhatsApp">
                         <svg className="w-4 h-4 transition-transform group-hover/wa:scale-110" viewBox="0 0 24 24" fill="currentColor">
