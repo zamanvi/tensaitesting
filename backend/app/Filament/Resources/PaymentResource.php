@@ -15,7 +15,9 @@ class PaymentResource extends Resource
     protected static ?string $model         = Payment::class;
     protected static ?string $navigationIcon  = 'heroicon-o-receipt-percent';
     protected static ?string $navigationGroup = 'Revenue';
-    protected static ?string $navigationLabel = 'Payments';
+    protected static ?string $navigationLabel = 'Memos';
+    protected static ?string $modelLabel       = 'Memo';
+    protected static ?string $pluralModelLabel = 'Memos';
     protected static ?int    $navigationSort  = 1;
 
     public static function canAccess(): bool
@@ -99,8 +101,8 @@ class PaymentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
             ])
-            ->emptyStateHeading('No payments yet')
-            ->emptyStateDescription('Branch payment entries will appear here as soon as they are recorded.')
+            ->emptyStateHeading('No memos yet')
+            ->emptyStateDescription('Branch memos will appear here as soon as they are created.')
             ->emptyStateIcon('heroicon-o-receipt-percent');
     }
 

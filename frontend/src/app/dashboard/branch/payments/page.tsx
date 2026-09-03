@@ -156,7 +156,7 @@ export default function BranchPaymentsPage() {
   const canSubmit = !!categoryId && Number(amount) > 0 && (!!selectedApp || customerName.trim().length > 0);
 
   return (
-    <BranchLayout title={t('Payments', '入金', 'পেমেন্ট')}>
+    <BranchLayout title={t('Memos', '伝票', 'মেমো')}>
       <div className="max-w-4xl space-y-6">
 
         {/* ── Just-completed receipt confirmation ── */}
@@ -186,7 +186,7 @@ export default function BranchPaymentsPage() {
 
         {/* ── Entry form ── */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sm:p-6">
-          <h3 className="font-black text-slate-900 text-sm mb-1">{t('New Payment Entry', '新規入金登録', 'নতুন পেমেন্ট এন্ট্রি')}</h3>
+          <h3 className="font-black text-slate-900 text-sm mb-1">{t('Create Memo', '伝票作成', 'নতুন মেমো তৈরি করুন')}</h3>
           <p className="text-xs text-slate-400 mb-5">
             {t('Recorded instantly — no approval step. A receipt is emailed to the customer right away.', '即座に記録されます — 承認は不要です。領収書は直ちにメールで送信されます。', 'সাথে সাথেই এন্ট্রি হয়ে যাবে — কোনো অ্যাপ্রুভাল লাগবে না। রিসিপ্ট সাথে সাথেই ইমেইলে চলে যাবে।')}
           </p>
@@ -236,7 +236,7 @@ export default function BranchPaymentsPage() {
                 </>
               )}
               <p className="text-[11px] text-slate-400 mt-1">
-                {t('Leave empty for a walk-in payment not tied to an application.', 'アプリケーションに関連しない支払いの場合は空欄のままにしてください。', 'কোনো অ্যাপ্লিকেশন ছাড়া ওয়াক-ইন পেমেন্ট হলে খালি রাখুন।')}
+                {t('Leave empty for a walk-in memo not tied to an application.', 'アプリケーションに関連しない場合は空欄のままにしてください。', 'কোনো অ্যাপ্লিকেশন ছাড়া ওয়াক-ইন মেমো হলে খালি রাখুন।')}
               </p>
             </div>
 
@@ -311,7 +311,7 @@ export default function BranchPaymentsPage() {
                 className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all" />
               {!customerEmail && !selectedApp?.student_email && (
                 <p className="text-[11px] text-amber-600 mt-1">
-                  {t('No receipt will be emailed without an address — the payment is still recorded.', 'メールアドレスがない場合、受領書は送信されません（入金は記録されます）。', 'ইমেইল না দিলে রিসিপ্ট পাঠানো হবে না — তবে পেমেন্ট এন্ট্রি ঠিকই সেভ হবে।')}
+                  {t('No receipt will be emailed without an address — the memo is still created.', 'メールアドレスがない場合、受領書は送信されません（伝票は作成されます）。', 'ইমেইল না দিলে রিসিপ্ট পাঠানো হবে না — তবে মেমো ঠিকই তৈরি হবে।')}
                 </p>
               )}
             </div>
@@ -333,7 +333,7 @@ export default function BranchPaymentsPage() {
             >
               {createPayment.isPending
                 ? t('Recording…', '記録中…', 'এন্ট্রি হচ্ছে…')
-                : t('Record Payment & Send Receipt', '入金を記録して受領書を送信', 'পেমেন্ট এন্ট্রি করুন ও রিসিপ্ট পাঠান')}
+                : t('Create Memo & Send Receipt', '伝票を作成して受領書を送信', 'মেমো তৈরি করুন ও রিসিপ্ট পাঠান')}
             </button>
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function BranchPaymentsPage() {
         {/* ── History ── */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-5 sm:px-6 py-4 border-b border-slate-100">
-            <h3 className="font-black text-slate-900 text-sm">{t('Payment History', '入金履歴', 'পেমেন্ট হিস্ট্রি')}</h3>
+            <h3 className="font-black text-slate-900 text-sm">{t('Memo History', '伝票履歴', 'মেমো হিস্ট্রি')}</h3>
           </div>
 
           {paymentsLoading ? (
@@ -350,8 +350,8 @@ export default function BranchPaymentsPage() {
             </div>
           ) : payments.length === 0 ? (
             <div className="py-16 flex flex-col items-center gap-2">
-              <p className="text-sm font-bold text-slate-500">{t('No payments yet', 'まだ入金がありません', 'এখনো কোনো পেমেন্ট এন্ট্রি নেই')}</p>
-              <p className="text-xs text-slate-400">{t('New entries will show up here.', '新しい入金はここに表示されます。', 'নতুন এন্ট্রি এখানে দেখা যাবে।')}</p>
+              <p className="text-sm font-bold text-slate-500">{t('No memos yet', 'まだ伝票がありません', 'এখনো কোনো মেমো নেই')}</p>
+              <p className="text-xs text-slate-400">{t('New memos will show up here.', '新しい伝票はここに表示されます。', 'নতুন মেমো এখানে দেখা যাবে।')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

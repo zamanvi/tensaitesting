@@ -15,7 +15,9 @@ class PaymentCategoryResource extends Resource
     protected static ?string $model         = PaymentCategory::class;
     protected static ?string $navigationIcon  = 'heroicon-o-tag';
     protected static ?string $navigationGroup = 'Revenue';
-    protected static ?string $navigationLabel = 'Payment Categories';
+    protected static ?string $navigationLabel = 'Memo Categories';
+    protected static ?string $modelLabel       = 'Memo Category';
+    protected static ?string $pluralModelLabel = 'Memo Categories';
     protected static ?int    $navigationSort  = 3;
 
     public static function canAccess(): bool
@@ -48,7 +50,7 @@ class PaymentCategoryResource extends Resource
                     ->label('Label')
                     ->required()
                     ->maxLength(255)
-                    ->helperText('Shown in the branch dashboard\'s payment entry dropdown.'),
+                    ->helperText('Shown in the branch dashboard\'s memo dropdown.'),
 
                 Forms\Components\Select::make('fund_target')
                     ->label('Routes To')
@@ -58,7 +60,7 @@ class PaymentCategoryResource extends Resource
                     ])
                     ->required()
                     ->native(false)
-                    ->helperText('A payment entered under this category is credited here automatically — no approval step.'),
+                    ->helperText('A memo created under this category is credited here automatically — no approval step.'),
 
                 Forms\Components\TextInput::make('sort_order')
                     ->label('Sort Order')
@@ -68,7 +70,7 @@ class PaymentCategoryResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                     ->label('Active')
                     ->default(true)
-                    ->helperText('Inactive categories no longer appear in the branch dropdown, but past payments keep their history.'),
+                    ->helperText('Inactive categories no longer appear in the branch dropdown, but past memos keep their history.'),
             ])->columns(2),
         ]);
     }

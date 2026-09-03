@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Receipt {{ $payment->receipt_no }}</title>
+  <title>Memo {{ $payment->receipt_no }}</title>
   <style>
     body { margin: 0; padding: 0; background: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
     .wrapper { max-width: 560px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.07); }
@@ -31,12 +31,12 @@
   <div class="wrapper">
     <div class="header">
       <h1>Tensai</h1>
-      <p>Payment Receipt</p>
+      <p>Memo</p>
     </div>
     <div class="body">
       <p class="greeting">Hi {{ $payment->customer_name }},</p>
       <p class="text">
-        Thank you for your payment. This confirms we have received it directly on behalf of Tensai —
+        Thank you. This memo confirms we have received your payment directly on behalf of Tensai —
         please keep this receipt for your records.
       </p>
 

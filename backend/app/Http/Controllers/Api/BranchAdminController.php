@@ -500,7 +500,7 @@ class BranchAdminController extends Controller
         // 5 minutes, so a category deactivated by head office in that window
         // must still be rejected rather than silently accepted.
         if (!$category->is_active) {
-            return response()->json(['message' => 'This payment category is no longer active. Please refresh and pick another.'], 422);
+            return response()->json(['message' => 'This memo category is no longer active. Please refresh and pick another.'], 422);
         }
 
         $payment = Payment::create([

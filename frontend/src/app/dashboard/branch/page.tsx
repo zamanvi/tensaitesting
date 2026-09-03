@@ -68,7 +68,7 @@ export default function BranchAdminDashboard() {
 
   const quickLinks = [
     { label: ja ? '申請を見る' : bn ? 'আবেদন দেখুন' : 'View Applications', href: '/dashboard/branch/applicants', icon: '📋', desc: ja ? '申請者を管理' : bn ? 'আবেদনকারী পরিচালনা' : 'Manage student applications and submit to admin' },
-    { label: ja ? '入金' : bn ? 'পেমেন্ট' : 'Payments',                    href: '/dashboard/branch/payments',   icon: '💰', desc: ja ? '入金を記録し受領書を送信' : bn ? 'পেমেন্ট এন্ট্রি ও রিসিপ্ট পাঠান' : 'Record payments and send instant receipts' },
+    { label: ja ? '伝票' : bn ? 'মেমো' : 'Memos',                          href: '/dashboard/branch/payments',   icon: '💰', desc: ja ? '伝票を作成し受領書を送信' : bn ? 'মেমো তৈরি করুন ও রিসিপ্ট পাঠান' : 'Create memos and send instant receipts' },
     { label: ja ? '精算' : bn ? 'সেটেলমেন্ট' : 'Settlement',               href: '/dashboard/branch/settlement', icon: '🏦', desc: ja ? '本部への送金状況を確認' : bn ? 'হেড অফিসে ট্রান্সফার ট্র্যাক করুন' : 'Track transfers owed to head office' },
     { label: ja ? 'チームを管理' : bn ? 'টিম পরিচালনা' : 'Manage Team',      href: '/dashboard/branch/team',       icon: '👤', desc: ja ? 'スタッフを追加・編集' : bn ? 'স্টাফ যোগ ও সম্পাদনা' : 'Add team members and manage roles' },
     { label: ja ? 'ギャラリー' : bn ? 'গ্যালারি' : 'Gallery',                href: '/dashboard/branch/gallery',    icon: '🖼️', desc: ja ? '写真を管理' : bn ? 'ছবি পরিচালনা' : 'Upload and manage branch gallery images' },

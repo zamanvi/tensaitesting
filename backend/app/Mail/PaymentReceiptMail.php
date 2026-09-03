@@ -20,7 +20,7 @@ class PaymentReceiptMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Payment Receipt {$this->payment->receipt_no} — Tensai",
+            subject: "Memo {$this->payment->receipt_no} — Tensai",
         );
     }
 
