@@ -20,6 +20,7 @@ class OcrJobResource extends Resource
     protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?string $navigationLabel = 'OCR Review Queue';
     protected static ?int $navigationSort = 4;
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function canAccess(): bool
     {
