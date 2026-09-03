@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PaymentReceiptMail;
 use App\Models\Application;
 use App\Models\Branch;
 use App\Models\BranchTeamMember;
+use App\Models\FundTransfer;
 use App\Models\GalleryItem;
 use App\Models\InstitutionSelection;
 use App\Models\Lead;
+use App\Models\Payment;
+use App\Models\PaymentCategory;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -429,5 +434,150 @@ class BranchAdminController extends Controller
 
         $item->delete();
         return response()->json(['message' => 'Deleted.']);
+    }
+
+    // ── Payments (auto-split, zero-waiting-time entry) ──────────────────────────
+
+    public function paymentCategories(Request $request): JsonResponse
+    {
+        return response()->json(PaymentCategory::active()->get(['id', 'key', 'label', 'fund_target']));
+    }
+
+    public function payments(Request $request): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $payments = Payment::where('branch_id', $branch->id)
+            ->with(['category:id,label', 'application:id,application_code'])
+            ->latest()
+            ->paginate(20);
+
+        return response()->json($payments);
+    }
+
+    public function showPayment(Request $request, int $id): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $payment = Payment::where('branch_id', $branch->id)
+            ->with(['category', 'application', 'receiver:id,name'])
+            ->findOrFail($id);
+
+        return response()->json($payment);
+    }
+
+    public function storePayment(Request $request): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $validated = $request->validate([
+            'application_id'      => 'nullable|integer|exists:applications,id',
+            'payment_category_id' => 'required|integer|exists:payment_categories,id',
+            'amount'               => 'required|numeric|min:1',
+            'currency'             => 'nullable|string|size:3',
+            'method'               => 'required|in:cash,bank',
+            'customer_name'        => 'required_without:application_id|nullable|string|max:255',
+            'customer_phone'       => 'nullable|string|max:30',
+            'customer_email'       => 'nullable|email|max:255',
+            'notes'                => 'nullable|string|max:1000',
+        ]);
+
+        // If an application is not linked to this branch, reject rather than
+        // silently attributing another branch's applicant to this payment.
+        $application = null;
+        if (!empty($validated['application_id'])) {
+            $application = Application::where('id', $validated['application_id'])
+                ->where('branch_id', $branch->id)
+                ->first();
+            if (!$application) {
+                return response()->json(['message' => 'That application does not belong to your branch.'], 422);
+            }
+        }
+
+        $category = PaymentCategory::findOrFail($validated['payment_category_id']);
+
+        // Re-check active status server-side — the branch dropdown caches for
+        // 5 minutes, so a category deactivated by head office in that window
+        // must still be rejected rather than silently accepted.
+        if (!$category->is_active) {
+            return response()->json(['message' => 'This payment category is no longer active. Please refresh and pick another.'], 422);
+        }
+
+        $payment = Payment::create([
+            'application_id'       => $application?->id,
+            'branch_id'            => $branch->id,
+            'payment_category_id'  => $category->id,
+            'fund_target'          => $category->fund_target, // snapshot — see Payment/migration notes
+            'amount'               => $validated['amount'],
+            'currency'             => $validated['currency'] ?? 'BDT',
+            'method'               => $validated['method'],
+            'customer_name'        => $validated['customer_name'] ?? $application?->student_name,
+            'customer_phone'       => $validated['customer_phone'] ?? $application?->student_phone,
+            'customer_email'       => $validated['customer_email'] ?? $application?->student_email,
+            'received_by'          => $request->user()->id,
+            'notes'                => $validated['notes'] ?? null,
+        ]);
+
+        $payment->load(['category', 'branch', 'application']);
+
+        // Instant receipt — no approval step sits between entry and delivery.
+        // QUEUE_CONNECTION=sync by default, so this actually sends inline; see
+        // the build plan's note on confirming that on the production env.
+        if ($payment->customer_email) {
+            Mail::to($payment->customer_email)->queue(new PaymentReceiptMail($payment));
+        }
+
+        return response()->json($payment, 201);
+    }
+
+    // ── Fund Transfers (branch → head office settlement) ────────────────────────
+
+    public function fundTransfers(Request $request): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $collected = Payment::where('branch_id', $branch->id)
+            ->where('fund_target', 'head_office')
+            ->sum('amount');
+
+        $settled = FundTransfer::where('branch_id', $branch->id)
+            ->where('status', 'received')
+            ->sum('amount');
+
+        $transfers = FundTransfer::where('branch_id', $branch->id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'payable_balance' => round((float) $collected - (float) $settled, 2),
+            'transfers'       => $transfers,
+        ]);
+    }
+
+    public function storeFundTransfer(Request $request): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $validated = $request->validate([
+            'amount'         => 'required|numeric|min:1',
+            'currency'       => 'nullable|string|size:3',
+            'period_from'    => 'nullable|date',
+            'period_to'      => 'nullable|date',
+            'bank_reference' => 'nullable|string|max:255',
+            'notes'          => 'nullable|string|max:1000',
+        ]);
+
+        $transfer = FundTransfer::create([
+            'branch_id'      => $branch->id,
+            'amount'         => $validated['amount'],
+            'currency'       => $validated['currency'] ?? 'BDT',
+            'period_from'    => $validated['period_from'] ?? null,
+            'period_to'      => $validated['period_to'] ?? null,
+            'bank_reference' => $validated['bank_reference'] ?? null,
+            'notes'          => $validated['notes'] ?? null,
+            'status'         => 'pending',
+        ]);
+
+        return response()->json($transfer, 201);
     }
 }

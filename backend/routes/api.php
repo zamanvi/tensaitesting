@@ -219,6 +219,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/gallery/{id}',           [BranchAdminController::class, 'updateGallery']);
         Route::delete('/gallery/{id}',         [BranchAdminController::class, 'deleteGallery']);
         Route::get('/selected-applications', [BranchAdminController::class, 'selectedApplications']);
+        Route::get('/payment-categories',      [BranchAdminController::class, 'paymentCategories']);
+        Route::get('/payments',                [BranchAdminController::class, 'payments']);
+        Route::post('/payments',               [BranchAdminController::class, 'storePayment']);
+        Route::get('/payments/{id}',           [BranchAdminController::class, 'showPayment']);
+        Route::get('/fund-transfers',          [BranchAdminController::class, 'fundTransfers']);
+        Route::post('/fund-transfers',         [BranchAdminController::class, 'storeFundTransfer']);
         // Legacy application forms (keep for old data)
         Route::get('/application-forms',                              [ApplicationFormController::class, 'index']);
         Route::post('/application-forms',                             [ApplicationFormController::class, 'store']);
