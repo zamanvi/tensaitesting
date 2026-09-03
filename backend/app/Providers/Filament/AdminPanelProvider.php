@@ -46,7 +46,6 @@ class AdminPanelProvider extends PanelProvider
                 // daily operational work first, rare configuration last.
                 'Applicant Management',
                 'Revenue',
-                'Earnings & Payouts',
                 'Branches',
                 'Users & Gateways',
                 'Content',

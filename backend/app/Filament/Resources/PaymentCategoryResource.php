@@ -18,7 +18,7 @@ class PaymentCategoryResource extends Resource
     protected static ?string $navigationLabel = 'Memo Categories';
     protected static ?string $modelLabel       = 'Memo Category';
     protected static ?string $pluralModelLabel = 'Memo Categories';
-    protected static ?int    $navigationSort  = 3;
+    protected static ?int    $navigationSort  = 4;
 
     public static function canAccess(): bool
     {

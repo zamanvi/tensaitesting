@@ -15,9 +15,9 @@ class CommissionResource extends Resource
 {
     protected static ?string $model = Commission::class;
     protected static ?string $navigationIcon  = 'heroicon-o-banknotes';
-    protected static ?string $navigationGroup = 'Earnings & Payouts';
+    protected static ?string $navigationGroup = 'Revenue';
     protected static ?string $navigationLabel = 'Commissions';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     public static function canAccess(): bool
     {
