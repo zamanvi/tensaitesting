@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
+use App\Mail\PaymentReceiptMail;
 use App\Models\Application;
 use App\Models\Payment;
 use App\Models\PaymentCategory;
@@ -13,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentResource extends Resource
 {
@@ -84,11 +86,28 @@ class PaymentResource extends Resource
                         default       => null,
                     }),
 
-                Forms\Components\TextInput::make('amount')
+                Forms\Components\TextInput::make('total_amount')
+                    ->label('Total Amount')
                     ->required()
                     ->numeric()
                     ->minValue(1)
+                    ->live(onBlur: true)
                     ->prefix('BDT'),
+
+                Forms\Components\TextInput::make('amount')
+                    ->label('Collected Now')
+                    ->numeric()
+                    ->minValue(0)
+                    ->live(onBlur: true)
+                    ->prefix('BDT')
+                    ->helperText(function (Forms\Get $get) {
+                        $total = (float) ($get('total_amount') ?? 0);
+                        $paid  = (float) ($get('amount') ?? $total);
+                        $due   = max($total - $paid, 0);
+                        return $due > 0
+                            ? "Leaves {$due} BDT due — a partial/due memo."
+                            : 'Fully paid — leave blank to default to the total.';
+                    }),
 
                 Forms\Components\Select::make('method')
                     ->options(['cash' => 'Cash', 'bank' => 'Bank'])
@@ -149,8 +168,22 @@ class PaymentResource extends Resource
                     ->color(fn ($state) => $state === 'branch' ? 'success' : 'info'),
 
                 Tables\Columns\TextColumn::make('amount')
+                    ->label('Collected')
                     ->money(fn (Payment $r) => $r->currency)
+                    ->description(fn (Payment $r) => $r->status !== 'paid'
+                        ? 'of ' . number_format((float) $r->total_amount, 2) . ' ' . $r->currency
+                        : null)
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'paid'    => 'success',
+                        'partial' => 'warning',
+                        'due'     => 'danger',
+                        default   => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => ucfirst($state)),
 
                 Tables\Columns\TextColumn::make('method')
                     ->badge()
@@ -166,6 +199,8 @@ class PaymentResource extends Resource
                     ->relationship('category', 'label'),
                 SelectFilter::make('fund_target')
                     ->options(['branch' => 'Branch Fund', 'head_office' => 'Head Office Fund']),
+                SelectFilter::make('status')
+                    ->options(['paid' => 'Paid', 'partial' => 'Partial', 'due' => 'Due']),
                 Tables\Filters\Filter::make('created_range')
                     ->form([
                         \Filament\Forms\Components\DatePicker::make('from')->native(false),
@@ -179,6 +214,36 @@ class PaymentResource extends Resource
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->actions([
+                Tables\Actions\Action::make('collect')
+                    ->label('Collect Payment')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('success')
+                    ->visible(fn (Payment $r) => $r->status !== 'paid')
+                    ->form([
+                        Forms\Components\Placeholder::make('due_display')
+                            ->label('Balance Due')
+                            ->content(fn (Payment $r) => number_format((float) $r->due_amount, 2) . ' ' . $r->currency),
+                        Forms\Components\TextInput::make('amount')
+                            ->label('Amount Collected Now')
+                            ->numeric()
+                            ->required()
+                            ->minValue(0.01)
+                            ->maxValue(fn (Payment $r) => (float) $r->due_amount)
+                            ->prefix('BDT'),
+                    ])
+                    ->action(function (Payment $r, array $data) {
+                        $r->collect((float) $data['amount']);
+
+                        if ($r->customer_email) {
+                            Mail::to($r->customer_email)->queue(new PaymentReceiptMail($r));
+                        }
+
+                        \Filament\Notifications\Notification::make()
+                            ->title($r->status === 'paid' ? 'Memo fully paid' : 'Payment recorded — balance still due')
+                            ->success()
+                            ->send();
+                    }),
+
                 Tables\Actions\ViewAction::make(),
             ])
             ->emptyStateHeading('No memos yet')

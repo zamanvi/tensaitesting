@@ -223,6 +223,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/payments',                [BranchAdminController::class, 'payments']);
         Route::post('/payments',               [BranchAdminController::class, 'storePayment']);
         Route::get('/payments/{id}',           [BranchAdminController::class, 'showPayment']);
+        Route::post('/payments/{id}/collect',  [BranchAdminController::class, 'collectPayment']);
         Route::get('/fund-transfers',          [BranchAdminController::class, 'fundTransfers']);
         Route::post('/fund-transfers',         [BranchAdminController::class, 'storeFundTransfer']);
         // Legacy application forms (keep for old data)

@@ -16,6 +16,9 @@
     .amount-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 22px 24px; margin: 24px 0; text-align: center; }
     .amount-box .label { font-size: 12px; font-weight: 600; color: #16a34a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .amount-box .value { font-size: 30px; font-weight: 800; color: #0f172a; }
+    .due-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px 24px; margin: 0 0 24px; text-align: center; }
+    .due-box .label { font-size: 12px; font-weight: 600; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .due-box .value { font-size: 20px; font-weight: 800; color: #92400e; }
     .details { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
     .row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
     .row:last-child { border-bottom: none; }
@@ -41,9 +44,16 @@
       </p>
 
       <div class="amount-box">
-        <div class="label">Amount Received</div>
+        <div class="label">{{ $payment->status === 'paid' ? 'Amount Received' : 'Received So Far' }}</div>
         <div class="value">{{ number_format((float) $payment->amount, 2) }} {{ $payment->currency }}</div>
       </div>
+
+      @if($payment->status !== 'paid')
+      <div class="due-box">
+        <div class="label">Balance Due</div>
+        <div class="value">{{ number_format((float) $payment->due_amount, 2) }} {{ $payment->currency }} <span style="font-weight:500;font-size:13px;color:#b45309;">of {{ number_format((float) $payment->total_amount, 2) }}</span></div>
+      </div>
+      @endif
 
       <div class="details">
         <div class="row">

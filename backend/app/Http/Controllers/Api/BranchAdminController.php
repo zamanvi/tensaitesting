@@ -473,7 +473,11 @@ class BranchAdminController extends Controller
         $validated = $request->validate([
             'application_id'      => 'nullable|integer|exists:applications,id',
             'payment_category_id' => 'required|integer|exists:payment_categories,id',
-            'amount'               => 'required|numeric|min:1',
+            'total_amount'         => 'required|numeric|min:1',
+            // Amount actually collected right now — defaults to the full total
+            // (the original "always paid in full" behaviour) when omitted.
+            // 0 is valid: a pure due invoice with nothing collected yet.
+            'amount'               => 'nullable|numeric|min:0|lte:total_amount',
             'currency'             => 'nullable|string|size:3',
             'method'               => 'required|in:cash,bank',
             'customer_name'        => 'required_without:application_id|nullable|string|max:255',
@@ -508,7 +512,8 @@ class BranchAdminController extends Controller
             'branch_id'            => $branch->id,
             'payment_category_id'  => $category->id,
             'fund_target'          => $category->fund_target, // snapshot — see Payment/migration notes
-            'amount'               => $validated['amount'],
+            'total_amount'         => $validated['total_amount'],
+            'amount'               => $validated['amount'] ?? $validated['total_amount'],
             'currency'             => $validated['currency'] ?? 'BDT',
             'method'               => $validated['method'],
             'customer_name'        => $validated['customer_name'] ?? $application?->student_name,
@@ -528,6 +533,32 @@ class BranchAdminController extends Controller
         }
 
         return response()->json($payment, 201);
+    }
+
+    // Records an additional collection against a due/partial memo — the
+    // counterpart to leaving `amount` short of `total_amount` at creation.
+    public function collectPayment(Request $request, int $id): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $payment = Payment::where('branch_id', $branch->id)->findOrFail($id);
+
+        if ($payment->status === 'paid') {
+            return response()->json(['message' => 'This memo is already fully paid.'], 422);
+        }
+
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:' . $payment->due_amount],
+        ]);
+
+        $payment->collect((float) $validated['amount']);
+        $payment->load(['category', 'branch', 'application']);
+
+        if ($payment->customer_email) {
+            Mail::to($payment->customer_email)->queue(new PaymentReceiptMail($payment));
+        }
+
+        return response()->json($payment);
     }
 
     // ── Fund Transfers (branch → head office settlement) ────────────────────────

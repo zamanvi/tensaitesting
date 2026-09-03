@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -30,6 +30,9 @@ interface Payment {
   id: number;
   receipt_no: string;
   amount: string;
+  total_amount: string;
+  due_amount: string;
+  status: 'due' | 'partial' | 'paid';
   currency: string;
   method: 'cash' | 'bank';
   customer_name: string;
@@ -38,6 +41,12 @@ interface Payment {
   category: { id: number; label: string } | null;
   application: { id: number; application_code: string } | null;
 }
+
+const STATUS_BADGE: Record<Payment['status'], string> = {
+  paid:    'bg-green-50 text-green-700',
+  partial: 'bg-amber-50 text-amber-700',
+  due:     'bg-rose-50 text-rose-700',
+};
 
 interface PaymentsPage {
   data: Payment[];
@@ -77,7 +86,8 @@ export default function BranchPaymentsPage() {
   const [appPickerOpen, setAppPickerOpen] = useState(false);
   const [selectedApp, setSelectedApp]     = useState<ApplicationOption | null>(null);
   const [categoryId, setCategoryId]       = useState<number | ''>('');
-  const [amount, setAmount]               = useState('');
+  const [totalAmount, setTotalAmount]     = useState('');
+  const [paidNow, setPaidNow]             = useState('');
   const [method, setMethod]               = useState<'cash' | 'bank'>('cash');
   const [customerName, setCustomerName]   = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -85,6 +95,8 @@ export default function BranchPaymentsPage() {
   const [notes, setNotes]                 = useState('');
   const [justReceipt, setJustReceipt]     = useState<Payment | null>(null);
   const [formError, setFormError]         = useState('');
+  const [collectingId, setCollectingId]   = useState<number | null>(null);
+  const [collectAmount, setCollectAmount] = useState('');
   const appPickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -130,7 +142,8 @@ export default function BranchPaymentsPage() {
     mutationFn: () => api.post('/branch-admin/payments', {
       application_id: selectedApp?.id ?? null,
       payment_category_id: categoryId,
-      amount,
+      total_amount: totalAmount,
+      amount: paidNow || undefined, // blank -> backend defaults to total (fully paid)
       method,
       customer_name: customerName || undefined,
       customer_phone: customerPhone || undefined,
@@ -140,7 +153,7 @@ export default function BranchPaymentsPage() {
     onSuccess: (payment: Payment) => {
       qc.invalidateQueries({ queryKey: paymentsKey });
       setJustReceipt(payment);
-      setSelectedApp(null); setAppSearch(''); setCategoryId(''); setAmount('');
+      setSelectedApp(null); setAppSearch(''); setCategoryId(''); setTotalAmount(''); setPaidNow('');
       setMethod('cash'); setCustomerName(''); setCustomerPhone(''); setCustomerEmail(''); setNotes('');
       setFormError('');
     },
@@ -150,10 +163,17 @@ export default function BranchPaymentsPage() {
     },
   });
 
+  const collectPayment = useMutation({
+    mutationFn: (vars: { id: number; amount: string }) =>
+      api.post(`/branch-admin/payments/${vars.id}/collect`, { amount: vars.amount }).then(r => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: paymentsKey }),
+  });
+
   if (!user || !isBranchAdmin) return null;
 
   const selectedCategory = categories?.find(c => c.id === categoryId) ?? null;
-  const canSubmit = !!categoryId && Number(amount) > 0 && (!!selectedApp || customerName.trim().length > 0);
+  const dueOnCreate = Math.max(Number(totalAmount || 0) - Number(paidNow || totalAmount || 0), 0);
+  const canSubmit = !!categoryId && Number(totalAmount) > 0 && (!!selectedApp || customerName.trim().length > 0);
 
   return (
     <BranchLayout title={t('Memos', '伝票', 'মেমো')}>
@@ -174,6 +194,11 @@ export default function BranchPaymentsPage() {
               <p className="text-xs text-green-700 mt-0.5">
                 {t('Receipt no.', '受領書番号', 'রিসিপ্ট নং')} <span className="font-mono font-bold">{justReceipt.receipt_no}</span>
                 {' · '}{justReceipt.amount} {justReceipt.currency}
+                {justReceipt.status !== 'paid' && (
+                  <span className="text-amber-700 font-semibold">
+                    {' · '}{t(`${justReceipt.due_amount} due`, `残高 ${justReceipt.due_amount}`, `${justReceipt.due_amount} বাকি`)}
+                  </span>
+                )}
               </p>
             </div>
             <button onClick={() => setJustReceipt(null)} className="text-green-600 hover:text-green-800 shrink-0">
@@ -264,15 +289,28 @@ export default function BranchPaymentsPage() {
               )}
             </div>
 
-            {/* Amount + Method */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Total / Collected Now / Method */}
+            <div className="sm:col-span-2 grid grid-cols-3 gap-3">
               <div>
-                <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Amount (BDT)', '金額 (BDT)', 'পরিমাণ (BDT)')}</label>
+                <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Total Amount (BDT)', '合計金額 (BDT)', 'মোট পরিমাণ (BDT)')}</label>
                 <input
-                  type="number" min="1" value={amount} onChange={e => setAmount(e.target.value)}
+                  type="number" min="1" value={totalAmount} onChange={e => setTotalAmount(e.target.value)}
                   placeholder="0.00"
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all"
                 />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Collected Now', '今回の入金', 'এখন সংগ্রহ')}</label>
+                <input
+                  type="number" min="0" value={paidNow} onChange={e => setPaidNow(e.target.value)}
+                  placeholder={totalAmount || '0.00'}
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all"
+                />
+                <p className="text-[11px] mt-1 text-slate-400">
+                  {dueOnCreate > 0
+                    ? t(`Leaves ${dueOnCreate} due`, `${dueOnCreate} が未払いになります`, `${dueOnCreate} বাকি থাকবে`)
+                    : t('Leave blank for fully paid', '空欄で全額支払い扱い', 'পুরো টাকা পেলে খালি রাখুন')}
+                </p>
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Method', '方法', 'পদ্ধতি')}</label>
@@ -362,12 +400,15 @@ export default function BranchPaymentsPage() {
                     <th className="text-left px-4 py-3">{t('Customer', '顧客', 'কাস্টমার')}</th>
                     <th className="text-left px-4 py-3">{t('Category', 'カテゴリ', 'ক্যাটাগরি')}</th>
                     <th className="text-left px-4 py-3">{t('Amount', '金額', 'পরিমাণ')}</th>
+                    <th className="text-left px-4 py-3">{t('Status', 'ステータス', 'অবস্থা')}</th>
                     <th className="text-left px-4 py-3">{t('Date', '日付', 'তারিখ')}</th>
+                    <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {payments.map(p => (
-                    <tr key={p.id}>
+                    <Fragment key={p.id}>
+                    <tr>
                       <td className="px-5 py-3.5">
                         <span className="font-mono text-[11px] text-slate-700">{p.receipt_no}</span>
                         {p.application && (
@@ -382,9 +423,62 @@ export default function BranchPaymentsPage() {
                           {p.category?.label ?? '—'}
                         </span>
                       </td>
-                      <td className="px-4 py-3.5 text-xs font-bold text-slate-800 tabular-nums">{p.amount} {p.currency}</td>
+                      <td className="px-4 py-3.5 text-xs font-bold text-slate-800 tabular-nums">
+                        {p.amount} {p.currency}
+                        {p.status !== 'paid' && (
+                          <p className="text-[10px] font-normal text-slate-400 mt-0.5">
+                            {t('of', '合計', 'মোটের')} {p.total_amount}
+                          </p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_BADGE[p.status]}`}>
+                          {t(
+                            p.status === 'paid' ? 'Paid' : p.status === 'partial' ? 'Partial' : 'Due',
+                            p.status === 'paid' ? '支払済' : p.status === 'partial' ? '一部' : '未払い',
+                            p.status === 'paid' ? 'পরিশোধিত' : p.status === 'partial' ? 'আংশিক' : 'বাকি'
+                          )}
+                        </span>
+                      </td>
                       <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">{timeAgo(p.created_at, L)}</td>
+                      <td className="px-4 py-3.5">
+                        {p.status !== 'paid' && (
+                          <button
+                            onClick={() => { setCollectingId(collectingId === p.id ? null : p.id); setCollectAmount(p.due_amount); }}
+                            className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-green-700 hover:text-white text-slate-500 transition-all"
+                          >
+                            {t('Collect', '入金する', 'সংগ্রহ করুন')}
+                          </button>
+                        )}
+                      </td>
                     </tr>
+                    {collectingId === p.id && (
+                      <tr className="bg-slate-50/70">
+                        <td colSpan={7} className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] text-slate-500">
+                              {t('Balance due:', '未払い残高:', 'বাকি আছে:')} <b>{p.due_amount} {p.currency}</b>
+                            </span>
+                            <input
+                              type="number" min="0.01" max={p.due_amount} value={collectAmount}
+                              onChange={e => setCollectAmount(e.target.value)}
+                              className="w-32 px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                            />
+                            <button
+                              onClick={() => collectPayment.mutate({ id: p.id, amount: collectAmount }, { onSuccess: () => setCollectingId(null) })}
+                              disabled={collectPayment.isPending || Number(collectAmount) <= 0}
+                              className="px-3 py-1.5 bg-green-700 hover:bg-green-800 text-white rounded-lg text-xs font-bold disabled:opacity-40"
+                            >
+                              {t('Record', '記録', 'রেকর্ড করুন')}
+                            </button>
+                            <button onClick={() => setCollectingId(null)} className="text-xs text-slate-400 hover:text-slate-600">
+                              {t('Cancel', 'キャンセル', 'বাতিল')}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>

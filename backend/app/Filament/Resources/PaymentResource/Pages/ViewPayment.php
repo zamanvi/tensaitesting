@@ -23,10 +23,19 @@ class ViewPayment extends ViewRecord
     public function infolist(Infolist $infolist): Infolist
     {
         return $infolist->schema([
-            Section::make()->columns(3)->schema([
+            Section::make()->columns(4)->schema([
                 TextEntry::make('receipt_no')->label('Receipt No.')->fontFamily('mono')->copyable(),
                 TextEntry::make('created_at')->label('Date')->dateTime('d M Y, H:i'),
-                TextEntry::make('amount')->money(fn ($record) => $record->currency),
+                TextEntry::make('status')->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'paid' => 'success', 'partial' => 'warning', 'due' => 'danger', default => 'gray',
+                    })
+                    ->formatStateUsing(fn ($state) => ucfirst($state)),
+                TextEntry::make('amount')->label('Collected')->money(fn ($record) => $record->currency),
+            ]),
+            Section::make()->columns(2)->visible(fn ($record) => $record->status !== 'paid')->schema([
+                TextEntry::make('total_amount')->label('Total Invoiced')->money(fn ($record) => $record->currency),
+                TextEntry::make('due_amount')->label('Balance Due')->money(fn ($record) => $record->currency)->color('danger'),
             ]),
             Section::make('Customer')->columns(2)->schema([
                 TextEntry::make('customer_name')->label('Name'),
