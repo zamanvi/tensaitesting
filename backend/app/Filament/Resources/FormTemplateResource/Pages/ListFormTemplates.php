@@ -14,7 +14,7 @@ class ListFormTemplates extends ListRecords
 
     public function getTitle(): string
     {
-        return 'Country Forms';
+        return 'Service Forms';
     }
 
     protected function getTableQuery(): Builder
@@ -28,7 +28,7 @@ class ListFormTemplates extends ListRecords
     {
         return [
             Actions\Action::make('new_form')
-                ->label('New Country Form')
+                ->label('New Service Form')
                 ->icon('heroicon-o-plus')
                 ->action(function () {
                     $record = FormTemplate::create([

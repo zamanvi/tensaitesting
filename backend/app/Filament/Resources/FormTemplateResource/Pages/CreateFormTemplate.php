@@ -17,7 +17,7 @@ class CreateFormTemplate extends CreateRecord
 
     public function getTitle(): string
     {
-        return 'New Country Form';
+        return 'New Service Form';
     }
 
     protected function getCreateFormAction(): Action

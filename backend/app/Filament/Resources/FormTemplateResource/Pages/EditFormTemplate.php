@@ -26,7 +26,7 @@ class EditFormTemplate extends EditRecord
         if ($country && $name) return $country . ' — ' . $name;
         if ($country)          return $country . ' Form';
         if ($name)             return $name;
-        return 'New Country Form';
+        return 'New Service Form';
     }
 
     public function mount(int | string $record): void
