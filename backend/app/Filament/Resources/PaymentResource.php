@@ -3,7 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
+use App\Models\Application;
 use App\Models\Payment;
+use App\Models\PaymentCategory;
+use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\SelectFilter;
@@ -25,11 +29,87 @@ class PaymentResource extends Resource
         return auth()->user()?->hasRole(['super_admin', 'admin']);
     }
 
-    // Branch dashboard entry is the only writer — this resource is a
-    // head-office audit view, not a place to create or edit ledger entries.
-    public static function canCreate(): bool { return false; }
+    // The branch dashboard is the everyday entry point (that's where the
+    // auto-split/zero-waiting-time flow lives). Head office can also create
+    // a memo directly here — e.g. for testing, or a correction/walk-in memo
+    // not tied to any branch staff login — but a memo, once created, is an
+    // immutable ledger row: no edit, no delete.
     public static function canEdit($record): bool { return false; }
     public static function canDelete($record): bool { return false; }
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            Forms\Components\Section::make()->columns(2)->schema([
+                Forms\Components\Select::make('branch_id')
+                    ->label('Branch')
+                    ->relationship('branch', 'name')
+                    ->required()
+                    ->live()
+                    ->searchable()
+                    ->native(false)
+                    ->afterStateUpdated(fn (Forms\Set $set) => $set('application_id', null)),
+
+                Forms\Components\Select::make('application_id')
+                    ->label('Application (optional)')
+                    ->options(fn (Forms\Get $get) => $get('branch_id')
+                        ? Application::where('branch_id', $get('branch_id'))
+                            ->orderByDesc('id')
+                            ->get()
+                            ->mapWithKeys(fn ($a) => [$a->id => "{$a->application_code} — {$a->student_name}"])
+                        : [])
+                    ->searchable()
+                    ->native(false)
+                    ->live()
+                    ->disabled(fn (Forms\Get $get) => !$get('branch_id'))
+                    ->helperText('Filtered to the selected branch. Leave empty for a walk-in memo.')
+                    ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, $state) {
+                        if (!$state) return;
+                        $app = Application::find($state);
+                        if (!$app) return;
+                        $set('customer_name', $app->student_name);
+                        $set('customer_phone', $app->student_phone);
+                        $set('customer_email', $app->student_email);
+                    }),
+
+                Forms\Components\Select::make('payment_category_id')
+                    ->label('Category')
+                    ->options(fn () => PaymentCategory::active()->pluck('label', 'id'))
+                    ->required()
+                    ->live()
+                    ->native(false)
+                    ->helperText(fn (Forms\Get $get) => match (PaymentCategory::find($get('payment_category_id'))?->fund_target) {
+                        'branch'      => '→ routes to Branch Fund',
+                        'head_office' => '→ routes to Head Office Fund',
+                        default       => null,
+                    }),
+
+                Forms\Components\TextInput::make('amount')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->prefix('BDT'),
+
+                Forms\Components\Select::make('method')
+                    ->options(['cash' => 'Cash', 'bank' => 'Bank'])
+                    ->default('cash')
+                    ->required()
+                    ->native(false),
+            ]),
+
+            Forms\Components\Section::make('Customer')->columns(3)->schema([
+                Forms\Components\TextInput::make('customer_name')
+                    ->required(fn (Forms\Get $get) => !filled($get('application_id')))
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('customer_phone')->maxLength(30),
+                Forms\Components\TextInput::make('customer_email')
+                    ->email()
+                    ->helperText('A receipt is emailed here on save, same as a branch-created memo.'),
+            ]),
+
+            Forms\Components\Textarea::make('notes')->rows(2)->columnSpanFull(),
+        ]);
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -103,14 +183,18 @@ class PaymentResource extends Resource
             ])
             ->emptyStateHeading('No memos yet')
             ->emptyStateDescription('Branch memos will appear here as soon as they are created.')
-            ->emptyStateIcon('heroicon-o-receipt-percent');
+            ->emptyStateIcon('heroicon-o-receipt-percent')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()->label('Create Memo'),
+            ]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPayments::route('/'),
-            'view'  => Pages\ViewPayment::route('/{record}'),
+            'index'  => Pages\ListPayments::route('/'),
+            'create' => Pages\CreatePayment::route('/create'),
+            'view'   => Pages\ViewPayment::route('/{record}'),
         ];
     }
 }
