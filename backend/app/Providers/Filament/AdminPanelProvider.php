@@ -42,12 +42,14 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('16rem')
             ->navigationGroups([
-                'Verification',
-                'Users & Gateways',
+                // Ordered by how often an admin actually opens each section —
+                // daily operational work first, rare configuration last.
                 'Applicant Management',
-                'Branches',
-                'Earnings & Payouts',
                 'Revenue',
+                'Earnings & Payouts',
+                'Branches',
+                'Users & Gateways',
+                'Verification',
                 'Content',
                 'Support',
                 'Settings',

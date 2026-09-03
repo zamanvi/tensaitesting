@@ -11,7 +11,7 @@ use Filament\Pages\Page;
 class SettingsPage extends Page
 {
     protected static ?string $navigationIcon  = 'heroicon-o-cog-6-tooth';
-    protected static ?string $navigationLabel = 'Settings';
+    protected static ?string $navigationLabel = 'Site Settings';
     protected static ?string $navigationGroup = 'Settings';
     protected static ?int    $navigationSort  = 2;
     protected static string  $view            = 'filament.pages.settings-page';

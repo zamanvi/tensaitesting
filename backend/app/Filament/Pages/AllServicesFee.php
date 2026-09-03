@@ -18,7 +18,7 @@ class AllServicesFee extends Page implements HasTable
     protected static ?string $navigationIcon  = 'heroicon-o-banknotes';
     protected static ?string $navigationLabel = 'All Services Fee';
     protected static ?string $navigationGroup = 'Content';
-    protected static ?int    $navigationSort  = 5;
+    protected static ?int    $navigationSort  = 4;
     protected static string  $view            = 'filament.pages.all-services-fee';
 
     public function getTitle(): string

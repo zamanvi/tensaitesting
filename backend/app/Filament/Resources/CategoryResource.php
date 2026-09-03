@@ -16,7 +16,7 @@ class CategoryResource extends Resource
     protected static ?string $navigationIcon       = 'heroicon-o-tag';
     protected static ?string $navigationLabel      = 'Categories';
     protected static ?string $navigationGroup      = 'Content';
-    protected static ?int    $navigationSort       = 2;
+    protected static ?int    $navigationSort       = 3;
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function canAccess(): bool

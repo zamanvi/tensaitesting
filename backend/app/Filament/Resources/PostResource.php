@@ -23,7 +23,7 @@ class PostResource extends Resource
     protected static ?string $navigationIcon       = 'heroicon-o-newspaper';
     protected static ?string $navigationLabel      = 'Posts / News';
     protected static ?string $navigationGroup      = 'Content';
-    protected static ?int    $navigationSort       = 1;
+    protected static ?int    $navigationSort       = 2;
     protected static ?string $recordTitleAttribute = 'title';
 
     public static function canAccess(): bool

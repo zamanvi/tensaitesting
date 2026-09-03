@@ -19,7 +19,7 @@ class InstitutionProfileResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
     protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?string $navigationLabel = 'Institutions';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort  = 4;
 
     public static function canAccess(): bool
     {

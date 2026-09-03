@@ -18,7 +18,7 @@ class ManagerResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
     protected static ?string $navigationGroup = 'Settings';
     protected static ?string $navigationLabel = 'Managers';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 3;
 
     public static function canAccess(): bool
     {

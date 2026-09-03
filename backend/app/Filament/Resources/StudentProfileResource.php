@@ -17,7 +17,7 @@ class StudentProfileResource extends Resource
     protected static ?string $model = StudentProfile::class;
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
     protected static ?string $navigationGroup = 'Users & Gateways';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort  = 2;
     protected static bool $shouldRegisterNavigation = false;
 
     public static function canAccess(): bool

@@ -17,9 +17,9 @@ class AgencyProfileResource extends Resource
 {
     protected static ?string $model = AgencyProfile::class;
     protected static ?string $navigationIcon  = 'heroicon-o-building-office-2';
-    protected static ?string $navigationGroup = 'Agencies';
+    protected static ?string $navigationGroup = 'Users & Gateways';
     protected static ?string $navigationLabel = 'Agency Profiles';
-    protected static ?int    $navigationSort  = 1;
+    protected static ?int    $navigationSort  = 3;
 
     public static function canAccess(): bool
     {
