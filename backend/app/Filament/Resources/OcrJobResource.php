@@ -17,9 +17,9 @@ class OcrJobResource extends Resource
 {
     protected static ?string $model = OcrJob::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-magnifying-glass';
-    protected static ?string $navigationGroup = 'Verification';
+    protected static ?string $navigationGroup = 'Applicant Management';
     protected static ?string $navigationLabel = 'OCR Review Queue';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 4;
 
     public static function canAccess(): bool
     {

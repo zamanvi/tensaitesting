@@ -49,7 +49,6 @@ class AdminPanelProvider extends PanelProvider
                 'Earnings & Payouts',
                 'Branches',
                 'Users & Gateways',
-                'Verification',
                 'Content',
                 'Support',
                 'Settings',
