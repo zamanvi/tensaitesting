@@ -7,6 +7,7 @@ use App\Mail\PaymentReceiptMail;
 use App\Models\PaymentCategory;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class CreatePayment extends CreateRecord
 {
@@ -18,7 +19,24 @@ class CreatePayment extends CreateRecord
     // staff account.
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $category = PaymentCategory::find($data['payment_category_id']);
+        // "Add a new category instead" was on — new_category_label/
+        // new_category_fund_target only reach $data when that toggle is on
+        // (see PaymentResource's dehydrated() on those fields), and fund
+        // routing is required there too, same as the old modal version.
+        if (!empty($data['new_category_label'])) {
+            $category = PaymentCategory::create([
+                'key'         => Str::slug($data['new_category_label'], '_') . '_' . Str::random(4),
+                'label'       => $data['new_category_label'],
+                'fund_target' => $data['new_category_fund_target'],
+                'is_active'   => true,
+                'sort_order'  => (int) (PaymentCategory::max('sort_order') ?? 0) + 1,
+            ]);
+            $data['payment_category_id'] = $category->id;
+        } else {
+            $category = PaymentCategory::find($data['payment_category_id']);
+        }
+
+        unset($data['new_category_label'], $data['new_category_fund_target']);
 
         $data['fund_target'] = $category?->fund_target ?? 'head_office';
         $data['received_by'] = auth()->id();
