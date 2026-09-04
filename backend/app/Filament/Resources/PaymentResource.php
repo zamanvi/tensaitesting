@@ -16,6 +16,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class PaymentResource extends Resource
 {
@@ -88,10 +89,38 @@ class PaymentResource extends Resource
                     ->required()
                     ->live()
                     ->native(false)
+                    ->searchable()
                     ->helperText(fn (Forms\Get $get) => match (PaymentCategory::find($get('payment_category_id'))?->fund_target) {
                         'branch'      => '→ routes to Branch Fund',
                         'head_office' => '→ routes to Head Office Fund',
-                        default       => null,
+                        default       => 'Not in the list? Use the + to add a new one — you\'ll still pick its fund.',
+                    })
+                    // Type a new category on the fly — but fund routing is
+                    // never optional, so the mini-form still forces a
+                    // Branch/Head Office choice before it can be used. This
+                    // is the only place new categories can be created from;
+                    // it's the same PaymentCategory row Memo Categories
+                    // manages, just reachable without leaving this form.
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('label')
+                            ->label('Category Name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Select::make('fund_target')
+                            ->label('Routes To')
+                            ->options(['branch' => 'Branch Fund', 'head_office' => 'Head Office Fund'])
+                            ->required()
+                            ->native(false),
+                    ])
+                    ->createOptionUsing(function (array $data): int {
+                        $category = PaymentCategory::create([
+                            'key'         => Str::slug($data['label'], '_') . '_' . Str::random(4),
+                            'label'       => $data['label'],
+                            'fund_target' => $data['fund_target'],
+                            'is_active'   => true,
+                            'sort_order'  => (int) (PaymentCategory::max('sort_order') ?? 0) + 1,
+                        ]);
+                        return $category->id;
                     }),
 
                 Forms\Components\TextInput::make('total_amount')
