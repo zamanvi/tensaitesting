@@ -86,7 +86,13 @@ class PaymentResource extends Resource
                     ->label('Add a new category instead')
                     ->live()
                     ->dehydrated(false)
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    // Turning it off should snap "Routes To" back to whatever
+                    // the currently-picked category actually routes to,
+                    // rather than leaving a stale manual choice showing.
+                    ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, $state) {
+                        $set('new_category_fund_target', $state ? null : PaymentCategory::find($get('payment_category_id'))?->fund_target);
+                    }),
 
                 Forms\Components\Select::make('payment_category_id')
                     ->label('Category')
@@ -96,11 +102,13 @@ class PaymentResource extends Resource
                     ->live()
                     ->native(false)
                     ->searchable()
-                    ->helperText(fn (Forms\Get $get) => match (PaymentCategory::find($get('payment_category_id'))?->fund_target) {
-                        'branch'      => '→ routes to Branch Fund',
-                        'head_office' => '→ routes to Head Office Fund',
-                        default       => 'Not in the list? Turn on "Add a new category instead" above.',
-                    }),
+                    ->helperText(fn (Forms\Get $get) => PaymentCategory::find($get('payment_category_id'))
+                        ? null
+                        : 'Not in the list? Turn on "Add a new category instead" above.')
+                    // Keep the always-visible "Routes To" field in sync with
+                    // whichever existing category is picked.
+                    ->afterStateUpdated(fn (Forms\Set $set, $state) =>
+                        $set('new_category_fund_target', PaymentCategory::find($state)?->fund_target)),
 
                 // Typing a new category stays right here in the form — no
                 // modal — but fund routing is still never optional, so
@@ -115,10 +123,16 @@ class PaymentResource extends Resource
                     ->dehydrated(fn (Forms\Get $get) => $get('is_new_category'))
                     ->maxLength(255),
 
+                // Permanent, not just for new categories — this always shows
+                // where the money is actually going: mirrors the picked
+                // category's own fund when one is selected (locked, since
+                // that's not this memo's decision to make), and becomes a
+                // real required choice only while typing a brand new one.
                 Forms\Components\Select::make('new_category_fund_target')
                     ->label('Routes To')
                     ->options(['branch' => 'Branch Fund', 'head_office' => 'Head Office Fund'])
-                    ->visible(fn (Forms\Get $get) => $get('is_new_category'))
+                    ->placeholder('Pick a category first')
+                    ->disabled(fn (Forms\Get $get) => !$get('is_new_category'))
                     ->required(fn (Forms\Get $get) => $get('is_new_category'))
                     ->dehydrated(fn (Forms\Get $get) => $get('is_new_category'))
                     ->native(false),
