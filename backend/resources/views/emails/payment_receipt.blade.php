@@ -70,7 +70,7 @@
         </div>
         <div class="row">
           <span class="row-label">Branch</span>
-          <span class="row-value">{{ $payment->branch?->name ?? '—' }}</span>
+          <span class="row-value">{{ $payment->branch?->name ?? 'Main Branch' }}</span>
         </div>
         <div class="row">
           <span class="row-label">Payment Method</span>

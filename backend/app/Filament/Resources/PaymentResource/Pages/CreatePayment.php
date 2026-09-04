@@ -23,6 +23,12 @@ class CreatePayment extends CreateRecord
         $data['fund_target'] = $category?->fund_target ?? 'head_office';
         $data['received_by'] = auth()->id();
 
+        // 'main' is the virtual Head Office option, not a real Branch id —
+        // a memo filed there has no branch at all.
+        if (($data['branch_id'] ?? null) === 'main') {
+            $data['branch_id'] = null;
+        }
+
         return $data;
     }
 

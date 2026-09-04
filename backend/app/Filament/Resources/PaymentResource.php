@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Mail\PaymentReceiptMail;
 use App\Models\Application;
+use App\Models\Branch;
 use App\Models\Payment;
 use App\Models\PaymentCategory;
 use Filament\Forms;
@@ -45,7 +46,12 @@ class PaymentResource extends Resource
             Forms\Components\Section::make()->columns(2)->schema([
                 Forms\Components\Select::make('branch_id')
                     ->label('Branch')
-                    ->relationship('branch', 'name')
+                    // 'main' is a virtual option, not a Branch record — Head
+                    // Office isn't a physical branch, so a memo filed there
+                    // just has branch_id = null (see mutateFormDataBeforeCreate).
+                    ->options(fn () => ['main' => 'Main Branch (Admin / Head Office)']
+                        + Branch::orderBy('name')->pluck('name', 'id')->all())
+                    ->default('main')
                     ->required()
                     ->live()
                     ->searchable()
@@ -54,7 +60,7 @@ class PaymentResource extends Resource
 
                 Forms\Components\Select::make('application_id')
                     ->label('Application (optional)')
-                    ->options(fn (Forms\Get $get) => $get('branch_id')
+                    ->options(fn (Forms\Get $get) => is_numeric($get('branch_id'))
                         ? Application::where('branch_id', $get('branch_id'))
                             ->orderByDesc('id')
                             ->get()
@@ -63,8 +69,10 @@ class PaymentResource extends Resource
                     ->searchable()
                     ->native(false)
                     ->live()
-                    ->disabled(fn (Forms\Get $get) => !$get('branch_id'))
-                    ->helperText('Filtered to the selected branch. Leave empty for a walk-in memo.')
+                    ->disabled(fn (Forms\Get $get) => !is_numeric($get('branch_id')))
+                    ->helperText(fn (Forms\Get $get) => is_numeric($get('branch_id'))
+                        ? 'Filtered to the selected branch. Leave empty for a walk-in memo.'
+                        : 'Main Branch has no applications of its own — this stays empty.')
                     ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, $state) {
                         if (!$state) return;
                         $app = Application::find($state);
@@ -154,6 +162,7 @@ class PaymentResource extends Resource
 
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Branch')
+                    ->placeholder('Main Branch')
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('category.label')

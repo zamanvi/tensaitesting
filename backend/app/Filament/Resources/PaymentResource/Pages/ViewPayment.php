@@ -44,7 +44,7 @@ class ViewPayment extends ViewRecord
                 TextEntry::make('application.application_code')->label('Application')->placeholder('Walk-in (no application)'),
             ]),
             Section::make('Routing')->columns(3)->schema([
-                TextEntry::make('branch.name')->label('Branch'),
+                TextEntry::make('branch.name')->label('Branch')->placeholder('Main Branch'),
                 TextEntry::make('category.label')->label('Category'),
                 TextEntry::make('fund_target')->label('Routed To')
                     ->formatStateUsing(fn ($state) => $state === 'branch' ? 'Branch Fund' : 'Head Office Fund')
