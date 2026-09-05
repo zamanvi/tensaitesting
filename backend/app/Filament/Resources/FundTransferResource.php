@@ -17,7 +17,9 @@ class FundTransferResource extends Resource
     protected static ?string $model         = FundTransfer::class;
     protected static ?string $navigationIcon  = 'heroicon-o-arrow-path-rounded-square';
     protected static ?string $navigationGroup = 'Revenue';
-    protected static ?string $navigationLabel = 'Fund Transfers';
+    protected static ?string $navigationLabel = 'Balance';
+    protected static ?string $modelLabel       = 'Balance';
+    protected static ?string $pluralModelLabel = 'Balance';
     protected static ?int    $navigationSort  = 2;
 
     public static function canAccess(): bool
@@ -90,12 +92,12 @@ class FundTransferResource extends Resource
                             'receiver_id' => auth()->id(),
                             'received_at' => now(),
                         ]);
-                        Notification::make()->title('Fund transfer marked as received')->success()->send();
+                        Notification::make()->title('Marked as received')->success()->send();
                     }),
 
                 Tables\Actions\ViewAction::make(),
             ])
-            ->emptyStateHeading('No fund transfers yet')
+            ->emptyStateHeading('No balances yet')
             ->emptyStateDescription('Branches will appear here once they log a settlement transfer.')
             ->emptyStateIcon('heroicon-o-arrow-path-rounded-square');
     }
