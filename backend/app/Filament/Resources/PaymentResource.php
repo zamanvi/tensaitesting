@@ -297,6 +297,15 @@ class PaymentResource extends Resource
                             ->send();
                     }),
 
+                Tables\Actions\Action::make('receipt')
+                    ->label('Receipt')
+                    ->icon('heroicon-o-printer')
+                    ->color('gray')
+                    ->url(fn (Payment $r) => \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                        'receipts.show', now()->addDay(), ['payment' => $r->id]
+                    ))
+                    ->openUrlInNewTab(),
+
                 Tables\Actions\ViewAction::make(),
             ])
             ->emptyStateHeading('No memos yet')

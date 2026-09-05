@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class BranchAdminController extends Controller
@@ -485,6 +486,20 @@ class BranchAdminController extends Controller
             ->findOrFail($id);
 
         return response()->json($payment);
+    }
+
+    // The branch dashboard runs on Bearer tokens, which can't ride along
+    // into a plain new browser tab — so instead of the receipt route itself,
+    // hand back a signed URL the frontend can just window.open().
+    public function paymentReceiptUrl(Request $request, int $id): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        Payment::where('branch_id', $branch->id)->findOrFail($id);
+
+        return response()->json([
+            'url' => URL::temporarySignedRoute('receipts.show', now()->addDay(), ['payment' => $id]),
+        ]);
     }
 
     public function storePayment(Request $request): JsonResponse

@@ -169,6 +169,19 @@ export default function BranchPaymentsPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: paymentsKey }),
   });
 
+  // Opens the printable receipt (browser's own Print > Save as PDF handles
+  // the "download") in a new tab. A signed URL, not the API's Bearer token,
+  // is what authorizes it — that token can't ride along into a plain tab.
+  async function openReceipt(id: number) {
+    const w = window.open('', '_blank');
+    try {
+      const { data } = await api.get<{ url: string }>(`/branch-admin/payments/${id}/receipt-url`);
+      if (w) w.location.href = data.url; else window.open(data.url, '_blank');
+    } catch {
+      w?.close();
+    }
+  }
+
   if (!user || !isBranchAdmin) return null;
 
   const selectedCategory = categories?.find(c => c.id === categoryId) ?? null;
@@ -441,15 +454,23 @@ export default function BranchPaymentsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-[11px] text-slate-400 whitespace-nowrap">{timeAgo(p.created_at, L)}</td>
-                      <td className="px-4 py-3.5">
-                        {p.status !== 'paid' && (
+                      <td className="px-4 py-3.5 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 justify-end">
                           <button
-                            onClick={() => { setCollectingId(collectingId === p.id ? null : p.id); setCollectAmount(p.due_amount); }}
-                            className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-green-700 hover:text-white text-slate-500 transition-all"
+                            onClick={() => openReceipt(p.id)}
+                            className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-800 hover:text-white text-slate-500 transition-all"
                           >
-                            {t('Collect', '入金する', 'সংগ্রহ করুন')}
+                            {t('Receipt', '受領書', 'রিসিপ্ট')}
                           </button>
-                        )}
+                          {p.status !== 'paid' && (
+                            <button
+                              onClick={() => { setCollectingId(collectingId === p.id ? null : p.id); setCollectAmount(p.due_amount); }}
+                              className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-green-700 hover:text-white text-slate-500 transition-all"
+                            >
+                              {t('Collect', '入金する', 'সংগ্রহ করুন')}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                     {collectingId === p.id && (
