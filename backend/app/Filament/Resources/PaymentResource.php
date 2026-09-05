@@ -65,6 +65,12 @@ class PaymentResource extends Resource
                         // one shouldn't be collecting money — only finalized/
                         // in-progress ones are worth showing here.
                         ->whereNotIn('status', ['draft', 'rejected'])
+                        // An application against a Service Form that was
+                        // never published is test/junk data — that form was
+                        // never actually live for a real customer to apply
+                        // through, so nothing should be collecting money
+                        // against it either.
+                        ->whereHas('formTemplate', fn ($q) => $q->where('status', 'published'))
                         // A real branch narrows to its own applicants; Main
                         // Branch (Admin/Head Office) sees across all branches
                         // rather than staying empty — it oversees every one.
@@ -86,8 +92,8 @@ class PaymentResource extends Resource
                     ->native(false)
                     ->live()
                     ->helperText(fn (Forms\Get $get) => is_numeric($get('branch_id'))
-                        ? 'Filtered to the selected branch, excluding drafts/rejected. Leave empty for a walk-in memo.'
-                        : 'Showing finalized applications across all branches. Leave empty for a walk-in memo.')
+                        ? 'Filtered to the selected branch, on a published Service Form. Leave empty for a walk-in memo.'
+                        : 'Showing finalized applications on published Service Forms, across all branches. Leave empty for a walk-in memo.')
                     ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, $state) {
                         if (!$state) return;
                         $app = Application::find($state);
