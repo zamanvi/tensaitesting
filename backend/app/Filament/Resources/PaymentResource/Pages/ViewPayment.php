@@ -41,7 +41,10 @@ class ViewPayment extends ViewRecord
                 TextEntry::make('customer_name')->label('Name'),
                 TextEntry::make('customer_phone')->label('Phone')->placeholder('—'),
                 TextEntry::make('customer_email')->label('Email')->placeholder('—'),
-                TextEntry::make('application.application_code')->label('Application')->placeholder('Walk-in (no application)'),
+                TextEntry::make('application.application_code')->label('Application')->placeholder('—'),
+                TextEntry::make('formTemplate.name')->label('Service Form')
+                    ->formatStateUsing(fn ($state, $record) => $record->formTemplate ? "{$record->formTemplate->country} — {$state}" : null)
+                    ->placeholder('Walk-in (no application or service)'),
             ]),
             Section::make('Routing')->columns(3)->schema([
                 TextEntry::make('branch.name')->label('Branch')->placeholder('Main Branch'),

@@ -4,8 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Mail\PaymentReceiptMail;
-use App\Models\Application;
 use App\Models\Branch;
+use App\Models\FormTemplate;
 use App\Models\Payment;
 use App\Models\PaymentCategory;
 use Filament\Forms;
@@ -55,55 +55,22 @@ class PaymentResource extends Resource
                     ->required()
                     ->live()
                     ->searchable()
-                    ->native(false)
-                    ->afterStateUpdated(fn (Forms\Set $set) => $set('application_id', null)),
+                    ->native(false),
 
-                Forms\Components\Select::make('application_id')
-                    ->label('Application (optional)')
-                    ->options(fn (Forms\Get $get) => Application::query()
-                        // Drafts aren't real applications yet, and a rejected
-                        // one shouldn't be collecting money — only finalized/
-                        // in-progress ones are worth showing here.
-                        ->whereNotIn('status', ['draft', 'rejected'])
-                        // NOT filtered by the Service Form's own publish
-                        // status — a form can still be in draft (being
-                        // edited/iterated on) while real applications
-                        // already exist against it; the application's own
-                        // status above is what actually says whether it's
-                        // real. Confirmed against production data: branches
-                        // had genuine Submitted/In Pool/Processing/Complete
-                        // applications sitting on still-draft forms.
-                        // A real branch narrows to its own applicants; Main
-                        // Branch (Admin/Head Office) sees across all branches
-                        // rather than staying empty — it oversees every one.
-                        ->when(is_numeric($get('branch_id')), fn ($q) => $q->where('branch_id', $get('branch_id')))
-                        ->with('formTemplate:id,country,name')
-                        ->orderByDesc('id')
-                        ->limit(200)
+                // Which service this memo is for — not tied to a specific
+                // student's Application record (that link stays how the
+                // branch dashboard flow works). Only published forms show
+                // up here: same "Service Forms" list the sidebar section
+                // manages, filtered to what's actually live.
+                Forms\Components\Select::make('form_template_id')
+                    ->label('Service Form (optional)')
+                    ->options(fn () => FormTemplate::where('status', 'published')
+                        ->orderBy('country')
                         ->get()
-                        // Country Form name shown alongside the applicant so
-                        // admin can see which service this memo is for
-                        // without opening the application — display only,
-                        // no fee auto-fill (Total Amount stays manual;
-                        // not every memo maps to a listed service).
-                        ->mapWithKeys(fn ($a) => [$a->id =>
-                            "{$a->application_code} — {$a->student_name}"
-                            . ($a->formTemplate ? " · {$a->formTemplate->country} — {$a->formTemplate->name}" : '')
-                        ]))
+                        ->mapWithKeys(fn ($f) => [$f->id => "{$f->country} — {$f->name}"]))
                     ->searchable()
                     ->native(false)
-                    ->live()
-                    ->helperText(fn (Forms\Get $get) => is_numeric($get('branch_id'))
-                        ? 'Filtered to the selected branch, excluding drafts/rejected. Leave empty for a walk-in memo.'
-                        : 'Showing finalized applications across all branches. Leave empty for a walk-in memo.')
-                    ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, $state) {
-                        if (!$state) return;
-                        $app = Application::find($state);
-                        if (!$app) return;
-                        $set('customer_name', $app->student_name);
-                        $set('customer_phone', $app->student_phone);
-                        $set('customer_email', $app->student_email);
-                    }),
+                    ->helperText('Which published service this memo is for. Leave empty for a walk-in memo not tied to a specific service.'),
 
                 Forms\Components\Toggle::make('is_new_category')
                     ->label('Add a new category instead')
@@ -192,7 +159,7 @@ class PaymentResource extends Resource
 
             Forms\Components\Section::make('Customer')->columns(3)->schema([
                 Forms\Components\TextInput::make('customer_name')
-                    ->required(fn (Forms\Get $get) => !filled($get('application_id')))
+                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('customer_phone')->maxLength(30),
                 Forms\Components\TextInput::make('customer_email')
@@ -206,7 +173,7 @@ class PaymentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['branch', 'category', 'application']);
+        return parent::getEloquentQuery()->with(['branch', 'category', 'application', 'formTemplate']);
     }
 
     public static function table(Table $table): Table
@@ -224,7 +191,8 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('customer_name')
                     ->label('Customer')
                     ->searchable()
-                    ->description(fn (Payment $r) => $r->application?->application_code),
+                    ->description(fn (Payment $r) => $r->application?->application_code
+                        ?? ($r->formTemplate ? "{$r->formTemplate->country} — {$r->formTemplate->name}" : null)),
 
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Branch')

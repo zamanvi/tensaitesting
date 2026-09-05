@@ -12,7 +12,7 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'application_id', 'branch_id', 'payment_category_id', 'fund_target',
+        'application_id', 'form_template_id', 'branch_id', 'payment_category_id', 'fund_target',
         'amount', 'total_amount', 'status', 'currency', 'method',
         'customer_name', 'customer_phone', 'customer_email',
         'received_by', 'notes',
@@ -84,6 +84,13 @@ class Payment extends Model
     public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
+    }
+
+    /** Which published service this memo is for — set from Admin's Create
+     *  Memo when there's no real Application yet to link via application(). */
+    public function formTemplate(): BelongsTo
+    {
+        return $this->belongsTo(FormTemplate::class);
     }
 
     public function branch(): BelongsTo

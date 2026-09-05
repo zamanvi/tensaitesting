@@ -82,6 +82,12 @@
           <span class="row-value mono">{{ $payment->application->application_code }}</span>
         </div>
         @endif
+        @if($payment->formTemplate)
+        <div class="row">
+          <span class="row-label">Service</span>
+          <span class="row-value">{{ $payment->formTemplate->country }} — {{ $payment->formTemplate->name }}</span>
+        </div>
+        @endif
       </div>
     </div>
     <div class="footer">
