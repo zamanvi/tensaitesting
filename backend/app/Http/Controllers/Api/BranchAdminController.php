@@ -18,6 +18,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -29,6 +30,26 @@ class BranchAdminController extends Controller
         $branchId = $request->user()->branch_id;
         if (!$branchId) abort(403, 'You are not assigned to a branch.');
         return Branch::findOrFail($branchId);
+    }
+
+    // A mail-send failure (bad SMTP creds, an unverified sending domain,
+    // provider downtime) must never fail the API request around it — the
+    // ledger entry is what matters; the receipt is a courtesy on top of it.
+    // QUEUE_CONNECTION=sync means this sends inline, so an uncaught
+    // exception here would otherwise bubble up as a 500 on the whole
+    // create/collect request.
+    private function sendReceiptSafely(Payment $payment): void
+    {
+        if (!$payment->customer_email) return;
+
+        try {
+            Mail::to($payment->customer_email)->queue(new PaymentReceiptMail($payment));
+        } catch (\Throwable $e) {
+            Log::error('Memo saved but receipt email failed to send.', [
+                'payment_id' => $payment->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
     }
 
     // ── Settings ──────────────────────────────────────────────────────────────
@@ -526,11 +547,7 @@ class BranchAdminController extends Controller
         $payment->load(['category', 'branch', 'application']);
 
         // Instant receipt — no approval step sits between entry and delivery.
-        // QUEUE_CONNECTION=sync by default, so this actually sends inline; see
-        // the build plan's note on confirming that on the production env.
-        if ($payment->customer_email) {
-            Mail::to($payment->customer_email)->queue(new PaymentReceiptMail($payment));
-        }
+        $this->sendReceiptSafely($payment);
 
         return response()->json($payment, 201);
     }
@@ -554,9 +571,7 @@ class BranchAdminController extends Controller
         $payment->collect((float) $validated['amount']);
         $payment->load(['category', 'branch', 'application']);
 
-        if ($payment->customer_email) {
-            Mail::to($payment->customer_email)->queue(new PaymentReceiptMail($payment));
-        }
+        $this->sendReceiptSafely($payment);
 
         return response()->json($payment);
     }

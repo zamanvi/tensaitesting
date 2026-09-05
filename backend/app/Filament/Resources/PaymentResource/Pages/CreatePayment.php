@@ -5,7 +5,9 @@ namespace App\Filament\Resources\PaymentResource\Pages;
 use App\Filament\Resources\PaymentResource;
 use App\Mail\PaymentReceiptMail;
 use App\Models\PaymentCategory;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -54,8 +56,26 @@ class CreatePayment extends CreateRecord
     {
         $payment = $this->record;
 
-        if ($payment->customer_email) {
+        if (!$payment->customer_email) return;
+
+        // A mail-send failure (bad SMTP creds, an unverified sending domain,
+        // Resend/provider downtime) must never undo — or even fail — the
+        // memo itself; the ledger entry is the important part, the receipt
+        // is a courtesy on top of it. QUEUE_CONNECTION=sync means this call
+        // sends inline, so an uncaught exception here would otherwise bubble
+        // up as a 500 on the whole Create action.
+        try {
             Mail::to($payment->customer_email)->queue(new PaymentReceiptMail($payment));
+        } catch (\Throwable $e) {
+            Log::error('Memo created but receipt email failed to send.', [
+                'payment_id' => $payment->id,
+                'error'      => $e->getMessage(),
+            ]);
+            Notification::make()
+                ->title('Memo created — but the receipt email failed to send')
+                ->body('Check the mail configuration. The memo itself was saved fine.')
+                ->warning()
+                ->send();
         }
     }
 }

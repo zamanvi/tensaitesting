@@ -277,13 +277,23 @@ class PaymentResource extends Resource
                     ->action(function (Payment $r, array $data) {
                         $r->collect((float) $data['amount']);
 
+                        $mailFailed = false;
                         if ($r->customer_email) {
-                            Mail::to($r->customer_email)->queue(new PaymentReceiptMail($r));
+                            try {
+                                Mail::to($r->customer_email)->queue(new PaymentReceiptMail($r));
+                            } catch (\Throwable $e) {
+                                $mailFailed = true;
+                                \Illuminate\Support\Facades\Log::error('Collection recorded but receipt email failed to send.', [
+                                    'payment_id' => $r->id,
+                                    'error'      => $e->getMessage(),
+                                ]);
+                            }
                         }
 
                         \Filament\Notifications\Notification::make()
                             ->title($r->status === 'paid' ? 'Memo fully paid' : 'Payment recorded — balance still due')
-                            ->success()
+                            ->body($mailFailed ? 'The receipt email failed to send — check the mail configuration.' : null)
+                            ->color($mailFailed ? 'warning' : 'success')
                             ->send();
                     }),
 
