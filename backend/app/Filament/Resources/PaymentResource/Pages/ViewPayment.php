@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PaymentResource\Pages;
 
 use App\Filament\Resources\PaymentResource;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
@@ -37,6 +38,21 @@ class ViewPayment extends ViewRecord
                 TextEntry::make('total_amount')->label('Total Invoiced')->money(fn ($record) => $record->currency),
                 TextEntry::make('due_amount')->label('Balance Due')->money(fn ($record) => $record->currency)->color('danger'),
             ]),
+            // Installment-by-installment history — the memo above stays the
+            // one invoice; this is every time money actually changed hands
+            // against it (the initial creation counts as the first row).
+            Section::make('Payment History')
+                ->visible(fn ($record) => $record->collections->count() > 1)
+                ->schema([
+                    RepeatableEntry::make('collections')
+                        ->label('')
+                        ->schema([
+                            TextEntry::make('created_at')->label('Date')->dateTime('d M Y, h:i A'),
+                            TextEntry::make('amount')->label('Amount')->money(fn ($record) => $record->payment->currency),
+                            TextEntry::make('receiver.name')->label('Received By')->placeholder('—'),
+                        ])
+                        ->columns(3),
+                ]),
             Section::make('Customer')->columns(2)->schema([
                 TextEntry::make('customer_name')->label('Name'),
                 TextEntry::make('customer_phone')->label('Phone')->placeholder('—'),

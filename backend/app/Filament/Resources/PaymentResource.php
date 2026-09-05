@@ -173,7 +173,7 @@ class PaymentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['branch', 'category', 'application', 'formTemplate']);
+        return parent::getEloquentQuery()->with(['branch', 'category', 'application', 'formTemplate', 'collections.receiver']);
     }
 
     public static function table(Table $table): Table
@@ -275,7 +275,7 @@ class PaymentResource extends Resource
                             ->prefix('BDT'),
                     ])
                     ->action(function (Payment $r, array $data) {
-                        $r->collect((float) $data['amount']);
+                        $r->collect((float) $data['amount'], auth()->id());
 
                         $mailFailed = false;
                         if ($r->customer_email) {

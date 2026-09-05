@@ -600,7 +600,7 @@ class BranchAdminController extends Controller
             'amount' => ['required', 'numeric', 'min:0.01', 'max:' . $payment->due_amount],
         ]);
 
-        $payment->collect((float) $validated['amount']);
+        $payment->collect((float) $validated['amount'], $request->user()->id);
         $payment->load(['category', 'branch', 'application']);
 
         $this->sendReceiptSafely($payment);

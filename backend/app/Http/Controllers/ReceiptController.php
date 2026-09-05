@@ -16,7 +16,7 @@ class ReceiptController extends Controller
     public function show(Payment $payment): View
     {
         return view('receipts.print', [
-            'payment' => $payment->load(['branch', 'category', 'application', 'formTemplate']),
+            'payment' => $payment->load(['branch', 'category', 'application', 'formTemplate', 'collections']),
         ]);
     }
 }

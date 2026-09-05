@@ -66,6 +66,7 @@
       <h1>Tensai</h1>
       <p>Memo</p>
     </div>
+    @php $latestCollection = $payment->collections->first(); @endphp
     <div class="body">
       <p class="greeting">Hi {{ $payment->customer_name }},</p>
       <p class="text">
@@ -73,9 +74,16 @@
         please keep this receipt for your records.
       </p>
 
+      @if($payment->collections->count() > 1 && $latestCollection)
       <div class="amount-box">
-        <div class="label">{{ $payment->status === 'paid' ? 'Amount Received' : 'Received So Far' }}</div>
-        <div class="value">{{ number_format((float) $payment->amount, 2) }} {{ $payment->currency }}</div>
+        <div class="label">This Payment — {{ $latestCollection->created_at->format('d M Y, h:i A') }}</div>
+        <div class="value">{{ number_format((float) $latestCollection->amount, 2) }} {{ $payment->currency }}</div>
+      </div>
+      @endif
+
+      <div class="{{ $payment->collections->count() > 1 ? 'due-box' : 'amount-box' }}" style="{{ $payment->collections->count() > 1 ? 'background:#f8fafc;border-color:#e2e8f0;' : '' }}">
+        <div class="label" style="{{ $payment->collections->count() > 1 ? 'color:#64748b;' : '' }}">{{ $payment->status === 'paid' ? 'Total Received' : 'Received So Far' }}</div>
+        <div class="value" style="{{ $payment->collections->count() > 1 ? 'font-size:20px;color:#0f172a;' : '' }}">{{ number_format((float) $payment->amount, 2) }} {{ $payment->currency }}</div>
       </div>
 
       @if($payment->status !== 'paid')

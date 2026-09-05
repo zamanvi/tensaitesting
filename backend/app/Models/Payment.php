@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Payment extends Model
@@ -43,6 +44,22 @@ class Payment extends Model
 
             $payment->status = $payment->computeStatus();
         });
+
+        // The memo's creation is itself collection #1 — needs the row to
+        // already have an id, so this runs after insert, not in creating().
+        static::created(function (Payment $payment) {
+            if ((float) $payment->amount > 0) {
+                $payment->collections()->create([
+                    'amount'      => $payment->amount,
+                    'received_by' => $payment->received_by,
+                ]);
+            }
+        });
+    }
+
+    public function collections(): HasMany
+    {
+        return $this->hasMany(PaymentCollection::class)->latest();
     }
 
     /**
@@ -70,15 +87,27 @@ class Payment extends Model
     /** Records an additional collection against a due/partial memo. Clamped
      *  so a mistyped amount can never push `amount` past `total_amount` —
      *  that would make this memo's fund contribution exceed what was ever
-     *  actually invoiced. */
-    public function collect(float $amountToAdd): void
+     *  actually invoiced. Logs the actually-applied amount (post-clamp) as
+     *  its own PaymentCollection row — the memo's own `amount` stays the
+     *  running total, this is the per-installment history. */
+    public function collect(float $amountToAdd, ?int $receivedBy = null): void
     {
+        $before  = (float) $this->amount;
         $this->amount = min(
-            round((float) $this->amount + $amountToAdd, 2),
+            round($before + $amountToAdd, 2),
             (float) $this->total_amount
         );
+        $applied = round($this->amount - $before, 2);
+
         $this->status = $this->computeStatus();
         $this->save();
+
+        if ($applied > 0) {
+            $this->collections()->create([
+                'amount'      => $applied,
+                'received_by' => $receivedBy,
+            ]);
+        }
     }
 
     public function application(): BelongsTo

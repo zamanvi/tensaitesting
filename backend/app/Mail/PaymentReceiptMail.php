@@ -29,7 +29,7 @@ class PaymentReceiptMail extends Mailable
         return new Content(
             view: 'emails.payment_receipt',
             with: [
-                'payment' => $this->payment->load(['branch', 'category', 'application', 'formTemplate']),
+                'payment' => $this->payment->load(['branch', 'category', 'application', 'formTemplate', 'collections']),
             ],
         );
     }
