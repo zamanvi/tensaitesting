@@ -62,9 +62,18 @@ class PaymentResource extends Resource
                     ->label('Application (optional)')
                     ->options(fn (Forms\Get $get) => is_numeric($get('branch_id'))
                         ? Application::where('branch_id', $get('branch_id'))
+                            ->with('formTemplate:id,country,name')
                             ->orderByDesc('id')
                             ->get()
-                            ->mapWithKeys(fn ($a) => [$a->id => "{$a->application_code} — {$a->student_name}"])
+                            // Country Form name shown alongside the applicant so
+                            // admin can see which service this memo is for
+                            // without opening the application — display only,
+                            // no fee auto-fill (Total Amount stays manual;
+                            // not every memo maps to a listed service).
+                            ->mapWithKeys(fn ($a) => [$a->id =>
+                                "{$a->application_code} — {$a->student_name}"
+                                . ($a->formTemplate ? " · {$a->formTemplate->country} — {$a->formTemplate->name}" : '')
+                            ])
                         : [])
                     ->searchable()
                     ->native(false)
