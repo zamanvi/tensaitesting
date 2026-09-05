@@ -220,6 +220,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/gallery/{id}',         [BranchAdminController::class, 'deleteGallery']);
         Route::get('/selected-applications', [BranchAdminController::class, 'selectedApplications']);
         Route::get('/payment-categories',      [BranchAdminController::class, 'paymentCategories']);
+        Route::get('/applications/{id}/due-memo', [BranchAdminController::class, 'applicationDueMemo']);
         Route::get('/payments',                [BranchAdminController::class, 'payments']);
         Route::post('/payments',               [BranchAdminController::class, 'storePayment']);
         Route::get('/payments/{id}',           [BranchAdminController::class, 'showPayment']);

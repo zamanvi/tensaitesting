@@ -121,6 +121,16 @@ export default function BranchPaymentsPage() {
     staleTime: 300_000,
   });
   const apps = appsData?.data ?? [];
+
+  // Policy: one memo per invoice — collections update the existing memo
+  // rather than a second one being created for the same due balance. This
+  // surfaces that existing memo (if any) so staff use Collect instead.
+  const { data: dueMemo } = useQuery<{ id: number; receipt_no: string; due_amount: string; currency: string } | null>({
+    queryKey: ['application-due-memo', selectedApp?.id],
+    queryFn: () => api.get(`/branch-admin/applications/${selectedApp!.id}/due-memo`).then(r => r.data),
+    enabled: !!selectedApp,
+  });
+
   const filteredApps = useMemo(() => {
     const q = appSearch.trim().toLowerCase();
     if (!q) return apps.slice(0, 8);
@@ -276,6 +286,19 @@ export default function BranchPaymentsPage() {
               <p className="text-[11px] text-slate-400 mt-1">
                 {t('Leave empty for a walk-in memo not tied to an application.', 'アプリケーションに関連しない場合は空欄のままにしてください。', 'কোনো অ্যাপ্লিকেশন ছাড়া ওয়াক-ইন মেমো হলে খালি রাখুন।')}
               </p>
+
+              {dueMemo && (
+                <div className="mt-2 flex items-start gap-2 px-3.5 py-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                  <span className="text-amber-500 shrink-0 mt-0.5">⚠️</span>
+                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                    {t(
+                      `This application already has a due memo (${dueMemo.receipt_no}, ${dueMemo.due_amount} ${dueMemo.currency} due). Use Collect on that memo below instead of creating a new one.`,
+                      `この申請にはすでに未払いの伝票があります（${dueMemo.receipt_no}、残高 ${dueMemo.due_amount} ${dueMemo.currency}）。新しい伝票を作らず、下の「入金する」を使ってください。`,
+                      `এই অ্যাপ্লিকেশনের একটা বাকি মেমো আগে থেকেই আছে (${dueMemo.receipt_no}, ${dueMemo.due_amount} ${dueMemo.currency} বাকি)। নতুন মেমো না বানিয়ে নিচে সেই মেমোতে "Collect" ব্যবহার করুন।`
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Category */}

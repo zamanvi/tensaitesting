@@ -477,6 +477,23 @@ class BranchAdminController extends Controller
         return response()->json($payments);
     }
 
+    // Checked when an application is picked on Create Memo, so staff get
+    // steered toward Collect Payment on the existing memo instead of
+    // creating a second one for the same invoice — see the policy note:
+    // one memo per invoice, collections update it rather than duplicate it.
+    public function applicationDueMemo(Request $request, int $applicationId): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $due = Payment::where('branch_id', $branch->id)
+            ->where('application_id', $applicationId)
+            ->where('status', '!=', 'paid')
+            ->latest()
+            ->first(['id', 'receipt_no', 'amount', 'total_amount', 'currency', 'status']);
+
+        return response()->json($due);
+    }
+
     public function showPayment(Request $request, int $id): JsonResponse
     {
         $branch = $this->branch($request);
