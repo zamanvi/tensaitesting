@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Memo {{ $payment->receipt_no }}</title>
   <style>
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { margin: 0; padding: 0; background: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
     .toolbar { max-width: 560px; margin: 20px auto 0; display: flex; justify-content: flex-end; }
     .print-btn {
