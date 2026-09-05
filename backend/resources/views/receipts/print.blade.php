@@ -39,9 +39,16 @@
     /* Screen-only chrome disappears in the printed/PDF output — only the
        receipt card itself should end up in the saved PDF. */
     @media print {
+      /* Chrome/Edge draw their own header (date + title) and footer (URL +
+         page number) inside the page margin — a site can't toggle that
+         checkbox directly, but with no margin left for them to sit in,
+         they end up clipped to nothing. The receipt gets its own breathing
+         room from real padding on .wrapper instead, so it doesn't print
+         flush against the paper edge. */
+      @page { margin: 0; }
       .toolbar { display: none; }
       body { background: #fff; }
-      .wrapper { box-shadow: none; margin: 0 auto; border-radius: 0; }
+      .wrapper { box-shadow: none; margin: 0 auto; border-radius: 0; padding: 24px 0; }
     }
   </style>
 </head>
