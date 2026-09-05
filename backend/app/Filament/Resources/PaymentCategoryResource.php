@@ -20,6 +20,13 @@ class PaymentCategoryResource extends Resource
     protected static ?string $pluralModelLabel = 'Memo Categories';
     protected static ?int    $navigationSort  = 4;
 
+    // Out of the sidebar to keep Revenue's section count down — reachable
+    // instead via the "Manage Categories" button on the Memos list page.
+    // Full functionality (create/edit/deactivate) is unchanged, just not a
+    // standing nav item of its own; same pattern as OCR Review Queue, Leads
+    // (Legacy), etc. elsewhere in this codebase.
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function canAccess(): bool
     {
         return auth()->user()?->hasRole(['super_admin', 'admin']);
