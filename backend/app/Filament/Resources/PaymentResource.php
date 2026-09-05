@@ -60,28 +60,34 @@ class PaymentResource extends Resource
 
                 Forms\Components\Select::make('application_id')
                     ->label('Application (optional)')
-                    ->options(fn (Forms\Get $get) => is_numeric($get('branch_id'))
-                        ? Application::where('branch_id', $get('branch_id'))
-                            ->with('formTemplate:id,country,name')
-                            ->orderByDesc('id')
-                            ->get()
-                            // Country Form name shown alongside the applicant so
-                            // admin can see which service this memo is for
-                            // without opening the application — display only,
-                            // no fee auto-fill (Total Amount stays manual;
-                            // not every memo maps to a listed service).
-                            ->mapWithKeys(fn ($a) => [$a->id =>
-                                "{$a->application_code} — {$a->student_name}"
-                                . ($a->formTemplate ? " · {$a->formTemplate->country} — {$a->formTemplate->name}" : '')
-                            ])
-                        : [])
+                    ->options(fn (Forms\Get $get) => Application::query()
+                        // Drafts aren't real applications yet, and a rejected
+                        // one shouldn't be collecting money — only finalized/
+                        // in-progress ones are worth showing here.
+                        ->whereNotIn('status', ['draft', 'rejected'])
+                        // A real branch narrows to its own applicants; Main
+                        // Branch (Admin/Head Office) sees across all branches
+                        // rather than staying empty — it oversees every one.
+                        ->when(is_numeric($get('branch_id')), fn ($q) => $q->where('branch_id', $get('branch_id')))
+                        ->with('formTemplate:id,country,name')
+                        ->orderByDesc('id')
+                        ->limit(200)
+                        ->get()
+                        // Country Form name shown alongside the applicant so
+                        // admin can see which service this memo is for
+                        // without opening the application — display only,
+                        // no fee auto-fill (Total Amount stays manual;
+                        // not every memo maps to a listed service).
+                        ->mapWithKeys(fn ($a) => [$a->id =>
+                            "{$a->application_code} — {$a->student_name}"
+                            . ($a->formTemplate ? " · {$a->formTemplate->country} — {$a->formTemplate->name}" : '')
+                        ]))
                     ->searchable()
                     ->native(false)
                     ->live()
-                    ->disabled(fn (Forms\Get $get) => !is_numeric($get('branch_id')))
                     ->helperText(fn (Forms\Get $get) => is_numeric($get('branch_id'))
-                        ? 'Filtered to the selected branch. Leave empty for a walk-in memo.'
-                        : 'Main Branch has no applications of its own — this stays empty.')
+                        ? 'Filtered to the selected branch, excluding drafts/rejected. Leave empty for a walk-in memo.'
+                        : 'Showing finalized applications across all branches. Leave empty for a walk-in memo.')
                     ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, $state) {
                         if (!$state) return;
                         $app = Application::find($state);
