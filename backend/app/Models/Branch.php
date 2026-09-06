@@ -57,6 +57,13 @@ class Branch extends Model
         return $this->hasMany(FundTransfer::class);
     }
 
+    /** Every refund filed against any of this branch's memos — used to net
+     *  approved Head Office refunds out of the balance summary. */
+    public function refunds()
+    {
+        return $this->hasManyThrough(Refund::class, Payment::class);
+    }
+
     public function admins()
     {
         return $this->hasMany(User::class)

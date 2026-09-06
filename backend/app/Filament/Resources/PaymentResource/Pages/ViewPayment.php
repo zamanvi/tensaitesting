@@ -53,10 +53,31 @@ class ViewPayment extends ViewRecord
                         ])
                         ->columns(3),
                 ]),
+            // Every refund request against this memo — pending, approved, or
+            // rejected — so the full history is visible, not just the net
+            // number. Only 'approved' ones ever reduce anything elsewhere.
+            Section::make('Refunds')
+                ->visible(fn ($record) => $record->refunds->isNotEmpty())
+                ->schema([
+                    RepeatableEntry::make('refunds')
+                        ->label('')
+                        ->schema([
+                            TextEntry::make('created_at')->label('Requested')->dateTime('d M Y, h:i A'),
+                            TextEntry::make('amount')->label('Amount')->money(fn ($record) => $record->payment->currency),
+                            TextEntry::make('status')->badge()
+                                ->color(fn ($state) => match ($state) {
+                                    'approved' => 'success', 'rejected' => 'danger', default => 'warning',
+                                })
+                                ->formatStateUsing(fn ($state) => ucfirst($state)),
+                            TextEntry::make('reason')->label('Reason')->columnSpanFull(),
+                        ])
+                        ->columns(3),
+                ]),
             Section::make('Customer')->columns(2)->schema([
                 TextEntry::make('customer_name')->label('Name'),
                 TextEntry::make('customer_phone')->label('Phone')->placeholder('—'),
                 TextEntry::make('customer_email')->label('Email')->placeholder('—'),
+                TextEntry::make('student_roll')->label('Roll')->placeholder('—')->fontFamily('mono'),
                 TextEntry::make('application.application_code')->label('Application')->placeholder('—'),
                 TextEntry::make('formTemplate.name')->label('Service Form')
                     ->formatStateUsing(fn ($state, $record) => $record->formTemplate ? "{$record->formTemplate->country} — {$state}" : null)
@@ -69,6 +90,13 @@ class ViewPayment extends ViewRecord
                     ->formatStateUsing(fn ($state) => $state === 'branch' ? 'Branch Fund' : 'Head Office Fund')
                     ->badge()
                     ->color(fn ($state) => $state === 'branch' ? 'success' : 'info'),
+                TextEntry::make('ho_settlement')->label('HO Settlement')
+                    ->visible(fn ($record) => $record->fund_target === 'head_office')
+                    ->formatStateUsing(fn ($state) => $state ? ucfirst($state) : null)
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'settled' => 'success', 'refunded' => 'gray', default => 'danger',
+                    }),
                 TextEntry::make('method')->label('Method')->formatStateUsing(fn ($state) => ucfirst($state)),
                 TextEntry::make('receiver.name')->label('Received By')->placeholder('—'),
                 TextEntry::make('notes')->label('Notes')->placeholder('—')->columnSpanFull(),

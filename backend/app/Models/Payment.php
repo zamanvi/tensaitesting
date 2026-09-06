@@ -15,7 +15,7 @@ class Payment extends Model
     protected $fillable = [
         'application_id', 'form_template_id', 'branch_id', 'payment_category_id', 'fund_target',
         'amount', 'total_amount', 'status', 'currency', 'method',
-        'customer_name', 'customer_phone', 'customer_email',
+        'customer_name', 'customer_phone', 'customer_email', 'student_roll',
         'received_by', 'notes',
     ];
 
@@ -24,7 +24,7 @@ class Payment extends Model
         'total_amount' => 'decimal:2',
     ];
 
-    protected $appends = ['due_amount'];
+    protected $appends = ['due_amount', 'ho_settlement', 'refunded_amount', 'net_amount'];
 
     protected static function booted(): void
     {
@@ -60,6 +60,43 @@ class Payment extends Model
     public function collections(): HasMany
     {
         return $this->hasMany(PaymentCollection::class)->latest();
+    }
+
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Refund::class)->latest();
+    }
+
+    /** Only an approved refund actually reduces anything — a pending/rejected
+     *  one hasn't moved money yet. Uses the loaded relation when available
+     *  (eager-loaded on the admin/branch listings) instead of re-querying. */
+    public function getRefundedAmountAttribute(): string
+    {
+        $sum = $this->relationLoaded('refunds')
+            ? $this->refunds->where('status', 'approved')->sum('amount')
+            : $this->refunds()->approved()->sum('amount');
+
+        return number_format((float) $sum, 2, '.', '');
+    }
+
+    /** The one open refund request waiting on Admin's decision, if any — a
+     *  memo only ever has at most one pending request at a time (enforced in
+     *  the request-refund endpoint, not here). */
+    public function pendingRefund(): ?Refund
+    {
+        return $this->relationLoaded('refunds')
+            ? $this->refunds->firstWhere('status', 'pending')
+            : $this->refunds()->pending()->first();
+    }
+
+    /** What's actually still retained from this memo after approved refunds —
+     *  this, not the raw `amount`, is what every balance/settlement/student-
+     *  total calculation should sum. The memo's own `amount` column never
+     *  changes (immutable ledger); a refund is always a separate record. */
+    public function getNetAmountAttribute(): string
+    {
+        $net = (float) $this->amount - (float) $this->refunded_amount;
+        return number_format(max($net, 0), 2, '.', '');
     }
 
     /**
@@ -145,5 +182,144 @@ class Payment extends Model
     public function scopeFundedHeadOffice($query)
     {
         return $query->where('fund_target', 'head_office');
+    }
+
+    /** Roll numbers are only unique within a branch — the same roll at two
+     *  different branches is two different people — so a student's memos are
+     *  always looked up by this (branch, roll) pair together, never roll alone. */
+    public function scopeForStudentRoll($query, ?int $branchId, string $roll)
+    {
+        return $query->where('branch_id', $branchId)->where('student_roll', $roll);
+    }
+
+    /** Everything one student has ever paid, across every category and every
+     *  memo, regardless of whether each one was Course Fee, Processing Fee,
+     *  Service Charge, etc. — the whole point of tagging memos with a roll.
+     *  total_paid is net of approved refunds; total_refunded is broken out
+     *  separately so a refund doesn't just silently vanish from the view. */
+    public static function ledgerForStudent(?int $branchId, string $roll): array
+    {
+        $memos = static::forStudentRoll($branchId, $roll)
+            ->with(['category:id,label', 'refunds' => fn ($q) => $q->approved()])
+            ->oldest()
+            ->get();
+
+        $totalRefunded = $memos->sum(fn (Payment $m) => (float) $m->refunded_amount);
+
+        return [
+            'total_paid'     => round((float) $memos->sum('amount') - $totalRefunded, 2),
+            'total_invoiced' => round((float) $memos->sum('total_amount'), 2),
+            'total_refunded' => round($totalRefunded, 2),
+            'memo_count'     => $memos->count(),
+            'memos'          => $memos,
+        ];
+    }
+
+    /**
+     * Per-memo Head Office settlement, so "which money has HO actually
+     * received" is visible memo-by-memo, not just as one blended total.
+     *
+     * There's no direct FK from a FundTransfer to the memo(s) it covers — a
+     * branch just reports "I sent X" in bulk. So settlement is inferred by
+     * FIFO: a branch's head_office memos are settled oldest-first, up to
+     * however much of that branch's transfers HO has marked Received. A memo
+     * with branch_id null was collected by Head Office itself directly
+     * (the "Main Branch" virtual option) — nothing to forward, always settled.
+     *
+     * Cached per-request (per branch) since a table render calls this once
+     * per row; without it every row would re-run the same two queries.
+     */
+    protected static array $settledIdsCache = [];
+
+    public static function settledIdsForBranch(?int $branchId): array
+    {
+        if ($branchId === null) {
+            return [-1]; // sentinel; isHeadOfficeSettled() special-cases null branches instead of consulting this list
+        }
+
+        if (isset(self::$settledIdsCache[$branchId])) {
+            return self::$settledIdsCache[$branchId];
+        }
+
+        $received = (float) FundTransfer::where('branch_id', $branchId)
+            ->where('status', 'received')
+            ->sum('amount');
+
+        $settled  = [];
+        $remaining = $received;
+
+        static::where('branch_id', $branchId)
+            ->where('fund_target', 'head_office')
+            ->with(['refunds' => fn ($q) => $q->approved()])
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get(['id', 'amount', 'branch_id'])
+            ->each(function (Payment $memo) use (&$remaining, &$settled) {
+                // A fully-refunded memo owes HO nothing — settled trivially,
+                // doesn't consume any of the branch's actual received total.
+                $net = (float) $memo->net_amount;
+                if ($net <= 0) {
+                    $settled[] = $memo->id;
+                    return;
+                }
+                if ($remaining >= $net) {
+                    $settled[] = $memo->id;
+                    $remaining -= $net;
+                }
+            });
+
+        return self::$settledIdsCache[$branchId] = $settled;
+    }
+
+    public function isHeadOfficeSettled(): bool
+    {
+        if ($this->fund_target !== 'head_office') {
+            return false; // not applicable — branch-fund memos never need HO settlement
+        }
+        if ($this->branch_id === null) {
+            return true; // collected directly by Head Office, nothing to forward
+        }
+        return in_array($this->id, self::settledIdsForBranch($this->branch_id), true);
+    }
+
+    /** null for a Branch Fund memo (not applicable), else 'settled'/'pending' —
+     *  same value the admin table's HO Settlement badge shows, appended here
+     *  so the branch dashboard can show the identical per-memo status. */
+    public function getHoSettlementAttribute(): ?string
+    {
+        if ($this->fund_target !== 'head_office') {
+            return null;
+        }
+        if ((float) $this->net_amount <= 0 && (float) $this->refunded_amount > 0) {
+            return 'refunded'; // nothing left owed — fully refunded, not "settled"
+        }
+        return $this->isHeadOfficeSettled() ? 'settled' : 'pending';
+    }
+
+    /** All head_office-fund memo IDs, across every branch, not yet covered by
+     *  that branch's received transfers — powers the admin "Not Yet Settled"
+     *  filter. Branch count is small, so one query pass per branch is fine. */
+    public static function pendingHeadOfficeSettlementIds(): array
+    {
+        $branchIds = static::query()
+            ->where('fund_target', 'head_office')
+            ->whereNotNull('branch_id')
+            ->distinct()
+            ->pluck('branch_id');
+
+        $pending = [];
+        foreach ($branchIds as $branchId) {
+            $settled = self::settledIdsForBranch($branchId);
+            static::where('branch_id', $branchId)
+                ->where('fund_target', 'head_office')
+                ->pluck('id')
+                ->each(function ($id) use ($settled, &$pending) {
+                    if (!in_array($id, $settled, true)) {
+                        $pending[] = $id;
+                    }
+                });
+        }
+
+        return $pending;
     }
 }

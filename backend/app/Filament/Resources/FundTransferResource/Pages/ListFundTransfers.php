@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FundTransferResource\Pages;
 
 use App\Filament\Resources\FundTransferResource;
+use App\Filament\Widgets\BranchBalanceSummaryWidget;
 use Filament\Resources\Pages\ListRecords;
 
 class ListFundTransfers extends ListRecords
@@ -12,5 +13,12 @@ class ListFundTransfers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            BranchBalanceSummaryWidget::class,
+        ];
     }
 }

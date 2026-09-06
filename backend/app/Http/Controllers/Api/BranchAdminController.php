@@ -13,6 +13,7 @@ use App\Models\InstitutionSelection;
 use App\Models\Lead;
 use App\Models\Payment;
 use App\Models\PaymentCategory;
+use App\Models\Refund;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -470,7 +471,7 @@ class BranchAdminController extends Controller
         $branch = $this->branch($request);
 
         $payments = Payment::where('branch_id', $branch->id)
-            ->with(['category:id,label', 'application:id,application_code'])
+            ->with(['category:id,label', 'application:id,application_code', 'refunds'])
             ->latest()
             ->paginate(20);
 
@@ -536,6 +537,10 @@ class BranchAdminController extends Controller
             'customer_name'        => 'required_without:application_id|nullable|string|max:255',
             'customer_phone'       => 'nullable|string|max:30',
             'customer_email'       => 'nullable|email|max:255',
+            // Fixed per student, unique within this branch (not globally) —
+            // the key every "how much has this one student paid us in total,
+            // across every category" lookup groups by.
+            'student_roll'         => 'required|string|max:50',
             'notes'                => 'nullable|string|max:1000',
         ]);
 
@@ -572,6 +577,7 @@ class BranchAdminController extends Controller
             'customer_name'        => $validated['customer_name'] ?? $application?->student_name,
             'customer_phone'       => $validated['customer_phone'] ?? $application?->student_phone,
             'customer_email'       => $validated['customer_email'] ?? $application?->student_email,
+            'student_roll'         => $validated['student_roll'],
             'received_by'          => $request->user()->id,
             'notes'                => $validated['notes'] ?? null,
         ]);
@@ -582,6 +588,17 @@ class BranchAdminController extends Controller
         $this->sendReceiptSafely($payment);
 
         return response()->json($payment, 201);
+    }
+
+    // Everything this one student (by branch + roll) has ever paid, across
+    // every category and every memo — the point of tagging memos with a roll
+    // in the first place. Scoped to the calling branch: a roll number from a
+    // different branch is a different person, not visible here.
+    public function studentLedger(Request $request, string $roll): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        return response()->json(Payment::ledgerForStudent($branch->id, $roll));
     }
 
     // Records an additional collection against a due/partial memo — the
@@ -608,6 +625,34 @@ class BranchAdminController extends Controller
         return response()->json($payment);
     }
 
+    // Branch's own request to give money back to a student. Stays 'pending'
+    // until Admin approves/rejects it — nothing here moves any balance yet,
+    // that only happens on approval (see PaymentResource's approve action).
+    public function requestRefund(Request $request, int $id): JsonResponse
+    {
+        $branch = $this->branch($request);
+
+        $payment = Payment::where('branch_id', $branch->id)->findOrFail($id);
+
+        if ($payment->pendingRefund()) {
+            return response()->json(['message' => 'A refund request is already pending Admin approval for this memo.'], 422);
+        }
+
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:' . $payment->net_amount],
+            'reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $refund = $payment->refunds()->create([
+            'amount'       => $validated['amount'],
+            'reason'       => $validated['reason'],
+            'status'       => 'pending',
+            'requested_by' => $request->user()->id,
+        ]);
+
+        return response()->json($refund, 201);
+    }
+
     // ── Fund Transfers (branch → head office settlement) ────────────────────────
 
     public function fundTransfers(Request $request): JsonResponse
@@ -616,6 +661,13 @@ class BranchAdminController extends Controller
 
         $collected = Payment::where('branch_id', $branch->id)
             ->where('fund_target', 'head_office')
+            ->sum('amount');
+
+        // Approved refunds on those same head-office memos — money that
+        // never really stayed HO's, so it comes straight back out of what
+        // was ever "collected for HO" before comparing against what's settled.
+        $refunded = Refund::approved()
+            ->whereHas('payment', fn ($q) => $q->where('branch_id', $branch->id)->where('fund_target', 'head_office'))
             ->sum('amount');
 
         $settled = FundTransfer::where('branch_id', $branch->id)
@@ -627,7 +679,10 @@ class BranchAdminController extends Controller
             ->get();
 
         return response()->json([
-            'payable_balance' => round((float) $collected - (float) $settled, 2),
+            // Usually positive (still owed to HO). Negative means the reverse —
+            // a memo got refunded after HO already received that money, so HO
+            // now owes the branch back instead.
+            'payable_balance' => round((float) $collected - (float) $refunded - (float) $settled, 2),
             'transfers'       => $transfers,
         ]);
     }

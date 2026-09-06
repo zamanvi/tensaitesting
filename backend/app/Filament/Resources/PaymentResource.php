@@ -165,6 +165,11 @@ class PaymentResource extends Resource
                 Forms\Components\TextInput::make('customer_email')
                     ->email()
                     ->helperText('A receipt is emailed here on save, same as a branch-created memo.'),
+                Forms\Components\TextInput::make('student_roll')
+                    ->label('Student Roll')
+                    ->required()
+                    ->maxLength(50)
+                    ->helperText('Fixed per student, unique within this branch — lets Course Fee, Processing Fee, Service Charge etc. all roll up to one student\'s total.'),
             ]),
 
             Forms\Components\Textarea::make('notes')->rows(2)->columnSpanFull(),
@@ -173,7 +178,7 @@ class PaymentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['branch', 'category', 'application', 'formTemplate', 'collections.receiver']);
+        return parent::getEloquentQuery()->with(['branch', 'category', 'application', 'formTemplate', 'collections.receiver', 'refunds.requester', 'refunds.approver']);
     }
 
     public static function table(Table $table): Table
@@ -193,6 +198,12 @@ class PaymentResource extends Resource
                     ->searchable()
                     ->description(fn (Payment $r) => $r->application?->application_code
                         ?? ($r->formTemplate ? "{$r->formTemplate->country} — {$r->formTemplate->name}" : null)),
+
+                Tables\Columns\TextColumn::make('student_roll')
+                    ->label('Roll')
+                    ->searchable()
+                    ->placeholder('—')
+                    ->fontFamily('mono'),
 
                 Tables\Columns\TextColumn::make('branch.name')
                     ->label('Branch')
@@ -218,6 +229,17 @@ class PaymentResource extends Resource
                         : null)
                     ->sortable(),
 
+                // Only means anything for a Head Office Fund memo — this is
+                // "has the branch actually forwarded this specific memo's
+                // money to HO yet", separate from whether the customer has
+                // paid the branch in full (that's the Status column).
+                Tables\Columns\TextColumn::make('ho_settlement')
+                    ->label('HO Settlement')
+                    ->placeholder('—')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state ? ucfirst($state) : null)
+                    ->color(fn ($state) => $state === 'settled' ? 'success' : ($state === 'pending' ? 'danger' : 'gray')),
+
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn ($state) => match ($state) {
@@ -232,6 +254,21 @@ class PaymentResource extends Resource
                     ->badge()
                     ->color('gray')
                     ->formatStateUsing(fn ($state) => ucfirst($state)),
+
+                Tables\Columns\TextColumn::make('refund_status')
+                    ->label('Refund')
+                    ->getStateUsing(function (Payment $r) {
+                        if ($r->pendingRefund()) return 'Requested';
+                        if ((float) $r->refunded_amount > 0) return 'Refunded ' . number_format((float) $r->refunded_amount, 2);
+                        return null;
+                    })
+                    ->placeholder('—')
+                    ->badge()
+                    ->color(fn (?string $state) => match (true) {
+                        $state === 'Requested'            => 'warning',
+                        str_starts_with($state ?? '', 'Refunded') => 'danger',
+                        default                             => 'gray',
+                    }),
             ])
             ->filters([
                 SelectFilter::make('branch_id')
@@ -244,6 +281,10 @@ class PaymentResource extends Resource
                     ->options(['branch' => 'Branch Fund', 'head_office' => 'Head Office Fund']),
                 SelectFilter::make('status')
                     ->options(['paid' => 'Paid', 'partial' => 'Partial', 'due' => 'Due']),
+                Tables\Filters\Filter::make('ho_unsettled')
+                    ->label('Not Yet Settled to HO')
+                    ->query(fn (Builder $query) => $query->whereIn('id', Payment::pendingHeadOfficeSettlementIds()))
+                    ->toggle(),
                 Tables\Filters\Filter::make('created_range')
                     ->form([
                         \Filament\Forms\Components\DatePicker::make('from')->native(false),
@@ -295,6 +336,91 @@ class PaymentResource extends Resource
                             ->body($mailFailed ? 'The receipt email failed to send — check the mail configuration.' : null)
                             ->color($mailFailed ? 'warning' : 'success')
                             ->send();
+                    }),
+
+                // Branch requests one from the dashboard; this is where Admin
+                // decides. Approving is what actually moves it into every
+                // balance/settlement/student-total figure — a pending request
+                // changes nothing on its own.
+                Tables\Actions\Action::make('approve_refund')
+                    ->label('Approve Refund')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (Payment $r) => (bool) $r->pendingRefund())
+                    ->requiresConfirmation()
+                    ->modalDescription(fn (Payment $r) => 'Refunds ' . number_format((float) $r->pendingRefund()->amount, 2) . " {$r->currency} back to the student and removes it from every balance/settlement figure. Reason given: \"" . $r->pendingRefund()->reason . '"')
+                    ->action(function (Payment $r) {
+                        $r->pendingRefund()->update([
+                            'status'      => 'approved',
+                            'approved_by' => auth()->id(),
+                            'decided_at'  => now(),
+                        ]);
+                        \Filament\Notifications\Notification::make()->title('Refund approved')->success()->send();
+                    }),
+
+                Tables\Actions\Action::make('reject_refund')
+                    ->label('Reject Refund')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('gray')
+                    ->visible(fn (Payment $r) => (bool) $r->pendingRefund())
+                    ->form([
+                        Forms\Components\Textarea::make('decision_note')->label('Reason for rejecting')->rows(2),
+                    ])
+                    ->action(function (Payment $r, array $data) {
+                        $r->pendingRefund()->update([
+                            'status'        => 'rejected',
+                            'approved_by'   => auth()->id(),
+                            'decided_at'    => now(),
+                            'decision_note' => $data['decision_note'] ?? null,
+                        ]);
+                        \Filament\Notifications\Notification::make()->title('Refund rejected')->color('gray')->send();
+                    }),
+
+                // Admin filing one directly (not via a branch request) is
+                // self-approved on the spot — Admin making the entry already
+                // is the approval, no separate pending step needed.
+                Tables\Actions\Action::make('refund')
+                    ->label('Refund')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('danger')
+                    ->visible(fn (Payment $r) => (float) $r->net_amount > 0 && !$r->pendingRefund())
+                    ->form([
+                        Forms\Components\TextInput::make('amount')
+                            ->label('Amount to Refund')
+                            ->numeric()
+                            ->required()
+                            ->minValue(0.01)
+                            ->maxValue(fn (Payment $r) => (float) $r->net_amount)
+                            ->prefix('BDT')
+                            ->helperText(fn (Payment $r) => 'Up to ' . number_format((float) $r->net_amount, 2) . " {$r->currency} (what's still retained from this memo)."),
+                        Forms\Components\Textarea::make('reason')->required()->rows(2),
+                    ])
+                    ->action(function (Payment $r, array $data) {
+                        $r->refunds()->create([
+                            'amount'        => $data['amount'],
+                            'reason'        => $data['reason'],
+                            'status'        => 'approved',
+                            'approved_by'   => auth()->id(),
+                            'decided_at'    => now(),
+                        ]);
+                        \Filament\Notifications\Notification::make()->title('Refund recorded')->success()->send();
+                    }),
+
+                // Every memo this same student (branch + roll) has ever had —
+                // Course Fee, Processing Fee, Service Charge, whatever the
+                // category — with a running total. This is the point of the
+                // Roll field: one student's total across separate memos.
+                Tables\Actions\Action::make('student_total')
+                    ->label('Student Total')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('gray')
+                    ->visible(fn (Payment $r) => filled($r->student_roll))
+                    ->modalHeading(fn (Payment $r) => "Student Roll {$r->student_roll} — {$r->branch?->name}")
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
+                    ->modalContent(function (Payment $r) {
+                        $ledger = Payment::ledgerForStudent($r->branch_id, $r->student_roll);
+                        return view('filament.modals.student-ledger', ['ledger' => $ledger, 'currency' => $r->currency]);
                     }),
 
                 Tables\Actions\Action::make('receipt')
