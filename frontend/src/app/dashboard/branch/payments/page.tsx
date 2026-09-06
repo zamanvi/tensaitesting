@@ -37,6 +37,11 @@ interface Payment {
   method: 'cash' | 'bank';
   customer_name: string;
   fund_target: 'branch' | 'head_office';
+  ho_settlement: 'settled' | 'pending' | 'refunded' | null;
+  student_roll: string | null;
+  net_amount: string;
+  refunded_amount: string;
+  refunds: { id: number; amount: string; status: 'pending' | 'approved' | 'rejected'; reason: string }[];
   created_at: string;
   category: { id: number; label: string } | null;
   application: { id: number; application_code: string } | null;
@@ -92,11 +97,17 @@ export default function BranchPaymentsPage() {
   const [customerName, setCustomerName]   = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
+  const [studentRoll, setStudentRoll]     = useState('');
   const [notes, setNotes]                 = useState('');
   const [justReceipt, setJustReceipt]     = useState<Payment | null>(null);
   const [formError, setFormError]         = useState('');
   const [collectingId, setCollectingId]   = useState<number | null>(null);
   const [collectAmount, setCollectAmount] = useState('');
+  const [ledgerRoll, setLedgerRoll]       = useState<string | null>(null);
+  const [refundingId, setRefundingId]     = useState<number | null>(null);
+  const [refundAmount, setRefundAmount]   = useState('');
+  const [refundReason, setRefundReason]   = useState('');
+  const [refundError, setRefundError]     = useState('');
   const appPickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -131,6 +142,17 @@ export default function BranchPaymentsPage() {
     enabled: !!selectedApp,
   });
 
+  // Everything this one student (by roll) has ever paid, across every
+  // category — fetched only when a row's "Total" toggle is open.
+  const { data: ledger, isLoading: ledgerLoading } = useQuery<{
+    total_paid: number; total_invoiced: number; memo_count: number;
+    memos: { id: number; receipt_no: string; amount: string; currency: string; status: Payment['status']; created_at: string; category: { label: string } | null }[];
+  }>({
+    queryKey: ['student-ledger', ledgerRoll],
+    queryFn: () => api.get(`/branch-admin/students/${encodeURIComponent(ledgerRoll!)}/ledger`).then(r => r.data),
+    enabled: !!ledgerRoll,
+  });
+
   const filteredApps = useMemo(() => {
     const q = appSearch.trim().toLowerCase();
     if (!q) return apps.slice(0, 8);
@@ -158,13 +180,14 @@ export default function BranchPaymentsPage() {
       customer_name: customerName || undefined,
       customer_phone: customerPhone || undefined,
       customer_email: customerEmail || undefined,
+      student_roll: studentRoll,
       notes: notes || undefined,
     }).then(r => r.data),
     onSuccess: (payment: Payment) => {
       qc.invalidateQueries({ queryKey: paymentsKey });
       setJustReceipt(payment);
       setSelectedApp(null); setAppSearch(''); setCategoryId(''); setTotalAmount(''); setPaidNow('');
-      setMethod('cash'); setCustomerName(''); setCustomerPhone(''); setCustomerEmail(''); setNotes('');
+      setMethod('cash'); setCustomerName(''); setCustomerPhone(''); setCustomerEmail(''); setStudentRoll(''); setNotes('');
       setFormError('');
     },
     onError: (err: unknown) => {
@@ -177,6 +200,18 @@ export default function BranchPaymentsPage() {
     mutationFn: (vars: { id: number; amount: string }) =>
       api.post(`/branch-admin/payments/${vars.id}/collect`, { amount: vars.amount }).then(r => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: paymentsKey }),
+  });
+
+  // Stays pending until Admin approves/rejects it (see Balance/Memos on the
+  // admin side) — this call doesn't move any money by itself.
+  const requestRefund = useMutation({
+    mutationFn: (vars: { id: number; amount: string; reason: string }) =>
+      api.post(`/branch-admin/payments/${vars.id}/refund`, { amount: vars.amount, reason: vars.reason }).then(r => r.data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: paymentsKey }); setRefundingId(null); setRefundError(''); },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setRefundError(msg || t('Something went wrong.', '問題が発生しました。', 'কিছু ভুল হয়েছে।'));
+    },
   });
 
   // Opens the printable receipt (browser's own Print > Save as PDF handles
@@ -196,7 +231,7 @@ export default function BranchPaymentsPage() {
 
   const selectedCategory = categories?.find(c => c.id === categoryId) ?? null;
   const dueOnCreate = Math.max(Number(totalAmount || 0) - Number(paidNow || totalAmount || 0), 0);
-  const canSubmit = !!categoryId && Number(totalAmount) > 0 && (!!selectedApp || customerName.trim().length > 0);
+  const canSubmit = !!categoryId && Number(totalAmount) > 0 && studentRoll.trim().length > 0 && (!!selectedApp || customerName.trim().length > 0);
 
   return (
     <BranchLayout title={t('Memos', '伝票', 'মেমো')}>
@@ -360,6 +395,15 @@ export default function BranchPaymentsPage() {
               </div>
             </div>
 
+            {/* Fixed per student, unique within this branch — same roll on
+                a later memo (Processing Fee, Service Charge, ...) rolls up
+                to this same student's total regardless of category. */}
+            <div>
+              <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Student Roll', '生徒ロール番号', 'স্টুডেন্ট রোল')}</label>
+              <input type="text" value={studentRoll} onChange={e => setStudentRoll(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all" />
+            </div>
+
             {/* Customer info — required unless an application is linked */}
             {!selectedApp && (
               <>
@@ -450,6 +494,9 @@ export default function BranchPaymentsPage() {
                         {p.application && (
                           <p className="text-[11px] text-slate-400 mt-0.5">{p.application.application_code}</p>
                         )}
+                        {p.student_roll && (
+                          <p className="text-[11px] text-slate-400 mt-0.5">{t('Roll', 'ロール', 'রোল')}: {p.student_roll}</p>
+                        )}
                       </td>
                       <td className="px-4 py-3.5 text-xs font-semibold text-slate-700">{p.customer_name}</td>
                       <td className="px-4 py-3.5">
@@ -458,12 +505,31 @@ export default function BranchPaymentsPage() {
                         }`}>
                           {p.category?.label ?? '—'}
                         </span>
+                        {p.ho_settlement && p.ho_settlement !== 'refunded' && (
+                          <p className={`text-[10px] font-semibold mt-1 ${
+                            p.ho_settlement === 'settled' ? 'text-green-600' : 'text-rose-500'
+                          }`}>
+                            {p.ho_settlement === 'settled'
+                              ? t('✓ Sent to HO', '✓ 本部へ送金済', '✓ HO-তে পাঠানো হয়েছে')
+                              : t('Not yet sent to HO', '本部へ未送金', 'HO-তে এখনও পাঠানো হয়নি')}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-3.5 text-xs font-bold text-slate-800 tabular-nums">
                         {p.amount} {p.currency}
                         {p.status !== 'paid' && (
                           <p className="text-[10px] font-normal text-slate-400 mt-0.5">
                             {t('of', '合計', 'মোটের')} {p.total_amount}
+                          </p>
+                        )}
+                        {Number(p.refunded_amount) > 0 && (
+                          <p className="text-[10px] font-semibold text-rose-500 mt-0.5">
+                            {t('Refunded', '返金済', 'ফেরত')} {p.refunded_amount}
+                          </p>
+                        )}
+                        {p.refunds?.some(r => r.status === 'pending') && (
+                          <p className="text-[10px] font-semibold text-amber-500 mt-0.5">
+                            {t('Refund pending approval', '返金申請中', 'ফেরত অনুমোদনের অপেক্ষায়')}
                           </p>
                         )}
                       </td>
@@ -485,6 +551,14 @@ export default function BranchPaymentsPage() {
                           >
                             {t('Receipt', '受領書', 'রিসিপ্ট')}
                           </button>
+                          {p.student_roll && (
+                            <button
+                              onClick={() => setLedgerRoll(ledgerRoll === p.student_roll ? null : p.student_roll)}
+                              className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-indigo-700 hover:text-white text-slate-500 transition-all"
+                            >
+                              {t('Total', '合計', 'মোট')}
+                            </button>
+                          )}
                           {p.status !== 'paid' && (
                             <button
                               onClick={() => { setCollectingId(collectingId === p.id ? null : p.id); setCollectAmount(p.due_amount); }}
@@ -493,9 +567,85 @@ export default function BranchPaymentsPage() {
                               {t('Collect', '入金する', 'সংগ্রহ করুন')}
                             </button>
                           )}
+                          {Number(p.net_amount) > 0 && !p.refunds?.some(r => r.status === 'pending') && (
+                            <button
+                              onClick={() => {
+                                setRefundingId(refundingId === p.id ? null : p.id);
+                                setRefundAmount(p.net_amount); setRefundReason(''); setRefundError('');
+                              }}
+                              className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 hover:bg-rose-700 hover:text-white text-slate-500 transition-all"
+                            >
+                              {t('Refund', '返金', 'ফেরত')}
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
+                    {refundingId === p.id && (
+                      <tr className="bg-rose-50/50">
+                        <td colSpan={7} className="px-5 py-3.5">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-[11px] text-slate-500">
+                              {t('Retained so far:', '現在保持額:', 'এখন পর্যন্ত জমা:')} <b>{p.net_amount} {p.currency}</b>
+                            </span>
+                            <input
+                              type="number" min="0.01" max={p.net_amount} value={refundAmount}
+                              onChange={e => setRefundAmount(e.target.value)}
+                              className="w-28 px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/40"
+                            />
+                            <input
+                              type="text" placeholder={t('Reason (required)', '理由（必須）', 'কারণ (আবশ্যক)')}
+                              value={refundReason} onChange={e => setRefundReason(e.target.value)}
+                              className="flex-1 min-w-[180px] px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/40"
+                            />
+                            <button
+                              onClick={() => requestRefund.mutate({ id: p.id, amount: refundAmount, reason: refundReason })}
+                              disabled={requestRefund.isPending || Number(refundAmount) <= 0 || refundReason.trim().length === 0}
+                              className="px-3 py-1.5 bg-rose-700 hover:bg-rose-800 text-white rounded-lg text-xs font-bold disabled:opacity-40"
+                            >
+                              {t('Request Refund', '返金を申請', 'ফেরত অনুরোধ করুন')}
+                            </button>
+                            <button onClick={() => setRefundingId(null)} className="text-xs text-slate-400 hover:text-slate-600">
+                              {t('Cancel', 'キャンセル', 'বাতিল')}
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-1.5">
+                            {t('Sent to Admin for approval — nothing is deducted until approved.', '承認のため本部へ送信されます。承認されるまで差し引かれません。', 'অনুমোদনের জন্য Admin-এর কাছে পাঠানো হবে — অনুমোদনের আগে কিছু বাদ যাবে না।')}
+                          </p>
+                          {refundError && <p className="text-xs text-rose-600 mt-1">{refundError}</p>}
+                        </td>
+                      </tr>
+                    )}
+                    {ledgerRoll === p.student_roll && p.student_roll && (
+                      <tr className="bg-indigo-50/40">
+                        <td colSpan={7} className="px-5 py-3.5">
+                          {ledgerLoading ? (
+                            <span className="text-[11px] text-slate-400">{t('Loading…', '読み込み中…', 'লোড হচ্ছে…')}</span>
+                          ) : ledger && (
+                            <div>
+                              <div className="flex items-center gap-4 mb-2">
+                                <span className="text-[11px] text-slate-500">
+                                  {t('Roll', 'ロール', 'রোল')} <b>{p.student_roll}</b> — {ledger.memo_count} {t('memos', 'つの伝票', 'টা মেমো')}
+                                </span>
+                                <span className="text-xs font-bold text-indigo-700">
+                                  {t('Total Paid:', '合計支払額:', 'মোট পরিশোধ:')} {ledger.total_paid} {p.currency}
+                                </span>
+                                <button onClick={() => setLedgerRoll(null)} className="text-xs text-slate-400 hover:text-slate-600 ml-auto">
+                                  {t('Close', '閉じる', 'বন্ধ করুন')}
+                                </button>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {ledger.memos.map(m => (
+                                  <span key={m.id} className="text-[11px] px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-600">
+                                    {m.category?.label ?? '—'}: <b>{m.amount} {m.currency}</b>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
                     {collectingId === p.id && (
                       <tr className="bg-slate-50/70">
                         <td colSpan={7} className="px-5 py-3.5">
