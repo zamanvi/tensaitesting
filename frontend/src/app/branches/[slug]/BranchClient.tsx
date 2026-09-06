@@ -45,6 +45,15 @@ export default function BranchPage() {
   const [activeGalleryId, setActiveGalleryId] = useState<number | null>(null);
   const [showAllGallery, setShowAllGallery]   = useState(false);
   const [hq, setHq] = useState<{ support_phone?: string; support_whatsapp?: string; support_email?: string } | null>(null);
+  const [expandedBios, setExpandedBios] = useState<Set<number>>(new Set());
+
+  function toggleBio(id: number) {
+    setExpandedBios(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
 
   const activeGalleryItem = branch?.gallery.find(g => g.id === activeGalleryId) ?? null;
   const displayedGallery  = branch ? (showAllGallery ? branch.gallery : branch.gallery.slice(0, 12)) : [];
@@ -236,10 +245,25 @@ export default function BranchPage() {
                       {m.role}
                     </p>
                   )}
-                  {m.bio
-                    ? <p className="text-white/55 text-sm mt-3 leading-relaxed line-clamp-2">{m.bio}</p>
-                    : m.role && <p className="text-white/35 text-xs mt-3">{ja ? 'お気軽にご相談ください' : bn ? 'পরামর্শের জন্য যোগাযোগ করুন' : 'Available for consultation'}</p>
-                  }
+                  {m.bio ? (
+                    <div className="mt-3">
+                      <p className={`text-white/55 text-sm leading-relaxed ${expandedBios.has(m.id) ? '' : 'line-clamp-2'}`}>
+                        {m.bio}
+                      </p>
+                      {m.bio.length > 90 && (
+                        <button
+                          onClick={() => toggleBio(m.id)}
+                          className="text-green-400 hover:text-green-300 text-xs font-semibold mt-1.5"
+                        >
+                          {expandedBios.has(m.id)
+                            ? (ja ? '閉じる' : bn ? 'কম দেখুন' : 'Show less')
+                            : (ja ? 'もっと見る' : bn ? 'আরও দেখুন' : 'Read more')}
+                        </button>
+                      )}
+                    </div>
+                  ) : m.role && (
+                    <p className="text-white/35 text-xs mt-3">{ja ? 'お気軽にご相談ください' : bn ? 'পরামর্শের জন্য যোগাযোগ করুন' : 'Available for consultation'}</p>
+                  )}
                 </div>
               ))}
             </div>
