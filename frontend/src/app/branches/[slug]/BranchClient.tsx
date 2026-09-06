@@ -246,18 +246,26 @@ export default function BranchPage() {
                     </p>
                   )}
                   {m.bio ? (
-                    <div className="mt-3">
-                      <p className={`text-white/55 text-sm leading-relaxed ${expandedBios.has(m.id) ? '' : 'line-clamp-2'}`}>
+                    <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                      <p className={`text-white/55 text-sm leading-relaxed ${
+                        expandedBios.has(m.id) ? 'text-left' : 'line-clamp-2'
+                      }`}>
                         {m.bio}
                       </p>
                       {m.bio.length > 90 && (
                         <button
                           onClick={() => toggleBio(m.id)}
-                          className="text-green-400 hover:text-green-300 text-xs font-semibold mt-1.5"
+                          className="inline-flex items-center gap-1 text-green-400 hover:text-green-300 text-xs font-semibold mt-2.5 transition-colors"
                         >
                           {expandedBios.has(m.id)
                             ? (ja ? '閉じる' : bn ? 'কম দেখুন' : 'Show less')
                             : (ja ? 'もっと見る' : bn ? 'আরও দেখুন' : 'Read more')}
+                          <svg
+                            className={`w-3 h-3 transition-transform ${expandedBios.has(m.id) ? 'rotate-180' : ''}`}
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                          </svg>
                         </button>
                       )}
                     </div>
