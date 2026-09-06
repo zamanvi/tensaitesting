@@ -1,6 +1,14 @@
 'use client';
 
+import { useLang } from '@/context/LanguageContext';
+import Link from 'next/link';
+
 export default function EmotionalStorySection() {
+  // A Bangla-reading visitor doesn't need the English gloss right below it —
+  // that was making everyone read the same one sentence twice. Kept for
+  // en/ja visitors, who do need it to understand the Bangla headline above.
+  const { lang } = useLang();
+
   return (
     <section className="relative flex items-center justify-center py-10 sm:py-16 px-4 overflow-hidden">
       {/* Soft background gradient & orbs */}
@@ -45,12 +53,14 @@ export default function EmotionalStorySection() {
         </div>
 
         {/* English translation with softer styling */}
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 sm:p-8 md:p-10 backdrop-blur-sm mb-6 sm:mb-12">
-          <p className="text-center text-white/70 text-sm sm:text-lg leading-relaxed font-light">
-            <span className="text-white/40 text-xs uppercase tracking-widest block mb-2 sm:mb-3">English Translation</span>
-            "Forget the fear of unknown paths. To make your journey abroad truly smooth and safe—<span className="text-green-400 font-semibold">Tensai is always your trusted companion</span>, guiding you every step of the way."
-          </p>
-        </div>
+        {lang !== 'bn' && (
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 sm:p-8 md:p-10 backdrop-blur-sm mb-6 sm:mb-12">
+            <p className="text-center text-white/70 text-sm sm:text-lg leading-relaxed font-light">
+              <span className="text-white/40 text-xs uppercase tracking-widest block mb-2 sm:mb-3">English Translation</span>
+              "Forget the fear of unknown paths. To make your journey abroad truly smooth and safe—<span className="text-green-400 font-semibold">Tensai is always your trusted companion</span>, guiding you every step of the way."
+            </p>
+          </div>
+        )}
 
         {/* What this means section */}
         <div className="grid sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-12">
@@ -75,10 +85,10 @@ export default function EmotionalStorySection() {
           <p className="text-white/40 text-xs sm:text-sm mb-4 sm:mb-6">
             Ready to start your global journey with confidence?
           </p>
-          <button className="group relative inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r from-green-600 to-green-500 text-white font-bold text-sm hover:from-green-500 hover:to-green-400 transition-all duration-300 glow-green hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300 active:scale-95">
+          <Link href="/auth/register" className="group relative inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r from-green-600 to-green-500 text-white font-bold text-sm hover:from-green-500 hover:to-green-400 transition-all duration-300 glow-green hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300 active:scale-95">
             <span>Begin Your Journey</span>
             <span className="group-hover:translate-x-1 transition-transform">→</span>
-          </button>
+          </Link>
         </div>
 
         {/* Bottom accent line */}

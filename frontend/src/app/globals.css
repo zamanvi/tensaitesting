@@ -126,7 +126,12 @@ body {
 }
 
 .glass-nav {
-  background: rgba(13, 17, 23, 0.75);
+  /* Near-opaque on purpose: backdrop-filter blur doesn't render in every
+     browser/context, and at 0.75 alone the page content scrolling underneath
+     was clearly readable through the header (headings, badges, star ratings
+     bleeding into the nav bar). This stays solid-looking whether or not the
+     blur actually applies. */
+  background: rgba(13, 17, 23, 0.97);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);

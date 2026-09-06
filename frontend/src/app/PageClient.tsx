@@ -42,6 +42,9 @@ export default function HomePageClient() {
   const [featured, setFeatured] = useState<GalleryItem[]>([]);
   const [galleryLoading, setGalleryLoading] = useState(true);
   const [galleryError, setGalleryError] = useState(false);
+  // All 5 testimonials stacked full-height on mobile made this one section a
+  // very long scroll — nothing removed, just collapsed behind a toggle.
+  const [showAllTestimonials, setShowAllTestimonials] = useState(false);
 
   const { data: settings } = useQuery<SiteSettings>({
     queryKey: ['public-settings'],
@@ -503,7 +506,7 @@ export default function HomePageClient() {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {TESTIMONIALS.map((tm, idx) => (
+              {(showAllTestimonials ? TESTIMONIALS : TESTIMONIALS.slice(0, 4)).map((tm, idx) => (
                 <div key={tm.name} className={`glass-card rounded-2xl p-6 flex flex-col gap-4 border ${tm.border} border-l-4 relative ${idx === 0 ? 'ring-1 ring-amber-500/30' : ''}`} style={{borderLeftColor: idx === 0 ? '#d97706' : 'inherit'}}>
                   <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
                   {idx === 0 && <div className="absolute -top-2 -right-2 text-amber-400 font-black">⭐</div>}
@@ -527,6 +530,18 @@ export default function HomePageClient() {
                 </div>
               ))}
             </div>
+            {TESTIMONIALS.length > 4 && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={() => setShowAllTestimonials(v => !v)}
+                  className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors"
+                >
+                  {showAllTestimonials
+                    ? (ja ? '閉じる' : bn ? 'কম দেখুন' : 'Show less')
+                    : (ja ? 'すべてのレビューを見る' : bn ? 'সব রিভিউ দেখুন' : `Show ${TESTIMONIALS.length - 4} more`)}
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
