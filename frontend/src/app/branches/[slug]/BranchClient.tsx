@@ -224,7 +224,11 @@ export default function BranchPage() {
             <p className="text-white/50 text-fluid-base mb-6">
               {ja ? 'あなたの留学をサポートする専門家チーム' : bn ? 'এরাই আপনার বিদেশে পড়াশোনার পথ সহজ করবেন' : 'The people who will guide you every step of the way.'}
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
+            {/* items-start: without it, CSS Grid stretches every card in a
+                row to match the tallest one — so expanding one person's long
+                bio was leaving huge empty space inside their short-bio
+                neighbors in the same row. */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 items-start">
               {branch.team.map(m => (
                 <div key={m.id}
                   className="text-center p-6 rounded-2xl bg-white/[0.03] border border-white/[0.07] hover:border-green-500/25 hover:bg-white/[0.045] transition-all">
