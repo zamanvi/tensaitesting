@@ -68,7 +68,7 @@ export default function BranchSettlementPage() {
   const transfers = data?.transfers ?? [];
 
   return (
-    <BranchLayout title={t('Settlement', '精算', 'সেটেলমেন্ট')}>
+    <BranchLayout title={t('Balance', '残高', 'ব্যালেন্স')}>
       <div className="max-w-3xl space-y-6">
 
         {/* ── Balance cards ── */}
