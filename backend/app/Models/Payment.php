@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class Payment extends Model
 {
@@ -29,7 +28,7 @@ class Payment extends Model
     protected static function booted(): void
     {
         static::creating(function (Payment $payment) {
-            $payment->receipt_no = 'RCPT-' . date('Y') . '-' . strtoupper(Str::random(8));
+            $payment->receipt_no = self::generateReceiptNo($payment);
 
             // total_amount defaults to amount and vice versa — whichever side
             // was left blank is assumed to mean "same as the other", i.e. paid
@@ -55,6 +54,32 @@ class Payment extends Model
                 ]);
             }
         });
+    }
+
+    /**
+     * RCPT-{BRANCH}-{ROLL}-{N} — e.g. RCPT-PABNA-42-1, then RCPT-PABNA-42-2
+     * for that same student's next memo. Branch name (first word, so "Pabna
+     * Branch" -> PABNA) and the student's own roll make it something staff
+     * can actually recall or search for, instead of a random 8-char code;
+     * the trailing sequence is what keeps one student's several memos from
+     * colliding on the same number. Main Branch (branch_id null) uses "HO".
+     */
+    private static function generateReceiptNo(Payment $payment): string
+    {
+        $branchLabel = 'HO';
+        if ($payment->branch_id) {
+            $branchName = Branch::find($payment->branch_id)?->name ?? 'BRANCH';
+            $firstWord  = explode(' ', trim($branchName))[0] ?? $branchName;
+            $branchLabel = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $firstWord)) ?: 'BRANCH';
+        }
+
+        $roll = strtoupper(preg_replace('/\s+/', '', (string) $payment->student_roll)) ?: '0';
+
+        $sequence = static::where('branch_id', $payment->branch_id)
+            ->where('student_roll', $payment->student_roll)
+            ->count() + 1;
+
+        return "RCPT-{$branchLabel}-{$roll}-{$sequence}";
     }
 
     public function collections(): HasMany
