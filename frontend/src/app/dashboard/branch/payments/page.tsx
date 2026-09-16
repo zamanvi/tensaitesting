@@ -532,6 +532,11 @@ export default function BranchPaymentsPage() {
                             {t('Refund pending approval', '返金申請中', 'ফেরত অনুমোদনের অপেক্ষায়')}
                           </p>
                         )}
+                        {p.refunds?.[0]?.status === 'rejected' && (
+                          <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                            {t('Refund rejected', '返金は却下されました', 'ফেরত অনুরোধ প্রত্যাখ্যাত')}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-3.5">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_BADGE[p.status]}`}>
