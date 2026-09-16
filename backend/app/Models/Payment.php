@@ -57,29 +57,31 @@ class Payment extends Model
     }
 
     /**
-     * RCPT-{BRANCH}-{ROLL}-{N} — e.g. RCPT-PABNA-42-1, then RCPT-PABNA-42-2
-     * for that same student's next memo. Branch name (first word, so "Pabna
-     * Branch" -> PABNA) and the student's own roll make it something staff
-     * can actually recall or search for, instead of a random 8-char code;
-     * the trailing sequence is what keeps one student's several memos from
-     * colliding on the same number. Main Branch (branch_id null) uses "HO".
+     * RCPT-{ROLL}-{NAME}-{N} — e.g. RCPT-42-RAHIM-1, then RCPT-42-RAHIM-2 for
+     * that same student's next memo. Roll + first name is what staff already
+     * know and can recall or search for, instead of a random 8-char code;
+     * the trailing sequence (1st, 2nd, ... memo for this student) is what
+     * keeps their several memos from colliding on the same number. A Bangla
+     * name is kept as-is rather than forced into Latin transliteration.
+     *
+     * Not branch-prefixed: two different branches could in theory produce
+     * the same string for two different people (same roll + same first
+     * name at each) — accepted, since branch admin only ever sees its own
+     * memos, and Head Office can already filter the Memos table by Branch
+     * when searching across all of them.
      */
     private static function generateReceiptNo(Payment $payment): string
     {
-        $branchLabel = 'HO';
-        if ($payment->branch_id) {
-            $branchName = Branch::find($payment->branch_id)?->name ?? 'BRANCH';
-            $firstWord  = explode(' ', trim($branchName))[0] ?? $branchName;
-            $branchLabel = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $firstWord)) ?: 'BRANCH';
-        }
-
         $roll = strtoupper(preg_replace('/\s+/', '', (string) $payment->student_roll)) ?: '0';
+
+        $firstName = explode(' ', trim((string) $payment->customer_name))[0] ?? '';
+        $name = strtoupper(str_replace('-', '', $firstName)) ?: 'CUSTOMER';
 
         $sequence = static::where('branch_id', $payment->branch_id)
             ->where('student_roll', $payment->student_roll)
             ->count() + 1;
 
-        return "RCPT-{$branchLabel}-{$roll}-{$sequence}";
+        return "RCPT-{$roll}-{$name}-{$sequence}";
     }
 
     public function collections(): HasMany
