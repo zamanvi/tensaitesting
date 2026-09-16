@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\StatementController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,4 +31,11 @@ Route::get('/admin/form-templates/create', function () {
 // tab) can open the same URL — the signature itself is the authorization.
 Route::get('/receipts/{payment}', [ReceiptController::class, 'show'])
     ->name('receipts.show')
+    ->middleware('signed');
+
+// Printable month-end (or any range) statement — every memo in a period,
+// bank-statement style, for handing to the CEO. Same signed-link pattern
+// as the receipt print above.
+Route::get('/statements/memos', [StatementController::class, 'show'])
+    ->name('statements.memos')
     ->middleware('signed');
