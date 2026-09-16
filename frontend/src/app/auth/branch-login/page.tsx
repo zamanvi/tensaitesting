@@ -63,21 +63,6 @@ function BranchLoginInner() {
           <p className="text-slate-400 text-sm leading-relaxed">
             Sign in with your manager credentials to access the branch dashboard.
           </p>
-
-          {/* Divider */}
-          <div className="mt-8 border-t border-white/5 pt-8 space-y-4">
-            {[
-              { icon: '📋', text: 'Manage student applications' },
-              { icon: '👥', text: 'Track your team members' },
-              { icon: '📊', text: 'View real-time statistics' },
-              { icon: '⚙️', text: 'Update branch information' },
-            ].map(item => (
-              <div key={item.text} className="flex items-center gap-3">
-                <span className="text-base leading-none shrink-0">{item.icon}</span>
-                <span className="text-sm text-slate-300">{item.text}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Bottom */}
@@ -116,9 +101,6 @@ function BranchLoginInner() {
               <span className="text-xs font-semibold text-green-600 uppercase tracking-widest">Branch Manager</span>
             </div>
             <h1 className="text-xl font-black text-slate-900">Sign in to your account</h1>
-            <p className="text-slate-400 text-xs mt-1">
-              Use your manager name and password
-            </p>
           </div>
 
           <div className="p-7">
