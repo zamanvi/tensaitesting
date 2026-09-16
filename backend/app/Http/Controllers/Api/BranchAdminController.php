@@ -674,6 +674,17 @@ class BranchAdminController extends Controller
             ->where('status', 'received')
             ->sum('amount');
 
+        // What this branch has earned and keeps for itself (Branch Fund
+        // memos), net of refunds on those same memos — shown alongside the
+        // HO-owed figure so the branch sees its own revenue too, not just
+        // what it owes.
+        $kept = Payment::where('branch_id', $branch->id)
+            ->where('fund_target', 'branch')
+            ->sum('amount');
+        $keptRefunded = Refund::approved()
+            ->whereHas('payment', fn ($q) => $q->where('branch_id', $branch->id)->where('fund_target', 'branch'))
+            ->sum('amount');
+
         $transfers = FundTransfer::where('branch_id', $branch->id)
             ->latest()
             ->get();
@@ -683,6 +694,7 @@ class BranchAdminController extends Controller
             // a memo got refunded after HO already received that money, so HO
             // now owes the branch back instead.
             'payable_balance' => round((float) $collected - (float) $refunded - (float) $settled, 2),
+            'kept_by_branch'  => round(max((float) $kept - (float) $keptRefunded, 0), 2),
             'transfers'       => $transfers,
         ]);
     }

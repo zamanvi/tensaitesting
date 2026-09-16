@@ -21,6 +21,7 @@ interface FundTransfer {
 
 interface FundTransfersResponse {
   payable_balance: number;
+  kept_by_branch: number;
   transfers: FundTransfer[];
 }
 
@@ -63,25 +64,42 @@ export default function BranchSettlementPage() {
   if (!user || !isBranchAdmin) return null;
 
   const balance = data?.payable_balance ?? 0;
+  const kept = data?.kept_by_branch ?? 0;
   const transfers = data?.transfers ?? [];
 
   return (
     <BranchLayout title={t('Settlement', '精算', 'সেটেলমেন্ট')}>
       <div className="max-w-3xl space-y-6">
 
-        {/* ── Balance card ── */}
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6">
-          <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">
-            {t('Owed to Head Office', '本部への未払い残高', 'হেড অফিসের পাওনা')}
-          </p>
-          {isLoading ? (
-            <div className="h-9 w-32 bg-indigo-100 rounded animate-pulse" />
-          ) : (
-            <p className="text-3xl font-black text-slate-900 tabular-nums">{balance.toLocaleString()} <span className="text-base font-bold text-slate-500">BDT</span></p>
-          )}
-          <p className="text-xs text-indigo-500 mt-2">
-            {t('Collected on behalf of head office, minus what you\'ve already sent.', '本部の代わりに徴収した額から、すでに送金した額を差し引いたもの。', 'হেড অফিসের পক্ষে সংগ্রহ করা টাকা, বাদ দিয়ে যা ইতিমধ্যে পাঠানো হয়েছে।')}
-          </p>
+        {/* ── Balance cards ── */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="bg-green-50 border border-green-100 rounded-2xl p-6">
+            <p className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">
+              {t('Kept by Your Branch', '自branch保有額', 'আপনার Branch-এ রাখা')}
+            </p>
+            {isLoading ? (
+              <div className="h-9 w-32 bg-green-100 rounded animate-pulse" />
+            ) : (
+              <p className="text-3xl font-black text-slate-900 tabular-nums">{kept.toLocaleString()} <span className="text-base font-bold text-slate-500">BDT</span></p>
+            )}
+            <p className="text-xs text-green-600 mt-2">
+              {t('Your own revenue — this stays with your branch, nothing to send.', '自分の branch の収益 — 送金の必要はありません。', 'আপনার নিজের আয় — এটা আপনার branch-এই থাকবে, পাঠানোর দরকার নেই।')}
+            </p>
+          </div>
+
+          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6">
+            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">
+              {t('Owed to Head Office', '本部への未払い残高', 'হেড অফিসের পাওনা')}
+            </p>
+            {isLoading ? (
+              <div className="h-9 w-32 bg-indigo-100 rounded animate-pulse" />
+            ) : (
+              <p className="text-3xl font-black text-slate-900 tabular-nums">{balance.toLocaleString()} <span className="text-base font-bold text-slate-500">BDT</span></p>
+            )}
+            <p className="text-xs text-indigo-500 mt-2">
+              {t('Collected on behalf of head office, minus what you\'ve already sent.', '本部の代わりに徴収した額から、すでに送金した額を差し引いたもの。', 'হেড অফিসের পক্ষে সংগ্রহ করা টাকা, বাদ দিয়ে যা ইতিমধ্যে পাঠানো হয়েছে।')}
+            </p>
+          </div>
         </div>
 
         {/* ── Transfer entry ── */}
