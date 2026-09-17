@@ -28,6 +28,12 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class BranchBalanceSummaryWidget extends BaseWidget
 {
+    // Filament lazy-loads widgets by default (blank placeholder first,
+    // then a follow-up Livewire request fills it in). That follow-up
+    // request was failing silently in production with no visible error —
+    // rendering eagerly, in the initial page response, sidesteps it.
+    protected static bool $isLazy = false;
+
     protected static ?string $heading = 'Owed to Head Office, by Branch';
 
     protected int | string | array $columnSpan = 'full';

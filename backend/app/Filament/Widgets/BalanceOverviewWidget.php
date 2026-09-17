@@ -17,6 +17,12 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
  */
 class BalanceOverviewWidget extends BaseWidget
 {
+    // Filament lazy-loads widgets by default (blank placeholder first,
+    // then a follow-up Livewire request fills it in). That follow-up
+    // request was failing silently in production with no visible error —
+    // rendering eagerly, in the initial page response, sidesteps it.
+    protected static bool $isLazy = false;
+
     protected function getStats(): array
     {
         $branchCollectedHo = (float) Payment::whereNotNull('branch_id')
