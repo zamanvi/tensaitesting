@@ -151,7 +151,7 @@ class PaymentResource extends Resource
                     }),
 
                 Forms\Components\Select::make('method')
-                    ->options(['cash' => 'Cash', 'bank' => 'Bank'])
+                    ->options(['cash' => 'Cash', 'bank' => 'Bank', 'bkash' => 'bKash', 'nagad' => 'Nagad', 'rocket' => 'Rocket'])
                     ->default('cash')
                     ->required()
                     ->native(false),
@@ -253,7 +253,9 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('method')
                     ->badge()
                     ->color('gray')
-                    ->formatStateUsing(fn ($state) => ucfirst($state)),
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'bkash' => 'bKash', 'nagad' => 'Nagad', 'rocket' => 'Rocket', default => ucfirst($state),
+                    }),
 
                 Tables\Columns\TextColumn::make('refund_status')
                     ->label('Refund')

@@ -112,7 +112,7 @@
         </div>
         <div class="row">
           <span class="row-label">Payment Method</span>
-          <span class="row-value" style="text-transform: capitalize;">{{ $payment->method }}</span>
+          <span class="row-value">{{ ['bkash' => 'bKash', 'nagad' => 'Nagad', 'rocket' => 'Rocket'][$payment->method] ?? ucfirst($payment->method) }}</span>
         </div>
         @if($payment->application)
         <div class="row">

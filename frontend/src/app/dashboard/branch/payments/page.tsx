@@ -34,7 +34,7 @@ interface Payment {
   due_amount: string;
   status: 'due' | 'partial' | 'paid';
   currency: string;
-  method: 'cash' | 'bank';
+  method: 'cash' | 'bank' | 'bkash' | 'nagad' | 'rocket';
   customer_name: string;
   fund_target: 'branch' | 'head_office';
   ho_settlement: 'settled' | 'pending' | 'refunded' | null;
@@ -93,7 +93,7 @@ export default function BranchPaymentsPage() {
   const [categoryId, setCategoryId]       = useState<number | ''>('');
   const [totalAmount, setTotalAmount]     = useState('');
   const [paidNow, setPaidNow]             = useState('');
-  const [method, setMethod]               = useState<'cash' | 'bank'>('cash');
+  const [method, setMethod]               = useState<'cash' | 'bank' | 'bkash' | 'nagad' | 'rocket'>('cash');
   const [customerName, setCustomerName]   = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -386,11 +386,14 @@ export default function BranchPaymentsPage() {
               <div>
                 <label className="text-xs font-semibold text-slate-500 mb-1.5 block">{t('Method', '方法', 'পদ্ধতি')}</label>
                 <select
-                  value={method} onChange={e => setMethod(e.target.value as 'cash' | 'bank')}
+                  value={method} onChange={e => setMethod(e.target.value as 'cash' | 'bank' | 'bkash' | 'nagad' | 'rocket')}
                   className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-400 transition-all"
                 >
                   <option value="cash">{t('Cash', '現金', 'ক্যাশ')}</option>
                   <option value="bank">{t('Bank', '銀行', 'ব্যাংক')}</option>
+                  <option value="bkash">bKash</option>
+                  <option value="nagad">Nagad</option>
+                  <option value="rocket">Rocket</option>
                 </select>
               </div>
             </div>

@@ -97,7 +97,9 @@ class ViewPayment extends ViewRecord
                     ->color(fn ($state) => match ($state) {
                         'settled' => 'success', 'refunded' => 'gray', default => 'danger',
                     }),
-                TextEntry::make('method')->label('Method')->formatStateUsing(fn ($state) => ucfirst($state)),
+                TextEntry::make('method')->label('Method')->formatStateUsing(fn ($state) => match ($state) {
+                    'bkash' => 'bKash', 'nagad' => 'Nagad', 'rocket' => 'Rocket', default => ucfirst($state),
+                }),
                 TextEntry::make('receiver.name')->label('Received By')->placeholder('—'),
                 TextEntry::make('notes')->label('Notes')->placeholder('—')->columnSpanFull(),
             ]),

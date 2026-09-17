@@ -533,7 +533,7 @@ class BranchAdminController extends Controller
             // 0 is valid: a pure due invoice with nothing collected yet.
             'amount'               => 'nullable|numeric|min:0|lte:total_amount',
             'currency'             => 'nullable|string|size:3',
-            'method'               => 'required|in:cash,bank',
+            'method'               => 'required|in:cash,bank,bkash,nagad,rocket',
             'customer_name'        => 'required_without:application_id|nullable|string|max:255',
             'customer_phone'       => 'nullable|string|max:30',
             'customer_email'       => 'nullable|email|max:255',
