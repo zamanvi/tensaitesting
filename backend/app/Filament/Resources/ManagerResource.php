@@ -52,8 +52,16 @@ class ManagerResource extends Resource
                     ->placeholder('e.g. Revenue Manager')
                     ->helperText('A label for what this account is for — shown next to their sections.')
                     ->maxLength(100),
+                // Only shown when editing — on create, a username (stored in
+                // the `email` column, since that's what the manager panel's
+                // login form asks for) is generated automatically from the
+                // name (see CreateManager), the same as the password.
                 Forms\Components\TextInput::make('email')
-                    ->email()->required()->unique(ignoreRecord: true),
+                    ->label('Username')
+                    ->email()->unique(ignoreRecord: true)
+                    ->required(fn (string $operation) => $operation === 'edit')
+                    ->hidden(fn (string $operation) => $operation === 'create')
+                    ->dehydrated(fn (string $operation) => $operation === 'edit'),
                 // Only shown when editing — on create, a password is
                 // generated automatically (see CreateManager) rather than
                 // typed by Admin. On edit, filling this resets it manually;
@@ -87,10 +95,20 @@ class ManagerResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('designation')->placeholder('—')->searchable(),
-                Tables\Columns\TextColumn::make('email')->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Username')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Username copied'),
                 Tables\Columns\TextColumn::make('manager_sections')
                     ->label('Sections')
-                    ->formatStateUsing(fn ($state) => is_array($state) ? implode(', ', $state) : '—')
+                    // Read straight off the model (guaranteed a real array via
+                    // its 'array' cast) rather than trusting whatever raw
+                    // $state the table column pipeline hands over — that was
+                    // showing '—' for every manager despite sections being
+                    // saved correctly (confirmed via the Edit form).
+                    ->getStateUsing(fn (User $record) => $record->manager_sections ?? [])
+                    ->formatStateUsing(fn ($state) => filled($state) ? implode(', ', $state) : '—')
                     ->wrap(),
                 Tables\Columns\TextColumn::make('manager_plain_password')
                     ->label('Password')
