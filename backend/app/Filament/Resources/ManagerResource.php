@@ -47,13 +47,22 @@ class ManagerResource extends Resource
             Forms\Components\Section::make('Manager Account')->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()->maxLength(255),
+                Forms\Components\TextInput::make('designation')
+                    ->label('Designation')
+                    ->placeholder('e.g. Revenue Manager')
+                    ->helperText('A label for what this account is for — shown next to their sections.')
+                    ->maxLength(100),
                 Forms\Components\TextInput::make('email')
                     ->email()->required()->unique(ignoreRecord: true),
+                // Only shown when editing — on create, a password is
+                // generated automatically (see CreateManager) rather than
+                // typed by Admin. On edit, filling this resets it manually;
+                // left blank, the existing password is kept.
                 Forms\Components\TextInput::make('plain_password')
                     ->label('Password')
                     ->password()
                     ->revealable()
-                    ->required(fn (string $operation) => $operation === 'create')
+                    ->hidden(fn (string $operation) => $operation === 'create')
                     ->dehydrated(fn ($state) => filled($state))
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->helperText('Leave blank to keep existing password'),
@@ -77,6 +86,7 @@ class ManagerResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('designation')->placeholder('—')->searchable(),
                 Tables\Columns\TextColumn::make('email')->searchable(),
                 Tables\Columns\TextColumn::make('manager_sections')
                     ->label('Sections')
