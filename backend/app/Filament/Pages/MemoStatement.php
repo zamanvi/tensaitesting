@@ -35,6 +35,14 @@ class MemoStatement extends Page
     public ?int   $studentBranchId = null;
     public string $roll            = '';
 
+    // Third form — one row per student (roll, name, memo count, total
+    // paid) for a whole branch, instead of one student's own memo-by-memo
+    // detail. Optional date range narrows it to "students who paid in
+    // September", say.
+    public ?int    $rosterBranchId = null;
+    public ?string $rosterFrom     = null;
+    public ?string $rosterUntil    = null;
+
     public function mount(): void
     {
         $this->from  = now()->startOfMonth()->toDateString();
@@ -84,6 +92,23 @@ class MemoStatement extends Page
         $url = URL::temporarySignedRoute('statements.student', now()->addMinutes(30), [
             'branch_id' => $this->studentBranchId,
             'roll'      => $this->roll,
+        ]);
+
+        $this->dispatch('open-statement', url: $url);
+    }
+
+    public function openRosterStatement(): void
+    {
+        $this->validate([
+            'rosterBranchId' => 'required|integer|exists:branches,id',
+            'rosterFrom'     => 'nullable|date',
+            'rosterUntil'    => 'nullable|date|after_or_equal:rosterFrom',
+        ]);
+
+        $url = URL::temporarySignedRoute('statements.roster', now()->addMinutes(30), [
+            'branch_id' => $this->rosterBranchId,
+            'from'      => $this->rosterFrom,
+            'until'     => $this->rosterUntil,
         ]);
 
         $this->dispatch('open-statement', url: $url);

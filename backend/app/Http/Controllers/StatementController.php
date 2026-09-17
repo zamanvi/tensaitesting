@@ -65,4 +65,40 @@ class StatementController extends Controller
             'total'        => (float) $payments->sum(fn (Payment $p) => (float) $p->net_amount),
         ]);
     }
+
+    // One row per student in a branch — roll, name, memo count, total paid —
+    // instead of one student's own memo-by-memo detail. Memos with no roll
+    // (old, pre-Student-Roll data) don't belong to any one student, so
+    // they're excluded rather than lumped under a blank row.
+    public function showRoster(Request $request): View
+    {
+        $branch = Branch::findOrFail($request->integer('branch_id'));
+        $from   = $request->date('from');
+        $until  = $request->date('until');
+
+        $payments = Payment::where('branch_id', $branch->id)
+            ->whereNotNull('student_roll')
+            ->when($from, fn ($q) => $q->whereDate('created_at', '>=', $from->toDateString()))
+            ->when($until, fn ($q) => $q->whereDate('created_at', '<=', $until->toDateString()))
+            ->with(['refunds' => fn ($q) => $q->approved()])
+            ->get();
+
+        $students = $payments->groupBy('student_roll')
+            ->map(fn ($memos, $roll) => [
+                'roll'       => $roll,
+                'name'       => $memos->first()->customer_name,
+                'memoCount'  => $memos->count(),
+                'totalPaid'  => (float) $memos->sum(fn (Payment $p) => (float) $p->net_amount),
+            ])
+            ->sortBy('roll', SORT_NATURAL)
+            ->values();
+
+        return view('statements.roster-print', [
+            'students'  => $students,
+            'branch'    => $branch,
+            'from'      => $from,
+            'until'     => $until,
+            'grandTotal' => $students->sum('totalPaid'),
+        ]);
+    }
 }

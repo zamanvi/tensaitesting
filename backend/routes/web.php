@@ -43,3 +43,7 @@ Route::get('/statements/memos', [StatementController::class, 'show'])
 Route::get('/statements/student', [StatementController::class, 'showStudent'])
     ->name('statements.student')
     ->middleware('signed');
+
+Route::get('/statements/roster', [StatementController::class, 'showRoster'])
+    ->name('statements.roster')
+    ->middleware('signed');
