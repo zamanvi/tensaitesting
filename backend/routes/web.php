@@ -39,3 +39,7 @@ Route::get('/receipts/{payment}', [ReceiptController::class, 'show'])
 Route::get('/statements/memos', [StatementController::class, 'show'])
     ->name('statements.memos')
     ->middleware('signed');
+
+Route::get('/statements/student', [StatementController::class, 'showStudent'])
+    ->name('statements.student')
+    ->middleware('signed');

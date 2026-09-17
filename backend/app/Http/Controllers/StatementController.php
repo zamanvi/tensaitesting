@@ -44,4 +44,25 @@ class StatementController extends Controller
             'headOfficeFund' => $headOfficeFund,
         ]);
     }
+
+    // Every memo for one student (branch + roll), regardless of category —
+    // the printable counterpart to the on-screen "Student Total" modal.
+    public function showStudent(Request $request): View
+    {
+        $branch = Branch::findOrFail($request->integer('branch_id'));
+        $roll   = (string) $request->query('roll');
+
+        $payments = Payment::forStudentRoll($branch->id, $roll)
+            ->with(['category:id,label', 'refunds' => fn ($q) => $q->approved()])
+            ->oldest()
+            ->get();
+
+        return view('statements.student-print', [
+            'payments'     => $payments,
+            'branch'       => $branch,
+            'roll'         => $roll,
+            'customerName' => $payments->first()?->customer_name ?? '—',
+            'total'        => (float) $payments->sum(fn (Payment $p) => (float) $p->net_amount),
+        ]);
+    }
 }

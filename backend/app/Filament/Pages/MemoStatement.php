@@ -28,6 +28,13 @@ class MemoStatement extends Page
     public ?string $until    = null;
     public ?int    $branchId = null;
 
+    // Second, separate form on this same page — a per-student printout
+    // (memo no., date, amount) instead of a whole period. Plain Livewire-
+    // bound properties rather than a second Filament form component, to
+    // keep two independent forms on one page simple.
+    public ?int   $studentBranchId = null;
+    public string $roll            = '';
+
     public function mount(): void
     {
         $this->from  = now()->startOfMonth()->toDateString();
@@ -46,6 +53,11 @@ class MemoStatement extends Page
         ])->columns(3);
     }
 
+    public function branches()
+    {
+        return Branch::query()->orderBy('name')->get(['id', 'name']);
+    }
+
     public function openStatement(): void
     {
         $this->validate([
@@ -57,6 +69,21 @@ class MemoStatement extends Page
             'from'      => $this->from,
             'until'     => $this->until,
             'branch_id' => $this->branchId,
+        ]);
+
+        $this->dispatch('open-statement', url: $url);
+    }
+
+    public function openStudentStatement(): void
+    {
+        $this->validate([
+            'studentBranchId' => 'required|integer|exists:branches,id',
+            'roll'            => 'required|string|max:50',
+        ]);
+
+        $url = URL::temporarySignedRoute('statements.student', now()->addMinutes(30), [
+            'branch_id' => $this->studentBranchId,
+            'roll'      => $this->roll,
         ]);
 
         $this->dispatch('open-statement', url: $url);
