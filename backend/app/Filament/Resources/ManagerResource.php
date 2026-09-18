@@ -43,6 +43,12 @@ class ManagerResource extends Resource
             $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
             if (!class_exists($class)) continue;
             if (in_array($class, [self::class, UserResource::class], true)) continue;
+            // Resources that don't register their own nav item (e.g. Memo
+            // Categories, reached only via a button inside Memos) aren't
+            // independently-visible "sections" — offering a checkbox for
+            // one would look real but grant access to a page nothing ever
+            // links to.
+            if (!$class::shouldRegisterNavigation()) continue;
 
             $group = $class::getNavigationGroup() ?? 'General';
             $options[$group][$class] = $class::getNavigationLabel();
