@@ -29,7 +29,7 @@ class PaymentCategoryResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole(['super_admin', 'admin']);
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
     }
 
     // A category with payment history can't be deleted (the payments table

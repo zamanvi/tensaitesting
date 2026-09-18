@@ -22,7 +22,10 @@ class UserResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole(['super_admin', 'admin']);
+        // See ManagerResource::canAccess() — the nullsafe call alone can
+        // return null (no authenticated user), which violates `: bool`
+        // and throws a 500 instead of a plain login redirect.
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
     }
 
     public static function form(Form $form): Form

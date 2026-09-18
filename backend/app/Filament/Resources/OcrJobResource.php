@@ -24,7 +24,7 @@ class OcrJobResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole(['super_admin', 'admin']);
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
     }
 
     public static function form(Form $form): Form

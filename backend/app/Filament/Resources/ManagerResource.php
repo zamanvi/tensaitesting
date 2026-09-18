@@ -22,7 +22,13 @@ class ManagerResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole(['super_admin', 'admin']);
+        // Cast, not just the nullsafe call alone — with no authenticated
+        // user (session expired, or Filament checking this during
+        // unauthenticated navigation resolution) auth()->user()?->hasRole()
+        // evaluates to null, which violates the `: bool` return type and
+        // throws a 500 instead of the plain "redirect to login" this page
+        // should get when logged out.
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
     }
     protected static ?string $slug = 'managers';
 
