@@ -25,6 +25,7 @@ class ManagerPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         $resources = $this->resolveResources();
+        $pages     = $this->resolvePages();
 
         return $panel
             ->id('manager')
@@ -45,6 +46,7 @@ class ManagerPanelProvider extends PanelProvider
             ])
             ->sidebarCollapsibleOnDesktop()
             ->resources($resources)
+            ->pages($pages)
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -89,5 +91,32 @@ class ManagerPanelProvider extends PanelProvider
         }
 
         return array_unique($resources);
+    }
+
+    // Custom Pages (not Resources) a Manager can be granted — Statement,
+    // All Services Fee, etc. Dashboard is always included: it's every
+    // manager's landing page, not something Admin grants per-account.
+    private function resolvePages(): array
+    {
+        $pages = [\App\Filament\Pages\Dashboard::class];
+
+        $user = auth('web')->user();
+        if (!$user || !$user instanceof User) {
+            return $pages;
+        }
+
+        $allowedResources = $user->manager_sections ?? [];
+
+        foreach (glob(app_path('Filament/Pages') . '/*.php') as $file) {
+            $class = 'App\\Filament\\Pages\\' . basename($file, '.php');
+            if (!class_exists($class)) continue;
+            if ($class === \App\Filament\Pages\Dashboard::class) continue;
+
+            if (in_array($class, $allowedResources, true)) {
+                $pages[] = $class;
+            }
+        }
+
+        return array_unique($pages);
     }
 }

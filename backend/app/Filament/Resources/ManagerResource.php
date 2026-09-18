@@ -31,28 +31,42 @@ class ManagerResource extends Resource
         return parent::getEloquentQuery()->whereHas('roles', fn ($q) => $q->where('name', 'manager'));
     }
 
-    // Every resource a Manager could conceivably be granted, grouped by nav
-    // group (feeds the nested CheckboxList below) — excludes ManagerResource
-    // and UserResource themselves, since canAccess() on both hard-blocks
-    // anyone without the admin/super_admin role regardless of what's
-    // checked here; offering them as options would just be a dead checkbox.
+    // Every resource AND custom page a Manager could conceivably be
+    // granted, grouped by nav group (feeds the nested CheckboxList below) —
+    // matches the Admin panel's own sidebar exactly (see
+    // ManagerPanelProvider::resolveResources()/resolvePages(), which read
+    // this same selection back at login time). Excludes: ManagerResource
+    // and UserResource, since canAccess() on both hard-blocks anyone
+    // without the admin/super_admin role regardless of what's checked
+    // here; Dashboard, which every manager gets automatically; and any
+    // resource/page that doesn't register its own nav item (e.g. Memo
+    // Categories, reached only via a button inside Memos) — those aren't
+    // independently-visible "sections", so a checkbox for one would look
+    // real but grant access to a page nothing ever links to.
     private static function discoverSectionOptions(): array
     {
         $options = [];
+
         foreach (glob(app_path('Filament/Resources/*.php')) as $file) {
             $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
             if (!class_exists($class)) continue;
             if (in_array($class, [self::class, UserResource::class], true)) continue;
-            // Resources that don't register their own nav item (e.g. Memo
-            // Categories, reached only via a button inside Memos) aren't
-            // independently-visible "sections" — offering a checkbox for
-            // one would look real but grant access to a page nothing ever
-            // links to.
             if (!$class::shouldRegisterNavigation()) continue;
 
             $group = $class::getNavigationGroup() ?? 'General';
             $options[$group][$class] = $class::getNavigationLabel();
         }
+
+        foreach (glob(app_path('Filament/Pages/*.php')) as $file) {
+            $class = 'App\\Filament\\Pages\\' . basename($file, '.php');
+            if (!class_exists($class)) continue;
+            if ($class === \App\Filament\Pages\Dashboard::class) continue;
+            if (!$class::shouldRegisterNavigation()) continue;
+
+            $group = $class::getNavigationGroup() ?? 'General';
+            $options[$group][$class] = $class::getNavigationLabel();
+        }
+
         ksort($options);
         foreach ($options as &$group) {
             asort($group);
