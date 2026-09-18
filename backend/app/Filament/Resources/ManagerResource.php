@@ -31,17 +31,33 @@ class ManagerResource extends Resource
         return parent::getEloquentQuery()->whereHas('roles', fn ($q) => $q->where('name', 'manager'));
     }
 
-    public static function form(Form $form): Form
+    // Every resource a Manager could conceivably be granted, grouped by nav
+    // group (feeds the nested CheckboxList below) — excludes ManagerResource
+    // and UserResource themselves, since canAccess() on both hard-blocks
+    // anyone without the admin/super_admin role regardless of what's
+    // checked here; offering them as options would just be a dead checkbox.
+    private static function discoverSectionOptions(): array
     {
-        // Auto-discover nav groups from all existing resources
-        $sections = [];
+        $options = [];
         foreach (glob(app_path('Filament/Resources/*.php')) as $file) {
             $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
             if (!class_exists($class)) continue;
+            if (in_array($class, [self::class, UserResource::class], true)) continue;
+
             $group = $class::getNavigationGroup() ?? 'General';
-            $sections[$group] = $group;
+            $options[$group][$class] = $class::getNavigationLabel();
         }
-        ksort($sections);
+        ksort($options);
+        foreach ($options as &$group) {
+            asort($group);
+        }
+
+        return $options;
+    }
+
+    public static function form(Form $form): Form
+    {
+        $sections = self::discoverSectionOptions();
 
         return $form->schema([
             Forms\Components\Section::make('Manager Account')->schema([
@@ -77,14 +93,14 @@ class ManagerResource extends Resource
             ])->columns(3),
 
             Forms\Components\Section::make('Assigned Sections')
-                ->description('Select which admin panel sections this manager can access.')
+                ->description('Select individual sections this manager can access — not whole groups at once.')
                 ->schema([
                     Forms\Components\CheckboxList::make('manager_sections')
                         ->label('')
                         ->options($sections)
-                        ->columns(4)
-                        ->required()
-                        ->gridDirection('row'),
+                        ->bulkToggleable()
+                        ->columns(3)
+                        ->required(),
                 ]),
         ]);
     }
@@ -107,7 +123,17 @@ class ManagerResource extends Resource
                     // $state the table column pipeline hands over — that was
                     // showing '—' for every manager despite sections being
                     // saved correctly (confirmed via the Edit form).
-                    ->getStateUsing(fn (User $record) => $record->manager_sections ?? [])
+                    // Stored values are resource class names (individual
+                    // sections, not whole groups) — mapped back to their
+                    // human label here rather than shown as raw class names.
+                    ->getStateUsing(function (User $record) {
+                        $classes = $record->manager_sections ?? [];
+                        return collect($classes)
+                            ->map(fn ($class) => class_exists($class) ? $class::getNavigationLabel() : null)
+                            ->filter()
+                            ->values()
+                            ->all();
+                    })
                     ->formatStateUsing(fn ($state) => filled($state) ? implode(', ', $state) : '—')
                     ->wrap(),
                 Tables\Columns\TextColumn::make('manager_plain_password')

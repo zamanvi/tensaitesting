@@ -69,10 +69,13 @@ class ManagerPanelProvider extends PanelProvider
             return [];
         }
 
-        $allowedSections = $user->manager_sections ?? [];
-        if (empty($allowedSections)) return [];
+        // manager_sections holds individual resource class names (each
+        // section picked one at a time on the Managers form), not whole
+        // nav groups — a Manager can be granted just Gallery without also
+        // getting Posts/News or Categories from the same Content group.
+        $allowedResources = $user->manager_sections ?? [];
+        if (empty($allowedResources)) return [];
 
-        // Auto-discover all resources from the Filament/Resources directory
         $resourcePath = app_path('Filament/Resources');
         $resources = [];
 
@@ -80,9 +83,7 @@ class ManagerPanelProvider extends PanelProvider
             $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
             if (!class_exists($class)) continue;
 
-            $group = $class::getNavigationGroup() ?? 'General';
-
-            if (in_array($group, $allowedSections)) {
+            if (in_array($class, $allowedResources, true)) {
                 $resources[] = $class;
             }
         }
