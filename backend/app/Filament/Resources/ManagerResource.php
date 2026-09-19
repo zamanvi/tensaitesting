@@ -63,7 +63,18 @@ class ManagerResource extends Resource
             foreach (glob(app_path($dir) . '/*.php') as $file) {
                 $class = $namespace . '\\' . basename($file, '.php');
                 if (!class_exists($class)) continue;
-                if (in_array($class, [self::class, UserResource::class, \App\Filament\Pages\Dashboard::class], true)) continue;
+                if (in_array($class, [
+                    self::class,
+                    UserResource::class,
+                    \App\Filament\Pages\Dashboard::class,
+                    // Statement is a printable report generated entirely
+                    // from Memo data (see MemoStatement's own doc comment)
+                    // — it has nothing of its own to grant. A manager with
+                    // Memos access gets it for free instead of it eating a
+                    // second checkbox that would always be ticked alongside
+                    // Memos anyway.
+                    \App\Filament\Pages\MemoStatement::class,
+                ], true)) continue;
                 if (!$class::shouldRegisterNavigation()) continue;
 
                 $group = $class::getNavigationGroup() ?? 'General';

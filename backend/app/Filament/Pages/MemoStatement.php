@@ -24,10 +24,14 @@ class MemoStatement extends Page
     protected static ?int    $navigationSort  = 2;
     protected static string  $view            = 'filament.pages.memo-statement';
 
+    // Not independently grantable (see ManagerResource::discoverSectionOptions())
+    // — this is a report generated purely from Memo data, so it rides on
+    // whatever access to Memos (PaymentResource) the manager already has,
+    // rather than needing its own separate checkbox.
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->hasRole(['super_admin', 'admin'])
-            || \App\Filament\Support\ManagerAccess::granted(static::class);
+            || \App\Filament\Support\ManagerAccess::granted(\App\Filament\Resources\PaymentResource::class);
     }
 
     public ?string $from     = null;

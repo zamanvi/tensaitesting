@@ -83,7 +83,11 @@ class ManagerPanelProvider extends PanelProvider
     }
 
     // Dashboard is always included — it's every manager's landing page, not
-    // something Admin grants per-account.
+    // something Admin grants per-account. MemoStatement is always
+    // registered too even though it isn't independently grantable
+    // (ManagerResource::discoverSectionOptions() excludes it) — its own
+    // canAccess() gates it on the Memos grant instead, but it still has to
+    // be registered here for that check to ever run at all.
     private function resolvePages(): array
     {
         $pages = array_values(array_filter(
@@ -91,6 +95,10 @@ class ManagerPanelProvider extends PanelProvider
             fn (string $class) => is_subclass_of($class, \Filament\Pages\Page::class)
         ));
 
-        return array_unique([\App\Filament\Pages\Dashboard::class, ...$pages]);
+        return array_unique([
+            \App\Filament\Pages\Dashboard::class,
+            \App\Filament\Pages\MemoStatement::class,
+            ...$pages,
+        ]);
     }
 }
