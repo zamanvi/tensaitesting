@@ -38,8 +38,7 @@ class ManagerResource extends Resource
     }
 
     // Every resource AND custom page a Manager could conceivably be
-    // granted, grouped by nav group (feeds the nested CheckboxList below) —
-    // matches the Admin panel's own sidebar exactly (see
+    // granted — matches the Admin panel's own sidebar exactly (see
     // ManagerPanelProvider::resolveResources()/resolvePages(), which read
     // this same selection back at login time). Excludes: ManagerResource
     // and UserResource, since canAccess() on both hard-blocks anyone
@@ -49,34 +48,33 @@ class ManagerResource extends Resource
     // Categories, reached only via a button inside Memos) — those aren't
     // independently-visible "sections", so a checkbox for one would look
     // real but grant access to a page nothing ever links to.
+    //
+    // Flat [class => "Group — Label"] rather than a nested [group =>
+    // [class => label]] array — Filament's CheckboxList in the installed
+    // version doesn't support grouped options the way Select does
+    // (isOptionDisabled() expects a string label and blew up on the
+    // group's sub-array). The group name folded into the label text still
+    // reads as grouped once sorted.
     private static function discoverSectionOptions(): array
     {
         $options = [];
 
-        foreach (glob(app_path('Filament/Resources/*.php')) as $file) {
-            $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
-            if (!class_exists($class)) continue;
-            if (in_array($class, [self::class, UserResource::class], true)) continue;
-            if (!$class::shouldRegisterNavigation()) continue;
+        $collect = function (string $dir, string $namespace) use (&$options) {
+            foreach (glob(app_path($dir) . '/*.php') as $file) {
+                $class = $namespace . '\\' . basename($file, '.php');
+                if (!class_exists($class)) continue;
+                if (in_array($class, [self::class, UserResource::class, \App\Filament\Pages\Dashboard::class], true)) continue;
+                if (!$class::shouldRegisterNavigation()) continue;
 
-            $group = $class::getNavigationGroup() ?? 'General';
-            $options[$group][$class] = $class::getNavigationLabel();
-        }
+                $group = $class::getNavigationGroup() ?? 'General';
+                $options[$class] = "{$group} — {$class::getNavigationLabel()}";
+            }
+        };
 
-        foreach (glob(app_path('Filament/Pages/*.php')) as $file) {
-            $class = 'App\\Filament\\Pages\\' . basename($file, '.php');
-            if (!class_exists($class)) continue;
-            if ($class === \App\Filament\Pages\Dashboard::class) continue;
-            if (!$class::shouldRegisterNavigation()) continue;
+        $collect('Filament/Resources', 'App\\Filament\\Resources');
+        $collect('Filament/Pages', 'App\\Filament\\Pages');
 
-            $group = $class::getNavigationGroup() ?? 'General';
-            $options[$group][$class] = $class::getNavigationLabel();
-        }
-
-        ksort($options);
-        foreach ($options as &$group) {
-            asort($group);
-        }
+        asort($options);
 
         return $options;
     }
@@ -119,12 +117,11 @@ class ManagerResource extends Resource
             ])->columns(3),
 
             Forms\Components\Section::make('Assigned Sections')
-                ->description('Select individual sections this manager can access — not whole groups at once.')
+                ->description('Select individual sections this manager can access.')
                 ->schema([
                     Forms\Components\CheckboxList::make('manager_sections')
                         ->label('')
                         ->options($sections)
-                        ->bulkToggleable()
                         ->columns(3)
                         ->required(),
                 ]),
