@@ -21,7 +21,7 @@ class MemoStatement extends Page
     protected static ?string $navigationIcon  = 'heroicon-o-document-chart-bar';
     protected static ?string $navigationLabel = 'Statement';
     protected static ?string $navigationGroup = 'Revenue';
-    protected static ?int    $navigationSort  = 5;
+    protected static ?int    $navigationSort  = 2;
     protected static string  $view            = 'filament.pages.memo-statement';
 
     public static function canAccess(): bool
