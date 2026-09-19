@@ -157,7 +157,14 @@ class ManagerResource extends Resource
                             ->values()
                             ->all();
                     })
-                    ->formatStateUsing(fn ($state) => filled($state) ? implode(', ', $state) : '—')
+                    // No formatStateUsing here — when a column's state is an
+                    // array, Filament already renders + joins each item on
+                    // its own (calling any formatStateUsing per item, a
+                    // single label string, not the whole array), which is
+                    // exactly what crashed: implode(', ', $state) expected an
+                    // array and got a string. placeholder() covers the
+                    // empty-array case instead.
+                    ->placeholder('—')
                     ->wrap(),
                 Tables\Columns\TextColumn::make('manager_plain_password')
                     ->label('Password')
