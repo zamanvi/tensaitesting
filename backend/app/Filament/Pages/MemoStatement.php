@@ -24,6 +24,13 @@ class MemoStatement extends Page
     protected static ?int    $navigationSort  = 2;
     protected static string  $view            = 'filament.pages.memo-statement';
 
+    // Out of the sidebar — reached instead via the "Statement" button on
+    // the Memos list page (see ListPayments::getHeaderActions()), the same
+    // way Memo Categories is tucked behind a button rather than its own
+    // nav item. It's a report generated from Memo data, not an independent
+    // section, so it doesn't need its own sidebar row.
+    protected static bool $shouldRegisterNavigation = false;
+
     // Not independently grantable (see ManagerResource::discoverSectionOptions())
     // — this is a report generated purely from Memo data, so it rides on
     // whatever access to Memos (PaymentResource) the manager already has,
