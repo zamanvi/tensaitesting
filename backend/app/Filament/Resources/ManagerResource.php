@@ -79,6 +79,20 @@ class ManagerResource extends Resource
         return $options;
     }
 
+    // The class names behind discoverSectionOptions(), for
+    // ManagerPanelProvider to register on the manager panel. Deliberately
+    // NOT filtered by the current user here — Panel::panel() runs during
+    // service-provider boot, before the session/auth middleware has run, so
+    // auth()->user() is always null at that point regardless of who's
+    // actually logged in. Every grantable class gets registered
+    // unconditionally instead; each one's own canAccess() (checked later,
+    // per-request, once auth is actually available) is what really decides
+    // whether a given manager can reach it — see ManagerAccess::granted().
+    public static function grantableClasses(): array
+    {
+        return array_keys(self::discoverSectionOptions());
+    }
+
     public static function form(Form $form): Form
     {
         $sections = self::discoverSectionOptions();

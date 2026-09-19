@@ -29,7 +29,8 @@ class PaymentResource extends Resource
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin'])
+            || \App\Filament\Support\ManagerAccess::granted(static::class);
     }
 
     // The branch dashboard is the everyday entry point (that's where the

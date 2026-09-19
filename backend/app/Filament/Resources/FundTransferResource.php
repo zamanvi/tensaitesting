@@ -24,7 +24,8 @@ class FundTransferResource extends Resource
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin'])
+            || \App\Filament\Support\ManagerAccess::granted(static::class);
     }
 
     // Branches create these from their dashboard when they send money over —

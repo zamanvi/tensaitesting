@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Models\User;
+use App\Filament\Resources\ManagerResource;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -63,60 +63,34 @@ class ManagerPanelProvider extends PanelProvider
             ]);
     }
 
+    // Registers every class a Manager could conceivably be granted —
+    // unconditionally, not filtered by the logged-in manager's own
+    // manager_sections. Panel::panel() runs during service-provider boot,
+    // before the session/auth middleware executes, so auth('web')->user()
+    // is always null here regardless of who's actually logged in — the
+    // previous per-user filtering silently produced an empty resource list
+    // (and a Dashboard-only page list) for every manager, every time. The
+    // real per-manager gate now lives in each class's own canAccess()
+    // (see App\Filament\Support\ManagerAccess), which Filament checks
+    // per-request, once auth is actually available — same pattern already
+    // used for ManagerResource/UserResource being admin-only.
     private function resolveResources(): array
     {
-        $user = auth('web')->user();
-
-        if (!$user || !$user instanceof User) {
-            return [];
-        }
-
-        // manager_sections holds individual resource class names (each
-        // section picked one at a time on the Managers form), not whole
-        // nav groups — a Manager can be granted just Gallery without also
-        // getting Posts/News or Categories from the same Content group.
-        $allowedResources = $user->manager_sections ?? [];
-        if (empty($allowedResources)) return [];
-
-        $resourcePath = app_path('Filament/Resources');
-        $resources = [];
-
-        foreach (glob($resourcePath . '/*.php') as $file) {
-            $class = 'App\\Filament\\Resources\\' . basename($file, '.php');
-            if (!class_exists($class)) continue;
-
-            if (in_array($class, $allowedResources, true)) {
-                $resources[] = $class;
-            }
-        }
-
-        return array_unique($resources);
+        return array_values(array_filter(
+            ManagerResource::grantableClasses(),
+            fn (string $class) => is_subclass_of($class, \Filament\Resources\Resource::class)
+        ));
     }
 
-    // Custom Pages (not Resources) a Manager can be granted — Statement,
-    // All Services Fee, etc. Dashboard is always included: it's every
-    // manager's landing page, not something Admin grants per-account.
+    // Dashboard is always included — it's every manager's landing page, not
+    // something Admin grants per-account.
     private function resolvePages(): array
     {
-        $pages = [\App\Filament\Pages\Dashboard::class];
+        $pages = array_values(array_filter(
+            ManagerResource::grantableClasses(),
+            fn (string $class) => is_subclass_of($class, \Filament\Pages\Page::class)
+        ));
 
-        $user = auth('web')->user();
-        if (!$user || !$user instanceof User) {
-            return $pages;
-        }
-
-        $allowedResources = $user->manager_sections ?? [];
-
-        foreach (glob(app_path('Filament/Pages') . '/*.php') as $file) {
-            $class = 'App\\Filament\\Pages\\' . basename($file, '.php');
-            if (!class_exists($class)) continue;
-            if ($class === \App\Filament\Pages\Dashboard::class) continue;
-
-            if (in_array($class, $allowedResources, true)) {
-                $pages[] = $class;
-            }
-        }
-
-        return array_unique($pages);
+        return array_unique([\App\Filament\Pages\Dashboard::class, ...$pages]);
     }
 }

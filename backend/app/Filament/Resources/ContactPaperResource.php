@@ -19,6 +19,17 @@ class ContactPaperResource extends Resource
     protected static ?string $navigationLabel = 'Contact Requests';
     protected static ?int    $navigationSort  = 2;
 
+    // No override existed here before — meaning this resource was, by
+    // Filament's true-by-default canAccess(), reachable by ANY authenticated
+    // admin-panel user regardless of role. It's one of the sections a
+    // Manager can be individually granted (see ManagerResource), so it now
+    // needs the same explicit gate every other grantable resource has.
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin'])
+            || \App\Filament\Support\ManagerAccess::granted(static::class);
+    }
+
     public static function getNavigationBadge(): ?string
     {
         return (string) ContactPaper::where('type', 'institution_contact_request')

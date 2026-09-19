@@ -33,7 +33,8 @@ class ApplicationResource extends Resource
 
     public static function canAccess(): bool
     {
-        return (bool) auth()->user()?->hasRole(['super_admin', 'admin', 'branch_admin', 'branch_manager', 'agency']);
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin', 'branch_admin', 'branch_manager', 'agency'])
+            || \App\Filament\Support\ManagerAccess::granted(static::class);
     }
 
     public static function getEloquentQuery(): Builder

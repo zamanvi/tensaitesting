@@ -16,6 +16,12 @@ class SettingsPage extends Page
     protected static ?int    $navigationSort  = 2;
     protected static string  $view            = 'filament.pages.settings-page';
 
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin'])
+            || \App\Filament\Support\ManagerAccess::granted(static::class);
+    }
+
     public string $support_whatsapp = '';
     public string $support_phone    = '';
     public string $support_email    = '';

@@ -24,6 +24,12 @@ class MemoStatement extends Page
     protected static ?int    $navigationSort  = 5;
     protected static string  $view            = 'filament.pages.memo-statement';
 
+    public static function canAccess(): bool
+    {
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin'])
+            || \App\Filament\Support\ManagerAccess::granted(static::class);
+    }
+
     public ?string $from     = null;
     public ?string $until    = null;
     public ?int    $branchId = null;
