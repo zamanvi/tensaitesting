@@ -52,43 +52,5 @@
                 </div>
             </form>
         </div>
-
-        <div class="mt-10 pt-8 border-t border-gray-200 dark:border-white/10">
-            <h2 class="text-base font-semibold text-gray-950 dark:text-white mb-1">All Students — Summary</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                One row per student in a branch — roll, name, memo count, and
-                total paid — instead of one student's own memo-by-memo
-                detail. Date range is optional.
-            </p>
-
-            <form wire:submit="openRosterStatement" class="grid grid-cols-4 gap-4 items-end">
-                <div>
-                    <label class="fi-fo-field-wrp-label text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Branch</label>
-                    <select wire:model="rosterBranchId" class="fi-select-input block w-full rounded-lg border-gray-300 dark:border-white/10 dark:bg-white/5 text-sm">
-                        <option value="">Select a branch…</option>
-                        @foreach($this->branches() as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('rosterBranchId') <p class="text-xs text-danger-600 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <label class="fi-fo-field-wrp-label text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">From (optional)</label>
-                    <input type="date" wire:model="rosterFrom"
-                        class="fi-input block w-full rounded-lg border-gray-300 dark:border-white/10 dark:bg-white/5 text-sm" />
-                </div>
-                <div>
-                    <label class="fi-fo-field-wrp-label text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Until (optional)</label>
-                    <input type="date" wire:model="rosterUntil"
-                        class="fi-input block w-full rounded-lg border-gray-300 dark:border-white/10 dark:bg-white/5 text-sm" />
-                    @error('rosterUntil') <p class="text-xs text-danger-600 mt-1">{{ $message }}</p> @enderror
-                </div>
-                <div>
-                    <x-filament::button type="submit">
-                        Open Summary
-                    </x-filament::button>
-                </div>
-            </form>
-        </div>
     </div>
 </x-filament-panels::page>
