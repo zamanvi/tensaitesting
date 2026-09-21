@@ -235,7 +235,18 @@ class PostResource extends Resource
                             Forms\Components\FileUpload::make('thumbnail_file')
                                 ->label('Upload a new image (replaces the current one)')
                                 ->image()
-                                ->disk(app()->environment('production') ? 'r2' : 'public')
+                                // Deliberately always 'public', never 'r2' — this only
+                                // controls the *temporary* pre-submit copy Livewire
+                                // validates (file size, image()) and previews, not the
+                                // final destination. Setting it to 'r2' made Livewire
+                                // read that temp file's size back from R2 right after
+                                // upload, which failed intermittently: "Unable to
+                                // retrieve the file_size for file at location:
+                                // livewire-tmp/livewire-tmp" — a 500 on every attempt for
+                                // some users. The real upload to R2 already happens
+                                // explicitly in saveUploadedFileUsing() below regardless
+                                // of this setting, so it was never actually needed here.
+                                ->disk('public')
                                 ->directory('post-thumbnails')
                                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                 ->maxSize(4096)
