@@ -24,6 +24,14 @@ mkdir -p /app/storage/app/public /app/storage/app/livewire-tmp /app/storage/logs
          /app/bootstrap/cache
 chmod -R 777 /app/storage /app/bootstrap/cache
 
+# Livewire's temporary file uploads — deliberately NOT under /app/storage
+# (see config/filesystems.php's 'livewire-tmp' disk for why: that path is
+# on this same persistent volume, and a temp file written by one worker
+# then read back by another moments later intermittently failed). /tmp is
+# always local to the container, never volume-backed.
+mkdir -p /tmp/livewire-tmp-uploads
+chmod -R 777 /tmp/livewire-tmp-uploads
+
 php artisan optimize:clear 2>&1 || true
 php artisan migrate --force 2>&1 || echo "Migration warning (non-fatal)"
 php artisan db:seed --force 2>&1 || echo "Seed warning (non-fatal)"

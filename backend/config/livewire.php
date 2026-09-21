@@ -15,16 +15,24 @@ return [
     | Temporary File Uploads
     |---------------------------------------------------------------------------
     |
-    | Force the temporary upload disk to 'local' so that Livewire always
-    | routes uploads through the Laravel server (browser → server → R2).
-    | Without this, when FILESYSTEM_DISK=r2, Livewire generates presigned
-    | URLs and the browser PUTs directly to R2, which is blocked by CORS
-    | because the Railway origin is not whitelisted in the R2 bucket policy.
+    | Force the temporary upload disk to a local (non-R2) disk so that
+    | Livewire always routes uploads through the Laravel server (browser →
+    | server → R2). Without this, when FILESYSTEM_DISK=r2, Livewire
+    | generates presigned URLs and the browser PUTs directly to R2, which
+    | is blocked by CORS because the Railway origin is not whitelisted in
+    | the R2 bucket policy.
+    |
+    | Deliberately 'livewire-tmp' (config/filesystems.php, rooted at
+    | /tmp/...), not 'local' (storage/app, which is on Railway's
+    | persistent volume) — see that disk's own comment for why: writing
+    | temp files to a network-backed volume and reading them back from a
+    | different worker process moments later caused intermittent
+    | "Unable to retrieve the file_size" 500s on every image upload.
     |
     */
 
     'temporary_file_upload' => [
-        'disk'           => 'local',
+        'disk'           => 'livewire-tmp',
         'rules'          => null,
         'directory'      => null,
         'middleware'     => null,

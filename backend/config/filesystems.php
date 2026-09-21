@@ -36,6 +36,24 @@ return [
             'throw' => false,
         ],
 
+        // Livewire's temporary file uploads only — deliberately NOT under
+        // storage/app. That path is on Railway's persistent volume (see
+        // start.sh's chmod comment), which is network-backed; a temp file
+        // written there by one Apache worker and read back moments later
+        // by a different one (upload-file request, then a separate
+        // livewire/update request) intermittently failed with
+        // "Unable to retrieve the file_size for file at location:
+        // livewire-tmp/livewire-tmp" — a 500 on every affected Create/Edit
+        // with an image, roughly as often as the race lost. /tmp is the
+        // container's own local disk, not volume-backed, so no race.
+        // Genuinely ephemeral is fine here: Livewire's own
+        // temporary_file_upload.cleanup already prunes these.
+        'livewire-tmp' => [
+            'driver' => 'local',
+            'root' => '/tmp/livewire-tmp-uploads',
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
