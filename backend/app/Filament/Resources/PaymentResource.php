@@ -156,6 +156,16 @@ class PaymentResource extends Resource
                     ->default('cash')
                     ->required()
                     ->native(false),
+
+                // The actual date the money changed hands — distinct from
+                // created_at (when this memo was entered into the system).
+                // Defaults to today, but staff back-entering a historical
+                // memo can set the real date instead.
+                Forms\Components\DatePicker::make('payment_date')
+                    ->label('Payment Date')
+                    ->default(now())
+                    ->required()
+                    ->native(false),
             ]),
 
             Forms\Components\Section::make('Customer')->columns(3)->schema([
@@ -170,11 +180,46 @@ class PaymentResource extends Resource
                     ->label('Student Roll')
                     ->required()
                     ->maxLength(50)
+                    ->live(onBlur: true)
                     ->helperText('Fixed per student, unique within this branch — lets Course Fee, Processing Fee, Service Charge etc. all roll up to one student\'s total.'),
             ]),
 
+            // Belongs to the STUDENT, not this individual memo — asked once,
+            // on whichever memo happens to be their first at this branch,
+            // and left alone (hidden, not re-asked) on every memo after
+            // that. See Admission Payments (AdmissionPaymentResource),
+            // which reads these two fields back off whichever memo has them.
+            Forms\Components\Section::make('Admission Info')
+                ->description('Only needed once per student — this memo is their first here.')
+                ->visible(fn (Forms\Get $get) => filled($get('student_roll'))
+                    && !self::studentHasExistingMemo($get('branch_id'), $get('student_roll')))
+                ->columns(2)
+                ->schema([
+                    Forms\Components\TextInput::make('admission_batch')
+                        ->label('Admission Batch')
+                        ->placeholder('e.g. D9')
+                        ->maxLength(50),
+                    Forms\Components\DatePicker::make('admission_date')
+                        ->label('Admission Date')
+                        ->native(false),
+                ]),
+
             Forms\Components\Textarea::make('notes')->rows(2)->columnSpanFull(),
         ]);
+    }
+
+    // 'main' is the virtual Head Office option on the branch_id select, not
+    // a real Branch id — mirrors the same normalization
+    // mutateFormDataBeforeCreate() applies on submit, so this check looks
+    // up existing memos the same way they actually get stored.
+    private static function studentHasExistingMemo(?string $branchId, ?string $roll): bool
+    {
+        if (blank($roll)) return false;
+
+        return Payment::query()
+            ->where('branch_id', $branchId === 'main' ? null : $branchId)
+            ->where('student_roll', $roll)
+            ->exists();
     }
 
     public static function getEloquentQuery(): Builder

@@ -13,14 +13,17 @@ class Payment extends Model
 
     protected $fillable = [
         'application_id', 'form_template_id', 'branch_id', 'payment_category_id', 'fund_target',
-        'amount', 'total_amount', 'status', 'currency', 'method',
+        'amount', 'total_amount', 'status', 'currency', 'method', 'payment_date',
         'customer_name', 'customer_phone', 'customer_email', 'student_roll',
+        'admission_date', 'admission_batch',
         'received_by', 'notes',
     ];
 
     protected $casts = [
-        'amount'       => 'decimal:2',
-        'total_amount' => 'decimal:2',
+        'amount'         => 'decimal:2',
+        'total_amount'   => 'decimal:2',
+        'payment_date'   => 'date',
+        'admission_date' => 'date',
     ];
 
     protected $appends = ['due_amount', 'ho_settlement', 'refunded_amount', 'net_amount'];
@@ -39,6 +42,15 @@ class Payment extends Model
             }
             if (blank($payment->amount)) {
                 $payment->amount = $payment->total_amount;
+            }
+
+            // Applies regardless of which path created this memo (the admin
+            // Create Memo form, or BranchAdminController::storePayment()'s
+            // branch-dashboard flow, which doesn't send payment_date at
+            // all) — every memo gets a real payment date, not just the ones
+            // created through the form that happens to ask for one.
+            if (blank($payment->payment_date)) {
+                $payment->payment_date = now()->toDateString();
             }
 
             $payment->status = $payment->computeStatus();
