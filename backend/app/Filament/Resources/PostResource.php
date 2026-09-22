@@ -65,18 +65,21 @@ class PostResource extends Resource
                     Forms\Components\Hidden::make('created_by')
                         ->default(fn () => auth()->id()),
 
-                    Forms\Components\TextInput::make('title')
-                        ->required()
-                        ->maxLength(255)
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(fn ($state, callable $set) =>
-                            $set('slug', Str::slug($state))
-                        ),
+                    Forms\Components\Grid::make(2)
+                        ->schema([
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->maxLength(255)
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn ($state, callable $set) =>
+                                    $set('slug', Str::slug($state))
+                                ),
 
-                    Forms\Components\TextInput::make('slug')
-                        ->required()
-                        ->unique(ignoreRecord: true)
-                        ->maxLength(255),
+                            Forms\Components\TextInput::make('slug')
+                                ->required()
+                                ->unique(ignoreRecord: true)
+                                ->maxLength(255),
+                        ]),
 
                     Forms\Components\Select::make('type')
                         ->options([
@@ -194,6 +197,13 @@ class PostResource extends Resource
                             $get('type') !== 'video'
                             || filled($record?->thumbnail_file)
                             || filled($get('thumbnail_url'))
+                        )
+                        // Same auto-collapse pattern as Comparison Table/Box just
+                        // above — nothing to see yet (no existing image, no URL
+                        // typed), so start closed instead of always taking up
+                        // the same space as sections that actually have content.
+                        ->collapsed(fn (Get $get, $record) =>
+                            blank($record?->thumbnail_file) && blank($get('thumbnail_url'))
                         )
                         ->schema([
                             Forms\Components\Placeholder::make('thumbnail_preview')
