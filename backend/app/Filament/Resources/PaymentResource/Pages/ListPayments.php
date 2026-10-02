@@ -6,6 +6,7 @@ use App\Filament\Pages\MemoStatement;
 use App\Filament\Resources\PaymentCategoryResource;
 use App\Filament\Resources\PaymentResource;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 
 class ListPayments extends ListRecords
@@ -21,7 +22,12 @@ class ListPayments extends ListRecords
                 ->label('Manage Categories')
                 ->icon('heroicon-o-tag')
                 ->color('gray')
-                ->url(fn () => PaymentCategoryResource::getUrl('index')),
+                ->url(fn () => PaymentCategoryResource::getUrl('index'))
+                // This page is shared with the manager panel, where
+                // PaymentCategoryResource isn't registered — getUrl() there
+                // throws RouteNotFoundException and 500s the whole page.
+                ->visible(fn () => PaymentCategoryResource::canAccess()
+                    && in_array(PaymentCategoryResource::class, Filament::getCurrentPanel()?->getResources() ?? [], true)),
 
             // MemoStatement is out of the sidebar too now (same reasoning —
             // it's a report generated from this same Memo data, not an
