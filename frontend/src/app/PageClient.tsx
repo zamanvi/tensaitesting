@@ -283,7 +283,7 @@ export default function HomePageClient() {
               </Link>
               <Link
                 href="/about"
-                className="w-full sm:w-auto text-center text-sm text-white/50 hover:text-white/80 border border-white/[0.1] hover:border-white/20 px-8 py-4 rounded-full transition-all"
+                className="w-full sm:w-auto text-center text-sm text-white/70 hover:text-white border border-white/[0.15] hover:border-white/30 px-8 py-4 rounded-full transition-all"
               >
                 {ja ? '詳しく見る' : bn ? 'আরও জানুন' : 'Learn more'}
               </Link>
@@ -294,7 +294,7 @@ export default function HomePageClient() {
               {STATS.map((s, i) => (
                 <div key={i} className="px-4 sm:px-6 py-3.5 bg-white/[0.03] text-center border-r border-b border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r [&:nth-child(3)]:border-b-0 [&:nth-child(4)]:border-b-0 sm:border-b-0">
                   <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
-                  <div className="text-white/38 text-[10px] mt-0.5 leading-snug">{s.label}</div>
+                  <div className="text-white/60 text-xs mt-0.5 leading-snug">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -311,7 +311,7 @@ export default function HomePageClient() {
         {/* ── Gateway Bento Grid ─────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16">
           <div className="text-center mb-10">
-            <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+            <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
               {ja ? 'ゲートウェイを選択' : bn ? 'আপনার গেটওয়ে বেছে নিন' : 'Choose Your Gateway'}
             </p>
             <h2 className="text-fluid-4xl font-bold text-white">
@@ -332,16 +332,16 @@ export default function HomePageClient() {
               >
                 <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${accent.top}`} />
                 {g.tag && (
-                  <span className="absolute top-3.5 right-3.5 text-[10px] font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
+                  <span className="absolute top-3.5 right-3.5 text-[11px] font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
                     {g.tag}
                   </span>
                 )}
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${accent.iconBg} border ${accent.iconBorder} flex items-center justify-center text-2xl`} aria-hidden="true">{g.icon}</div>
                 <div>
-                  <h3 className="font-bold text-white text-sm mb-1.5">{g.title}</h3>
-                  <p className="text-xs text-white/50 leading-relaxed group-hover:text-white/60 transition-colors">{g.desc}</p>
+                  <h3 className="font-bold text-white text-base mb-1.5">{g.title}</h3>
+                  <p className="text-sm text-white/65 leading-relaxed group-hover:text-white/75 transition-colors">{g.desc}</p>
                 </div>
-                <div className={`mt-auto text-xs ${accent.cta} font-semibold flex items-center gap-1.5 group-hover:gap-2.5 transition-all`}>
+                <div className={`mt-auto text-sm ${accent.cta} font-semibold flex items-center gap-1.5 group-hover:gap-2.5 transition-all`}>
                   <span>{ja ? '詳しく見る' : bn ? 'শুরু করুন' : 'Get started'}</span>
                   <span className="group-hover:translate-x-1 transition-transform inline-block" aria-hidden="true">→</span>
                 </div>
@@ -359,7 +359,7 @@ export default function HomePageClient() {
           <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+                <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
                   {ja ? '知識ハブ' : bn ? 'নলেজ হাব' : 'Knowledge Hub'}
                 </p>
                 <h2 className="text-fluid-3xl font-bold text-white">
@@ -389,14 +389,18 @@ export default function HomePageClient() {
                         className="w-full h-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl opacity-20">📖</div>
+                      // No thumbnail on this post — a branded tile instead of a blank grey box.
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-green-600/25 via-green-900/15 to-cyan-600/15">
+                        <span className="text-3xl opacity-70" aria-hidden="true">📖</span>
+                        <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-green-300/70">{ja ? 'ガイド' : bn ? 'গাইড' : 'Tensai Guide'}</span>
+                      </div>
                     )}
                   </div>
                   <div className="p-4 flex flex-col flex-1">
                     <h3 className="font-bold text-white text-sm leading-snug mb-2 line-clamp-2 group-hover:text-green-400 transition-colors">
                       {post.title}
                     </h3>
-                    <p className="text-xs text-white/45 leading-relaxed line-clamp-2 flex-1">{post.excerpt}</p>
+                    <p className="text-sm text-white/60 leading-relaxed line-clamp-2 flex-1">{post.excerpt}</p>
                   </div>
                 </Link>
               ))}
@@ -413,13 +417,13 @@ export default function HomePageClient() {
         <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-8 sm:mb-12">
-              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
                 {ja ? 'プロセス' : bn ? 'প্রক্রিয়া' : 'Process'}
               </p>
               <h2 className="text-fluid-3xl font-bold text-white">
                 {ja ? 'どのように機能するか' : bn ? 'কীভাবে কাজ করে' : 'How it works'}
               </h2>
-              <p className="text-fluid-sm text-green-300/60 mt-3 max-w-md mx-auto">
+              <p className="text-fluid-sm text-green-300/75 mt-3 max-w-md mx-auto">
                 {ja ? '3ステップで日本への道が開きます' : bn ? 'মাত্র ৩ ধাপে জাপানের পথ খুলে যায়' : 'Three clear steps from registration to Japan placement'}
               </p>
             </div>
@@ -433,11 +437,11 @@ export default function HomePageClient() {
                       <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center text-xl md:text-2xl" aria-hidden="true">
                         {step.icon}
                       </div>
-                      <span className="text-[11px] text-green-400 font-black tracking-widest" aria-hidden="true">{step.num}</span>
+                      <span className="text-xs text-green-400 font-black tracking-widest" aria-hidden="true">{step.num}</span>
                     </div>
                     <div className="flex-1 md:px-4 md:mt-5 pb-2 md:pb-0">
-                      <h3 className="text-white font-bold text-sm mb-1.5 leading-snug">{step.title}</h3>
-                      <p className="text-[12px] text-white/45 leading-relaxed">{step.desc}</p>
+                      <h3 className="text-white font-bold text-base mb-1.5 leading-snug">{step.title}</h3>
+                      <p className="text-sm text-white/60 leading-relaxed">{step.desc}</p>
                     </div>
                   </div>
 
@@ -467,11 +471,11 @@ export default function HomePageClient() {
         <section className="py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-8 sm:mb-10">
-              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
                 {ja ? 'なぜ天才か' : bn ? 'কেন টেনসাই' : 'Why Tensai'}
               </p>
               <h2 className="text-fluid-4xl font-bold text-white mb-3">{l.whyTitle}</h2>
-              <p className="text-fluid-base text-green-300/60 max-w-xl mx-auto leading-[1.6]">{l.whySub}</p>
+              <p className="text-fluid-base text-green-300/75 max-w-xl mx-auto leading-[1.6]">{l.whySub}</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -486,8 +490,8 @@ export default function HomePageClient() {
                   <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center text-xl`} aria-hidden="true">
                     {f.icon}
                   </div>
-                  <h3 className="font-bold text-green-400 text-sm leading-snug">{f.title}</h3>
-                  <p className="text-xs text-green-300/70 leading-relaxed">{f.desc}</p>
+                  <h3 className="font-bold text-green-400 text-base leading-snug">{f.title}</h3>
+                  <p className="text-sm text-green-300/80 leading-relaxed">{f.desc}</p>
                 </div>
                 );
               })}
@@ -499,13 +503,13 @@ export default function HomePageClient() {
         <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-10 sm:mb-12">
-              <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-2">
+              <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
                 {ja ? '体験談' : bn ? 'সাফল্যের গল্প' : 'Success Stories'}
               </p>
               <h2 className="text-fluid-4xl font-bold text-white">
                 {ja ? '実際に変えた人たち' : bn ? 'বাস্তব মানুষ, বাস্তব সাফল্য' : 'Real people. Real results.'}
               </h2>
-              <p className="text-fluid-sm text-green-300/60 mt-3 max-w-md mx-auto">
+              <p className="text-fluid-sm text-green-300/75 mt-3 max-w-md mx-auto">
                 {ja ? '学生、エージェンシー、教育機関 — 全員に効果があります' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান — সবার জন্য কাজ করে' : 'Students, agencies, institutions — it works for everyone'}
               </p>
             </div>
@@ -527,7 +531,7 @@ export default function HomePageClient() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-white text-sm font-semibold truncate">{tm.name}</p>
-                      <p className="text-white/40 text-[11px] truncate">{tm.role}</p>
+                      <p className="text-white/55 text-xs truncate">{tm.role}</p>
                     </div>
                     <span className="ml-auto text-xl shrink-0" aria-hidden="true">{tm.flag}</span>
                   </div>
@@ -555,7 +559,7 @@ export default function HomePageClient() {
           <div className="mb-8">
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
-                <p className="text-green-400/60 text-[11px] font-semibold tracking-[0.3em] uppercase mb-1">
+                <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-1">
                   {ja ? 'コミュニティ' : bn ? 'কমিউনিটি' : 'Community'}
                 </p>
                 <h2 className="text-fluid-3xl font-bold text-white leading-tight">
@@ -566,7 +570,7 @@ export default function HomePageClient() {
                 {l.galleryViewAll}
               </Link>
             </div>
-            <p className="text-fluid-sm text-white/38 mt-1 max-w-md">{l.gallerySub}</p>
+            <p className="text-fluid-sm text-white/55 mt-1 max-w-md">{l.gallerySub}</p>
           </div>
 
           {galleryLoading ? (
@@ -581,7 +585,7 @@ export default function HomePageClient() {
             /* Error state */
             <div className="text-center py-12">
               <div className="text-3xl mb-3" aria-hidden="true">🖼️</div>
-              <p className="text-white/38 text-sm">
+              <p className="text-white/55 text-sm">
                 {ja ? 'ギャラリーを読み込めませんでした' : bn ? 'গ্যালারি লোড করা যায়নি' : 'Could not load gallery'}
               </p>
               <Link href="/gallery" className="mt-3 inline-block text-sm text-green-400 hover:text-green-300 transition-colors">
@@ -608,7 +612,7 @@ export default function HomePageClient() {
                       loading="lazy"
                     />
                     {item.branch && (
-                      <span className="absolute top-2 right-2 z-10 text-[9px] font-semibold text-white/90 bg-black/50 backdrop-blur-sm px-2 py-0.5 rounded-full truncate max-w-[85%]">
+                      <span className="absolute top-2 right-2 z-10 text-[11px] font-semibold text-white/90 bg-black/50 backdrop-blur-sm px-2 py-0.5 rounded-full truncate max-w-[85%]">
                         📍 {item.branch.name}
                       </span>
                     )}
@@ -616,7 +620,7 @@ export default function HomePageClient() {
                       className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/5 to-transparent flex flex-col justify-end p-3 sm:p-4 transition-opacity ${isHero ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                     >
                       {isHero && item.category && (
-                        <span className="self-start mb-2 text-[9px] font-bold text-green-300 bg-green-400/15 border border-green-400/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="self-start mb-2 text-[11px] font-bold text-green-300 bg-green-400/15 border border-green-400/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
                           {item.category}
                         </span>
                       )}
@@ -657,7 +661,7 @@ export default function HomePageClient() {
             <h2 className="text-fluid-4xl font-bold text-white mb-4">
               {ja ? '次は、あなたの番です' : bn ? 'পরের পদক্ষেপটা আপনার' : "Your turn to make the move"}
             </h2>
-            <p className="text-fluid-base text-white/45 max-w-xl mx-auto mb-8 leading-relaxed">
+            <p className="text-fluid-base text-white/65 max-w-xl mx-auto mb-8 leading-relaxed">
               {ja
                 ? '日本留学を夢見る学生、学生を守りたいエージェンシー、質の高い入学者を求める学校 — Tensaiはすべての人のために構築されています。'
                 : bn
@@ -673,17 +677,17 @@ export default function HomePageClient() {
               </Link>
               <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
                 <Link href="/auth/register?type=agency"
-                  className="text-sm text-white/45 hover:text-white/80 transition-colors">
+                  className="text-sm text-white/65 hover:text-white transition-colors">
                   {ja ? 'エージェンシーとして参加 →' : bn ? 'এজেন্সি হিসেবে যোগ দিন →' : 'Join as Agency →'}
                 </Link>
                 <span className="text-white/15 hidden sm:inline">·</span>
                 <Link href="/auth/register?type=institution"
-                  className="text-sm text-white/45 hover:text-white/80 transition-colors">
+                  className="text-sm text-white/65 hover:text-white transition-colors">
                   {ja ? '教育機関として参加 →' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন →' : 'Join as Institution →'}
                 </Link>
                 <span className="text-white/15 hidden sm:inline">·</span>
                 <Link href="/auth/register?type=affiliate"
-                  className="text-sm text-white/45 hover:text-white/80 transition-colors">
+                  className="text-sm text-white/65 hover:text-white transition-colors">
                   {ja ? 'アフィリエイトとして参加 →' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন →' : 'Join as Affiliate →'}
                 </Link>
               </div>
@@ -697,7 +701,7 @@ export default function HomePageClient() {
         <div className="max-w-7xl mx-auto">
           {/* Legal Disclaimer */}
           <div className="border border-white/[0.06] rounded-xl px-5 py-4 mb-6 text-center">
-            <p className="text-xs leading-relaxed text-white/38">
+            <p className="text-xs leading-relaxed text-white/55">
               {ja
                 ? '免責事項：Tensaiはテクノロジーを活用した教育・人材マッチングインフラです。語学研修、スキルブリッジング、海外大学入学コンサルティング、および海外就労情報の提供を行っています。Tensaiはビザの直接発行、出入国管理の手続き、または労働者の海外送出を直接行いません。最終的な学生ビザ申請および雇用採用の認可は、公認大学およびバングラデシュ政府認定のBMETライセンス取得パートナー機関を通じてのみ行われます。'
                 : bn
@@ -712,7 +716,7 @@ export default function HomePageClient() {
               <span className="text-sm font-bold text-white/80">Tensai</span>
             </Link>
             <nav aria-label={ja ? 'フッターナビゲーション' : bn ? 'ফুটার নেভিগেশন' : 'Footer navigation'}>
-              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-white/38">
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-white/55">
                 <Link href="/about"    className="hover:text-white/65 transition-colors">{navAbout}</Link>
                 <Link href="/team"     className="hover:text-white/65 transition-colors">{navTeam}</Link>
                 <Link href="/gallery"  className="hover:text-white/65 transition-colors">{l.gallery}</Link>
@@ -770,7 +774,7 @@ export default function HomePageClient() {
                 </a>
               )}
               </div>
-              <p className="text-xs text-white/32 text-center sm:text-right">
+              <p className="text-xs text-white/50 text-center sm:text-right">
                 {ja ? (settings?.copyright_ja || '© 2026 Tensai Consultancy Ltd.') : bn ? (settings?.copyright_bn || '© 2026 তেনসাই কনসালটেন্সি লিমিটেড।') : (settings?.copyright_en || '© 2026 Tensai Consultancy Ltd. All rights reserved.')}
               </p>
             </div>
