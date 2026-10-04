@@ -453,6 +453,15 @@ html:lang(ja) .home-type {
 /* Headline refinement (the hero class is unlayered, so this must be too) */
 .home-type .text-fluid-hero-xl { letter-spacing: -0.025em; line-height: 1.12; }
 
+/* The shared hero background mixes in cyan and violet glows. On the home page it is green
+   only (scoped, so the About and Contact heroes keep theirs). */
+.home-type .hero-mesh {
+  background:
+    radial-gradient(ellipse at 15% 50%, rgba(21, 128, 61, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 30%, rgba(21, 128, 61, 0.07) 0%, transparent 50%),
+    #0d1117;
+}
+
 /* Bangla and Japanese: no negative tracking, no spaced-out capitals (they have no
    capitals and wide tracking breaks Bangla conjuncts), and taller lines — these
    scripts need more vertical room than Latin. */

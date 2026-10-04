@@ -16,10 +16,9 @@ export default function EmotionalStorySection() {
   const bn = lang === 'bn';
 
   return (
-    <section className="relative px-4 py-10 sm:py-14 overflow-hidden border-t border-white/[0.05]">
+    <section className="relative px-4 py-12 sm:py-16 overflow-hidden border-t border-white/[0.05]">
       {/* Soft background glow */}
       <div className="absolute top-0 right-[15%] w-[420px] h-[420px] bg-green-600/8 rounded-full blur-[160px] pointer-events-none" aria-hidden="true" />
-      <div className="absolute bottom-0 left-[10%] w-[360px] h-[360px] bg-cyan-500/5 rounded-full blur-[150px] pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-10 max-w-3xl mx-auto w-full text-center">
         <p className="t-eyebrow mb-4 sm:mb-5">
@@ -28,13 +27,13 @@ export default function EmotionalStorySection() {
 
         {/* Main emotional statement - BENGALI */}
         <div lang="bn" className="mb-3 sm:mb-4 animate-fade-up">
-          <p className="text-balance text-xl sm:text-2xl md:text-3xl font-bold leading-[1.5] bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+          <p className="text-balance text-xl sm:text-2xl md:text-3xl font-bold leading-[1.5] text-[color:var(--t-strong)]">
             অজানা পথের ভয় ভুলে,
           </p>
-          <p className="text-balance text-xl sm:text-2xl md:text-3xl font-bold leading-[1.5] bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+          <p className="text-balance text-xl sm:text-2xl md:text-3xl font-bold leading-[1.5] text-[color:var(--t-strong)]">
             বিদেশ যাত্রার পথটাকে সত্যি আর মসৃণ করতে—
           </p>
-          <p className="text-balance text-xl sm:text-2xl md:text-3xl font-bold leading-[1.5] bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+          <p className="text-balance text-xl sm:text-2xl md:text-3xl font-bold leading-[1.5] text-green-400">
             Tensai সবসময় আপনার আপন সারথি।
           </p>
         </div>

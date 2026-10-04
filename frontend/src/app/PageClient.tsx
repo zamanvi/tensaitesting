@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { GraduationCap, Building2, School, FileText, Bot, Plane, Lock, Handshake, ShieldCheck, ClipboardList, ImageOff, MapPin, BookOpen } from 'lucide-react';
 import SiteHeader from '@/components/shared/SiteHeader';
 import EmotionalStorySection from '@/components/home/EmotionalStorySection';
 import IntroVideoPlayer, { getYouTubeId } from '@/components/home/IntroVideoSection';
@@ -84,21 +85,21 @@ export default function HomePageClient() {
   const GATEWAYS = [
     {
       type: 'student',
-      icon: '🎓',
+      icon: <GraduationCap className="h-6 w-6 text-green-400" />,
       title: l.gateways.studentTitle,
       desc: l.gateways.studentDesc,
       tag: ja ? '最も人気' : bn ? 'সবচেয়ে জনপ্রিয়' : 'Most Popular',
       featured: true,
     },
-    { type: 'agency',      icon: '🏢', title: l.gateways.agencyTitle,      desc: l.gateways.agencyDesc,      tag: null, featured: false },
-    { type: 'institution', icon: '🏫', title: l.gateways.institutionTitle, desc: l.gateways.institutionDesc, tag: null, featured: false },
+    { type: 'agency',      icon: <Building2 className="h-6 w-6 text-green-400" />, title: l.gateways.agencyTitle,      desc: l.gateways.agencyDesc,      tag: null, featured: false },
+    { type: 'institution', icon: <School className="h-6 w-6 text-green-400" />, title: l.gateways.institutionTitle, desc: l.gateways.institutionDesc, tag: null, featured: false },
   ];
 
   const FEATURES = [
-    { icon: '🔒', title: l.features.f1Title, desc: l.features.f1Desc, color: 'from-green-500/20 to-green-600/5' },
-    { icon: '🤝', title: l.features.f2Title, desc: l.features.f2Desc, color: 'from-cyan-500/20 to-cyan-600/5' },
-    { icon: '🛡️', title: l.features.f3Title, desc: l.features.f3Desc, color: 'from-violet-500/20 to-violet-600/5' },
-    { icon: '📋', title: l.features.f4Title, desc: l.features.f4Desc, color: 'from-amber-500/20 to-amber-600/5' },
+    { icon: <Lock className="h-5 w-5 text-green-400" />,          title: l.features.f1Title, desc: l.features.f1Desc },
+    { icon: <Handshake className="h-5 w-5 text-green-400" />,     title: l.features.f2Title, desc: l.features.f2Desc },
+    { icon: <ShieldCheck className="h-5 w-5 text-green-400" />,   title: l.features.f3Title, desc: l.features.f3Desc },
+    { icon: <ClipboardList className="h-5 w-5 text-green-400" />, title: l.features.f4Title, desc: l.features.f4Desc },
   ];
 
   const STATS = [
@@ -111,7 +112,7 @@ export default function HomePageClient() {
   const HOW_IT_WORKS = [
     {
       num: '01',
-      icon: '📄',
+      icon: <FileText className="h-6 w-6 text-green-400" />,
       title: ja ? '登録 & 書類アップロード' : bn ? 'নিবন্ধন করুন ও কাগজপত্র আপলোড করুন' : 'Register & Upload Docs',
       desc: ja
         ? 'プロフィールを作成し書類をアップロード。AIがOCRで即座にスキャンし、永久にロックします。'
@@ -121,7 +122,7 @@ export default function HomePageClient() {
     },
     {
       num: '02',
-      icon: '🤖',
+      icon: <Bot className="h-6 w-6 text-green-400" />,
       title: ja ? 'AIがスコア & マッチング' : bn ? 'AI স্কোর করে ও ম্যাচ করে' : 'AI Scores & Matches You',
       desc: ja
         ? '適格性スコアを算出し、日本の認定機関・エージェンシーとマッチングします。'
@@ -131,7 +132,7 @@ export default function HomePageClient() {
     },
     {
       num: '03',
-      icon: '✈️',
+      icon: <Plane className="h-6 w-6 text-green-400" />,
       title: ja ? '安全に日本へ' : bn ? 'নিরাপদে জাপানে যান' : 'Get Placed — Safely',
       desc: ja
         ? 'エスクロー決済がすべてのステップで費用を保護。支払いは安全。プライバシーは守られます。'
@@ -151,9 +152,6 @@ export default function HomePageClient() {
         : bn
         ? 'আমার কাগজপত্র জাল হওয়ার ভয় ছিল। Tensai-এর OCR লক সিস্টেম সবকিছু নিরাপদ রেখেছে। মাত্র ৩ মাসে ভিসা অনুমোদন পেয়েছি।'
         : 'I was worried my documents could be tampered with. Tensai\'s OCR lock system kept everything safe. Got my visa approved in just 3 months.',
-      flag: '🇯🇵',
-      color: 'from-green-500/15 to-green-600/5',
-      border: 'border-green-500/20',
     },
     {
       avatar: 'K',
@@ -164,9 +162,6 @@ export default function HomePageClient() {
         : bn
         ? 'Tensai-এর পুল সিস্টেমে AI যাচাইকৃত স্টুডেন্ট পাই। ডকুমেন্ট জালিয়াতির সমস্যা শেষ — জাপানি পার্টনার স্কুলের সাথে আমাদের সম্পর্ক অনেক ভালো হয়েছে।'
         : 'We find AI-verified students through Tensai\'s pool system. Zero document fraud issues — our trust with Japanese partner schools has improved dramatically.',
-      flag: '🏢',
-      color: 'from-cyan-500/15 to-cyan-600/5',
-      border: 'border-cyan-500/20',
     },
     {
       avatar: 'Y',
@@ -177,9 +172,6 @@ export default function HomePageClient() {
         : bn
         ? 'AI eligibility score দিয়ে আবেদনকারীদের আগে থেকে স্ক্রিন করতে পারি। ভিসা রিজেকশন রেট অনেক কমেছে, ভর্তি প্রক্রিয়া স্বচ্ছ হয়েছে।'
         : 'The AI eligibility score lets us pre-screen applicants before interviews. Visa rejection rates dropped significantly and the admissions process became transparent.',
-      flag: '🏫',
-      color: 'from-violet-500/15 to-violet-600/5',
-      border: 'border-violet-500/20',
     },
     {
       avatar: 'F',
@@ -190,9 +182,6 @@ export default function HomePageClient() {
         : bn
         ? 'বন্ধুকে রেফার করেছিলাম — ড্যাশবোর্ডে সব ট্র্যাক করা যায়, পেমেন্টও প্রতিশ্রুতি মতোই হয়েছে। সম্পূর্ণ স্বচ্ছ ও বিশ্বস্ত।'
         : 'I referred a friend and the whole process was transparent end to end. Everything trackable on the dashboard and the payout came exactly as promised.',
-      flag: '💼',
-      color: 'from-amber-500/15 to-amber-600/5',
-      border: 'border-amber-500/20',
     },
     {
       avatar: 'N',
@@ -203,9 +192,6 @@ export default function HomePageClient() {
         : bn
         ? 'ভেবেছিলাম স্বাস্থ্যসেবায় জাপানে চাকরি পাওয়া কঠিন। Tensai-এর AI ম্যাচিং আমার জন্য সঠিক হাসপাতাল খুঁজে দিয়েছে। কাগজপত্র সব নিরাপদ।'
         : 'I thought landing a healthcare job in Japan would be near impossible. Tensai\'s AI matching found the right hospital for me and every document was handled securely.',
-      flag: '🏥',
-      color: 'from-rose-500/15 to-rose-600/5',
-      border: 'border-rose-500/20',
     },
   ];
 
@@ -233,8 +219,6 @@ export default function HomePageClient() {
 
           {/* Ambient orbs */}
           <div className="absolute top-[15%] left-[10%]  w-[500px] h-[500px] bg-green-600/10  rounded-full blur-[160px] pointer-events-none" aria-hidden="true" />
-          <div className="absolute bottom-[15%] right-[8%]  w-[400px] h-[400px] bg-cyan-500/7   rounded-full blur-[130px] pointer-events-none" aria-hidden="true" />
-          <div className="absolute top-[55%] left-[45%]  w-[320px] h-[320px] bg-violet-600/5  rounded-full blur-[110px] pointer-events-none" aria-hidden="true" />
 
           {/* Subtle grid */}
           <div
@@ -297,8 +281,8 @@ export default function HomePageClient() {
         </section>
 
         {/* ── Gateway Bento Grid ─────────────────────────────── */}
-        <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16">
-          <div className="text-center mb-10">
+        <section className="max-w-7xl mx-auto px-4 py-12 sm:py-20">
+          <div className="text-center mb-10 sm:mb-12">
             <p className="t-eyebrow mb-2">
               {ja ? 'ゲートウェイを選択' : bn ? 'আপনার গেটওয়ে বেছে নিন' : 'Choose Your Gateway'}
             </p>
@@ -309,9 +293,7 @@ export default function HomePageClient() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {GATEWAYS.map((g) => {
-              const accent = g.type === 'student' ? { border: 'border-green-500/30', top: 'from-green-500/40 to-transparent', ring: 'focus-visible:ring-green-400', iconBg: 'from-green-500/20 to-green-600/5', iconBorder: 'border-green-500/20', cta: 'text-green-400' }
-                : g.type === 'agency' ? { border: 'border-cyan-500/25', top: 'from-cyan-500/35 to-transparent', ring: 'focus-visible:ring-cyan-400', iconBg: 'from-cyan-500/20 to-cyan-600/5', iconBorder: 'border-cyan-500/20', cta: 'text-cyan-400' }
-                : { border: 'border-violet-500/25', top: 'from-violet-500/35 to-transparent', ring: 'focus-visible:ring-violet-400', iconBg: 'from-violet-500/20 to-violet-600/5', iconBorder: 'border-violet-500/20', cta: 'text-violet-400' };
+              const accent = { border: 'border-white/[0.08]', top: 'from-green-500/40 to-transparent', ring: 'focus-visible:ring-green-400', iconBg: 'from-green-500/20 to-green-600/5', iconBorder: 'border-green-500/20', cta: 'text-green-400' };
               return (
               <Link
                 key={g.type}
@@ -340,9 +322,9 @@ export default function HomePageClient() {
         </section>
 
         {/* ── How It Works ───────────────────────────────────── */}
-        <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
+        <section className="bg-alt-section py-12 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto px-4">
-            <div className="text-center mb-8 sm:mb-12">
+            <div className="text-center mb-10 sm:mb-12">
               <h2 className="t-h2">
                 {ja ? 'どのように機能するか' : bn ? 'কীভাবে কাজ করে' : 'How it works'}
               </h2>
@@ -386,24 +368,20 @@ export default function HomePageClient() {
         <EmotionalStorySection />
 
         {/* ── Why Tensai ─────────────────────────────────────── */}
-        <section className="py-10 sm:py-16 border-t border-white/[0.05]">
+        <section className="py-12 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-8 sm:mb-10">
+            <div className="text-center mb-10 sm:mb-12">
               <h2 className="t-h2 mb-3">{l.whyTitle}</h2>
               <p className="t-lead max-w-xl mx-auto">{l.whySub}</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {FEATURES.map((f) => {
-                const topLine = f.color.includes('green') ? 'from-green-500/50 to-transparent'
-                  : f.color.includes('cyan') ? 'from-cyan-500/50 to-transparent'
-                  : f.color.includes('violet') ? 'from-violet-500/50 to-transparent'
-                  : 'from-amber-500/50 to-transparent';
                 return (
                 // Phone: icon beside the text (each card roughly half as tall); sm and up: stacked as before.
                 <div key={f.title} className="glass-card rounded-2xl p-5 sm:p-6 flex flex-row sm:flex-col items-start gap-4 card-hover-glow transition-all duration-300 relative overflow-hidden">
-                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${topLine}`} />
-                  <div className={`w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center text-xl`} aria-hidden="true">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-green-500/50 to-transparent" />
+                  <div className="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/5 border border-green-500/20 flex items-center justify-center" aria-hidden="true">
                     {f.icon}
                   </div>
                   <div className="flex flex-col gap-1.5 sm:gap-4 min-w-0">
@@ -418,9 +396,9 @@ export default function HomePageClient() {
         </section>
 
         {/* ── Gallery ────────────────────────────────────────── */}
-        <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 border-t border-white/[0.05]">
-          <div className="mb-8">
-            <div className="flex items-start justify-between gap-3 flex-wrap">
+        <section className="max-w-7xl mx-auto px-4 py-12 sm:py-20 border-t border-white/[0.05]">
+          <div className="mb-10 sm:mb-12">
+            <div className="flex items-end justify-between gap-3 flex-wrap">
               <div>
                 <h2 className="t-h2">
                   {ja ? '学生ギャラリー' : bn ? 'শিক্ষার্থী গ্যালারি' : 'Student Gallery'}
@@ -443,7 +421,7 @@ export default function HomePageClient() {
           ) : galleryError ? (
             /* Error state */
             <div className="text-center py-12">
-              <div className="text-3xl mb-3" aria-hidden="true">🖼️</div>
+              <ImageOff className="mx-auto mb-3 h-8 w-8 text-[color:var(--t-muted)]" aria-hidden="true" />
               <p className="text-[color:var(--t-muted)] text-sm">
                 {ja ? 'ギャラリーを読み込めませんでした' : bn ? 'গ্যালারি লোড করা যায়নি' : 'Could not load gallery'}
               </p>
@@ -472,7 +450,7 @@ export default function HomePageClient() {
                     />
                     {item.branch && (
                       <span className="absolute top-2 right-2 z-10 text-[11px] font-semibold text-white/90 bg-black/50 backdrop-blur-sm px-2 py-0.5 rounded-full truncate max-w-[85%]">
-                        📍 {item.branch.name}
+                        <MapPin className="inline h-3 w-3 -mt-0.5 mr-1" aria-hidden="true" />{item.branch.name}
                       </span>
                     )}
                     <div
@@ -497,7 +475,7 @@ export default function HomePageClient() {
         </section>
 
         {/* ── Testimonials ───────────────────────────────────── */}
-        <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
+        <section className="bg-alt-section py-12 sm:py-20 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-10 sm:mb-12">
               <h2 className="t-h2">
@@ -507,8 +485,7 @@ export default function HomePageClient() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {(showAllTestimonials ? TESTIMONIALS : TESTIMONIALS.slice(0, 4)).map((tm, idx) => (
                 // Phone: only the first two until "Show more"; md and up: the usual grid.
-                <div key={tm.name} className={`glass-card rounded-2xl p-6 gap-4 border ${tm.border} border-l-4 relative ${!showAllTestimonials && idx >= 2 ? 'hidden md:flex md:flex-col' : 'flex flex-col'} ${idx === 0 ? 'ring-1 ring-amber-500/30' : ''}`} style={{borderLeftColor: idx === 0 ? '#d97706' : 'inherit'}}>
-                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
+                <div key={tm.name} className={`glass-card rounded-2xl p-6 gap-4 relative ${!showAllTestimonials && idx >= 2 ? 'hidden md:flex md:flex-col' : 'flex flex-col'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex gap-0.5" aria-label="5 stars">
                       {[1,2,3,4,5].map(s => <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill="#facc15" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>)}
@@ -516,7 +493,7 @@ export default function HomePageClient() {
                   </div>
                   <p className="t-quote flex-1">{tm.quote}</p>
                   <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
-                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${tm.color} border ${tm.border} flex items-center justify-center text-sm font-bold text-white shrink-0`}>
+                    <div className="w-9 h-9 rounded-full bg-green-500/15 border border-green-500/25 flex items-center justify-center text-sm font-bold text-green-300 shrink-0">
                       {tm.avatar}
                     </div>
                     <div className="min-w-0">
@@ -544,8 +521,8 @@ export default function HomePageClient() {
 
         {/* ── Latest from Guide ──────────────────────────────── */}
         {guidePosts.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 border-t border-white/[0.05]">
-            <div className="flex items-center justify-between mb-6">
+          <section className="max-w-7xl mx-auto px-4 py-12 sm:py-20 border-t border-white/[0.05]">
+            <div className="flex items-end justify-between gap-3 mb-10 sm:mb-12">
               <div>
                 <h2 className="t-h2">
                   {ja ? 'ガイドの最新記事' : bn ? 'গাইড থেকে সর্বশেষ' : 'Latest from our Guide'}
@@ -576,8 +553,8 @@ export default function HomePageClient() {
                       />
                     ) : (
                       // No thumbnail on this post — a branded tile instead of a blank grey box.
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-green-600/25 via-green-900/15 to-cyan-600/15">
-                        <span className="text-3xl opacity-70" aria-hidden="true">📖</span>
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-green-600/25 via-green-900/15 to-green-700/10">
+                        <BookOpen className="h-8 w-8 text-green-300/80" aria-hidden="true" />
                         <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-green-300/70">{ja ? 'ガイド' : bn ? 'গাইড' : 'Tensai Guide'}</span>
                       </div>
                     )}
@@ -602,8 +579,8 @@ export default function HomePageClient() {
       </main>
 
       {/* ── Final CTA ──────────────────────────────────────── */}
-      <section className="relative border-t border-white/[0.05] py-10 sm:py-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-950/60 via-[#0d1117] to-cyan-950/30 pointer-events-none" aria-hidden="true" />
+      <section className="relative border-t border-white/[0.05] py-12 sm:py-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-950/50 via-[#0d1117] to-[#0d1117] pointer-events-none" aria-hidden="true" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-green-600/8 rounded-full blur-[80px] pointer-events-none" aria-hidden="true" />
         <div className="max-w-3xl mx-auto text-center relative">
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-green-600/15 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
