@@ -35,7 +35,10 @@ return [
         'disk'           => 'livewire-tmp',
         'rules'          => null,
         'directory'      => null,
-        'middleware'     => null,
+        // Trims over-long original file names before Livewire embeds them
+        // in the stored temp name — see the class for the full story.
+        // Livewire still prepends its default throttle on its own.
+        'middleware'     => [\App\Http\Middleware\ShortenLongUploadNames::class],
         'preview_mimes'  => [
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',
