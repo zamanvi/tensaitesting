@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sora } from "next/font/google";
+import { Sora, Hind_Siliguri, Noto_Sans_JP } from "next/font/google";
 import Providers from "@/components/shared/Providers";
 import "./globals.css";
 
@@ -8,6 +8,25 @@ const sora = Sora({
   variable: "--font-sans",
   display: "swap",
   weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+// Sora only contains Latin letters, so Bangla and Japanese used to fall back to
+// whatever font each visitor's device happened to have. These two fill in just those
+// scripts (the browser fetches them only when a page actually shows Bangla / Japanese
+// text). They are applied on the home page via the .home-type class in globals.css.
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  variable: "--font-bn",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  variable: "--font-jp",
+  display: "swap",
+  weight: ["400", "500", "700"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -34,7 +53,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${sora.variable} min-h-full bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
+      <body className={`${sora.variable} ${hindSiliguri.variable} ${notoSansJP.variable} min-h-full bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

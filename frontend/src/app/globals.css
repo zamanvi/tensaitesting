@@ -403,3 +403,74 @@ body {
     transform: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Home page typography system — scoped to .home-type
+   One set of text roles and one set of text colors, instead of ad-hoc sizes and
+   a dozen near-identical greys/greens per section. Wording is untouched.
+
+     eyebrow   12px  600  wide-tracked caps, green accent  — small label above a heading
+     h2        28–40px 700 tight tracking                  — section heading
+     lead      16–18px  lh 1.65  body grey                 — sentence under a heading
+     body      16px     lh 1.7   body grey                 — paragraphs
+     body-sm   15px     lh 1.65  body grey                 — card descriptions
+     card-title 17px 600 white                             — card / step titles
+     caption   13px     muted grey                         — roles, labels, fine print
+     quote     16px     lh 1.7   near-white                — testimonial text
+
+   Colors: white-ish for headings, ONE body grey (#aab3c0, 8.9:1 on the page
+   background), ONE muted grey (#8993a2, 6:1). Green is kept for accents only
+   (eyebrows, links, key words, buttons) — no more green paragraph text.
+   The role classes live in @layer components so any Tailwind utility on the same
+   element (spacing, a size tweak) still wins.
+═══════════════════════════════════════════════════════════ */
+.home-type {
+  --t-strong: #f3f6fa;
+  --t-body:   #aab3c0;
+  --t-muted:  #8993a2;
+  /* Sora only has Latin glyphs: Bangla and Japanese come from their own web fonts
+     (loaded in layout.tsx) instead of whatever the visitor's device falls back to. */
+  font-family: var(--font-sans), var(--font-bn), system-ui, -apple-system, sans-serif;
+  letter-spacing: 0;
+}
+/* The Japanese font is only added to the chain when the page is actually in Japanese,
+   so English and Bangla visitors never download it. */
+html:lang(ja) .home-type {
+  font-family: var(--font-sans), var(--font-jp), var(--font-bn), system-ui, -apple-system, sans-serif;
+}
+
+@layer components {
+  .home-type .t-eyebrow    { font-size: .75rem; line-height: 1.2; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: #4ade80; }
+  .home-type .t-h2         { font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.15; font-weight: 700; letter-spacing: -0.025em; color: var(--t-strong); text-wrap: balance; }
+  .home-type .t-lead       { font-size: clamp(1rem, 1.6vw, 1.125rem); line-height: 1.65; color: var(--t-body); text-wrap: pretty; }
+  .home-type .t-body       { font-size: 1rem; line-height: 1.7; color: var(--t-body); text-wrap: pretty; }
+  .home-type .t-body-sm    { font-size: .9375rem; line-height: 1.65; color: var(--t-body); text-wrap: pretty; }
+  .home-type .t-card-title { font-size: 1.0625rem; line-height: 1.35; font-weight: 600; letter-spacing: -0.01em; color: var(--t-strong); text-wrap: balance; }
+  .home-type .t-caption    { font-size: .8125rem; line-height: 1.5; color: var(--t-muted); }
+  .home-type .t-quote      { font-size: 1rem; line-height: 1.7; color: #d6dbe3; text-wrap: pretty; }
+}
+
+/* Headline refinement (the hero class is unlayered, so this must be too) */
+.home-type .text-fluid-hero-xl { letter-spacing: -0.025em; line-height: 1.12; }
+
+/* Bangla and Japanese: no negative tracking, no spaced-out capitals (they have no
+   capitals and wide tracking breaks Bangla conjuncts), and taller lines — these
+   scripts need more vertical room than Latin. */
+html:lang(bn) .home-type .t-eyebrow,
+html:lang(ja) .home-type .t-eyebrow { letter-spacing: .06em; text-transform: none; }
+
+html:lang(bn) .home-type .t-h2,
+html:lang(bn) .home-type .t-card-title,
+html:lang(bn) .home-type .text-fluid-hero-xl,
+html:lang(ja) .home-type .t-h2,
+html:lang(ja) .home-type .t-card-title,
+html:lang(ja) .home-type .text-fluid-hero-xl { letter-spacing: 0; line-height: 1.35; font-weight: 700; }
+
+html:lang(bn) .home-type .t-lead,
+html:lang(bn) .home-type .t-body,
+html:lang(bn) .home-type .t-body-sm,
+html:lang(bn) .home-type .t-quote,
+html:lang(ja) .home-type .t-lead,
+html:lang(ja) .home-type .t-body,
+html:lang(ja) .home-type .t-body-sm,
+html:lang(ja) .home-type .t-quote { line-height: 1.85; }
