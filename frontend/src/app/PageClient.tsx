@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import SiteHeader from '@/components/shared/SiteHeader';
 import EmotionalStorySection from '@/components/home/EmotionalStorySection';
+import IntroVideoSection from '@/components/home/IntroVideoSection';
 
 interface GalleryItem {
   id: number;
@@ -31,6 +32,7 @@ interface SiteSettings {
   copyright_en?: string;
   copyright_ja?: string;
   copyright_bn?: string;
+  intro_video_url?: string;
 }
 
 export default function HomePageClient() {
@@ -303,6 +305,8 @@ export default function HomePageClient() {
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0d1117] to-transparent pointer-events-none" aria-hidden="true" />
         </section>
 
+        {/* ── Intro Video (set under Site Settings; hidden when empty) ── */}
+        <IntroVideoSection url={settings?.intro_video_url} />
 
         {/* ── Gateway Bento Grid ─────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16">
