@@ -66,8 +66,6 @@ export default function HomePageClient() {
   const guidePosts = (guideData?.data ?? []).slice(0, 3);
 
   useEffect(() => {
-    setGalleryLoading(true);
-    setGalleryError(false);
     api.get<GalleryItem[]>('/gallery/featured')
       .then((r) => {
         setFeatured(Array.isArray(r.data) ? r.data : []);
@@ -211,23 +209,6 @@ export default function HomePageClient() {
     },
   ];
 
-  const AGENCY_BENEFITS = [
-    { icon: '🔍', text: ja ? 'AI検証済み学生プールへのアクセス' : bn ? 'AI যাচাইকৃত স্টুডেন্ট পুলে প্রবেশাধিকার' : 'Access to AI-verified student pool' },
-    { icon: '💰', text: ja ? 'エスクロー保護の手数料収益' : bn ? 'এসক্রো সুরক্ষিত ফি আয়' : 'Escrow-protected fee earnings' },
-    { icon: '🤝', text: ja ? '日本機関との直接マッチング' : bn ? 'জাপানি প্রতিষ্ঠানের সাথে সরাসরি ম্যাচিং' : 'Direct matching with Japanese institutions' },
-    { icon: '📊', text: ja ? 'リアルタイムパイプラインダッシュボード' : bn ? 'রিয়েল-টাইম পাইপলাইন ড্যাশবোর্ড' : 'Real-time placement pipeline dashboard' },
-    { icon: '🛡️', text: ja ? '書類詐欺ゼロ保証' : bn ? 'ডকুমেন্ট জালিয়াতি শূন্য নিশ্চয়তা' : 'Zero document fraud — guaranteed' },
-    { icon: '🌐', text: ja ? '複数の学校と同時に連携' : bn ? 'একসাথে একাধিক স্কুলের সাথে কাজ' : 'Work with multiple schools simultaneously' },
-  ];
-
-  const INSTITUTION_BENEFITS = [
-    { icon: '🤖', text: ja ? 'AI適格性スコアで事前スクリーニング' : bn ? 'AI স্কোরে প্রাক-স্ক্রিনিং' : 'Pre-screen applicants by AI eligibility score' },
-    { icon: '🔒', text: ja ? 'OCRロック済み書類 — 改ざん不可' : bn ? 'OCR-লকড ডকুমেন্ট — টেম্পার-প্রুফ' : 'OCR-locked documents — tamper-proof' },
-    { icon: '📋', text: ja ? '直接面接リクエストと調整' : bn ? 'সরাসরি ইন্টারভিউ রিকোয়েস্ট ও সমন্বয়' : 'Direct interview request & scheduling' },
-    { icon: '📈', text: ja ? '合格率とビザ成功率の追跡' : bn ? 'অ্যাকসেপ্টেন্স ও ভিসা রেট ট্র্যাকিং' : 'Track acceptance & visa success rates' },
-    { icon: '🎯', text: ja ? 'JLPTレベル、GPA、国籍でフィルター' : bn ? 'JLPT, GPA, জাতীয়তা দিয়ে ফিল্টার' : 'Filter by JLPT level, GPA, nationality' },
-    { icon: '💬', text: ja ? '認定エージェンシーとの安全な通信' : bn ? 'অনুমোদিত এজেন্সির সাথে নিরাপদ যোগাযোগ' : 'Secure comms with approved agencies' },
-  ];
 
   /* Derive nav/footer labels from i18n */
   const navAbout  = l.about;
@@ -287,12 +268,6 @@ export default function HomePageClient() {
                 className="w-full sm:w-auto text-center bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-full font-semibold text-[15px] tracking-[0.01em] transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
               >
                 {l.ctaStudent}
-              </Link>
-              <Link
-                href="/about"
-                className="w-full sm:w-auto text-center text-[15px] font-medium text-[color:var(--t-body)] hover:text-[color:var(--t-strong)] border border-white/[0.15] hover:border-white/30 px-8 py-4 rounded-full transition-all"
-              >
-                {ja ? '詳しく見る' : bn ? 'আরও জানুন' : 'Learn more'}
               </Link>
             </div>
 
@@ -368,9 +343,6 @@ export default function HomePageClient() {
         <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-8 sm:mb-12">
-              <p className="t-eyebrow mb-2">
-                {ja ? 'プロセス' : bn ? 'প্রক্রিয়া' : 'Process'}
-              </p>
               <h2 className="t-h2">
                 {ja ? 'どのように機能するか' : bn ? 'কীভাবে কাজ করে' : 'How it works'}
               </h2>
@@ -407,14 +379,6 @@ export default function HomePageClient() {
               ))}
             </div>
 
-            <div className="text-center mt-12">
-              <Link
-                href="/auth/register"
-                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded-full font-semibold text-[15px] tracking-[0.01em] transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
-              >
-                {ja ? '今すぐ始める →' : bn ? 'এখনই শুরু করুন →' : 'Start your journey →'}
-              </Link>
-            </div>
           </div>
         </section>
 
@@ -425,9 +389,6 @@ export default function HomePageClient() {
         <section className="py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-8 sm:mb-10">
-              <p className="t-eyebrow mb-2">
-                {ja ? 'なぜ天才か' : bn ? 'কেন টেনসাই' : 'Why Tensai'}
-              </p>
               <h2 className="t-h2 mb-3">{l.whyTitle}</h2>
               <p className="t-lead max-w-xl mx-auto">{l.whySub}</p>
             </div>
@@ -461,9 +422,6 @@ export default function HomePageClient() {
           <div className="mb-8">
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
-                <p className="t-eyebrow mb-1">
-                  {ja ? 'コミュニティ' : bn ? 'কমিউনিটি' : 'Community'}
-                </p>
                 <h2 className="t-h2">
                   {ja ? '学生ギャラリー' : bn ? 'শিক্ষার্থী গ্যালারি' : 'Student Gallery'}
                 </h2>
@@ -472,7 +430,6 @@ export default function HomePageClient() {
                 {l.galleryViewAll}
               </Link>
             </div>
-            <p className="t-body-sm mt-2 max-w-md">{l.gallerySub}</p>
           </div>
 
           {galleryLoading ? (
@@ -537,38 +494,22 @@ export default function HomePageClient() {
             </div>
           )}
 
-          <div className="text-center mt-8">
-            <Link
-              href="/gallery"
-              className="inline-flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.1] hover:border-green-500/30 text-[color:var(--t-body)] hover:text-[color:var(--t-strong)] px-6 py-2.5 rounded-full text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-            >
-              {ja ? 'ギャラリーをすべて見る →' : bn ? 'সম্পূর্ণ গ্যালারি দেখুন →' : 'Browse Full Gallery →'}
-            </Link>
-          </div>
         </section>
 
         {/* ── Testimonials ───────────────────────────────────── */}
         <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-10 sm:mb-12">
-              <p className="t-eyebrow mb-2">
-                {ja ? '体験談' : bn ? 'সাফল্যের গল্প' : 'Success Stories'}
-              </p>
               <h2 className="t-h2">
                 {ja ? '実際に変えた人たち' : bn ? 'বাস্তব মানুষ, বাস্তব সাফল্য' : 'Real people. Real results.'}
               </h2>
-              <p className="t-lead mt-3 max-w-xl mx-auto">
-                {ja ? '学生、エージェンシー、教育機関 — 全員に効果があります' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান — সবার জন্য কাজ করে' : 'Students, agencies, institutions — it works for everyone'}
-              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {(showAllTestimonials ? TESTIMONIALS : TESTIMONIALS.slice(0, 4)).map((tm, idx) => (
                 // Phone: only the first two until "Show more"; md and up: the usual grid.
                 <div key={tm.name} className={`glass-card rounded-2xl p-6 gap-4 border ${tm.border} border-l-4 relative ${!showAllTestimonials && idx >= 2 ? 'hidden md:flex md:flex-col' : 'flex flex-col'} ${idx === 0 ? 'ring-1 ring-amber-500/30' : ''}`} style={{borderLeftColor: idx === 0 ? '#d97706' : 'inherit'}}>
                   <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
-                  {idx === 0 && <div className="absolute -top-2 -right-2 text-amber-400 font-black">⭐</div>}
                   <div className="flex items-center justify-between">
-                    <div className="text-2xl text-white/30" aria-hidden="true">❝</div>
                     <div className="flex gap-0.5" aria-label="5 stars">
                       {[1,2,3,4,5].map(s => <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill="#facc15" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>)}
                     </div>
@@ -582,7 +523,6 @@ export default function HomePageClient() {
                       <p className="text-[15px] text-[color:var(--t-strong)] font-semibold truncate">{tm.name}</p>
                       <p className="t-caption truncate">{tm.role}</p>
                     </div>
-                    <span className="ml-auto text-xl shrink-0" aria-hidden="true">{tm.flag}</span>
                   </div>
                 </div>
               ))}
@@ -607,9 +547,6 @@ export default function HomePageClient() {
           <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 border-t border-white/[0.05]">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="t-eyebrow mb-2">
-                  {ja ? '知識ハブ' : bn ? 'নলেজ হাব' : 'Knowledge Hub'}
-                </p>
                 <h2 className="t-h2">
                   {ja ? 'ガイドの最新記事' : bn ? 'গাইড থেকে সর্বশেষ' : 'Latest from our Guide'}
                 </h2>
@@ -671,10 +608,6 @@ export default function HomePageClient() {
         <div className="max-w-3xl mx-auto text-center relative">
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-green-600/15 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shrink-0" />
-              {ja ? '現在受付中' : bn ? 'এখন অনবোর্ডিং চলছে' : 'Now onboarding partners'}
-            </div>
             <h2 className="t-h2 mb-4">
               {ja ? '次は、あなたの番です' : bn ? 'পরের পদক্ষেপটা আপনার' : "Your turn to make the move"}
             </h2>
@@ -692,22 +625,6 @@ export default function HomePageClient() {
               >
                 {l.ctaStudent}
               </Link>
-              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-                <Link href="/auth/register?type=agency"
-                  className="text-sm text-[color:var(--t-body)] hover:text-[color:var(--t-strong)] transition-colors">
-                  {ja ? 'エージェンシーとして参加 →' : bn ? 'এজেন্সি হিসেবে যোগ দিন →' : 'Join as Agency →'}
-                </Link>
-                <span className="text-white/15 hidden sm:inline">·</span>
-                <Link href="/auth/register?type=institution"
-                  className="text-sm text-[color:var(--t-body)] hover:text-[color:var(--t-strong)] transition-colors">
-                  {ja ? '教育機関として参加 →' : bn ? 'প্রতিষ্ঠান হিসেবে যোগ দিন →' : 'Join as Institution →'}
-                </Link>
-                <span className="text-white/15 hidden sm:inline">·</span>
-                <Link href="/auth/register?type=affiliate"
-                  className="text-sm text-[color:var(--t-body)] hover:text-[color:var(--t-strong)] transition-colors">
-                  {ja ? 'アフィリエイトとして参加 →' : bn ? 'অ্যাফিলিয়েট হিসেবে যোগ দিন →' : 'Join as Affiliate →'}
-                </Link>
-              </div>
             </div>
           </div>
         </div>

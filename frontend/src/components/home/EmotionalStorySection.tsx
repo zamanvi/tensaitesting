@@ -15,12 +15,6 @@ export default function EmotionalStorySection() {
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
-  const VALUES = [
-    { icon: '🛡️', title: 'Trust', desc: 'No fraud, no fake profiles—just verified paths forward' },
-    { icon: '🤝', title: 'Partnership', desc: 'We walk alongside you, not ahead or behind' },
-    { icon: '✨', title: 'Clarity', desc: 'Every step transparent, every decision backed by data' },
-  ];
-
   return (
     <section className="relative px-4 py-10 sm:py-14 overflow-hidden border-t border-white/[0.05]">
       {/* Soft background glow */}
@@ -52,19 +46,6 @@ export default function EmotionalStorySection() {
             &ldquo;Forget the fear of unknown paths. To make your journey abroad truly smooth and safe&mdash;<span className="text-green-400 font-semibold not-italic">Tensai is always your trusted companion</span>, guiding you every step of the way.&rdquo;
           </p>
         )}
-
-        {/* The three values — a light row, no boxes */}
-        <div className="grid sm:grid-cols-3 gap-5 sm:gap-8 mt-8 sm:mt-10 text-center">
-          {VALUES.map((v) => (
-            <div key={v.title}>
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <span className="text-lg" aria-hidden="true">{v.icon}</span>
-                <h3 className="t-card-title">{v.title}</h3>
-              </div>
-              <p className="t-body-sm max-w-[16rem] mx-auto">{v.desc}</p>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
