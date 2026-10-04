@@ -2,7 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Resources\LeadResource;
 use App\Models\Lead;
+use Filament\Facades\Filament;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -12,6 +14,18 @@ class RecentLeadsWidget extends BaseWidget
     protected static ?string $heading = 'Recent Applicants';
     protected static ?int $sort = 4;
     protected int | string | array $columnSpan = 'full';
+
+    // Shared Dashboard again: each row's "view" action builds
+    // LeadResource::getUrl('edit'), which throws RouteNotFoundException on the
+    // manager panel where Leads isn't registered. Only show it where it is.
+    public static function canView(): bool
+    {
+        return in_array(
+            LeadResource::class,
+            Filament::getCurrentPanel()?->getResources() ?? [],
+            true
+        );
+    }
 
     public function table(Table $table): Table
     {
