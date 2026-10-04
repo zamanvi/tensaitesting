@@ -38,6 +38,10 @@ class SettingsPage extends Page
     public string $copyright_ja = '';
     public string $copyright_bn = '';
 
+    // Optional YouTube link for the home page's intro video section — the
+    // section simply doesn't render on the site while this is empty.
+    public string $intro_video_url = '';
+
     public function mount(): void
     {
         $this->support_whatsapp = Setting::get('support_whatsapp', '8801826192179');
@@ -55,6 +59,8 @@ class SettingsPage extends Page
         $this->copyright_en = Setting::get('copyright_en', '');
         $this->copyright_ja = Setting::get('copyright_ja', '');
         $this->copyright_bn = Setting::get('copyright_bn', '');
+
+        $this->intro_video_url = Setting::get('intro_video_url', '');
     }
 
     public function save(): void
@@ -73,6 +79,21 @@ class SettingsPage extends Page
             'copyright_en'     => 'nullable|string|max:255',
             'copyright_ja'     => 'nullable|string|max:255',
             'copyright_bn'     => 'nullable|string|max:255',
+            'intro_video_url'  => [
+                'nullable', 'url', 'max:255',
+                // Only YouTube links — anything else would just render a
+                // broken player on the home page.
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if (blank($value)) {
+                        return;
+                    }
+                    $host = strtolower((string) parse_url($value, PHP_URL_HOST));
+                    $host = preg_replace('/^(www|m)\./', '', $host);
+                    if (! in_array($host, ['youtube.com', 'youtu.be', 'youtube-nocookie.com'], true)) {
+                        $fail('Please paste a YouTube link (youtube.com or youtu.be).');
+                    }
+                },
+            ],
         ]);
 
         Setting::set('support_whatsapp', $this->support_whatsapp);
@@ -90,6 +111,8 @@ class SettingsPage extends Page
         Setting::set('copyright_en', $this->copyright_en);
         Setting::set('copyright_ja', $this->copyright_ja);
         Setting::set('copyright_bn', $this->copyright_bn);
+
+        Setting::set('intro_video_url', $this->intro_video_url);
 
         Notification::make()->title('Settings saved.')->success()->send();
     }
@@ -119,6 +142,17 @@ class SettingsPage extends Page
                         ->label('Office Address')
                         ->helperText('Full address shown on the contact/about page')
                         ->rows(3)
+                        ->columnSpanFull(),
+                ]),
+
+            Forms\Components\Section::make('Home Page Intro Video')
+                ->description('A short YouTube video introducing the website/platform, shown on the home page right below the top banner. Leave empty to hide the section.')
+                ->schema([
+                    Forms\Components\TextInput::make('intro_video_url')
+                        ->label('YouTube Video Link')
+                        ->url()
+                        ->placeholder('https://www.youtube.com/watch?v=...')
+                        ->helperText('Paste the normal YouTube link (youtube.com/watch?v=…, youtu.be/…, or a Shorts link).')
                         ->columnSpanFull(),
                 ]),
 

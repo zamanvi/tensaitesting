@@ -62,6 +62,7 @@ Route::get('/settings/public', function () {
         'support_whatsapp', 'support_phone', 'support_email', 'office_address',
         'copyright_en', 'copyright_ja', 'copyright_bn',
         'target_countries', 'referral_fees',
+        'intro_video_url',
     ];
     $settings = \App\Models\Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
     foreach (['target_countries', 'referral_fees'] as $jsonKey) {
