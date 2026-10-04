@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import SiteHeader from '@/components/shared/SiteHeader';
 import EmotionalStorySection from '@/components/home/EmotionalStorySection';
-import IntroVideoSection from '@/components/home/IntroVideoSection';
+import IntroVideoPlayer, { getYouTubeId } from '@/components/home/IntroVideoSection';
 
 interface GalleryItem {
   id: number;
@@ -235,6 +235,11 @@ export default function HomePageClient() {
   const termsText = l.terms;
   const privText  = l.privacy;
 
+  // The intro video (Site Settings → Home Page Intro Video) lives inside the top
+  // banner. With a valid link the banner becomes two columns on desktop
+  // (headline left, video right); with none it stays the original centered banner.
+  const hasVideo = !!getYouTubeId(settings?.intro_video_url);
+
   return (
     <div className="min-h-screen bg-[#0d1117]">
 
@@ -243,7 +248,7 @@ export default function HomePageClient() {
       <main>
 
         {/* ── Hero — Centered ────────────────────────────────── */}
-        <section className="hero-mesh min-h-screen flex items-center px-4 pt-24 pb-20 relative overflow-hidden">
+        <section className={`hero-mesh flex items-center px-4 pt-24 relative overflow-hidden ${hasVideo ? 'lg:min-h-screen pb-12 sm:pb-16 lg:pb-20' : 'min-h-screen pb-20'}`}>
 
           {/* Ambient orbs */}
           <div className="absolute top-[15%] left-[10%]  w-[500px] h-[500px] bg-green-600/10  rounded-full blur-[160px] pointer-events-none" aria-hidden="true" />
@@ -260,7 +265,9 @@ export default function HomePageClient() {
             }}
           />
 
-          <div className="relative z-10 max-w-4xl mx-auto w-full text-center animate-fade-up">
+          <div className={`relative z-10 w-full animate-fade-up ${hasVideo ? 'max-w-6xl mx-auto grid lg:grid-cols-[1.05fr_1fr] gap-10 lg:gap-14 items-center' : 'max-w-4xl mx-auto text-center'}`}>
+
+            <div className={hasVideo ? 'text-center lg:text-left' : undefined}>
 
             {/* Live badge */}
             <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 backdrop-blur-sm">
@@ -269,12 +276,12 @@ export default function HomePageClient() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-fluid-hero-xl font-black text-white mb-10 max-w-4xl mx-auto">
+            <h1 className={`text-fluid-hero-xl font-black text-white max-w-4xl mx-auto ${hasVideo ? 'mb-8 lg:mx-0' : 'mb-10'}`}>
               {l.heroSub}
             </h1>
 
             {/* CTA */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14 w-full max-w-sm mx-auto sm:max-w-none">
+            <div className={`flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-sm mx-auto sm:max-w-none ${hasVideo ? 'mb-8 lg:justify-start lg:mx-0' : 'mb-14'}`}>
               <Link
                 href="/auth/register?type=student"
                 className="w-full sm:w-auto text-center bg-green-600 hover:bg-green-500 text-white px-10 py-4 rounded-full font-bold text-sm transition-all glow-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-300"
@@ -290,7 +297,7 @@ export default function HomePageClient() {
             </div>
 
             {/* Stats strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-white/[0.08] max-w-xl mx-auto">
+            <div className={`grid grid-cols-2 sm:grid-cols-4 rounded-2xl overflow-hidden border border-white/[0.08] max-w-xl mx-auto ${hasVideo ? 'lg:mx-0' : ''}`}>
               {STATS.map((s, i) => (
                 <div key={i} className="px-4 sm:px-6 py-3.5 bg-white/[0.03] text-center border-r border-b border-white/[0.08] last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r [&:nth-child(3)]:border-b-0 [&:nth-child(4)]:border-b-0 sm:border-b-0">
                   <div className="text-white font-bold text-sm leading-tight">{s.value}</div>
@@ -299,14 +306,20 @@ export default function HomePageClient() {
               ))}
             </div>
 
+            </div>
+
+            {/* Intro video — right column on desktop, below the buttons/stats on phones */}
+            {hasVideo && (
+              <div className="w-full max-w-xl lg:max-w-none mx-auto">
+                <IntroVideoPlayer url={settings?.intro_video_url} />
+              </div>
+            )}
+
           </div>
 
           {/* Bottom fade */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0d1117] to-transparent pointer-events-none" aria-hidden="true" />
         </section>
-
-        {/* ── Intro Video (set under Site Settings; hidden when empty) ── */}
-        <IntroVideoSection url={settings?.intro_video_url} />
 
         {/* ── Gateway Bento Grid ─────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16">
