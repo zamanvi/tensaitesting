@@ -351,68 +351,6 @@ export default function HomePageClient() {
           </div>
         </section>
 
-        {/* ── Emotional Story Section ────────────────────────── */}
-        <EmotionalStorySection />
-
-        {/* ── Latest from Guide ──────────────────────────────── */}
-        {guidePosts.length > 0 && (
-          <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
-                  {ja ? '知識ハブ' : bn ? 'নলেজ হাব' : 'Knowledge Hub'}
-                </p>
-                <h2 className="text-fluid-3xl font-bold text-white">
-                  {ja ? 'ガイドの最新記事' : bn ? 'গাইড থেকে সর্বশেষ' : 'Latest from our Guide'}
-                </h2>
-              </div>
-              <Link
-                href="/feed"
-                className="hidden sm:inline-flex items-center gap-1.5 text-sm text-green-400 hover:text-green-300 font-semibold transition-colors shrink-0"
-              >
-                {ja ? 'すべて見る' : bn ? 'সব দেখুন' : 'See all'} →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {guidePosts.map((post) => (
-                <Link
-                  key={post.id}
-                  href={`/feed/${post.slug}`}
-                  className="group glass-card rounded-2xl overflow-hidden border border-white/[0.08] hover:border-green-500/25 card-hover-glow transition-all flex flex-col"
-                >
-                  <div className="relative aspect-video bg-white/[0.03] overflow-hidden shrink-0">
-                    {post.thumbnail ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={post.thumbnail}
-                        alt={post.title}
-                        className="w-full h-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
-                      />
-                    ) : (
-                      // No thumbnail on this post — a branded tile instead of a blank grey box.
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-green-600/25 via-green-900/15 to-cyan-600/15">
-                        <span className="text-3xl opacity-70" aria-hidden="true">📖</span>
-                        <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-green-300/70">{ja ? 'ガイド' : bn ? 'গাইড' : 'Tensai Guide'}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-bold text-white text-sm leading-snug mb-2 line-clamp-2 group-hover:text-green-400 transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-white/60 leading-relaxed line-clamp-2 flex-1">{post.excerpt}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-6 text-center sm:hidden">
-              <Link href="/feed" className="inline-flex items-center gap-1.5 text-sm text-green-400 hover:text-green-300 font-semibold transition-colors">
-                {ja ? 'すべて見る' : bn ? 'সব দেখুন' : 'See all'} →
-              </Link>
-            </div>
-          </section>
-        )}
-
         {/* ── How It Works ───────────────────────────────────── */}
         <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-5xl mx-auto px-4">
@@ -467,6 +405,9 @@ export default function HomePageClient() {
           </div>
         </section>
 
+        {/* ── Emotional Story Section ────────────────────────── */}
+        <EmotionalStorySection />
+
         {/* ── Why Tensai ─────────────────────────────────────── */}
         <section className="py-10 sm:py-16 border-t border-white/[0.05]">
           <div className="max-w-7xl mx-auto px-4">
@@ -485,74 +426,22 @@ export default function HomePageClient() {
                   : f.color.includes('violet') ? 'from-violet-500/50 to-transparent'
                   : 'from-amber-500/50 to-transparent';
                 return (
-                <div key={f.title} className="glass-card rounded-2xl p-6 flex flex-col gap-4 card-hover-glow transition-all duration-300 relative overflow-hidden">
+                // Phone: icon beside the text (each card roughly half as tall); sm and up: stacked as before.
+                <div key={f.title} className="glass-card rounded-2xl p-5 sm:p-6 flex flex-row sm:flex-col items-start gap-4 card-hover-glow transition-all duration-300 relative overflow-hidden">
                   <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${topLine}`} />
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center text-xl`} aria-hidden="true">
+                  <div className={`w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center text-xl`} aria-hidden="true">
                     {f.icon}
                   </div>
-                  <h3 className="font-bold text-green-400 text-base leading-snug">{f.title}</h3>
-                  <p className="text-sm text-green-300/80 leading-relaxed">{f.desc}</p>
+                  <div className="flex flex-col gap-1.5 sm:gap-4 min-w-0">
+                    <h3 className="font-bold text-green-400 text-base leading-snug">{f.title}</h3>
+                    <p className="text-sm text-green-300/80 leading-relaxed">{f.desc}</p>
+                  </div>
                 </div>
                 );
               })}
             </div>
           </div>
         </section>
-
-        {/* ── Testimonials ───────────────────────────────────── */}
-        <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-10 sm:mb-12">
-              <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
-                {ja ? '体験談' : bn ? 'সাফল্যের গল্প' : 'Success Stories'}
-              </p>
-              <h2 className="text-fluid-4xl font-bold text-white">
-                {ja ? '実際に変えた人たち' : bn ? 'বাস্তব মানুষ, বাস্তব সাফল্য' : 'Real people. Real results.'}
-              </h2>
-              <p className="text-fluid-sm text-green-300/75 mt-3 max-w-md mx-auto">
-                {ja ? '学生、エージェンシー、教育機関 — 全員に効果があります' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান — সবার জন্য কাজ করে' : 'Students, agencies, institutions — it works for everyone'}
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {(showAllTestimonials ? TESTIMONIALS : TESTIMONIALS.slice(0, 4)).map((tm, idx) => (
-                <div key={tm.name} className={`glass-card rounded-2xl p-6 flex flex-col gap-4 border ${tm.border} border-l-4 relative ${idx === 0 ? 'ring-1 ring-amber-500/30' : ''}`} style={{borderLeftColor: idx === 0 ? '#d97706' : 'inherit'}}>
-                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
-                  {idx === 0 && <div className="absolute -top-2 -right-2 text-amber-400 font-black">⭐</div>}
-                  <div className="flex items-center justify-between">
-                    <div className="text-2xl text-white/30" aria-hidden="true">❝</div>
-                    <div className="flex gap-0.5" aria-label="5 stars">
-                      {[1,2,3,4,5].map(s => <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill="#facc15" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>)}
-                    </div>
-                  </div>
-                  <p className="text-white/80 text-sm leading-relaxed flex-1">{tm.quote}</p>
-                  <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
-                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${tm.color} border ${tm.border} flex items-center justify-center text-sm font-bold text-white shrink-0`}>
-                      {tm.avatar}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-white text-sm font-semibold truncate">{tm.name}</p>
-                      <p className="text-white/55 text-xs truncate">{tm.role}</p>
-                    </div>
-                    <span className="ml-auto text-xl shrink-0" aria-hidden="true">{tm.flag}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {TESTIMONIALS.length > 4 && (
-              <div className="text-center mt-8">
-                <button
-                  onClick={() => setShowAllTestimonials(v => !v)}
-                  className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors"
-                >
-                  {showAllTestimonials
-                    ? (ja ? '閉じる' : bn ? 'কম দেখুন' : 'Show less')
-                    : (ja ? 'すべてのレビューを見る' : bn ? 'সব রিভিউ দেখুন' : `Show ${TESTIMONIALS.length - 4} more`)}
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
-
 
         {/* ── Gallery ────────────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 border-t border-white/[0.05]">
@@ -644,6 +533,121 @@ export default function HomePageClient() {
             </Link>
           </div>
         </section>
+
+        {/* ── Testimonials ───────────────────────────────────── */}
+        <section className="bg-alt-section py-10 sm:py-16 border-t border-white/[0.05]">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-10 sm:mb-12">
+              <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
+                {ja ? '体験談' : bn ? 'সাফল্যের গল্প' : 'Success Stories'}
+              </p>
+              <h2 className="text-fluid-4xl font-bold text-white">
+                {ja ? '実際に変えた人たち' : bn ? 'বাস্তব মানুষ, বাস্তব সাফল্য' : 'Real people. Real results.'}
+              </h2>
+              <p className="text-fluid-sm text-green-300/75 mt-3 max-w-md mx-auto">
+                {ja ? '学生、エージェンシー、教育機関 — 全員に効果があります' : bn ? 'শিক্ষার্থী, এজেন্সি, প্রতিষ্ঠান — সবার জন্য কাজ করে' : 'Students, agencies, institutions — it works for everyone'}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {(showAllTestimonials ? TESTIMONIALS : TESTIMONIALS.slice(0, 4)).map((tm, idx) => (
+                // Phone: only the first two until "Show more"; md and up: the usual grid.
+                <div key={tm.name} className={`glass-card rounded-2xl p-6 gap-4 border ${tm.border} border-l-4 relative ${!showAllTestimonials && idx >= 2 ? 'hidden md:flex md:flex-col' : 'flex flex-col'} ${idx === 0 ? 'ring-1 ring-amber-500/30' : ''}`} style={{borderLeftColor: idx === 0 ? '#d97706' : 'inherit'}}>
+                  <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r ${tm.color} rounded-t-2xl`} />
+                  {idx === 0 && <div className="absolute -top-2 -right-2 text-amber-400 font-black">⭐</div>}
+                  <div className="flex items-center justify-between">
+                    <div className="text-2xl text-white/30" aria-hidden="true">❝</div>
+                    <div className="flex gap-0.5" aria-label="5 stars">
+                      {[1,2,3,4,5].map(s => <svg key={s} width="12" height="12" viewBox="0 0 24 24" fill="#facc15" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>)}
+                    </div>
+                  </div>
+                  <p className="text-white/80 text-sm leading-relaxed flex-1">{tm.quote}</p>
+                  <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
+                    <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${tm.color} border ${tm.border} flex items-center justify-center text-sm font-bold text-white shrink-0`}>
+                      {tm.avatar}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-white text-sm font-semibold truncate">{tm.name}</p>
+                      <p className="text-white/55 text-xs truncate">{tm.role}</p>
+                    </div>
+                    <span className="ml-auto text-xl shrink-0" aria-hidden="true">{tm.flag}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {TESTIMONIALS.length > 2 && (
+              <div className="text-center mt-8">
+                <button
+                  onClick={() => setShowAllTestimonials(v => !v)}
+                  className="text-sm font-semibold text-green-400 hover:text-green-300 transition-colors"
+                >
+                  {showAllTestimonials
+                    ? (ja ? '閉じる' : bn ? 'কম দেখুন' : 'Show less')
+                    : (ja ? 'すべてのレビューを見る' : bn ? 'সব রিভিউ দেখুন' : 'Show more')}
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ── Latest from Guide ──────────────────────────────── */}
+        {guidePosts.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 py-10 sm:py-16 border-t border-white/[0.05]">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-green-400/80 text-xs font-semibold tracking-[0.25em] uppercase mb-2">
+                  {ja ? '知識ハブ' : bn ? 'নলেজ হাব' : 'Knowledge Hub'}
+                </p>
+                <h2 className="text-fluid-3xl font-bold text-white">
+                  {ja ? 'ガイドの最新記事' : bn ? 'গাইড থেকে সর্বশেষ' : 'Latest from our Guide'}
+                </h2>
+              </div>
+              <Link
+                href="/feed"
+                className="hidden sm:inline-flex items-center gap-1.5 text-sm text-green-400 hover:text-green-300 font-semibold transition-colors shrink-0"
+              >
+                {ja ? 'すべて見る' : bn ? 'সব দেখুন' : 'See all'} →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {guidePosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/feed/${post.slug}`}
+                  className="group glass-card rounded-2xl overflow-hidden border border-white/[0.08] hover:border-green-500/25 card-hover-glow transition-all flex flex-row sm:flex-col"
+                >
+                  {/* Phone: compact row (square thumbnail + text). sm and up: the usual stacked card. */}
+                  <div className="relative w-28 aspect-square sm:w-full sm:aspect-video bg-white/[0.03] overflow-hidden shrink-0">
+                    {post.thumbnail ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={post.thumbnail}
+                        alt={post.title}
+                        className="w-full h-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
+                      />
+                    ) : (
+                      // No thumbnail on this post — a branded tile instead of a blank grey box.
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-green-600/25 via-green-900/15 to-cyan-600/15">
+                        <span className="text-3xl opacity-70" aria-hidden="true">📖</span>
+                        <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-green-300/70">{ja ? 'ガイド' : bn ? 'গাইড' : 'Tensai Guide'}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3 sm:p-4 flex flex-col flex-1 min-w-0 justify-center sm:justify-start">
+                    <h3 className="font-bold text-white text-sm leading-snug sm:mb-2 line-clamp-3 sm:line-clamp-2 group-hover:text-green-400 transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="hidden sm:block text-sm text-white/60 leading-relaxed line-clamp-2 flex-1">{post.excerpt}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 text-center sm:hidden">
+              <Link href="/feed" className="inline-flex items-center gap-1.5 text-sm text-green-400 hover:text-green-300 font-semibold transition-colors">
+                {ja ? 'すべて見る' : bn ? 'সব দেখুন' : 'See all'} →
+              </Link>
+            </div>
+          </section>
+        )}
 
       </main>
 
