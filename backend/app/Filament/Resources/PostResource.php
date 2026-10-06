@@ -33,6 +33,26 @@ class PostResource extends Resource
     }
 
     /**
+     * True when a form value holds any real text, however deeply nested. Repeater state is
+     * an array of blank items on a new post ([uuid => ['label' => null]]), which a plain
+     * filled()/blank() check treats as "has content".
+     */
+    private static function postFormHasText(mixed $state): bool
+    {
+        if (is_array($state)) {
+            foreach ($state as $value) {
+                if (self::postFormHasText($value)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return filled($state);
+    }
+
+    /**
      * The comparison-table repeater fields aren't required (a blank row shouldn't
      * block saving a video/article post) — so strip any half-filled rows/columns
      * the admin left behind instead of persisting empty-string junk.
@@ -134,8 +154,15 @@ class PostResource extends Resource
 
                     Forms\Components\Section::make('Comparison Table (optional)')
                         ->description('Build a comparison table like "Staying home vs. Going abroad" — appears below the article body on the site.')
-                        ->visible(fn (Get $get) => !in_array($get('type'), ['video', 'article']) || filled($get('comparison_table.headers')))
-                        ->collapsed(fn (Get $get) => blank($get('comparison_table.headers')))
+                        ->visible(fn (Get $get) => !in_array($get('type'), ['video', 'article']) || self::postFormHasText($get('comparison_table.headers')))
+                        // Starts closed unless it actually has something in it. A Repeater begins
+                        // with one blank item, so "is the array empty?" was never true on a new
+                        // post — this looks for real text (title, a column label, a row label).
+                        ->collapsed(fn (Get $get) => ! (
+                            filled($get('comparison_table.title'))
+                            || self::postFormHasText($get('comparison_table.headers'))
+                            || self::postFormHasText($get('comparison_table.rows'))
+                        ))
                         ->schema([
                             Forms\Components\TextInput::make('comparison_table.title')
                                 ->label('Table Title')
