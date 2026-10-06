@@ -207,22 +207,33 @@ class Payment extends Model
      *  running total, this is the per-installment history. */
     public function collect(float $amountToAdd, ?int $receivedBy = null): void
     {
-        $before  = (float) $this->amount;
-        $this->amount = min(
-            round($before + $amountToAdd, 2),
-            (float) $this->total_amount
-        );
-        $applied = round($this->amount - $before, 2);
+        // Row-locked and re-read inside one transaction: two collects at once (a double
+        // click, or two admins) used to both start from the same stale `amount`, so the
+        // memo ended up lower than the sum of its own collection rows. Now the second one
+        // waits, sees the first one's result, and adds on top of it.
+        \Illuminate\Support\Facades\DB::transaction(function () use ($amountToAdd, $receivedBy) {
+            $fresh = static::whereKey($this->getKey())->lockForUpdate()->firstOrFail();
 
-        $this->status = $this->computeStatus();
-        $this->save();
+            $before = (float) $fresh->amount;
+            $fresh->amount = min(
+                round($before + $amountToAdd, 2),
+                (float) $fresh->total_amount
+            );
+            $applied = round((float) $fresh->amount - $before, 2);
 
-        if ($applied > 0) {
-            $this->collections()->create([
-                'amount'      => $applied,
-                'received_by' => $receivedBy,
-            ]);
-        }
+            $fresh->status = $fresh->computeStatus();
+            $fresh->save();
+
+            if ($applied > 0) {
+                $fresh->collections()->create([
+                    'amount'      => $applied,
+                    'received_by' => $receivedBy,
+                ]);
+            }
+
+            // Callers keep using this instance afterwards (status, receipt email).
+            $this->setRawAttributes($fresh->getAttributes(), true);
+        });
     }
 
     public function application(): BelongsTo
@@ -334,6 +345,7 @@ class Payment extends Model
 
         $settled  = [];
         $remaining = $received;
+        $full      = true; // flips to false at the first memo that is not fully covered
 
         static::where('branch_id', $branchId)
             ->where('fund_target', 'head_office')
@@ -341,7 +353,7 @@ class Payment extends Model
             ->orderBy('created_at')
             ->orderBy('id')
             ->get(['id', 'amount', 'branch_id'])
-            ->each(function (Payment $memo) use (&$remaining, &$settled) {
+            ->each(function (Payment $memo) use (&$remaining, &$settled, &$full) {
                 // A fully-refunded memo owes HO nothing — settled trivially,
                 // doesn't consume any of the branch's actual received total.
                 $net = (float) $memo->net_amount;
@@ -349,9 +361,14 @@ class Payment extends Model
                     $settled[] = $memo->id;
                     return;
                 }
-                if ($remaining >= $net) {
+                // True oldest-first: once a memo does not fit in what's left, nothing newer
+                // may be marked settled either (a small newer memo used to jump the queue
+                // and show "settled" while an older one was still pending).
+                if ($full && $remaining >= $net) {
                     $settled[] = $memo->id;
                     $remaining -= $net;
+                } else {
+                    $full = false;
                 }
             });
 
