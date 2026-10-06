@@ -434,7 +434,7 @@ class PostResource extends Resource
                 // One-click health check: asks the public API and the public page, as a visitor would.
                 Tables\Actions\Action::make('check_live')
                     ->label('Check live')
-                    ->icon('heroicon-o-signal')
+                    ->icon('heroicon-o-check-badge')
                     ->color('gray')
                     ->visible(fn ($record) => $record->status === 'published')
                     ->action(function ($record) {
