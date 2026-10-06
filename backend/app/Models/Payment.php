@@ -69,31 +69,67 @@ class Payment extends Model
     }
 
     /**
-     * RCPT-{NAME}-{ROLL}-{N} — e.g. RCPT-RAHIM-42-1, then RCPT-RAHIM-42-2 for
-     * that same student's next memo. First name + roll is what staff already
-     * know and can recall or search for, instead of a random 8-char code;
-     * the trailing sequence (1st, 2nd, ... memo for this student) is what
-     * keeps their several memos from colliding on the same number. A Bangla
-     * name is kept as-is rather than forced into Latin transliteration.
+     * RCPT-{BRANCH}-{NAME}-{ROLL}-{N} — e.g. RCPT-PABNA-RAHIM-42-1, then
+     * RCPT-PABNA-RAHIM-42-2 for that same student's next memo; Head Office's
+     * own memos use MAIN (RCPT-MAIN-RAHIM-42-1). First name + roll is what
+     * staff already know and can recall or search for, instead of a random
+     * 8-char code; the trailing sequence (1st, 2nd, ... memo for this
+     * student) keeps their several memos from colliding on the same number.
+     * A Bangla name is kept as-is rather than forced into Latin
+     * transliteration.
      *
-     * Not branch-prefixed: two different branches could in theory produce
-     * the same string for two different people (same first name + same roll
-     * at each) — accepted, since branch admin only ever sees its own memos,
-     * and Head Office can already filter the Memos table by Branch when
-     * searching across all of them.
+     * The branch part is what keeps two different branches apart: the number
+     * is unique across ALL branches, so the same first name + roll at two
+     * branches used to collide (and the second memo failed to save). Memos
+     * created before the branch part existed keep their old numbers.
+     *
+     * The column is 32 characters, so the first name is shortened when the
+     * whole number would not fit — it must never be the reason a memo fails.
      */
     private static function generateReceiptNo(Payment $payment): string
     {
         $firstName = explode(' ', trim((string) $payment->customer_name))[0] ?? '';
-        $name = strtoupper(str_replace('-', '', $firstName)) ?: 'CUSTOMER';
+        $name = mb_strtoupper(str_replace('-', '', $firstName)) ?: 'CUSTOMER';
 
-        $roll = strtoupper(preg_replace('/\s+/', '', (string) $payment->student_roll)) ?: '0';
+        $roll = mb_substr(mb_strtoupper(preg_replace('/\s+/', '', (string) $payment->student_roll)), 0, 8) ?: '0';
+
+        $branch = self::receiptBranchLabel($payment->branch_id);
 
         $sequence = static::where('branch_id', $payment->branch_id)
             ->where('student_roll', $payment->student_roll)
             ->count() + 1;
 
-        return "RCPT-{$name}-{$roll}-{$sequence}";
+        $build = function (int $n) use ($branch, $name, $roll): string {
+            $head = "RCPT-{$branch}-";
+            $tail = "-{$roll}-{$n}";
+            $room = max(32 - mb_strlen($head) - mb_strlen($tail), 1);
+
+            return $head . mb_substr($name, 0, $room) . $tail;
+        };
+
+        // Belt and braces: the number is unique across every branch, so if it
+        // is somehow taken already (e.g. two branches whose names shorten to
+        // the same label), move to the next free sequence instead of failing.
+        $receiptNo = $build($sequence);
+        while (static::where('receipt_no', $receiptNo)->exists()) {
+            $receiptNo = $build(++$sequence);
+        }
+
+        return $receiptNo;
+    }
+
+    /** "Tensai Consultancy -Pabna Branch" -> "PABNA"; Head Office (no branch) -> "MAIN". */
+    private static function receiptBranchLabel(?int $branchId): string
+    {
+        if (!$branchId) {
+            return 'MAIN';
+        }
+
+        $name = (string) Branch::whereKey($branchId)->value('name');
+        $name = preg_replace('/\b(tensai|consultancy|branch)\b/iu', ' ', $name);
+        $label = mb_substr(mb_strtoupper(preg_replace('/[^\p{L}\p{N}]+/u', '', $name)), 0, 10);
+
+        return $label !== '' ? $label : 'B' . $branchId;
     }
 
     public function collections(): HasMany
