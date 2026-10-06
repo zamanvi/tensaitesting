@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -37,6 +38,11 @@ class PostResource extends Resource
      * an array of blank items on a new post ([uuid => ['label' => null]]), which a plain
      * filled()/blank() check treats as "has content".
      */
+    private static function publicUrl(Post $record): string
+    {
+        return rtrim(config('app.frontend_url', 'https://www.tensaiconsultancy.com'), '/') . '/feed/' . $record->slug;
+    }
+
     private static function postFormHasText(mixed $state): bool
     {
         if (is_array($state)) {
@@ -415,12 +421,53 @@ class PostResource extends Resource
                     ->label('Premium'),
             ])
             ->actions([
+                // The public page only exists for published posts (drafts 404 on the site),
+                // so the link is shown only for those.
                 Tables\Actions\Action::make('view_site')
-                    ->label('Preview')
-                    ->icon('heroicon-o-eye')
+                    ->label('View live')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('gray')
-                    ->url(fn ($record) => rtrim(env('FRONTEND_URL', 'http://localhost:3000'), '/') . '/feed/' . $record->slug)
+                    ->visible(fn ($record) => $record->status === 'published')
+                    ->url(fn ($record) => self::publicUrl($record))
                     ->openUrlInNewTab(),
+
+                // One-click health check: asks the public API and the public page, as a visitor would.
+                Tables\Actions\Action::make('check_live')
+                    ->label('Check live')
+                    ->icon('heroicon-o-signal')
+                    ->color('gray')
+                    ->visible(fn ($record) => $record->status === 'published')
+                    ->action(function ($record) {
+                        $api  = null;
+                        $page = null;
+
+                        try {
+                            $api = Http::timeout(8)->acceptJson()->get(url('/api/feed/' . rawurlencode($record->slug)));
+                        } catch (\Throwable $e) {
+                        }
+
+                        try {
+                            $page = Http::timeout(10)->get(self::publicUrl($record));
+                        } catch (\Throwable $e) {
+                        }
+
+                        $apiOk  = $api && $api->ok() && ($api->json('slug') === $record->slug);
+                        $pageOk = $page && $page->ok();
+
+                        if ($apiOk && $pageOk) {
+                            Notification::make()->title('Live ✔')
+                                ->body('The post is served by the API and the public page opens normally.')
+                                ->success()->send();
+                            return;
+                        }
+
+                        Notification::make()->title('Not fully live')
+                            ->body(
+                                'API: ' . ($apiOk ? 'OK' : 'FAILED' . ($api ? ' (' . $api->status() . ')' : ' (no response)'))
+                                . ' · Public page: ' . ($pageOk ? 'OK' : 'FAILED' . ($page ? ' (' . $page->status() . ')' : ' (no response)'))
+                            )
+                            ->danger()->persistent()->send();
+                    }),
 
                 Tables\Actions\EditAction::make(),
 
