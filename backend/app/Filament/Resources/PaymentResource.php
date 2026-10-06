@@ -224,6 +224,11 @@ class PaymentResource extends Resource
         ]);
     }
 
+    private static function isAdmin(): bool
+    {
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
+
     // 'main' is the virtual Head Office option on the branch_id select, not
     // a real Branch id — mirrors the same normalization
     // mutateFormDataBeforeCreate() applies on submit, so this check looks
@@ -432,7 +437,8 @@ class PaymentResource extends Resource
                     ->label('Approve Refund')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn (Payment $r) => (bool) $r->pendingRefund())
+                    // Refund decisions move money records — Admin only, not every manager who can open this page.
+                    ->visible(fn (Payment $r) => (bool) $r->pendingRefund() && self::isAdmin())
                     ->requiresConfirmation()
                     ->modalDescription(fn (Payment $r) => 'Refunds ' . number_format((float) $r->pendingRefund()->amount, 2) . " {$r->currency} back to the student and removes it from every balance/settlement figure. Reason given: \"" . $r->pendingRefund()->reason . '"')
                     ->action(function (Payment $r) {
@@ -448,7 +454,7 @@ class PaymentResource extends Resource
                     ->label('Reject Refund')
                     ->icon('heroicon-o-x-circle')
                     ->color('gray')
-                    ->visible(fn (Payment $r) => (bool) $r->pendingRefund())
+                    ->visible(fn (Payment $r) => (bool) $r->pendingRefund() && self::isAdmin())
                     ->form([
                         Forms\Components\Textarea::make('decision_note')->label('Reason for rejecting')->rows(2),
                     ])
@@ -469,7 +475,7 @@ class PaymentResource extends Resource
                     ->label('Refund')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('danger')
-                    ->visible(fn (Payment $r) => (float) $r->net_amount > 0 && !$r->pendingRefund())
+                    ->visible(fn (Payment $r) => (float) $r->net_amount > 0 && !$r->pendingRefund() && self::isAdmin())
                     ->form([
                         Forms\Components\TextInput::make('amount')
                             ->label('Amount to Refund')

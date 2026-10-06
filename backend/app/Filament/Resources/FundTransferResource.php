@@ -35,6 +35,11 @@ class FundTransferResource extends Resource
     public static function canEdit($record): bool { return false; }
     public static function canDelete($record): bool { return false; }
 
+    private static function isAdmin(): bool
+    {
+        return (bool) auth()->user()?->hasRole(['super_admin', 'admin']);
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with(['branch', 'receiver']);
@@ -85,8 +90,11 @@ class FundTransferResource extends Resource
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalDescription('Confirms head office has received this bank transfer and closes it out of the branch\'s pending balance.')
-                    ->visible(fn (FundTransfer $r) => $r->status === 'pending')
+                    ->modalHeading(fn (FundTransfer $r) => 'Mark ' . number_format((float) $r->amount, 2) . " {$r->currency} from {$r->branch?->name} as received?")
+                    ->modalDescription('Confirm ONLY after you have seen this money in the Head Office bank account — it cannot be undone from here. It closes the amount out of the branch\'s pending balance.')
+                    // Moving money records is an Admin decision, not something every manager with
+                    // access to this page should be able to do.
+                    ->visible(fn (FundTransfer $r) => $r->status === 'pending' && self::isAdmin())
                     ->action(function (FundTransfer $r) {
                         $r->update([
                             'status'      => 'received',
@@ -96,10 +104,32 @@ class FundTransferResource extends Resource
                         Notification::make()->title('Marked as received')->success()->send();
                     }),
 
+                // A transfer logged by mistake (wrong amount, duplicate) can only be removed
+                // while it is still pending — a received one is part of the books. The branch
+                // simply sees it disappear from its history and can log the right one.
+                Tables\Actions\Action::make('cancel_transfer')
+                    ->label('Cancel')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Cancel this pending transfer?')
+                    ->modalDescription('Use this for a transfer the branch logged by mistake (wrong amount or a duplicate). It is removed and the branch can log it again correctly. Received transfers cannot be cancelled.')
+                    ->visible(fn (FundTransfer $r) => $r->status === 'pending' && self::isAdmin())
+                    ->action(function (FundTransfer $r) {
+                        \Illuminate\Support\Facades\Log::info('Pending fund transfer cancelled by admin.', [
+                            'transfer_id' => $r->id, 'branch_id' => $r->branch_id, 'amount' => $r->amount,
+                            'bank_reference' => $r->bank_reference, 'by_user_id' => auth()->id(),
+                        ]);
+                        $r->delete();
+                        Notification::make()->title('Pending transfer cancelled')->warning()->send();
+                    }),
+
                 Tables\Actions\ViewAction::make(),
             ])
-            ->emptyStateHeading('No balances yet')
-            ->emptyStateDescription('Branches will appear here once they log a settlement transfer.')
+            // This table is the list of transfers branches have SENT to Head Office (the
+            // balances themselves are the cards and the by-branch table above it).
+            ->emptyStateHeading('No transfers logged yet')
+            ->emptyStateDescription('When a branch sends money to Head Office and logs it, the transfer appears here for you to confirm. The amounts owed are shown above.')
             ->emptyStateIcon('heroicon-o-arrow-path-rounded-square');
     }
 
