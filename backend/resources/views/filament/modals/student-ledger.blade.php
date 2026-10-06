@@ -10,6 +10,12 @@
             <p class="text-xs text-gray-400 mb-0.5">Total Invoiced</p>
             <p class="text-lg font-bold text-gray-800">{{ number_format($ledger['total_invoiced'], 2) }} {{ $currency }}</p>
         </div>
+        @if(($ledger['total_refunded'] ?? 0) > 0)
+        <div class="bg-rose-50 rounded-xl p-3 col-span-2">
+            <p class="text-xs text-gray-400 mb-0.5">Refunded (already deducted from Total Paid)</p>
+            <p class="text-lg font-bold text-rose-700">{{ number_format($ledger['total_refunded'], 2) }} {{ $currency }}</p>
+        </div>
+        @endif
     </div>
 
     {{-- Memo-by-memo breakdown --}}

@@ -80,13 +80,30 @@ class AdmissionPaymentResource extends Resource
         return self::$ledgerCache[$key] ??= Payment::ledgerForStudent($record->branch_id, $record->student_roll);
     }
 
+    // Invoiced minus everything the student paid in (gross of refunds), never below 0.
+    private static function dueFor(Payment $record): float
+    {
+        $ledger = self::ledgerFor($record);
+
+        return max(round($ledger['total_invoiced'] - (float) $ledger['memos']->sum('amount'), 2), 0);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
             ->defaultSort('last_payment_date', 'desc')
             ->columns([
+                // Every distinct name used on this roll's memos, not just one of them — if two
+                // different people ever got the same roll, both names show instead of one
+                // silently hiding the other.
                 Tables\Columns\TextColumn::make('customer_name')
                     ->label('Student')
+                    ->getStateUsing(fn (Payment $record) => self::ledgerFor($record)['memos']
+                        ->pluck('customer_name')
+                        ->map(fn ($n) => trim((string) $n))
+                        ->filter()
+                        ->unique(fn ($n) => mb_strtolower($n))
+                        ->implode(' / '))
                     ->searchable()
                     ->weight('bold'),
 
@@ -115,21 +132,25 @@ class AdmissionPaymentResource extends Resource
                     ->weight('bold')
                     ->color('success'),
 
+                // Money handed back is not money still owed: Due is measured against what the
+                // student actually paid in (before refunds), and refunds get their own column.
+                // Previously a refund pushed a fully-paid student back to "Partial".
                 Tables\Columns\TextColumn::make('total_due')
                     ->label('Due')
-                    ->getStateUsing(function (Payment $record) {
-                        $ledger = self::ledgerFor($record);
-                        return max($ledger['total_invoiced'] - $ledger['total_paid'], 0);
-                    })
+                    ->getStateUsing(fn (Payment $record) => self::dueFor($record))
                     ->money('BDT')
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'gray'),
 
+                Tables\Columns\TextColumn::make('total_refunded')
+                    ->label('Refunded')
+                    ->getStateUsing(fn (Payment $record) => self::ledgerFor($record)['total_refunded'] ?: null)
+                    ->money('BDT')
+                    ->placeholder('—')
+                    ->color('danger'),
+
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
-                    ->getStateUsing(function (Payment $record) {
-                        $ledger = self::ledgerFor($record);
-                        return $ledger['total_invoiced'] - $ledger['total_paid'] > 0 ? 'Partial' : 'Fully Paid';
-                    })
+                    ->getStateUsing(fn (Payment $record) => self::dueFor($record) > 0 ? 'Partial' : 'Fully Paid')
                     ->badge()
                     ->color(fn ($state) => $state === 'Fully Paid' ? 'success' : 'warning'),
 

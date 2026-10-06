@@ -31,6 +31,9 @@ class Payment extends Model
     protected static function booted(): void
     {
         static::creating(function (Payment $payment) {
+            // Before the receipt number is built, so the number and the stored roll agree.
+            $payment->student_roll = self::normalizeRoll($payment->student_roll);
+
             $payment->receipt_no = self::generateReceiptNo($payment);
 
             // total_amount defaults to amount and vice versa — whichever side
@@ -264,7 +267,16 @@ class Payment extends Model
      *  always looked up by this (branch, roll) pair together, never roll alone. */
     public function scopeForStudentRoll($query, ?int $branchId, string $roll)
     {
-        return $query->where('branch_id', $branchId)->where('student_roll', $roll);
+        return $query->where('branch_id', $branchId)->where('student_roll', self::normalizeRoll($roll));
+    }
+
+    /** One spelling per roll: no spaces anywhere, upper case — so "d 52", " D52" and
+     *  "D52" are the same student instead of three. Blank becomes null. */
+    public static function normalizeRoll(?string $roll): ?string
+    {
+        $roll = mb_strtoupper(preg_replace('/\s+/u', '', trim((string) $roll)));
+
+        return $roll === '' ? null : $roll;
     }
 
     /** Everything one student has ever paid, across every category and every

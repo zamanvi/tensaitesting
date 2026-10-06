@@ -195,6 +195,8 @@ class PaymentResource extends Resource
                     ->required()
                     ->maxLength(50)
                     ->live(onBlur: true)
+                    ->hint(fn (Forms\Get $get) => self::rollOwnerWarning($get('branch_id'), $get('student_roll'), $get('customer_name')))
+                    ->hintColor('warning')
                     ->helperText('Fixed per student, unique within this branch — lets Course Fee, Processing Fee, Service Charge etc. all roll up to one student\'s total.'),
             ]),
 
@@ -232,8 +234,30 @@ class PaymentResource extends Resource
 
         return Payment::query()
             ->where('branch_id', $branchId === 'main' ? null : $branchId)
-            ->where('student_roll', $roll)
+            ->where('student_roll', Payment::normalizeRoll($roll))
             ->exists();
+    }
+
+    /** A soft warning (never blocks): this roll is already used at this branch by someone
+     *  with a different first name — usually a typo, otherwise two students would be merged
+     *  into one row in Student Payments. */
+    private static function rollOwnerWarning(?string $branchId, ?string $roll, ?string $name): ?string
+    {
+        if (blank($roll) || blank($name)) return null;
+
+        $owner = Payment::query()
+            ->where('branch_id', $branchId === 'main' ? null : $branchId)
+            ->where('student_roll', Payment::normalizeRoll($roll))
+            ->orderBy('id')
+            ->value('customer_name');
+
+        if (blank($owner)) return null;
+
+        $first = fn (string $n) => mb_strtolower(explode(' ', trim($n))[0] ?? '');
+
+        return $first($owner) !== $first($name)
+            ? "⚠ Roll {$roll} already belongs to “{$owner}” at this branch — check it is the same student."
+            : null;
     }
 
     public static function getEloquentQuery(): Builder
@@ -477,7 +501,7 @@ class PaymentResource extends Resource
                     ->icon('heroicon-o-user-circle')
                     ->color('gray')
                     ->visible(fn (Payment $r) => filled($r->student_roll))
-                    ->modalHeading(fn (Payment $r) => "Student Roll {$r->student_roll} — {$r->branch?->name}")
+                    ->modalHeading(fn (Payment $r) => "Student Roll {$r->student_roll} — " . ($r->branch?->name ?? 'Main Branch'))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close')
                     ->modalContent(function (Payment $r) {
