@@ -140,6 +140,16 @@ class PaymentResource extends Resource
                     ->label('Collected Now')
                     ->numeric()
                     ->minValue(0)
+                    // The branch app already refuses more than the total (lte:total_amount);
+                    // without the same rule here an admin could record e.g. 1500 against a
+                    // 1000 memo, and every balance would then count the extra 500.
+                    ->rules([
+                        fn (Forms\Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                            if (filled($value) && filled($get('total_amount')) && (float) $value > (float) $get('total_amount')) {
+                                $fail('Collected Now cannot be more than the Total Amount.');
+                            }
+                        },
+                    ])
                     ->live(onBlur: true)
                     ->prefix('BDT')
                     ->helperText(function (Forms\Get $get) {
@@ -165,6 +175,10 @@ class PaymentResource extends Resource
                     ->label('Payment Date')
                     ->default(now())
                     ->required()
+                    // Money that "changed hands" cannot be dated in the future (a typo like
+                    // 14 Oct on 6 Oct otherwise sorts to the top and can't be edited later).
+                    // Bangladesh's today — the server clock is UTC, which lags it by 6 hours.
+                    ->maxDate(fn () => now('Asia/Dhaka')->toDateString())
                     ->native(false),
             ]),
 
