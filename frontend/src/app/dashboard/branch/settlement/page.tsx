@@ -22,6 +22,8 @@ interface FundTransfer {
 interface FundTransfersResponse {
   payable_balance: number;
   kept_by_branch: number;
+  pending_transfers?: number;
+  available_to_transfer?: number;
   transfers: FundTransfer[];
 }
 
@@ -58,7 +60,11 @@ export default function BranchSettlementPage() {
       qc.invalidateQueries({ queryKey });
       setAmount(''); setBankRef(''); setNotes(''); setFormError('');
     },
-    onError: () => setFormError(t('Something went wrong. Please try again.', '問題が発生しました。もう一度お試しください。', 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।')),
+    // The server explains a refusal (e.g. more than is still owed) — show that instead of a generic message.
+    onError: (err: { response?: { data?: { message?: string } } }) => setFormError(
+      err?.response?.data?.message
+        ?? t('Something went wrong. Please try again.', '問題が発生しました。もう一度お試しください。', 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।'),
+    ),
   });
 
   if (!user || !isBranchAdmin) return null;
@@ -66,6 +72,7 @@ export default function BranchSettlementPage() {
   const balance = data?.payable_balance ?? 0;
   const kept = data?.kept_by_branch ?? 0;
   const transfers = data?.transfers ?? [];
+  const pendingSent = data?.pending_transfers ?? 0;
 
   return (
     <BranchLayout title={t('Balance', '残高', 'ব্যালেন্স')}>
@@ -99,6 +106,13 @@ export default function BranchSettlementPage() {
             <p className="text-xs text-indigo-500 mt-2">
               {t('Collected on behalf of head office, minus what you\'ve already sent.', '本部の代わりに徴収した額から、すでに送金した額を差し引いたもの。', 'হেড অফিসের পক্ষে সংগ্রহ করা টাকা, বাদ দিয়ে যা ইতিমধ্যে পাঠানো হয়েছে।')}
             </p>
+            {pendingSent > 0 && (
+              <p className="text-xs text-amber-600 mt-1">
+                {t(`${pendingSent.toLocaleString()} BDT of this is already logged and waiting for Head Office to confirm.`,
+                   `このうち ${pendingSent.toLocaleString()} BDT は記録済みで、本部の確認待ちです。`,
+                   `এর মধ্যে ${pendingSent.toLocaleString()} BDT ইতিমধ্যে লগ করা আছে, হেড অফিসের কনফার্মেশনের অপেক্ষায়।`)}
+              </p>
+            )}
           </div>
         </div>
 

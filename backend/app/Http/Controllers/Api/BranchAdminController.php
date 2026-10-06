@@ -689,12 +689,19 @@ class BranchAdminController extends Controller
             ->latest()
             ->get();
 
+        $payable = round((float) $collected - (float) $refunded - (float) $settled, 2);
+        $pending = round((float) FundTransfer::where('branch_id', $branch->id)->where('status', 'pending')->sum('amount'), 2);
+
         return response()->json([
             // Usually positive (still owed to HO). Negative means the reverse —
             // a memo got refunded after HO already received that money, so HO
             // now owes the branch back instead.
-            'payable_balance' => round((float) $collected - (float) $refunded - (float) $settled, 2),
+            'payable_balance' => $payable,
             'kept_by_branch'  => round(max((float) $kept - (float) $keptRefunded, 0), 2),
+            // New, additive: transfers logged but not yet confirmed by HO, and what can
+            // still be logged without double-counting them (see storeFundTransfer).
+            'pending_transfers'     => $pending,
+            'available_to_transfer' => round(max($payable - $pending, 0), 2),
             'transfers'       => $transfers,
         ]);
     }
@@ -712,16 +719,43 @@ class BranchAdminController extends Controller
             'notes'          => 'nullable|string|max:1000',
         ]);
 
-        $transfer = FundTransfer::create([
-            'branch_id'      => $branch->id,
-            'amount'         => $validated['amount'],
-            'currency'       => $validated['currency'] ?? 'BDT',
-            'period_from'    => $validated['period_from'] ?? null,
-            'period_to'      => $validated['period_to'] ?? null,
-            'bank_reference' => $validated['bank_reference'] ?? null,
-            'notes'          => $validated['notes'] ?? null,
-            'status'         => 'pending',
-        ]);
+        // A transfer can only cover what is still unsettled: owed to HO, minus transfers
+        // already received AND minus ones still waiting for HO to confirm. Without the
+        // "pending" part a double click (or a second submit while the first is waiting)
+        // logged the same money twice. The branch row is locked so two requests at the
+        // same instant cannot both pass this check.
+        $transfer = \Illuminate\Support\Facades\DB::transaction(function () use ($branch, $validated) {
+            \App\Models\Branch::whereKey($branch->id)->lockForUpdate()->first();
+
+            $collected = (float) Payment::where('branch_id', $branch->id)->where('fund_target', 'head_office')->sum('amount');
+            $refunded  = (float) Refund::approved()
+                ->whereHas('payment', fn ($q) => $q->where('branch_id', $branch->id)->where('fund_target', 'head_office'))
+                ->sum('amount');
+            $logged    = (float) FundTransfer::where('branch_id', $branch->id)
+                ->whereIn('status', ['pending', 'received'])->sum('amount');
+
+            $available = round($collected - $refunded - $logged, 2);
+
+            if ((float) $validated['amount'] > $available + 0.001) {
+                abort(response()->json([
+                    'message' => $available > 0
+                        ? 'You can transfer at most ' . number_format($available, 2) . ' BDT right now (money already sent or waiting for Head Office confirmation is not counted again).'
+                        : 'Nothing is left to transfer — everything owed to Head Office is already sent or waiting for confirmation.',
+                    'available_to_transfer' => max($available, 0),
+                ], 422));
+            }
+
+            return FundTransfer::create([
+                'branch_id'      => $branch->id,
+                'amount'         => $validated['amount'],
+                'currency'       => $validated['currency'] ?? 'BDT',
+                'period_from'    => $validated['period_from'] ?? null,
+                'period_to'      => $validated['period_to'] ?? null,
+                'bank_reference' => $validated['bank_reference'] ?? null,
+                'notes'          => $validated['notes'] ?? null,
+                'status'         => 'pending',
+            ]);
+        });
 
         return response()->json($transfer, 201);
     }
