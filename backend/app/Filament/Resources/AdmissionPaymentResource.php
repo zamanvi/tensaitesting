@@ -25,9 +25,13 @@ class AdmissionPaymentResource extends Resource
     protected static ?string $model         = Payment::class;
     protected static ?string $navigationIcon  = 'heroicon-o-academic-cap';
     protected static ?string $navigationGroup = 'Revenue';
-    protected static ?string $navigationLabel = 'Admission Payments';
-    protected static ?string $modelLabel       = 'Admission Payment';
-    protected static ?string $pluralModelLabel = 'Admission Payments';
+    // Labels only — the class name (and so the URL /admin/admission-payments and
+    // the per-manager access list, which is stored by class) is deliberately
+    // unchanged. Each row is one student's total across all their memos, not
+    // just an admission fee, hence "Student Payments".
+    protected static ?string $navigationLabel = 'Student Payments';
+    protected static ?string $modelLabel       = 'Student Payment';
+    protected static ?string $pluralModelLabel = 'Student Payments';
     protected static ?int    $navigationSort  = 2;
 
     public static function canAccess(): bool
@@ -178,7 +182,7 @@ class AdmissionPaymentResource extends Resource
                         return view('filament.modals.student-ledger', ['ledger' => $ledger, 'currency' => $currency]);
                     }),
             ])
-            ->emptyStateHeading('No admitted students yet')
+            ->emptyStateHeading('No students yet')
             ->emptyStateDescription('Students appear here as soon as they have a memo with a Student Roll.')
             ->emptyStateIcon('heroicon-o-academic-cap');
     }

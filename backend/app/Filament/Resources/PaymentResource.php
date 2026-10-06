@@ -187,7 +187,7 @@ class PaymentResource extends Resource
             // Belongs to the STUDENT, not this individual memo — asked once,
             // on whichever memo happens to be their first at this branch,
             // and left alone (hidden, not re-asked) on every memo after
-            // that. See Admission Payments (AdmissionPaymentResource),
+            // that. See Student Payments (AdmissionPaymentResource),
             // which reads these two fields back off whichever memo has them.
             Forms\Components\Section::make('Admission Info')
                 ->description('Only needed once per student — this memo is their first here.')
