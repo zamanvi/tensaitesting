@@ -376,7 +376,10 @@ class PaymentResource extends Resource
                     ->label('Not Yet Settled to HO')
                     ->query(fn (Builder $query) => $query->whereIn('id', Payment::pendingHeadOfficeSettlementIds()))
                     ->toggle(),
+                // By the day the memo was ENTERED into the system (created_at); the "Payment Date"
+                // a memo carries can be an earlier, back-dated day.
                 Tables\Filters\Filter::make('created_range')
+                    ->label('Entered between')
                     ->form([
                         \Filament\Forms\Components\DatePicker::make('from')->native(false),
                         \Filament\Forms\Components\DatePicker::make('until')->native(false),
@@ -496,6 +499,88 @@ class PaymentResource extends Resource
                             'decided_at'    => now(),
                         ]);
                         \Filament\Notifications\Notification::make()->title('Refund recorded')->success()->send();
+                    }),
+
+                // Memos are immutable ledger rows (no edit, no delete), which also meant a typo in
+                // a name, roll or date could never be corrected. This fixes ONLY the descriptive
+                // details — never money (amounts, category, branch, fund) and never the receipt
+                // number. Admin-only, and every change is written into the memo's own notes
+                // (who, when, old -> new) so the correction itself leaves a trail.
+                Tables\Actions\Action::make('fix_details')
+                    ->label('Fix Details')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('gray')
+                    ->visible(fn () => self::isAdmin())
+                    ->modalHeading(fn (Payment $r) => "Fix details — {$r->receipt_no}")
+                    ->modalDescription('Corrects student / date details only. Amounts, category, branch and the receipt number never change here, and the change is logged in this memo\'s notes.')
+                    ->fillForm(fn (Payment $r) => [
+                        'customer_name'   => $r->customer_name,
+                        'customer_phone'  => $r->customer_phone,
+                        'customer_email'  => $r->customer_email,
+                        'student_roll'    => $r->student_roll,
+                        'payment_date'    => $r->payment_date?->toDateString(),
+                        'admission_batch' => $r->admission_batch,
+                        'admission_date'  => $r->admission_date?->toDateString(),
+                        'notes'           => $r->notes,
+                    ])
+                    ->form([
+                        Forms\Components\TextInput::make('customer_name')->required()->maxLength(255),
+                        Forms\Components\TextInput::make('student_roll')->label('Student Roll')->required()->maxLength(50)
+                            ->helperText('Changing the roll moves this memo to that student\'s ledger. Spaces are removed and letters upper-cased.'),
+                        Forms\Components\TextInput::make('customer_phone')->maxLength(30),
+                        Forms\Components\TextInput::make('customer_email')->email()->maxLength(255)
+                            ->helperText('Correcting it here does not re-send the receipt.'),
+                        Forms\Components\DatePicker::make('payment_date')->label('Payment Date')->required()
+                            ->maxDate(fn () => now('Asia/Dhaka')->toDateString())->native(false),
+                        Forms\Components\TextInput::make('admission_batch')->label('Admission Batch')->maxLength(50),
+                        Forms\Components\DatePicker::make('admission_date')->label('Admission Date')->native(false),
+                        Forms\Components\Textarea::make('notes')->rows(2)->columnSpanFull(),
+                    ])
+                    ->action(function (Payment $r, array $data) {
+                        $data['student_roll'] = Payment::normalizeRoll($data['student_roll']);
+
+                        $labels  = [
+                            'customer_name' => 'name', 'student_roll' => 'roll', 'customer_phone' => 'phone',
+                            'customer_email' => 'email', 'payment_date' => 'payment date',
+                            'admission_batch' => 'batch', 'admission_date' => 'admission date',
+                        ];
+                        $show    = fn ($v) => $v instanceof \DateTimeInterface ? $v->format('Y-m-d') : (string) ($v ?? '');
+                        $changes = [];
+                        foreach ($labels as $field => $label) {
+                            $old = $show($r->{$field});
+                            $new = $show($data[$field] ?? null);
+                            if ($old !== $new) {
+                                $changes[] = "{$label}: " . ($old === '' ? '—' : $old) . ' → ' . ($new === '' ? '—' : $new);
+                            }
+                        }
+
+                        $notesChanged = trim((string) $r->notes) !== trim((string) ($data['notes'] ?? ''));
+                        if (!$changes && !$notesChanged) {
+                            \Filament\Notifications\Notification::make()->title('Nothing changed')->color('gray')->send();
+                            return;
+                        }
+
+                        $notes = trim((string) ($data['notes'] ?? ''));
+                        if ($changes) {
+                            $notes = trim($notes . "\n[Details corrected " . now('Asia/Dhaka')->format('d M Y H:i')
+                                . ' by ' . (auth()->user()?->name ?? 'admin') . ': ' . implode('; ', $changes) . ']');
+                            \Illuminate\Support\Facades\Log::info('Memo details corrected.', [
+                                'payment_id' => $r->id, 'by_user_id' => auth()->id(), 'changes' => $changes,
+                            ]);
+                        }
+
+                        $r->update([
+                            'customer_name'   => $data['customer_name'],
+                            'customer_phone'  => $data['customer_phone'] ?? null,
+                            'customer_email'  => $data['customer_email'] ?? null,
+                            'student_roll'    => $data['student_roll'],
+                            'payment_date'    => $data['payment_date'],
+                            'admission_batch' => $data['admission_batch'] ?? null,
+                            'admission_date'  => $data['admission_date'] ?? null,
+                            'notes'           => $notes !== '' ? $notes : null,
+                        ]);
+
+                        \Filament\Notifications\Notification::make()->title('Details corrected')->success()->send();
                     }),
 
                 // Every memo this same student (branch + roll) has ever had —

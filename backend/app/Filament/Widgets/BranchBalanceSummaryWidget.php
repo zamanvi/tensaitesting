@@ -137,7 +137,7 @@ class BranchBalanceSummaryWidget extends BaseWidget
                     )),
 
                 Tables\Filters\Filter::make('date_range')
-                    ->label('Date range')
+                    ->label('Entered between') // by entry date (created_at), same as the Memos filter
                     ->form([
                         Forms\Components\DatePicker::make('from')->label('From'),
                         Forms\Components\DatePicker::make('until')->label('Until'),
