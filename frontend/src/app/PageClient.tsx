@@ -37,33 +37,53 @@ interface SiteSettings {
   intro_video_url?: string;
 }
 
-export default function HomePageClient() {
+interface GuidePost {
+  id: number; title: string; slug: string; excerpt: string;
+  thumbnail: string | null; type: string;
+}
+
+/**
+ * Snapshot fetched on the server (page.tsx, cached ~60s) so the first paint already has
+ * the gallery / guide cards / settings. Any field can be null (backend unreachable at
+ * render time) — the page then behaves exactly as it did before: skeleton, then fetch.
+ * The browser ALWAYS re-fetches right after mount, so what a visitor ends up seeing is
+ * as fresh as it ever was; the snapshot only removes the empty-skeleton wait.
+ */
+export interface HomeInitialData {
+  settings: SiteSettings | null;
+  guide: { data: GuidePost[] } | null;
+  featured: GalleryItem[] | null;
+}
+
+export default function HomePageClient({ initial }: { initial?: HomeInitialData }) {
   const { t, lang } = useLang();
   const l = t.landing;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
-  const [featured, setFeatured] = useState<GalleryItem[]>([]);
-  const [galleryLoading, setGalleryLoading] = useState(true);
+  const [featured, setFeatured] = useState<GalleryItem[]>(initial?.featured ?? []);
+  const [galleryLoading, setGalleryLoading] = useState(!initial?.featured);
   const [galleryError, setGalleryError] = useState(false);
   // All 5 testimonials stacked full-height on mobile made this one section a
   // very long scroll — nothing removed, just collapsed behind a toggle.
   const [showAllTestimonials, setShowAllTestimonials] = useState(false);
 
+  // initialDataUpdatedAt: 0 marks the server snapshot as already-stale, so React Query
+  // still refetches immediately on mount (and the header's identical query joins it).
   const { data: settings } = useQuery<SiteSettings>({
     queryKey: ['public-settings'],
     queryFn: () => api.get('/settings/public').then(r => r.data),
     staleTime: 5 * 60 * 1000,
+    initialData: initial?.settings ?? undefined,
+    initialDataUpdatedAt: 0,
   });
 
-  interface GuidePost {
-    id: number; title: string; slug: string; excerpt: string;
-    thumbnail: string | null; type: string;
-  }
   const { data: guideData } = useQuery<{ data: GuidePost[] }>({
     queryKey: ['home-guide-preview'],
     queryFn: () => api.get('/feed').then(r => r.data),
     staleTime: 5 * 60 * 1000,
+    initialData: initial?.guide ?? undefined,
+    initialDataUpdatedAt: 0,
   });
   const guidePosts = (guideData?.data ?? []).slice(0, 3);
 
@@ -71,13 +91,16 @@ export default function HomePageClient() {
     api.get<GalleryItem[]>('/gallery/featured')
       .then((r) => {
         setFeatured(Array.isArray(r.data) ? r.data : []);
+        setGalleryError(false);
       })
       .catch(() => {
-        setGalleryError(true);
+        // A failed refresh must not wipe a gallery we already have on screen.
+        if (!initial?.featured) setGalleryError(true);
       })
       .finally(() => {
         setGalleryLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount, like before
   }, []);
 
   /* ── Data ──────────────────────────────────────────────── */
