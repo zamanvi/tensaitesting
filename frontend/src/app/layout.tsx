@@ -15,8 +15,10 @@ const sora = Sora({
 // whatever font each visitor's device happened to have. These two fill in just those
 // scripts (the browser fetches them only when a page actually shows Bangla / Japanese
 // text). They are applied on the home page via the .home-type class in globals.css.
+// Bengali subset only: Latin text always comes from Sora (first in every font stack that
+// lists this font), so Hind's own Latin files were preloaded on every page and never used.
 const hindSiliguri = Hind_Siliguri({
-  subsets: ["bengali", "latin"],
+  subsets: ["bengali"],
   variable: "--font-bn",
   display: "swap",
   weight: ["400", "500", "600", "700"],

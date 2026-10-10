@@ -5,6 +5,7 @@ import { PUBLIC_API } from '@/lib/publicApi';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 type NavKey = 'home' | 'about' | 'team' | 'gallery' | 'branches' | 'feed' | 'contact';
 
@@ -26,19 +27,28 @@ export default function SiteHeader({ active }: { active?: NavKey }) {
   // Company-wide only (Admin → Site Settings → Social Media Links) — the
   // header is identical on every page, so it can't sensibly show a specific
   // branch's own Facebook page. A branch's own page shows its own link.
-  const [social, setSocial] = useState<{ facebook_url?: string; youtube_url?: string }>({});
+  // Same query key as the page bodies (home/about/contact read `public-settings` too), so
+  // React Query sends ONE /settings/public request per page instead of one per consumer.
+  // staleTime 0 on purpose (the app-wide default is 60s): the header still re-checks on
+  // every mount exactly like the old raw fetch did, but a request already in flight from
+  // the page body is reused instead of duplicated.
+  // Plain fetch (no Authorization header) is kept so the request stays a simple CORS call.
+  const { data: settings } = useQuery<{ facebook_url?: string; youtube_url?: string }>({
+    queryKey: ['public-settings'],
+    queryFn: () =>
+      fetch(`${PUBLIC_API}/settings/public`).then((r) => {
+        if (!r.ok) throw new Error(`settings/public ${r.status}`);
+        return r.json();
+      }),
+    staleTime: 0,
+    retry: false,
+  });
+  const social = { facebook_url: settings?.facebook_url, youtube_url: settings?.youtube_url };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    fetch(`${PUBLIC_API}/settings/public`)
-      .then(r => r.json())
-      .then(d => setSocial({ facebook_url: d.facebook_url, youtube_url: d.youtube_url }))
-      .catch(() => {});
   }, []);
 
   const toggleLabel = lang === 'en' ? 'বাংলা' : lang === 'bn' ? '日本語' : 'English';
