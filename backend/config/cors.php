@@ -38,7 +38,9 @@ return [
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    // Let browsers remember the preflight answer for 2h (Chrome's cap). With 0 every
+    // authenticated API call was preceded by its own OPTIONS round trip.
+    'max_age' => 7200,
 
     'supports_credentials' => false,
 

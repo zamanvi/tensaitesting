@@ -6,6 +6,7 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
+import RemoteImage from '@/components/shared/RemoteImage';
 
 interface Category { name: string; slug: string; type: string; flag: string; color: string; }
 interface Post {
@@ -500,7 +501,8 @@ function PostCard({ post, user, t }: {
       {/* Image */}
       <div className="relative bg-slate-100 overflow-hidden shrink-0 h-44 sm:h-48">
         {post.thumbnail
-          ? <img src={post.thumbnail} alt={post.title}
+          ? <RemoteImage src={post.thumbnail} alt={post.title}
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
               className="w-full h-full object-cover object-top group-hover:scale-[1.04] transition-transform duration-500 ease-out" />
           : <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-50">
               <span className="text-5xl opacity-10">{typeIcon}</span>

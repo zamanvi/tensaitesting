@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { GraduationCap, Building2, School, FileText, Bot, Plane, Lock, Handshake, ShieldCheck, ClipboardList, ImageOff, MapPin, BookOpen } from 'lucide-react';
 import SiteHeader from '@/components/shared/SiteHeader';
+import RemoteImage from '@/components/shared/RemoteImage';
 import EmotionalStorySection from '@/components/home/EmotionalStorySection';
 import IntroVideoPlayer, { getYouTubeId } from '@/components/home/IntroVideoSection';
 
@@ -441,12 +442,11 @@ export default function HomePageClient() {
                     aria-label={item.title}
                     className={`group relative rounded-2xl overflow-hidden border border-white/[0.08] hover:border-green-500/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 ${isHero ? 'col-span-2 row-span-2' : ''}`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <RemoteImage
                       src={item.image_url}
                       alt={item.title}
+                      sizes={isHero ? '(min-width: 640px) 50vw, 100vw' : '(min-width: 640px) 25vw, 50vw'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
                     />
                     {item.branch && (
                       <span className="absolute top-2 right-2 z-10 text-[11px] font-semibold text-white/90 bg-black/50 backdrop-blur-sm px-2 py-0.5 rounded-full truncate max-w-[85%]">
@@ -545,10 +545,10 @@ export default function HomePageClient() {
                   {/* Phone: compact row (square thumbnail + text). sm and up: the usual stacked card. */}
                   <div className="relative w-28 aspect-square sm:w-full sm:aspect-video bg-white/[0.03] overflow-hidden shrink-0">
                     {post.thumbnail ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <RemoteImage
                         src={post.thumbnail}
                         alt={post.title}
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 112px"
                         className="w-full h-full object-cover object-center group-hover:scale-[1.04] transition-transform duration-500"
                       />
                     ) : (

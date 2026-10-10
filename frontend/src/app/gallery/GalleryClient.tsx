@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import SiteHeader from '@/components/shared/SiteHeader';
+import RemoteImage from '@/components/shared/RemoteImage';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'https://tensai-production-3af6.up.railway.app/api';
 
@@ -216,12 +217,11 @@ export default function GalleryPage() {
                     onClick={() => setLightbox(item)}
                     className="group relative aspect-square rounded-2xl overflow-hidden border border-white/[0.08] hover:border-green-500/30 transition-all text-left cursor-zoom-in"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <RemoteImage
                       src={item.image_url}
                       alt={item.title}
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
                     />
                     {/* Source identity — always visible, so it's clear at a glance whether
                         this is a specific branch's post or a company-wide one */}

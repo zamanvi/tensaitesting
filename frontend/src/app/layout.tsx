@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preconnect } from "react-dom";
 import { Sora, Hind_Siliguri, Noto_Sans_JP } from "next/font/google";
 import Providers from "@/components/shared/Providers";
 import "./globals.css";
@@ -50,7 +51,22 @@ export const metadata: Metadata = {
   },
 };
 
+// The API lives on a different origin (Railway), so the first request normally pays a
+// fresh DNS + TCP + TLS handshake. Opening that connection while the page is still
+// loading lets the first API call start right away. Purely a hint — if the env var is
+// missing/invalid it is skipped and nothing else changes.
+function apiOrigin(): string | null {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_URL ?? "").origin;
+  } catch {
+    return null;
+  }
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const api = apiOrigin();
+  if (api) preconnect(api, { crossOrigin: "anonymous" });
+
   return (
     <html lang="en" className="h-full">
       <body className={`${sora.variable} ${hindSiliguri.variable} ${notoSansJP.variable} min-h-full bg-slate-50 text-slate-900 antialiased`} suppressHydrationWarning>
