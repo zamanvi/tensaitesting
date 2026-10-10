@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import FeedClient from './FeedClient';
+import FeedClient, { type FeedInitialData } from './FeedClient';
+import { snapshot } from '@/lib/serverSnapshot';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.tensaiconsultancy.com';
@@ -61,6 +62,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function FeedPage() {
-  return <FeedClient />;
+export default async function FeedPage() {
+  const [feed, categories] = await Promise.all([
+    snapshot<NonNullable<FeedInitialData['feed']>>('/feed'),
+    snapshot<NonNullable<FeedInitialData['categories']>>('/feed-categories'),
+  ]);
+
+  const initial: FeedInitialData = {
+    feed: feed && Array.isArray(feed.data) ? feed : null,
+    categories: categories && typeof categories === 'object' && !Array.isArray(categories) ? categories : null,
+  };
+
+  return <FeedClient initial={initial} />;
 }

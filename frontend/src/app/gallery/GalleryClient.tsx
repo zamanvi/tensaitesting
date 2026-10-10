@@ -45,26 +45,41 @@ const CATEGORIES = [
   { key: 'agencies',   labelEn: 'Agencies',    labelJa: 'エージェンシー', labelBn: 'এজেন্সি'      },
 ];
 
-export default function GalleryPage() {
+/**
+ * Server snapshot (page.tsx, cached ~60s) so the grid is in the first paint. Either field
+ * can be null (backend unreachable at render time) and the page then behaves as before.
+ * The browser always refetches after mount, so the final data is as fresh as it ever was.
+ */
+export interface GalleryInitialData {
+  items: GalleryItem[] | null;
+  branches: BranchOption[] | null;
+}
+
+export default function GalleryPage({ initial }: { initial?: GalleryInitialData }) {
   const { t, lang } = useLang();
   const l = t.landing;
   const a = t.about;
   const ja = lang === 'ja';
   const bn = lang === 'bn';
 
-  const [items, setItems]       = useState<GalleryItem[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [items, setItems]       = useState<GalleryItem[]>(initial?.items ?? []);
+  const [loading, setLoading]   = useState(!initial?.items);
   const [active, setActive]     = useState('all');
-  const [branches, setBranches] = useState<BranchOption[]>([]);
+  const [branches, setBranches] = useState<BranchOption[]>(initial?.branches ?? []);
   const [activeBranch, setActiveBranch] = useState('all');
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
+    // A failed/odd refresh must not wipe branches we already have from the snapshot.
     fetch(`${API}/branches`)
       .then((r) => r.json())
-      .then((data) => setBranches(Array.isArray(data) ? data : []))
-      .catch(() => setBranches([]));
+      .then((data) => {
+        if (Array.isArray(data)) setBranches(data);
+        else if (!initial?.branches) setBranches([]);
+      })
+      .catch(() => { if (!initial?.branches) setBranches([]); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount, like before
   }, []);
 
   useEffect(() => {
@@ -82,9 +97,13 @@ export default function GalleryPage() {
   useEffect(() => {
     fetch(`${API}/gallery`)
       .then((r) => r.json())
-      .then((data) => setItems(Array.isArray(data) ? data : []))
-      .catch(() => setItems([]))
+      .then((data) => {
+        if (Array.isArray(data)) setItems(data);
+        else if (!initial?.items) setItems([]);
+      })
+      .catch(() => { if (!initial?.items) setItems([]); })
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount, like before
   }, []);
 
   const filtered = items

@@ -1,5 +1,5 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -97,19 +97,46 @@ function FeedNav({ user, t }: { user: unknown; t: (a:string,b:string,c:string)=>
   );
 }
 
-/* ── Page export ─────────────────────────────────────────────── */
-export default function FeedClient() {
-  return <Suspense><FeedInner /></Suspense>;
+/**
+ * Server snapshot (page.tsx, cached ~60s) of the UNFILTERED feed + the filter chips, so the
+ * first render has the cards instead of a skeleton. Either field can be null (backend
+ * unreachable at render time) and the page then behaves exactly as before. The snapshot is
+ * seeded into the query cache as already-stale, so the browser still refetches right after
+ * mount — what a visitor finally sees is as fresh as it ever was.
+ */
+export interface FeedInitialData {
+  feed: { data?: Post[]; total?: number } | null;
+  categories: { countries?: Category[]; purposes?: Category[] } | null;
 }
 
-function FeedInner() {
+/* ── Page export ─────────────────────────────────────────────── */
+export default function FeedClient({ initial }: { initial?: FeedInitialData }) {
+  return <Suspense><FeedInner initial={initial} /></Suspense>;
+}
+
+function FeedInner({ initial }: { initial?: FeedInitialData }) {
   const { lang } = useLang();
   const { user } = useAuthStore();
   const t = (en: string, ja: string, bn: string) => lang === 'ja' ? ja : lang === 'bn' ? bn : en;
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
-  const [country, setCountry] = useState('');
-  const [purpose, setPurpose] = useState('');
+  // Seed the cache once, on the first render only (never on later cache re-creations, so a
+  // long-open tab can't flash an old snapshot). updatedAt: 0 = stale -> refetch on mount.
+  useState(() => {
+    if (initial?.feed && !queryClient.getQueryData(['feed', '', ''])) {
+      queryClient.setQueryData(['feed', '', ''], initial.feed, { updatedAt: 0 });
+    }
+    if (initial?.categories && !queryClient.getQueryData(['feed-categories'])) {
+      queryClient.setQueryData(['feed-categories'], initial.categories, { updatedAt: 0 });
+    }
+    return null;
+  });
+
+  // Read the URL filters synchronously: with the snapshot in the cache, starting from ''
+  // would flash the unfiltered list before the effect below applied ?country= / ?purpose=.
+  const [country, setCountry] = useState(searchParams.get('country') ?? '');
+  const [purpose, setPurpose] = useState(searchParams.get('purpose') ?? '');
 
   useEffect(() => {
     setCountry(searchParams.get('country') ?? '');

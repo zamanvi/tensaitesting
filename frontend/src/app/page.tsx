@@ -1,26 +1,8 @@
 import { Metadata } from 'next';
 import HomePageClient, { type HomeInitialData } from './PageClient';
-import { PUBLIC_API } from '@/lib/publicApi';
+import { snapshot } from '@/lib/serverSnapshot';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.tensaiconsultancy.com';
-
-// Server-side snapshot of the three public calls the home page makes, cached for 60s by
-// Next. Every failure (timeout, non-200, bad JSON) resolves to null, which makes the page
-// fall back to its old behaviour (skeleton + browser fetch). Never throws, never blocks
-// longer than the timeout.
-async function snapshot<T>(path: string): Promise<T | null> {
-  try {
-    const res = await fetch(`${PUBLIC_API}${path}`, {
-      headers: { Accept: 'application/json' },
-      next: { revalidate: 60 },
-      signal: AbortSignal.timeout(4000),
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch {
-    return null;
-  }
-}
 
 export const metadata: Metadata = {
   title: 'Tensai — The Way of Global Career',
