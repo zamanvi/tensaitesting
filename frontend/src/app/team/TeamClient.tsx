@@ -2,6 +2,7 @@
 import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import FooterSocialLinks from '@/components/shared/FooterSocialLinks';
 import SiteHeader from '@/components/shared/SiteHeader';
 
 export default function TeamPage() {
@@ -422,7 +423,10 @@ export default function TeamPage() {
               <Link href="/terms"   className="hover:text-white/65 transition-colors">{termsText}</Link>
               <Link href="/privacy" className="hover:text-white/65 transition-colors">{privText}</Link>
             </div>
-            <p className="text-xs text-white/30">{l.footer}</p>
+            <div className="flex flex-col items-center sm:items-end gap-2">
+              <FooterSocialLinks />
+              <p className="text-xs text-white/30">{l.footer}</p>
+            </div>
           </div>
         </div>
       </footer>

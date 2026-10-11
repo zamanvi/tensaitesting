@@ -2,6 +2,7 @@
 import { useLang } from '@/context/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import FooterSocialLinks from '@/components/shared/FooterSocialLinks';
 
 export default function BranchesFooter() {
   const { t, lang } = useLang();
@@ -24,6 +25,7 @@ export default function BranchesFooter() {
           <Link href="/branches" className="text-green-400 font-medium">{ja ? '支局' : bn ? 'শাখা' : 'Branches'}</Link>
         </div>
         <div className="text-right">
+          <div className="flex justify-end mb-2"><FooterSocialLinks /></div>
           <p className="text-xs text-white/30">{l.footer}</p>
           <p className="text-[10px] text-white/20 mt-0.5 max-w-sm text-right leading-relaxed">
             {ja

@@ -1,13 +1,11 @@
 'use client';
 import { useLang } from '@/context/LanguageContext';
 import { useAuthStore } from '@/store/authStore';
-import { PUBLIC_API } from '@/lib/publicApi';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
-type NavKey = 'home' | 'about' | 'team' | 'gallery' | 'branches' | 'feed' | 'contact';
+type NavKey = 'home' | 'about' | 'team' | 'gallery' | 'branches' | 'feed' | 'mobility' | 'contact';
 
 const ADMIN_URL = 'https://tensai-production-3af6.up.railway.app/admin';
 
@@ -24,26 +22,6 @@ export default function SiteHeader({ active }: { active?: NavKey }) {
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  // Company-wide only (Admin → Site Settings → Social Media Links) — the
-  // header is identical on every page, so it can't sensibly show a specific
-  // branch's own Facebook page. A branch's own page shows its own link.
-  // Same query key as the page bodies (home/about/contact read `public-settings` too), so
-  // React Query sends ONE /settings/public request per page instead of one per consumer.
-  // staleTime 0 on purpose (the app-wide default is 60s): the header still re-checks on
-  // every mount exactly like the old raw fetch did, but a request already in flight from
-  // the page body is reused instead of duplicated.
-  // Plain fetch (no Authorization header) is kept so the request stays a simple CORS call.
-  const { data: settings } = useQuery<{ facebook_url?: string; youtube_url?: string }>({
-    queryKey: ['public-settings'],
-    queryFn: () =>
-      fetch(`${PUBLIC_API}/settings/public`).then((r) => {
-        if (!r.ok) throw new Error(`settings/public ${r.status}`);
-        return r.json();
-      }),
-    staleTime: 0,
-    retry: false,
-  });
-  const social = { facebook_url: settings?.facebook_url, youtube_url: settings?.youtube_url };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -60,17 +38,21 @@ export default function SiteHeader({ active }: { active?: NavKey }) {
 
   // Same six links, same order, on every page — this is the whole point of
   // this component: no route should show a subset of the site's nav.
-  const NAV_LINKS: { key: NavKey; href: string; label: string }[] = [
+  // `wide` links only join the desktop strip from 1100px up: below that the bar
+  // is already full and one more link would push "Get Started" off the edge.
+  // They are always present in the mobile menu.
+  const NAV_LINKS: { key: NavKey; href: string; label: string; wide?: boolean }[] = [
     { key: 'about',    href: '/about',    label: a.navAbout },
     { key: 'team',     href: '/team',     label: a.navTeam },
     { key: 'gallery',  href: '/gallery',  label: a.navGallery },
     { key: 'branches', href: '/branches', label: ja ? '支局' : bn ? 'শাখা' : 'Branches' },
     { key: 'feed',     href: '/feed',     label: ja ? 'ガイド' : bn ? 'গাইড' : 'Guide' },
-    { key: 'contact',  href: '/contact',  label: ja ? 'お問い合わせ' : bn ? 'যোগাযোগ' : 'Contact' },
+    { key: 'mobility', href: '/mobility', label: bn ? 'দক্ষ কর্মী মোবিলিটি' : 'Skilled Worker Mobility', wide: true },
+    { key: 'contact', href: '/contact',  label: ja ? 'お問い合わせ' : bn ? 'যোগাযোগ' : 'Contact' },
   ];
 
-  const linkClass = (key: NavKey) =>
-    `text-sm px-2 py-1 hidden md:inline transition-colors ${
+  const linkClass = (key: NavKey, wide = false) =>
+    `text-sm px-2 py-1 hidden ${wide ? 'min-[1100px]:inline whitespace-nowrap' : 'md:inline'} transition-colors ${
       active === key ? 'font-semibold text-green-400 border-b border-green-500/50' : 'text-white/50 hover:text-white'
     }`;
 
@@ -96,28 +78,6 @@ export default function SiteHeader({ active }: { active?: NavKey }) {
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          {social.facebook_url && (
-            <a
-              href={social.facebook_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Facebook"
-              className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-white/50 hover:border-green-500/40 hover:text-green-400 transition-all"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94Z"/></svg>
-            </a>
-          )}
-          {social.youtube_url && (
-            <a
-              href={social.youtube_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="YouTube"
-              className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full border border-white/10 text-white/50 hover:border-green-500/40 hover:text-green-400 transition-all"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.87.55 9.38.55 9.38.55s7.51 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81ZM9.6 15.5V8.5l6.42 3.5-6.42 3.5Z"/></svg>
-            </a>
-          )}
           <button
             type="button"
             onClick={toggle}
@@ -127,7 +87,7 @@ export default function SiteHeader({ active }: { active?: NavKey }) {
             {toggleLabel}
           </button>
           {NAV_LINKS.map((n) => (
-            <Link key={n.key} href={n.href} className={linkClass(n.key)}>{n.label}</Link>
+            <Link key={n.key} href={n.href} className={linkClass(n.key, n.wide)}>{n.label}</Link>
           ))}
           {dashboardHref ? (
             <Link
@@ -187,22 +147,6 @@ export default function SiteHeader({ active }: { active?: NavKey }) {
               </>
             )}
           </div>
-          {(social.facebook_url || social.youtube_url) && (
-            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/[0.08]">
-              {social.facebook_url && (
-                <a href={social.facebook_url} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
-                  className="flex items-center justify-center w-9 h-9 rounded-full border border-white/10 text-white/50 hover:border-green-500/40 hover:text-green-400 transition-all">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94Z"/></svg>
-                </a>
-              )}
-              {social.youtube_url && (
-                <a href={social.youtube_url} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                  className="flex items-center justify-center w-9 h-9 rounded-full border border-white/10 text-white/50 hover:border-green-500/40 hover:text-green-400 transition-all">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.51 3.5 12 3.5 12 3.5s-7.51 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.87.55 9.38.55 9.38.55s7.51 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81ZM9.6 15.5V8.5l6.42 3.5-6.42 3.5Z"/></svg>
-                </a>
-              )}
-            </div>
-          )}
         </div>
       )}
     </nav>
