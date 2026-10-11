@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\AdminAffiliateController;
 use App\Http\Controllers\Api\AdminInstitutionController;
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\MobilityChatController;
 use Illuminate\Support\Facades\Route;
 
 // Public feed (no auth required, but content is limited for guests)
@@ -92,6 +93,10 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/auth/forgot-password',      [AuthController::class, 'forgotPassword']);
     Route::post('/auth/reset-password',       [AuthController::class, 'resetPassword']);
 });
+
+// Skilled Worker Mobility chat (public): saves the visitor's answers + phone as a
+// draft candidate for staff. 5 submissions a minute per IP.
+Route::post('/mobility/chat', [MobilityChatController::class, 'store'])->middleware('throttle:5,1');
 
 // Authenticated
 Route::middleware('auth:sanctum')->group(function () {
