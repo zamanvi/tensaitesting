@@ -72,7 +72,9 @@ class MobilityCandidateResource extends Resource
                 ->schema([
                     Forms\Components\TextInput::make('role')->maxLength(120),
                     Forms\Components\TextInput::make('experience')->maxLength(80),
-                    Forms\Components\TextInput::make('licence')->maxLength(160),
+                    Forms\Components\TextInput::make('licence')
+                        ->label('Licence / qualification')
+                        ->maxLength(160),
                     Forms\Components\TextInput::make('languages')->maxLength(160),
                     Forms\Components\TextInput::make('target_country')->maxLength(80),
                     Forms\Components\Select::make('lang')
