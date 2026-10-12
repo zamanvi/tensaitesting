@@ -36,12 +36,26 @@ class MobilityCandidateResource extends Resource
             || \App\Filament\Support\ManagerAccess::granted(static::class);
     }
 
-    // Number of people nobody has dealt with yet.
+    // People who need staff: new leads nobody has dealt with, plus CVs the
+    // person has finished and sent for review.
+    public static function needsAttention(Builder $query): Builder
+    {
+        return $query->where(fn ($q) => $q->where('status', 'new')
+            ->orWhereHas('cvAccess', fn ($c) => $c->where('status', 'active')
+                ->whereNotNull('cv_submitted_at')
+                ->whereNull('sent_at')));
+    }
+
     public static function getNavigationBadge(): ?string
     {
-        $new = MobilityCandidate::where('status', 'new')->count();
+        $count = static::needsAttention(MobilityCandidate::query())->count();
 
-        return $new > 0 ? (string) $new : null;
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
     }
 
     // Show soft-deleted rows too, so they can be restored or erased for good.
@@ -235,6 +249,9 @@ class MobilityCandidateResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                Tables\Filters\Filter::make('attention')
+                    ->label('Needs attention (new, or CV waiting for review)')
+                    ->query(fn (Builder $query) => static::needsAttention($query)),
                 Tables\Filters\SelectFilter::make('status')->options(MobilityCandidate::STATUSES),
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Branch')

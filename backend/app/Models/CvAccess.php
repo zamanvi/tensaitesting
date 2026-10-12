@@ -146,6 +146,16 @@ class CvAccess extends Model
             if ($application && $application->status === 'draft') {
                 $application->forceFill(['status' => 'submitted', 'submitted_at' => now()])->save();
             }
+
+            // The person sees this in their bell.
+            TensaiNotification::create([
+                'user_id'    => $this->user_id,
+                'type'       => 'cv_checked',
+                'title'      => 'Your CV has been checked',
+                'body'       => 'Our team checked your CV and added it to our list.',
+                'data'       => ['application_id' => $this->application_id],
+                'action_url' => '/dashboard/student/cv',
+            ]);
         });
     }
 

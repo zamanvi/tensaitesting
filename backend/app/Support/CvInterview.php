@@ -48,7 +48,7 @@ class CvInterview
         $template    = $application ? FormTemplate::find($application->form_template_id) : null;
 
         if (! $application || ! $template) {
-            return ['question' => null, 'answered' => 0, 'total' => 0, 'skipped' => []];
+            return ['question' => null, 'answered' => 0, 'completed' => 0, 'total' => 0, 'skipped' => [], 'all' => []];
         }
 
         $data    = $application->form_data ?? [];
@@ -56,23 +56,35 @@ class CvInterview
         $all     = self::questions($template);
 
         $answered = 0;
+        $handled  = 0;   // answered + skipped: what "done" means for the progress line
         $next     = null;
+        $withValue = [];
         foreach ($all as $q) {
             $has = isset($data[$q['key']]) && trim((string) $data[$q['key']]) !== '';
+            $withValue[] = $q + ['value' => $has ? (string) $data[$q['key']] : ''];
             if ($has) {
                 $answered++;
+                $handled++;
                 continue;
             }
-            if ($next === null && ! in_array($q['key'], $skipped, true)) {
+            if (in_array($q['key'], $skipped, true)) {
+                $handled++;
+                continue;
+            }
+            if ($next === null) {
                 $next = $q;
             }
         }
 
         return [
-            'question' => $next,
-            'answered' => $answered,
-            'total'    => count($all),
-            'skipped'  => $skipped,
+            'question'  => $next,
+            'answered'  => $answered,
+            'completed' => $handled,
+            'total'     => count($all),
+            'skipped'   => $skipped,
+            // Every question with its current answer, so an answer can be
+            // changed later by tapping it in the preview.
+            'all'       => $withValue,
         ];
     }
 

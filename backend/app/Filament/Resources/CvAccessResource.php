@@ -40,6 +40,29 @@ class CvAccessResource extends Resource
             || \App\Filament\Support\ManagerAccess::granted(static::class);
     }
 
+    // Free accounts to choose from when opening My CV (name, e-mail or phone).
+    public static function searchStudents(string $search): array
+    {
+        $like = '%' . $search . '%';
+
+        return User::where('gateway_type', 'student')
+            ->where(fn ($q) => $q->where('name', 'like', $like)
+                ->orWhere('email', 'like', $like)
+                ->orWhere('phone', 'like', $like))
+            ->orderBy('name')
+            ->limit(30)
+            ->get()
+            ->mapWithKeys(fn (User $u) => [$u->id => $u->name . ' — ' . ($u->phone ?: $u->email)])
+            ->all();
+    }
+
+    public static function studentLabel($value): ?string
+    {
+        $u = User::find($value);
+
+        return $u ? $u->name . ' — ' . ($u->phone ?: $u->email) : null;
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -51,24 +74,8 @@ class CvAccessResource extends Resource
                         ->searchable()
                         ->required()
                         ->unique(ignoreRecord: true)
-                        ->getSearchResultsUsing(function (string $search) {
-                            $like = '%' . $search . '%';
-
-                            return User::where('gateway_type', 'student')
-                                ->where(fn ($q) => $q->where('name', 'like', $like)
-                                    ->orWhere('email', 'like', $like)
-                                    ->orWhere('phone', 'like', $like))
-                                ->orderBy('name')
-                                ->limit(30)
-                                ->get()
-                                ->mapWithKeys(fn (User $u) => [$u->id => $u->name . ' — ' . ($u->phone ?: $u->email)])
-                                ->all();
-                        })
-                        ->getOptionLabelUsing(function ($value) {
-                            $u = User::find($value);
-
-                            return $u ? $u->name . ' — ' . ($u->phone ?: $u->email) : null;
-                        })
+                        ->getSearchResultsUsing(fn (string $search) => static::searchStudents($search))
+                        ->getOptionLabelUsing(fn ($value) => static::studentLabel($value))
                         ->disabledOn('edit')
                         ->helperText('Search by name, e-mail or phone. Saving opens My CV for this person and creates their draft Job CV.')
                         ->columnSpanFull(),
