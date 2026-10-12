@@ -117,6 +117,9 @@ class JobCvTemplate
                         'field_type'          => $f[2],
                         'is_required'         => $f[3],
                         'options'             => $f[4] ?? null,
+                        // One field per row: the labels are bilingual and
+                        // most people fill this in on a phone.
+                        'box_size'            => 'full',
                         'sort_order'          => ++$fieldOrder,
                         'is_active'           => true,
                     ]);

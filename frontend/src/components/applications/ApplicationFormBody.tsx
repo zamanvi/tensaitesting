@@ -119,6 +119,7 @@ export default function ApplicationFormBody({
   const progress   = liveProgress;
   const isEditable = !['accepted', 'rejected'].includes(app.status);
   const canSubmit  = progress >= 50 && isEditable;
+  const isJobCv    = template?.country === 'Job CV';
   const docs       = app.documents ?? [];
 
   function set(key: string, val: string) {
@@ -338,7 +339,7 @@ export default function ApplicationFormBody({
                       onChange={isEditable ? e => { setStudentInfo(p => ({ ...p, whatsapp_no: e.target.value })); setHasChanges(true); } : undefined} />
                   </div>
                 </div>
-                <div>
+                {!isJobCv && <div>
                   <label className={lbl}>Date of Birth</label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -348,8 +349,9 @@ export default function ApplicationFormBody({
                       value={formData.birth_date ?? ''} readOnly={!isEditable}
                       onChange={isEditable ? e => set('birth_date', e.target.value) : undefined} />
                   </div>
-                </div>
-                <div>
+                </div>}
+                {/* A Job CV never asks for a passport number: staff check the original in person. */}
+                {!isJobCv && <div>
                   <label className={lbl}>Passport Number</label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -359,7 +361,7 @@ export default function ApplicationFormBody({
                       value={formData.passport_no ?? ''} readOnly={!isEditable}
                       onChange={isEditable ? e => set('passport_no', e.target.value) : undefined} />
                   </div>
-                </div>
+                </div>}
                 {template.intake_options?.length > 0 && (
                   <div>
                     <label className={lbl}>Select Intake</label>
