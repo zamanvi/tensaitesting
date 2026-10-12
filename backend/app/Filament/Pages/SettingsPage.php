@@ -23,6 +23,9 @@ class SettingsPage extends Page
     }
 
     public string $support_whatsapp = '';
+    // Optional: a separate WhatsApp number for the "My CV" assistant section.
+    // Empty = the section falls back to the support WhatsApp number.
+    public string $cv_whatsapp      = '';
     public string $support_phone    = '';
     public string $support_email    = '';
     public string $office_address   = '';
@@ -45,6 +48,7 @@ class SettingsPage extends Page
     public function mount(): void
     {
         $this->support_whatsapp = Setting::get('support_whatsapp', '8801826192179');
+        $this->cv_whatsapp      = Setting::get('cv_whatsapp', '');
         $this->support_phone    = Setting::get('support_phone', '+8801826192179');
         $this->support_email    = Setting::get('support_email', '');
         $this->office_address   = Setting::get('office_address', '');
@@ -67,6 +71,7 @@ class SettingsPage extends Page
     {
         $this->validate([
             'support_whatsapp' => 'required|string|max:20',
+            'cv_whatsapp'      => ['nullable', 'string', 'max:25', 'regex:/^\+?[0-9 \-]{8,25}$/'],
             'support_phone'    => 'required|string|max:20',
             'support_email'    => 'nullable|email|max:100',
             'office_address'   => 'nullable|string|max:500',
@@ -97,6 +102,8 @@ class SettingsPage extends Page
         ]);
 
         Setting::set('support_whatsapp', $this->support_whatsapp);
+        // Digits only, so the wa.me link always works however it was typed.
+        Setting::set('cv_whatsapp',      preg_replace('/\D+/', '', $this->cv_whatsapp));
         Setting::set('support_phone',    $this->support_phone);
         Setting::set('support_email',    $this->support_email);
         Setting::set('office_address',   $this->office_address);
@@ -135,6 +142,15 @@ class SettingsPage extends Page
                         ->helperText('Public support email shown on the site')
                         ->email(),
                 ])->columns(2),
+
+            Forms\Components\Section::make('My CV (job-search assistant)')
+                ->description('The WhatsApp number shown to users on their My CV page, where they ask staff to open the assistant.')
+                ->schema([
+                    Forms\Components\TextInput::make('cv_whatsapp')
+                        ->label('My CV WhatsApp Number')
+                        ->helperText('International format without +, e.g. 8801826192179. Leave empty to use the support WhatsApp number above.')
+                        ->placeholder('Same as support WhatsApp'),
+                ]),
 
             Forms\Components\Section::make('Office')
                 ->schema([

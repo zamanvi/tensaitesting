@@ -54,7 +54,9 @@ export default function StudentCVPage() {
     },
   });
 
-  const waDigits = (settings?.support_whatsapp ?? '').replace(/\D+/g, '');
+  // A dedicated My CV number (Settings in the admin panel) wins; otherwise the support number.
+  const waNumber = settings?.cv_whatsapp || settings?.support_whatsapp || '';
+  const waDigits = waNumber.replace(/\D+/g, '');
   const waText = t(
     'Hello, I would like to open the My CV assistant on my account.',
     'こんにちは。アカウントの「マイCV」アシスタントを開きたいです。',
@@ -154,7 +156,7 @@ export default function StudentCVPage() {
                   className="mt-6 flex items-center justify-center gap-2 w-full sm:w-auto sm:mx-auto sm:inline-flex px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#1ebe5b] text-white text-sm font-black transition-colors">
                   {WA_ICON}
                   {t('Contact us on WhatsApp', 'WhatsAppで連絡する', 'WhatsApp-এ যোগাযোগ করুন')}
-                  {settings?.support_whatsapp ? <span className="font-semibold opacity-90">· {settings.support_whatsapp}</span> : null}
+                  {waNumber ? <span className="font-semibold opacity-90">· {waNumber}</span> : null}
                 </a>
               ) : null}
 

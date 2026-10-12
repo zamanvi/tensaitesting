@@ -60,7 +60,7 @@ Route::get('/settings/public', function () {
     $keys = [
         'facebook_url', 'youtube_url', 'instagram_url', 'tiktok_url',
         'linkedin_url', 'twitter_url',
-        'support_whatsapp', 'support_phone', 'support_email', 'office_address',
+        'support_whatsapp', 'cv_whatsapp', 'support_phone', 'support_email', 'office_address',
         'copyright_en', 'copyright_ja', 'copyright_bn',
         'target_countries', 'referral_fees',
         'intro_video_url',
