@@ -39,6 +39,8 @@ export default function StudentCVPage() {
   const qc = useQueryClient();
   // Phones show the assistant and the CV one at a time; wide screens show both.
   const [tab, setTab] = useState<'chat' | 'preview'>('chat');
+  // Set when a line of the preview is tapped: the assistant re-asks that one.
+  const [editKey, setEditKey] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const submitCv = useMutation({
@@ -62,13 +64,32 @@ export default function StudentCVPage() {
 
   const initials = (user?.name ?? '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
 
-  const progress = cv?.application?.progress ?? 0;
+  // "Done" means every question was answered or skipped; the generic form
+  // percentage also counts optional boxes and stalls well below 100.
+  const iv = cv?.interview;
+  const progress = iv && iv.total > 0 ? Math.round((iv.completed / iv.total) * 100) : (cv?.application?.progress ?? 0);
 
   return (
     <StudentLayout title={t('My CV', '私の履歴書', 'আমার সিভি')}>
       <div className={`${cv?.enabled ? 'max-w-5xl' : 'max-w-2xl'} mx-auto space-y-5`}>
 
+        {/* Slim name row once the assistant is on: the questions come first. */}
+        {cv?.enabled && (
+          <div className="flex items-center gap-3 bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3">
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt={`${user?.name ?? 'User'} profile photo`} className="w-10 h-10 rounded-xl object-cover" />
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-green-600 text-white text-sm font-black flex items-center justify-center">{initials}</div>
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-black text-slate-800 truncate">{user?.name ?? '—'}</p>
+              <p className="text-xs text-slate-400 truncate">{user?.email ?? ''}</p>
+            </div>
+          </div>
+        )}
+
         {/* ── Profile hero ── */}
+        {!cv?.enabled && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-br from-green-700 to-emerald-600 px-6 py-8 text-center relative">
             <div className="relative inline-block mb-3">
@@ -90,6 +111,7 @@ export default function StudentCVPage() {
             <p className="text-green-100 text-sm mt-0.5">{user?.email ?? ''}</p>
           </div>
         </div>
+        )}
 
         {isLoading && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-10 text-center text-sm text-slate-400">
@@ -184,6 +206,7 @@ export default function StudentCVPage() {
           <div className={`space-y-5 ${tab === 'preview' ? 'hidden lg:block lg:space-y-5' : ''}`}>
           {cv.stage !== 'sent' && (
             <CvAssistantChat cv={cv} lang={lang as 'en' | 'bn' | 'ja'}
+              editKey={editKey} onEditDone={() => setEditKey(null)}
               onState={next => qc.setQueryData(['student-cv'], next)} />
           )}
 
@@ -273,7 +296,10 @@ export default function StudentCVPage() {
           </div>
 
           <div className={`lg:sticky lg:top-4 ${tab === 'chat' ? 'hidden lg:block' : ''}`}>
-            {cv.preview && <CvPreviewCard preview={cv.preview} lang={lang as 'en' | 'bn' | 'ja'} />}
+            {cv.preview && (
+              <CvPreviewCard preview={cv.preview} lang={lang as 'en' | 'bn' | 'ja'}
+                onEdit={key => { setEditKey(key); setTab('chat'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+            )}
           </div>
           </div>
           </>

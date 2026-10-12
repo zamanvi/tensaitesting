@@ -11,13 +11,16 @@ export interface CvQuestion {
   placeholder: string | null;
   hint: string | null;
   group: string;
+  value?: string;   // present on interview.all: the current answer
 }
 
 export interface CvInterviewState {
   question: CvQuestion | null;
   answered: number;
+  completed: number;   // answered + skipped
   total: number;
   skipped: string[];
+  all: CvQuestion[];
 }
 
 export interface CvPreviewItem { key: string; label: string; value: string; type: string }

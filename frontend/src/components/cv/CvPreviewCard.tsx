@@ -6,8 +6,14 @@ type CardPreview = Omit<CvPreviewData, 'progress'> & { progress?: number };
 // The CV as a reader sees it. Staff see exactly the same layout in the admin
 // panel ("Preview CV"), built from the same data on the server.
 export default function CvPreviewCard({
-  preview, lang, audience = 'owner', reference = null,
-}: { preview: CardPreview; lang: CvLang; audience?: 'owner' | 'public'; reference?: string | null }) {
+  preview, lang, audience = 'owner', reference = null, onEdit,
+}: {
+  preview: CardPreview;
+  lang: CvLang;
+  audience?: 'owner' | 'public';
+  reference?: string | null;
+  onEdit?: (key: string) => void;   // owner only: tap a line to change that answer
+}) {
   const t = (en: string, ja: string, bn: string) => (lang === 'ja' ? ja : lang === 'bn' ? bn : en);
   const empty = preview.sections.length === 0 && !preview.headline && !preview.summary;
 
@@ -50,7 +56,14 @@ export default function CvPreviewCard({
             </h3>
             <dl className="mt-2 space-y-2">
               {section.items.map(item => (
-                <div key={item.key} className="grid grid-cols-5 gap-3 text-sm">
+                <div key={item.key}
+                  className={`grid grid-cols-5 gap-3 text-sm ${onEdit ? 'cursor-pointer rounded-lg -mx-2 px-2 py-1 hover:bg-green-50 focus:bg-green-50 outline-none' : ''}`}
+                  {...(onEdit ? {
+                    role: 'button', tabIndex: 0,
+                    title: t('Tap to change', 'タップして変更', 'বদলাতে ট্যাপ করুন'),
+                    onClick: () => onEdit(item.key),
+                    onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(item.key); } },
+                  } : {})}>
                   <dt className="col-span-2 text-slate-400 leading-snug">{pickLang(item.label, lang)}</dt>
                   <dd className="col-span-3 text-slate-800 whitespace-pre-line break-words">
                     {item.type === 'select' ? pickLang(item.value, lang) : item.value}

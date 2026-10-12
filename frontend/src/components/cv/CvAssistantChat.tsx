@@ -6,22 +6,34 @@ import { CvLang, CvState, pickLang } from './cvTypes';
 
 // One question at a time, taken from the Job CV form. Every answer is saved
 // straight away, so the person can leave and come back to the same place.
+// Tapping a line of the CV preview re-opens that question (`editKey`).
 export default function CvAssistantChat({
-  cv, lang, onState,
-}: { cv: CvState; lang: CvLang; onState: (next: CvState) => void }) {
+  cv, lang, onState, editKey, onEditDone,
+}: {
+  cv: CvState;
+  lang: CvLang;
+  onState: (next: CvState) => void;
+  editKey: string | null;
+  onEditDone: () => void;
+}) {
   const t = (en: string, ja: string, bn: string) => (lang === 'ja' ? ja : lang === 'bn' ? bn : en);
   const interview = cv.interview;
-  const q = interview?.question ?? null;
+
+  const editing = editKey ? interview?.all.find(x => x.key === editKey) ?? null : null;
+  const q = editing ?? interview?.question ?? null;
 
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
 
-  // A new question starts with an empty box.
-  useEffect(() => { setValue(''); setError(''); }, [q?.key]);
+  // A new question starts empty; an edited one starts with the current answer.
+  useEffect(() => {
+    setValue(editing?.value ?? '');
+    setError('');
+  }, [q?.key, editing?.value]);
 
   const send = useMutation({
     mutationFn: (v: string) => api.post('/student/cv/answer', { field_key: q!.key, value: v }).then(r => r.data as CvState),
-    onSuccess: next => { setError(''); onState(next); },
+    onSuccess: next => { setError(''); onState(next); if (editing) onEditDone(); },
     onError: (e: unknown) => {
       const res = (e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data;
       setError(
@@ -43,7 +55,6 @@ export default function CvAssistantChat({
   if (!interview) return null;
 
   const busy = send.isPending || summarize.isPending;
-  const done = interview.total > 0 ? Math.min(interview.answered, interview.total) : 0;
   const assistant = cv.assistant;
 
   const inp = 'w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-500';
@@ -52,10 +63,12 @@ export default function CvAssistantChat({
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="px-5 py-3 bg-green-50 border-b border-green-100 flex items-center justify-between gap-3">
         <p className="text-sm font-black text-green-800">
-          {t('Your CV assistant', 'CVアシスタント', 'আপনার সিভি অ্যাসিস্ট্যান্ট')}
+          {editing
+            ? t('Change an answer', '回答を変更', 'উত্তর বদলান')
+            : t('Your CV assistant', 'CVアシスタント', 'আপনার সিভি অ্যাসিস্ট্যান্ট')}
         </p>
         <p className="text-xs font-semibold text-green-700">
-          {done} / {interview.total}
+          {interview.completed} / {interview.total}
         </p>
       </div>
 
@@ -75,7 +88,11 @@ export default function CvAssistantChat({
                   {q.options.map(o => (
                     <button key={o} type="button" disabled={busy}
                       onClick={() => send.mutate(o)}
-                      className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-green-500 hover:bg-green-50 text-sm font-semibold text-slate-700 transition-colors disabled:opacity-50">
+                      className={`px-4 py-2.5 rounded-xl border text-sm font-semibold transition-colors disabled:opacity-50 ${
+                        editing?.value === o
+                          ? 'border-green-500 bg-green-50 text-green-800'
+                          : 'border-slate-200 bg-white hover:border-green-500 hover:bg-green-50 text-slate-700'
+                      }`}>
                       {pickLang(o, lang)}
                     </button>
                   ))}
@@ -94,26 +111,27 @@ export default function CvAssistantChat({
               )}
             </div>
 
-            {q.type !== 'select' && (
-              <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              {q.type !== 'select' && (
                 <button type="button" disabled={busy || !value.trim()} onClick={() => send.mutate(value)}
                   className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-sm font-black transition-colors">
-                  {send.isPending ? t('Saving…', '保存中…', 'সংরক্ষণ হচ্ছে…') : t('Next', '次へ', 'পরবর্তী')}
+                  {send.isPending
+                    ? t('Saving…', '保存中…', 'সংরক্ষণ হচ্ছে…')
+                    : editing ? t('Save', '保存', 'সংরক্ষণ করুন') : t('Next', '次へ', 'পরবর্তী')}
                 </button>
-                {!q.required && (
-                  <button type="button" disabled={busy} onClick={() => send.mutate('')}
-                    className="px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50">
-                    {t('Skip', 'スキップ', 'এড়িয়ে যান')}
-                  </button>
-                )}
-              </div>
-            )}
-            {q.type === 'select' && !q.required && (
-              <button type="button" disabled={busy} onClick={() => send.mutate('')}
-                className="mt-3 text-sm font-semibold text-slate-500 hover:text-slate-700 disabled:opacity-50">
-                {t('Skip', 'スキップ', 'এড়িয়ে যান')}
-              </button>
-            )}
+              )}
+              {editing ? (
+                <button type="button" disabled={busy} onClick={onEditDone}
+                  className="px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50">
+                  {t('Cancel', 'キャンセル', 'বাতিল')}
+                </button>
+              ) : !q.required && (
+                <button type="button" disabled={busy} onClick={() => send.mutate('')}
+                  className="px-4 py-3 rounded-xl text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50">
+                  {t('Skip', 'スキップ', 'এড়িয়ে যান')}
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div>
@@ -122,16 +140,16 @@ export default function CvAssistantChat({
             </p>
             <p className="mt-1 text-sm text-slate-500 leading-relaxed">
               {t(
-                'Check your CV on the right (or in the Preview tab). You can change any answer from the form.',
-                'CVを確認してください。回答はフォームからいつでも変更できます。',
-                'আপনার সিভি দেখে নিন (প্রিভিউ ট্যাবে)। যেকোনো উত্তর ফর্ম থেকে বদলাতে পারবেন।'
+                'Check your CV. Tap any line of it to change that answer.',
+                'CVを確認してください。変更したい項目をタップすると回答を直せます。',
+                'আপনার সিভি দেখে নিন। কোনো লাইনে ট্যাপ করলে সেই উত্তর বদলাতে পারবেন।'
               )}
             </p>
           </div>
         )}
 
         {/* English summary for employers: only when staff have configured it. */}
-        {assistant?.summary_available && (
+        {assistant?.summary_available && !editing && (
           <div className="mt-5 pt-4 border-t border-slate-100">
             <button type="button" disabled={busy || assistant.remaining <= 0} onClick={() => summarize.mutate()}
               className="px-4 py-2.5 rounded-xl border border-slate-200 hover:border-green-500 hover:bg-green-50 text-sm font-bold text-slate-700 transition-colors disabled:opacity-50">
