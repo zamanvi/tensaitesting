@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useLang } from '@/context/LanguageContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { useUiStore } from '@/store/uiStore';
 import { Application, AppDoc, FormTemplateData } from '@/components/applications/ApplicationFormShared';
 import ApplicationFormBody from '@/components/applications/ApplicationFormBody';
@@ -100,6 +100,19 @@ export default function StudentApplicationPage() {
 
   // Reset edit mode whenever the selected app changes
   useEffect(() => { setEditMode(false); }, [selectedAppId]);
+
+  // Deep link from My CV: /dashboard/student/leads?app=<id> opens that
+  // application once. Runs a single time so closing it does not reopen it.
+  const deepLinked = useRef(false);
+  useEffect(() => {
+    if (deepLinked.current || apps.length === 0) return;
+    deepLinked.current = true;
+    const id = Number(new URLSearchParams(window.location.search).get('app'));
+    if (id && apps.some(a => a.id === id)) {
+      setSelectedAppId(id);
+      setTab('ongoing');
+    }
+  }, [apps, setTab]);
 
   function handleCreated(app: Application) {
     qc.invalidateQueries({ queryKey });
@@ -475,7 +488,7 @@ export default function StudentApplicationPage() {
                 </div>
 
                 {/* Delete draft button */}
-                {selectedApp?.status === 'draft' && (
+                {selectedApp?.status === 'draft' && template?.country !== 'Job CV' && (
                   <div className="px-4 py-3 border-t border-slate-100">
                     <button onClick={() => setConfirmDelete(true)}
                       className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-50 transition-colors border border-rose-100">
@@ -525,7 +538,7 @@ export default function StudentApplicationPage() {
                     onDocUploaded={handleDocUploaded}
                     onDocDeleted={handleDocDeleted}
                     onClose={() => { setEditMode(false); if (selectedApp.status === 'draft') setSelectedAppId(null); }}
-                    hideSubmit={editMode && selectedApp.status !== 'draft'}
+                    hideSubmit={template?.country === 'Job CV' || (editMode && selectedApp.status !== 'draft')}
                   />
                 </div>
               )}

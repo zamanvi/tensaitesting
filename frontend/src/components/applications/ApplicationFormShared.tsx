@@ -148,7 +148,7 @@ export function FieldIcon({ name, className = 'w-4 h-4', strokeWidth = 1.75 }: {
 
 // ── Progress bar ──────────────────────────────────────────────────────────────
 
-export function ProgressBar({ value }: { value: number }) {
+export function ProgressBar({ value, hideSubmitHint = false }: { value: number; hideSubmitHint?: boolean }) {
   const pct   = Math.min(100, Math.max(0, value));
   const color = pct >= 80 ? 'bg-green-500' : pct >= 50 ? 'bg-amber-400' : 'bg-rose-400';
   const label = pct >= 80 ? 'text-green-700' : pct >= 50 ? 'text-amber-700' : 'text-rose-500';
@@ -157,7 +157,7 @@ export function ProgressBar({ value }: { value: number }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-slate-500 tracking-wide uppercase">Form Progress</span>
-          {pct >= 50 && <span className="text-xs font-bold px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Ready to Submit</span>}
+          {pct >= 50 && !hideSubmitHint && <span className="text-xs font-bold px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Ready to Submit</span>}
         </div>
         <span className={`text-base font-black ${label}`}>{pct}%</span>
       </div>
@@ -166,7 +166,7 @@ export function ProgressBar({ value }: { value: number }) {
           <div className="absolute inset-0 bg-white/20 animate-pulse" />
         </div>
       </div>
-      {pct < 50 && (
+      {pct < 50 && !hideSubmitHint && (
         <p className="text-xs text-slate-400 mt-1.5">
           Fill <strong className="text-slate-600">{50 - pct}%</strong> more to unlock Submit
         </p>

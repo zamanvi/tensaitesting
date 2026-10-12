@@ -240,7 +240,7 @@ export default function ApplicationFormBody({
         </div>
         {progress === 0
           ? <p className="text-xs text-slate-400">Fill in the form below to track your progress.</p>
-          : <ProgressBar value={progress} />
+          : <ProgressBar value={progress} hideSubmitHint={hideSubmit} />
         }
         {saveMsg && <p aria-live="polite" className="text-xs font-semibold text-green-600 mt-1.5 flex items-center gap-1">
           <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
