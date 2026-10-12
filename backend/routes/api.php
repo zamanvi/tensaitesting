@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\CommissionController;
 use App\Http\Controllers\Api\AffiliateProfileController;
 use App\Http\Controllers\Api\AffiliateController;
+use App\Http\Controllers\Api\StudentCvController;
 use App\Http\Controllers\Api\StudentReferralController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\AdminGalleryController;
@@ -126,6 +127,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/account',        [AccountController::class, 'update']);
         Route::post('/account/avatar',  [AccountController::class, 'avatar']);
         Route::get('/referrals',        [StudentReferralController::class, 'index']);
+        Route::get('/cv',               [StudentCvController::class, 'show']);
+        Route::post('/cv/submit',       [StudentCvController::class, 'submit'])->middleware('throttle:20,1');
         Route::post('/help-request', [HelpRequestController::class, 'store']);
         Route::get('/help-requests', [HelpRequestController::class, 'myRequests']);
         Route::get('/leads',        [LeadController::class, 'myLeads']);

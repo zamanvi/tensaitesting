@@ -21,6 +21,7 @@ class AllApplicationsTableWidget extends BaseWidget
         return $table
             ->query(
                 Application::query()
+                    ->withoutUnsentJobCvs()
                     ->with(['formTemplate', 'user', 'branch'])
                     ->latest()
             )

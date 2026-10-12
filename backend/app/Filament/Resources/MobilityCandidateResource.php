@@ -3,7 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MobilityCandidateResource\Pages;
+use App\Models\CvAccess;
 use App\Models\MobilityCandidate;
+use Filament\Notifications\Notification;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -198,6 +200,29 @@ class MobilityCandidateResource extends Resource
                     ->label('Passport')
                     ->boolean(),
 
+                // Is this person also a website account, and has staff opened
+                // their My CV yet? Matched on phone number.
+                Tables\Columns\TextColumn::make('account')
+                    ->label('Account')
+                    ->badge()
+                    ->getStateUsing(function (MobilityCandidate $record) {
+                        $access = $record->cvAccess;
+                        if ($access) {
+                            return $access->isActive()
+                                ? 'CV: ' . strtolower(CvAccess::STAGES[$access->stage()])
+                                : 'CV paused';
+                        }
+
+                        return CvAccess::findUserFor($record) ? 'Has account' : 'No account';
+                    })
+                    ->color(fn (string $state) => match (true) {
+                        str_starts_with($state, 'CV: sent')   => 'success',
+                        str_starts_with($state, 'CV: ready')  => 'warning',
+                        str_starts_with($state, 'CV')         => 'primary',
+                        $state === 'Has account'              => 'info',
+                        default                               => 'gray',
+                    }),
+
                 Tables\Columns\TextColumn::make('branch.name')->label('Branch')->toggleable(),
 
                 Tables\Columns\TextColumn::make('created_at')
@@ -218,11 +243,97 @@ class MobilityCandidateResource extends Resource
                 Tables\Filters\Filter::make('ready')
                     ->label('Ready to visit (has passport and can come in)')
                     ->query(fn (Builder $query) => $query->where('has_passport', true)->where('can_visit_office', true)),
+                // Who has a website account? Free accounts exist for everyone;
+                // "CV open" means staff switched My CV (and its assistant) on.
+                Tables\Filters\SelectFilter::make('account')
+                    ->label('Account')
+                    ->options([
+                        'none'     => 'No account (chat only)',
+                        'account'  => 'Has account (CV not open)',
+                        'cv_open'  => 'CV open',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $has = 'EXISTS (SELECT 1 FROM users u WHERE u.deleted_at IS NULL AND u.gateway_type = \'student\''
+                            . ' AND u.phone IS NOT NULL AND CHAR_LENGTH(mobility_candidates.phone) >= 8'
+                            . ' AND RIGHT(REPLACE(REPLACE(REPLACE(REPLACE(u.phone, \' \', \'\'), \'-\', \'\'), \'+\', \'\'), \'(\', \'\'), 10)'
+                            . ' = RIGHT(mobility_candidates.phone, 10))';
+
+                        return match ($data['value'] ?? null) {
+                            'cv_open' => $query->whereHas('cvAccess', fn ($q) => $q->where('status', 'active')),
+                            'account' => $query->whereDoesntHave('cvAccess', fn ($q) => $q->where('status', 'active'))->whereRaw($has),
+                            'none'    => $query->whereDoesntHave('cvAccess')->whereRaw('NOT ' . $has),
+                            default   => $query,
+                        };
+                    }),
+                Tables\Filters\SelectFilter::make('cv_stage')
+                    ->label('CV stage')
+                    ->options(CvAccess::STAGES)
+                    ->query(function (Builder $query, array $data) {
+                        return match ($data['value'] ?? null) {
+                            'filling' => $query->whereHas('cvAccess', fn ($q) => $q->where('status', 'active')->whereNull('cv_submitted_at')->whereNull('sent_at')),
+                            'review'  => $query->whereHas('cvAccess', fn ($q) => $q->where('status', 'active')->whereNotNull('cv_submitted_at')->whereNull('sent_at')),
+                            'sent'    => $query->whereHas('cvAccess', fn ($q) => $q->whereNotNull('sent_at')),
+                            default   => $query,
+                        };
+                    }),
                 Tables\Filters\TernaryFilter::make('passport_published')->label('Passport ready'),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('activate_cv')
+                    ->label('Activate CV')
+                    ->icon('heroicon-o-document-plus')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Open My CV for this person?')
+                    ->modalDescription('Their chat answers are copied into a draft Job CV, which then appears in All Applications.')
+                    ->visible(function (MobilityCandidate $record) {
+                        if ($record->trashed() || ! CvAccessResource::canAccess()) {
+                            return false;
+                        }
+                        $user = CvAccess::findUserFor($record);
+
+                        return $user
+                            && ! CvAccess::where('user_id', $user->id)->where('status', 'active')->exists();
+                    })
+                    ->action(function (MobilityCandidate $record) {
+                        $user = CvAccess::findUserFor($record);
+                        if (! $user) {
+                            return;
+                        }
+                        CvAccess::activateFor($user, auth()->user());
+
+                        Notification::make()->title('My CV opened for ' . $user->name)->success()->send();
+                    }),
+                Tables\Actions\Action::make('open_cv')
+                    ->label('Open CV')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id
+                        && ApplicationResource::canAccess())
+                    ->url(fn (MobilityCandidate $record) => ApplicationResource::getUrl('edit', ['record' => $record->cvAccess->application_id])),
+                Tables\Actions\Action::make('cv_settings')
+                    ->label('CV settings')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess && CvAccessResource::canAccess())
+                    ->url(fn (MobilityCandidate $record) => CvAccessResource::getUrl('edit', ['record' => $record->cvAccess->getKey()])),
+                // The last staff step: the checked CV joins All Applications.
+                Tables\Actions\Action::make('send_to_applications')
+                    ->label('Send to All Applications')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('primary')
+                    ->requiresConfirmation()
+                    ->modalHeading('Send this CV to All Applications?')
+                    ->modalDescription('Check that the details are correct first. The CV will then appear in All Applications as a submitted application. It is not shown to employers by this step.')
+                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
+                        && $record->cvAccess?->isActive()
+                        && ! $record->cvAccess->sent_at
+                        && CvAccessResource::canAccess())
+                    ->action(function (MobilityCandidate $record) {
+                        $record->cvAccess?->sendToApplications();
+
+                        Notification::make()->title('CV sent to All Applications')->success()->send();
+                    }),
                 Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([

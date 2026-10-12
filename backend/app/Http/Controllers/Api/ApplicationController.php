@@ -7,6 +7,7 @@ use App\Models\AffiliateProfile;
 use App\Models\Application;
 use App\Models\ApplicationDocument;
 use App\Models\Commission;
+use App\Models\CvAccess;
 use App\Models\FormTemplate;
 use App\Models\Setting;
 use App\Models\TensaiNotification;
@@ -141,6 +142,12 @@ class ApplicationController extends Controller
         }
         if ($app->progress < 50) {
             return response()->json(['message' => 'Progress must be at least 50% to submit.'], 422);
+        }
+
+        // A Job CV is sent for review from My CV (with the person's consent),
+        // never straight into All Applications from here.
+        if (CvAccess::where('application_id', $app->id)->exists()) {
+            return response()->json(['message' => 'Please use "Send my CV for review" on the My CV page.'], 422);
         }
 
         $app->update(['status' => 'submitted', 'submitted_at' => now()]);
@@ -302,6 +309,11 @@ class ApplicationController extends Controller
         if (!$user->hasRole(['super_admin', 'admin', 'branch_admin', 'branch_manager'])) {
             if ($app->status !== 'draft') {
                 return response()->json(['message' => 'Only draft applications can be deleted.'], 403);
+            }
+            // The Job CV belongs to the My CV section; deleting it would leave
+            // an opened My CV with nothing behind it.
+            if (CvAccess::where('application_id', $app->id)->exists()) {
+                return response()->json(['message' => 'Your Job CV cannot be deleted. Please contact our team.'], 403);
             }
         }
 

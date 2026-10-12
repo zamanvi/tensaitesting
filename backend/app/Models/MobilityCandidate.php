@@ -72,4 +72,10 @@ class MobilityCandidate extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+
+    // Set when staff opened My CV for this person's account.
+    public function cvAccess()
+    {
+        return $this->hasOne(CvAccess::class, 'mobility_candidate_id');
+    }
 }
