@@ -334,8 +334,29 @@ class MobilityCandidateResource extends Resource
                     ]))
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Close'),
+                // Light editing page: the CV questions in one form, plus the
+                // English summary. Use this to perfect a CV before sending it.
+                Tables\Actions\Action::make('edit_cv')
+                    ->label('Edit CV')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('primary')
+                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
+                        && (bool) $record->cvAccess?->application_id
+                        && CvAccessResource::canAccess())
+                    ->slideOver()
+                    ->modalWidth('3xl')
+                    ->modalHeading('Edit CV')
+                    ->modalDescription('Change anything the person answered. Empty a box to remove that answer. Changes show at once in the person\'s My CV and in the preview.')
+                    ->form(fn (MobilityCandidate $record) => \App\Filament\Support\CvEditForm::schema($record->cvAccess->load(['application', 'candidate'])))
+                    ->fillForm(fn (MobilityCandidate $record) => \App\Filament\Support\CvEditForm::values($record->cvAccess->load(['application', 'candidate'])))
+                    ->modalSubmitActionLabel('Save CV')
+                    ->action(function (MobilityCandidate $record, array $data) {
+                        \App\Filament\Support\CvEditForm::save($record->cvAccess->load(['application', 'candidate']), $data);
+
+                        Notification::make()->title('CV saved')->success()->send();
+                    }),
                 Tables\Actions\Action::make('open_cv')
-                    ->label('Open CV')
+                    ->label('Full application')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id
                         && ApplicationResource::canAccess())
