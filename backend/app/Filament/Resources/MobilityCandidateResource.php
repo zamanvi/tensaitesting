@@ -55,10 +55,21 @@ class MobilityCandidateResource extends Resource
                 ->columns(2)
                 ->schema([
                     Forms\Components\TextInput::make('full_name')->required()->maxLength(120),
-                    Forms\Components\TextInput::make('phone')->tel()->maxLength(32),
+                    Forms\Components\TextInput::make('phone')
+                        ->tel()
+                        ->maxLength(32)
+                        // Stored in the same shape the website chat uses (digits,
+                        // optional leading +), so one person is never two records.
+                        ->dehydrateStateUsing(fn ($state) => preg_replace('/[\s\-().]+/', '', (string) $state))
+                        ->rule('regex:/^\+?[0-9\s\-().]{8,20}$/')
+                        ->unique(ignoreRecord: true)
+                        ->helperText('8 to 15 digits, with an optional leading +.'),
                     Forms\Components\Toggle::make('phone_consent')
                         ->label('Agreed to be contacted on this number'),
-                    Forms\Components\DateTimePicker::make('consented_at')->disabled()->dehydrated(false),
+                    Forms\Components\DateTimePicker::make('consented_at')
+                        ->disabled()
+                        ->dehydrated(false)
+                        ->timezone('Asia/Dhaka'),
                     Forms\Components\TextInput::make('code')
                         ->label('Reference code')
                         ->disabled()
@@ -77,6 +88,12 @@ class MobilityCandidateResource extends Resource
                         ->maxLength(160),
                     Forms\Components\TextInput::make('languages')->maxLength(160),
                     Forms\Components\TextInput::make('target_country')->maxLength(80),
+                    Forms\Components\TextInput::make('district')->maxLength(80),
+                    Forms\Components\Toggle::make('has_passport')
+                        ->label('Holds a valid passport')
+                        ->helperText('As answered in the chat. The passport number is never collected.'),
+                    Forms\Components\Toggle::make('can_visit_office')
+                        ->label('Can visit the Dhaka or Pabna office'),
                     Forms\Components\Select::make('lang')
                         ->label('Chat language')
                         ->options(['bn' => 'Bangla', 'en' => 'English', 'ja' => 'Japanese']),
@@ -110,6 +127,10 @@ class MobilityCandidateResource extends Resource
                     Forms\Components\TextInput::make('video_url')
                         ->label('Skill video (YouTube unlisted link)')
                         ->url()
+                        // It will be embedded on the public Talent Passport, so
+                        // only a YouTube link is accepted.
+                        ->rule('regex:#^https://(www\.|m\.)?(youtube\.com/(watch\?v=|embed/|shorts/)|youtu\.be/)[A-Za-z0-9_\-]{6,}#')
+                        ->validationMessages(['regex' => 'Use a YouTube link (youtube.com/watch?v=… or youtu.be/…).'])
                         ->maxLength(500)
                         ->columnSpanFull(),
                     Forms\Components\Textarea::make('summary')
@@ -151,6 +172,16 @@ class MobilityCandidateResource extends Resource
                 Tables\Columns\TextColumn::make('role')->searchable()->toggleable(),
                 Tables\Columns\TextColumn::make('experience')->toggleable(),
                 Tables\Columns\TextColumn::make('target_country')->label('Country')->toggleable(),
+                Tables\Columns\TextColumn::make('district')->searchable()->toggleable(),
+
+                Tables\Columns\IconColumn::make('has_passport')
+                    ->label('Passport?')
+                    ->boolean()
+                    ->toggleable(),
+                Tables\Columns\IconColumn::make('can_visit_office')
+                    ->label('Can visit?')
+                    ->boolean()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -172,6 +203,9 @@ class MobilityCandidateResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Received')
                     ->since()
+                    ->tooltip(fn (MobilityCandidate $record) => $record->created_at
+                        ?->setTimezone('Asia/Dhaka')
+                        ->format('d M Y, h:i A') . ' (Dhaka)')
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -180,6 +214,10 @@ class MobilityCandidateResource extends Resource
                 Tables\Filters\SelectFilter::make('branch_id')
                     ->label('Branch')
                     ->relationship('branch', 'name'),
+                // People who can both hold a visa process and come in: call these first.
+                Tables\Filters\Filter::make('ready')
+                    ->label('Ready to visit (has passport and can come in)')
+                    ->query(fn (Builder $query) => $query->where('has_passport', true)->where('can_visit_office', true)),
                 Tables\Filters\TernaryFilter::make('passport_published')->label('Passport ready'),
                 Tables\Filters\TrashedFilter::make(),
             ])

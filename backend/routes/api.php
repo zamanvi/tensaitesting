@@ -95,8 +95,9 @@ Route::middleware('throttle:10,1')->group(function () {
 });
 
 // Skilled Worker Mobility chat (public): saves the visitor's answers + phone as a
-// draft candidate for staff. 5 submissions a minute per IP.
-Route::post('/mobility/chat', [MobilityChatController::class, 'store'])->middleware('throttle:5,1');
+// draft candidate for staff. Rate limit "mobility-chat" (5/min per IP); the
+// controller also caps new rows per hour from the table itself.
+Route::post('/mobility/chat', [MobilityChatController::class, 'store'])->middleware('throttle:mobility-chat');
 
 // Authenticated
 Route::middleware('auth:sanctum')->group(function () {

@@ -26,6 +26,7 @@ class MobilityCandidate extends Model
         'code', 'status', 'source', 'lang',
         'full_name', 'phone', 'phone_consent', 'consented_at',
         'role', 'experience', 'licence', 'languages', 'target_country', 'answers',
+        'has_passport', 'can_visit_office', 'district',
         'summary', 'video_url', 'passport_published', 'branch_id', 'admin_notes',
         'ip_hash',
     ];
@@ -33,6 +34,8 @@ class MobilityCandidate extends Model
     protected $casts = [
         'answers'            => 'array',
         'phone_consent'      => 'boolean',
+        'has_passport'       => 'boolean',
+        'can_visit_office'   => 'boolean',
         'passport_published' => 'boolean',
         'consented_at'       => 'datetime',
     ];

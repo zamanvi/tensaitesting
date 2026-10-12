@@ -28,6 +28,13 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Own counter for the public Skilled Worker Mobility chat. The plain
+        // "throttle:N,1" form keys by address only, so it shares one counter with
+        // every other unnamed throttle (e.g. the login group).
+        RateLimiter::for('mobility-chat', function (Request $request) {
+            return Limit::perMinute(5)->by('mobility-chat|' . $request->ip());
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
