@@ -128,35 +128,41 @@ class SettingsPage extends Page
     {
         return $form->schema([
             Forms\Components\Section::make('Support Contact')
+                ->description('The contact details visitors see on the website. Change a number here and it changes everywhere it is used, no developer needed.')
                 ->schema([
                     Forms\Components\TextInput::make('support_whatsapp')
-                        ->label('WhatsApp Number')
-                        ->helperText('International format without +, e.g. 8801826192179')
+                        ->label('WhatsApp number (general support)')
+                        ->helperText('Used for the WhatsApp buttons on the Home, Contact, About and branch pages. Write the full number with country code, digits only, no + sign. Example: 8801826192179  (880 = Bangladesh, then the number without the first 0).')
+                        ->placeholder('8801XXXXXXXXX')
                         ->required(),
                     Forms\Components\TextInput::make('support_phone')
-                        ->label('Phone Number')
-                        ->helperText('With + prefix, e.g. +8801826192179')
+                        ->label('Phone number (for calls)')
+                        ->helperText('Shown on the About page as a tap-to-call number. Write it with a + sign and country code. Example: +8801826192179')
+                        ->placeholder('+8801XXXXXXXXX')
                         ->required(),
                     Forms\Components\TextInput::make('support_email')
-                        ->label('Support Email')
-                        ->helperText('Public support email shown on the site')
+                        ->label('Support email')
+                        ->helperText('Shown on the About page as an email link. Optional.')
+                        ->placeholder('info@example.com')
                         ->email(),
                 ])->columns(2),
 
             Forms\Components\Section::make('My CV (job-search assistant)')
-                ->description('The WhatsApp number shown to users on their My CV page, where they ask staff to open the assistant.')
+                ->description('When a person opens the "My CV" section of their account and staff have not switched the assistant on for them yet, they see a message and a green WhatsApp button. The button opens WhatsApp with the number below, so they can ask you to switch it on. You switch it on from Talent Passports → "Activate CV".')
                 ->schema([
                     Forms\Components\TextInput::make('cv_whatsapp')
-                        ->label('My CV WhatsApp Number')
-                        ->helperText('International format without +, e.g. 8801826192179. Leave empty to use the support WhatsApp number above.')
-                        ->placeholder('Same as support WhatsApp'),
+                        ->label('WhatsApp number for My CV')
+                        ->helperText('Use this if a different person or phone handles CV requests. Same format as above: country code, digits only, no + sign. Example: 8801711222333. LEAVE EMPTY to use the general support WhatsApp number above.')
+                        ->placeholder('Empty = same as the support WhatsApp number')
+                        ->columnSpanFull(),
                 ]),
 
             Forms\Components\Section::make('Office')
+                ->description('Your physical office, shown to visitors on the About page.')
                 ->schema([
                     Forms\Components\Textarea::make('office_address')
-                        ->label('Office Address')
-                        ->helperText('Full address shown on the contact/about page')
+                        ->label('Office address')
+                        ->helperText('Write the full address as you want it shown, one or two lines. Optional.')
                         ->rows(3)
                         ->columnSpanFull(),
                 ]),
@@ -168,12 +174,12 @@ class SettingsPage extends Page
                         ->label('YouTube Video Link')
                         ->url()
                         ->placeholder('https://www.youtube.com/watch?v=...')
-                        ->helperText('Paste the normal YouTube link (youtube.com/watch?v=…, youtu.be/…, or a Shorts link).')
+                        ->helperText('Open the video on YouTube, copy the address from the browser bar (or use the Share button → Copy) and paste it here. Only YouTube links work.')
                         ->columnSpanFull(),
                 ]),
 
             Forms\Components\Section::make('Social Media Links')
-                ->description('These URLs appear in the website footer and contact page.')
+                ->description('Paste the full web address of each page (starting with https://). An icon appears in the website footer only for the boxes you fill in; leave a box empty to hide its icon. Facebook and YouTube icons show in the footer of every page. Instagram, TikTok, LinkedIn and X show in the Home page footer.')
                 ->schema([
                     Forms\Components\TextInput::make('facebook_url')->label('Facebook')->url()->placeholder('https://facebook.com/...'),
                     Forms\Components\TextInput::make('youtube_url')->label('YouTube')->url()->placeholder('https://youtube.com/...'),
@@ -184,7 +190,7 @@ class SettingsPage extends Page
                 ])->columns(2),
 
             Forms\Components\Section::make('Copyright Text')
-                ->description('Shown in the website footer. Use {year} as a placeholder for the current year.')
+                ->description('The small line at the very bottom of the website, one for each language. Type {year} where the year should appear and it updates itself every January. Leave empty to use the default line.')
                 ->schema([
                     Forms\Components\TextInput::make('copyright_en')
                         ->label('English')

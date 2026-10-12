@@ -669,7 +669,7 @@ export default function HomePageClient({ initial }: { initial?: HomeInitialData 
               )}
               </div>
               <p className="text-xs text-[color:var(--t-muted)] text-center sm:text-right">
-                {ja ? (settings?.copyright_ja || '© 2026 Tensai Consultancy Ltd.') : bn ? (settings?.copyright_bn || '© 2026 তেনসাই কনসালটেন্সি লিমিটেড।') : (settings?.copyright_en || '© 2026 Tensai Consultancy Ltd. All rights reserved.')}
+                {(ja ? (settings?.copyright_ja || '© 2026 Tensai Consultancy Ltd.') : bn ? (settings?.copyright_bn || '© 2026 তেনসাই কনসালটেন্সি লিমিটেড।') : (settings?.copyright_en || '© 2026 Tensai Consultancy Ltd. All rights reserved.')).replace(/\{year\}/g, String(new Date().getFullYear()))}
               </p>
             </div>
           </div>
