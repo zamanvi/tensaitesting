@@ -1,9 +1,13 @@
 'use client';
 import { CvLang, CvPreviewData, pickLang } from './cvTypes';
 
+type CardPreview = Omit<CvPreviewData, 'progress'> & { progress?: number };
+
 // The CV as a reader sees it. Staff see exactly the same layout in the admin
 // panel ("Preview CV"), built from the same data on the server.
-export default function CvPreviewCard({ preview, lang }: { preview: CvPreviewData; lang: CvLang }) {
+export default function CvPreviewCard({
+  preview, lang, audience = 'owner', reference = null,
+}: { preview: CardPreview; lang: CvLang; audience?: 'owner' | 'public'; reference?: string | null }) {
   const t = (en: string, ja: string, bn: string) => (lang === 'ja' ? ja : lang === 'bn' ? bn : en);
   const empty = preview.sections.length === 0 && !preview.headline && !preview.summary;
 
@@ -12,6 +16,11 @@ export default function CvPreviewCard({ preview, lang }: { preview: CvPreviewDat
       <div className="px-6 pt-6 pb-4 border-b-2 border-green-600">
         <p className="text-xl font-black text-slate-900 break-words">{preview.name || '—'}</p>
         {preview.headline && <p className="text-sm font-semibold text-green-700 mt-0.5 break-words">{preview.headline}</p>}
+        {reference && (
+          <p className="mt-2 text-[11px] font-bold tracking-wider text-slate-400">
+            {t('REFERENCE', '参照番号', 'রেফারেন্স')}: <span className="text-slate-700">{reference}</span>
+          </p>
+        )}
       </div>
 
       <div className="px-6 py-5 space-y-5">
@@ -53,13 +62,15 @@ export default function CvPreviewCard({ preview, lang }: { preview: CvPreviewDat
         ))}
       </div>
 
-      <p className="px-6 py-3 bg-slate-50 text-[11px] text-slate-400 leading-relaxed">
-        {t(
-          'Your phone number, e-mail and passport details are not part of this CV.',
-          '電話番号、メールアドレス、パスポート情報はこのCVには含まれません。',
-          'আপনার ফোন নাম্বার, ইমেইল ও পাসপোর্টের তথ্য এই সিভিতে থাকে না।'
-        )}
-      </p>
+      {audience === 'owner' && (
+        <p className="px-6 py-3 bg-slate-50 text-[11px] text-slate-400 leading-relaxed">
+          {t(
+            'Your phone number, e-mail and passport details are not part of this CV.',
+            '電話番号、メールアドレス、パスポート情報はこのCVには含まれません。',
+            'আপনার ফোন নাম্বার, ইমেইল ও পাসপোর্টের তথ্য এই সিভিতে থাকে না।'
+          )}
+        </p>
+      )}
     </div>
   );
 }
