@@ -25,6 +25,7 @@ const ROLE_LICENCE: LicenceKey[] = ['driver', 'care', 'care', 'teacher', 'trade'
 interface Copy {
   hi: string; sub: string; ph: string; send: string; newChat: string;
   roles: string[]; exp: Step; langs: Step; country: Step; licence: Record<LicenceKey, Step>;
+  passport: Step; office: Step; district: Step; phText: string;
   labels: string[];
   err: string; dis: string; title: string; note: string;
   branch: string; again: string; disclaimer: string;
@@ -54,7 +55,11 @@ const COPY: Record<Lang, Copy> = {
     },
     langs: { q: 'Which languages can you speak?', o: ['Bangla only', 'Bangla and English', 'Bangla and Japanese'] },
     country: { q: 'Which country interests you most?', o: ['Japan', 'Gulf countries', 'Europe', 'Not sure yet'] },
-    labels: ['Work', 'Experience', 'Qualification', 'Languages', 'Country'],
+    passport: { q: 'Do you have a valid passport?', o: ['Yes', 'No', 'Applied, waiting'] },
+    office: { q: 'Can you come to our Dhaka or Pabna office?', o: ['Yes', 'Not right now'] },
+    district: { q: 'Which district do you live in?', o: [] },
+    phText: 'Type your answer here',
+    labels: ['Work', 'Experience', 'Qualification', 'Languages', 'Country', 'Passport', 'Can visit office', 'District'],
     err: 'Type a message or tap an option first',
     dis: 'Our staff check every profile. We never guarantee jobs or visas.',
     title: 'Your draft profile',
@@ -86,7 +91,11 @@ const COPY: Record<Lang, Copy> = {
     },
     langs: { q: 'আপনি কোন কোন ভাষা বলতে পারেন?', o: ['শুধু বাংলা', 'বাংলা ও ইংরেজি', 'বাংলা ও জাপানি'] },
     country: { q: 'কোন দেশে কাজ করতে বেশি আগ্রহী?', o: ['জাপান', 'মধ্যপ্রাচ্য', 'ইউরোপ', 'এখনো ঠিক করিনি'] },
-    labels: ['পেশা', 'অভিজ্ঞতা', 'যোগ্যতা', 'ভাষা', 'দেশ'],
+    passport: { q: 'আপনার কি বৈধ পাসপোর্ট আছে?', o: ['হ্যাঁ', 'না', 'আবেদন করেছি, অপেক্ষায়'] },
+    office: { q: 'আপনি কি আমাদের ঢাকা বা পাবনা অফিসে আসতে পারবেন?', o: ['হ্যাঁ', 'এখন না'] },
+    district: { q: 'আপনি কোন জেলায় থাকেন?', o: [] },
+    phText: 'এখানে উত্তর লিখুন',
+    labels: ['পেশা', 'অভিজ্ঞতা', 'যোগ্যতা', 'ভাষা', 'দেশ', 'পাসপোর্ট', 'অফিসে আসতে পারবেন', 'জেলা'],
     err: 'আগে কিছু লিখুন বা একটি অপশন চাপুন',
     dis: 'আমাদের স্টাফ প্রতিটি প্রোফাইল যাচাই করেন। আমরা চাকরি বা ভিসার নিশ্চয়তা দিই না।',
     title: 'আপনার খসড়া প্রোফাইল',
@@ -118,7 +127,11 @@ const COPY: Record<Lang, Copy> = {
     },
     langs: { q: '話せる言語は何ですか？', o: ['ベンガル語のみ', 'ベンガル語と英語', 'ベンガル語と日本語'] },
     country: { q: '最も関心のある国はどこですか？', o: ['日本', '湾岸諸国', 'ヨーロッパ', 'まだ決めていません'] },
-    labels: ['職種', '経験', '資格', '言語', '国'],
+    passport: { q: '有効なパスポートをお持ちですか？', o: ['はい', 'いいえ', '申請中'] },
+    office: { q: 'ダッカまたはパブナのオフィスにお越しいただけますか？', o: ['はい', '今は難しい'] },
+    district: { q: 'お住まいの地区を教えてください。', o: [] },
+    phText: 'ここに入力してください',
+    labels: ['職種', '経験', '資格', '言語', '国', 'パスポート', '来所', '地区'],
     err: 'メッセージを入力するか、選択肢をタップしてください',
     dis: 'スタッフがすべてのプロフィールを確認します。就職やビザの保証はいたしません。',
     title: 'プロフィールの下書き',
@@ -135,6 +148,10 @@ const COPY: Record<Lang, Copy> = {
     savedTitle: '保存しました。ありがとうございます。', savedNote: 'チームがこの番号にご連絡します。', refLabel: '参照コード',
   },
 };
+
+// Stored values are always the English wording, whatever language the chat was
+// held in, so the admin list can be filtered and counted consistently.
+const ROLE_EN = ['Driver', 'Caregiver', 'Nurse', 'Teacher', 'Technician', 'Construction worker', 'Cook'];
 
 const LANG_NAME: Record<Lang, string> = { en: 'English', bn: 'বাংলা', ja: '日本語' };
 
@@ -171,7 +188,7 @@ export default function MobilityClient() {
   const licenceKey: LicenceKey =
     answers[0]?.opt !== undefined ? ROLE_LICENCE[answers[0].opt] ?? 'other' : 'other';
   const steps: Step[] = useMemo(
-    () => [c.exp, c.licence[licenceKey], c.langs, c.country],
+    () => [c.exp, c.licence[licenceKey], c.langs, c.country, c.passport, c.office, c.district],
     [c, licenceKey],
   );
 
@@ -185,6 +202,18 @@ export default function MobilityClient() {
     const list = i === 0 ? c.roles : steps[i - 1]?.o;
     return list?.[ans.opt ?? 0] ?? '';
   };
+
+  // English wording of an answer, for storage. Typed text is kept as typed.
+  const canon = (i: number, ans: Answer): string => {
+    if (ans.text !== undefined) return ans.text;
+    if (i === 0) return ROLE_EN[ans.opt ?? 0] ?? '';
+    const en = COPY.en;
+    const stepsEn = [en.exp, en.licence[licenceKey], en.langs, en.country, en.passport, en.office, en.district];
+    return stepsEn[i - 1]?.o[ans.opt ?? 0] ?? '';
+  };
+  // Yes/No answers to booleans; null when the visitor typed something instead.
+  const yes = (ans: Answer | undefined): boolean | null =>
+    ans && ans.opt !== undefined ? ans.opt === 0 : null;
 
   useEffect(() => {
     if (started) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -236,11 +265,14 @@ export default function MobilityClient() {
           phone: cleanPhone,
           consent: true,
           website: trap,
-          role: show(0, answers[0]),
-          experience: show(1, answers[1]),
-          licence: show(2, answers[2]),
-          languages: show(3, answers[3]),
-          target_country: show(4, answers[4]),
+          role: canon(0, answers[0]),
+          experience: canon(1, answers[1]),
+          licence: canon(2, answers[2]),
+          languages: canon(3, answers[3]),
+          target_country: canon(4, answers[4]),
+          has_passport: yes(answers[5]),
+          can_visit_office: yes(answers[6]),
+          district: canon(7, answers[7]),
           answers: answers.map((ans, i) => ({
             question: c.labels[i] ?? '',
             answer: show(i, ans),
@@ -414,8 +446,8 @@ export default function MobilityClient() {
                   <input
                     value={draft}
                     onChange={(e) => { setDraft(e.target.value); setError(false); }}
-                    placeholder={c.ph}
-                    aria-label={c.ph}
+                    placeholder={pending && pending.o.length === 0 ? c.phText : c.ph}
+                    aria-label={pending && pending.o.length === 0 ? c.phText : c.ph}
                     autoComplete="off"
                     className="flex-1 bg-transparent outline-none text-[15px] text-white placeholder:text-white/35 h-10 min-w-0"
                   />
