@@ -41,7 +41,7 @@ class DatabaseSeeder extends Seeder
         $permissions = [
             'manage_users', 'manage_leads', 'manage_agencies',
             'manage_institutions', 'manage_commissions',
-            'approve_ocr', 'publish_leads', 'unlock_vault',
+            'publish_leads', 'unlock_vault',
             'arrange_interviews', 'view_all_reports',
         ];
 

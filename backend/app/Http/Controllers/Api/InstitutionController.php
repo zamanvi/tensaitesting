@@ -84,13 +84,13 @@ class InstitutionController extends Controller
         $leads = Lead::where('assigned_institution_id', $request->user()->id)
             ->with([
                 'student:id,name,email',
-                'student.studentProfile:id,user_id,jlpt_level,nat_level,gpa,highest_qualification,is_ocr_verified',
+                'student.studentProfile:id,user_id,jlpt_level,nat_level,gpa,highest_qualification',
                 'sourceAgency:id,name',
             ])
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        // Flatten student profile fields and compute eligibility score
+        // Flatten student profile fields
         $leads->getCollection()->transform(function (Lead $lead) {
             $profile = $lead->student?->studentProfile;
             $data = $lead->toArray();
@@ -103,7 +103,6 @@ class InstitutionController extends Controller
                     'nat_level'             => $profile?->nat_level,
                     'gpa'                   => $profile?->gpa,
                     'highest_qualification' => $profile?->highest_qualification,
-                    'eligibility_score'     => $profile?->eligibilityScore(),
                 ];
             }
             unset($data['source_agency'], $data['student']['student_profile']);

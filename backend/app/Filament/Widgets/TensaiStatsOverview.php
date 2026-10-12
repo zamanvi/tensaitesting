@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Models\Commission;
 use App\Models\Lead;
-use App\Models\OcrJob;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -21,7 +20,6 @@ class TensaiStatsOverview extends BaseWidget
 
         $studentChartData = $this->dailyCounts('users', 'gateway_type', 'student');
         $leadChartData = $this->dailyLeadCounts();
-        $ocrChartData = $this->dailyOcrCounts();
 
         $newStudentsThisWeek = User::where('gateway_type', 'student')
             ->where('created_at', '>=', $weekAgo)->count();
@@ -52,13 +50,6 @@ class TensaiStatsOverview extends BaseWidget
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success')
                 ->icon('heroicon-o-check-badge'),
-
-            Stat::make('OCR Review Queue', OcrJob::where('status', 'review_requested')->count())
-                ->description(OcrJob::where('status', 'review_requested')->count() > 0 ? 'Needs attention' : 'All clear')
-                ->descriptionIcon(OcrJob::where('status', 'review_requested')->count() > 0 ? 'heroicon-m-exclamation-triangle' : 'heroicon-m-check-circle')
-                ->chart($ocrChartData)
-                ->color(OcrJob::where('status', 'review_requested')->count() > 0 ? 'danger' : 'success')
-                ->icon('heroicon-o-document-magnifying-glass'),
 
             Stat::make('Partner Agencies', User::where('gateway_type', 'agency')->count())
                 ->description("{$institutionCount} institutions connected")
@@ -94,16 +85,6 @@ class TensaiStatsOverview extends BaseWidget
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i)->toDateString();
             $data[] = Lead::whereDate('created_at', $date)->count();
-        }
-        return $data;
-    }
-
-    private function dailyOcrCounts(): array
-    {
-        $data = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i)->toDateString();
-            $data[] = OcrJob::whereDate('created_at', $date)->count();
         }
         return $data;
     }

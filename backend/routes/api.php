@@ -8,7 +8,6 @@ use App\Http\Controllers\Api\StudentProfileController;
 use App\Http\Controllers\Api\AgencyController;
 use App\Http\Controllers\Api\AgencyProfileController;
 use App\Http\Controllers\Api\InstitutionController;
-use App\Http\Controllers\Api\OcrController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\CommissionController;
 use App\Http\Controllers\Api\AffiliateProfileController;
@@ -127,8 +126,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/account',        [AccountController::class, 'update']);
         Route::post('/account/avatar',  [AccountController::class, 'avatar']);
         Route::get('/referrals',        [StudentReferralController::class, 'index']);
-        Route::post('/ocr/upload', [OcrController::class, 'upload']);
-        Route::post('/ocr/review-request', [OcrController::class, 'requestReview']);
         Route::post('/help-request', [HelpRequestController::class, 'store']);
         Route::get('/help-requests', [HelpRequestController::class, 'myRequests']);
         Route::get('/leads',        [LeadController::class, 'myLeads']);
@@ -255,8 +252,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/leads/{lead}/status',              [LeadController::class, 'updateStatus']);
         Route::put('/leads/{lead}/accept-submission',   [LeadController::class, 'acceptSubmission']);
         Route::put('/leads/{lead}/reject-submission',   [LeadController::class, 'rejectSubmission']);
-        Route::post('/ocr/{job}/approve', [OcrController::class, 'approve']);
-        Route::post('/ocr/{job}/reject', [OcrController::class, 'reject']);
         Route::post('/interviews/{interview}/arrange', [InterviewController::class, 'arrange']);
         Route::get('/commissions', [CommissionController::class, 'index']);
         Route::get('/users',                      [AdminUserController::class, 'index']);

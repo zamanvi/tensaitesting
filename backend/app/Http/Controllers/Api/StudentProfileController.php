@@ -20,8 +20,6 @@ class StudentProfileController extends Controller
         }
         return response()->json([
             'profile' => $profile,
-            'eligibility_score' => $profile->eligibilityScore(),
-            'ocr_jobs' => $profile->ocrJobs()->latest()->get(),
         ]);
     }
 
@@ -71,7 +69,7 @@ class StudentProfileController extends Controller
 
         $profile->update($validated);
 
-        return response()->json(['profile' => $profile, 'eligibility_score' => $profile->eligibilityScore()]);
+        return response()->json(['profile' => $profile]);
     }
 
     // Agency: view student profile (contact info masked)
@@ -106,7 +104,6 @@ class StudentProfileController extends Controller
         return response()->json([
             'student' => ['id' => $student->id, 'name' => $student->name],
             'profile' => $data,
-            'eligibility_score' => $profile->eligibilityScore(),
         ]);
     }
 
@@ -164,7 +161,6 @@ class StudentProfileController extends Controller
                 'nat_level'            => $profile?->nat_level,
                 'ielts_score'          => $profile?->ielts_score,
                 'age'                  => $age,
-                'eligibility_score'    => $profile?->eligibilityScore() ?? 0,
             ];
         });
 

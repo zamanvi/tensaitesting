@@ -23,7 +23,7 @@ class PaymentCategoryResource extends Resource
     // Out of the sidebar to keep Revenue's section count down — reachable
     // instead via the "Manage Categories" button on the Memos list page.
     // Full functionality (create/edit/deactivate) is unchanged, just not a
-    // standing nav item of its own; same pattern as OCR Review Queue, Leads
+    // standing nav item of its own; same pattern as Leads
     // (Legacy), etc. elsewhere in this codebase.
     protected static bool $shouldRegisterNavigation = false;
 

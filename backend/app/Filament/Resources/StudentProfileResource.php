@@ -104,15 +104,6 @@ class StudentProfileResource extends Resource
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                // Eligibility score — computed from the model method
-                Tables\Columns\TextColumn::make('eligibility_score')
-                    ->label('Eligibility')
-                    ->suffix('%')
-                    ->sortable(false)
-                    ->getStateUsing(fn (StudentProfile $r) => $r->eligibilityScore())
-                    ->color(fn ($state) => $state >= 80 ? 'success' : ($state >= 50 ? 'warning' : 'danger'))
-                    ->badge(),
-
                 Tables\Columns\IconColumn::make('is_admin_verified')
                     ->boolean()
                     ->label('Verified'),

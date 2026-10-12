@@ -2,17 +2,6 @@
     <x-filament::section heading="Action Items">
         <div class="space-y-3">
 
-            <a href="{{ \App\Filament\Resources\OcrJobResource::getUrl('index') }}?tableFilters[status][value]=review_requested"
-               class="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30 px-4 py-3 transition hover:shadow-sm">
-                <div class="flex items-center gap-3">
-                    <x-heroicon-o-document-magnifying-glass class="h-5 w-5 text-red-500" />
-                    <span class="text-sm font-medium text-red-700 dark:text-red-300">OCR Review Queue</span>
-                </div>
-                <span class="rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white">
-                    {{ $ocrPending }}
-                </span>
-            </a>
-
             <a href="{{ \App\Filament\Resources\CommissionResource::getUrl('index') }}?tableFilters[status][value]=due"
                class="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 px-4 py-3 transition hover:shadow-sm">
                 <div class="flex items-center gap-3">
