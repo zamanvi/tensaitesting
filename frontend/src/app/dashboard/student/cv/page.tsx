@@ -6,15 +6,9 @@ import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
-
-interface CvState {
-  enabled: boolean;
-  paused: boolean;
-  stage: 'filling' | 'review' | 'sent' | null;
-  missing: string[];
-  application: { id: number; application_code: string; progress: number; status: string } | null;
-  assistant: { used: number; limit: number; remaining: number } | null;
-}
+import CvAssistantChat from '@/components/cv/CvAssistantChat';
+import CvPreviewCard from '@/components/cv/CvPreviewCard';
+import { pickLang, type CvState } from '@/components/cv/cvTypes';
 
 const WA_ICON = (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -43,6 +37,8 @@ export default function StudentCVPage() {
   });
 
   const qc = useQueryClient();
+  // Phones show the assistant and the CV one at a time; wide screens show both.
+  const [tab, setTab] = useState<'chat' | 'preview'>('chat');
   const [consent, setConsent] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const submitCv = useMutation({
@@ -70,7 +66,7 @@ export default function StudentCVPage() {
 
   return (
     <StudentLayout title={t('My CV', '私の履歴書', 'আমার সিভি')}>
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className={`${cv?.enabled ? 'max-w-5xl' : 'max-w-2xl'} mx-auto space-y-5`}>
 
         {/* ── Profile hero ── */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -173,6 +169,24 @@ export default function StudentCVPage() {
 
         {/* ── Opened by staff: CV status and the way into the form ── */}
         {cv?.enabled && (
+          <>
+          {/* Phone: switch between the questions and the CV */}
+          <div className="lg:hidden flex rounded-xl bg-slate-100 p-1" role="tablist">
+            {([['chat', t('Questions', '質問', 'প্রশ্ন')], ['preview', t('My CV', 'CV', 'আমার সিভি')]] as const).map(([k, label]) => (
+              <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
+                className={`flex-1 py-2.5 rounded-lg text-sm font-black transition-colors ${tab === k ? 'bg-white text-green-700 shadow-sm' : 'text-slate-500'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-5 items-start">
+          <div className={`space-y-5 ${tab === 'preview' ? 'hidden lg:block lg:space-y-5' : ''}`}>
+          {cv.stage !== 'sent' && (
+            <CvAssistantChat cv={cv} lang={lang as 'en' | 'bn' | 'ja'}
+              onState={next => qc.setQueryData(['student-cv'], next)} />
+          )}
+
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-6 py-7">
               <p className="text-base font-black text-slate-800 mb-1">
@@ -219,7 +233,7 @@ export default function StudentCVPage() {
                   {cv.missing.length > 0 ? (
                     <p className="text-xs text-slate-500 leading-relaxed">
                       {t('Still needed before you can send it:', '送信前に必要な項目:', 'পাঠানোর আগে এগুলো দিতে হবে:')}{' '}
-                      <span className="font-semibold text-slate-700">{cv.missing.map(m => m.split(' / ')[0]).join(', ')}</span>
+                      <span className="font-semibold text-slate-700">{cv.missing.map(m => pickLang(m, lang as 'en' | 'bn' | 'ja')).join(', ')}</span>
                     </p>
                   ) : (
                     <>
@@ -250,14 +264,19 @@ export default function StudentCVPage() {
 
               {cv.application && (
                 <Link href={`/dashboard/student/leads?app=${cv.application.id}`}
-                  className="mt-6 flex items-center justify-center w-full sm:w-auto sm:inline-flex px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-black transition-colors">
-                  {progress > 0
-                    ? t('Continue my CV', 'CVを続ける', 'সিভি চালিয়ে যান')
-                    : t('Start my CV', 'CVを始める', 'সিভি শুরু করুন')}
+                  className="mt-6 flex items-center justify-center w-full sm:w-auto sm:inline-flex px-5 py-2.5 rounded-xl border border-slate-200 hover:border-green-500 hover:bg-green-50 text-slate-700 text-sm font-bold transition-colors">
+                  {t('Open the full form', 'フォームを開く', 'পুরো ফর্ম খুলুন')}
                 </Link>
               )}
             </div>
           </div>
+          </div>
+
+          <div className={`lg:sticky lg:top-4 ${tab === 'chat' ? 'hidden lg:block' : ''}`}>
+            {cv.preview && <CvPreviewCard preview={cv.preview} lang={lang as 'en' | 'bn' | 'ja'} />}
+          </div>
+          </div>
+          </>
         )}
 
       </div>
