@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Application;
+use App\Filament\Resources\ApplicationResource;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -13,10 +13,18 @@ class ApplicationStatsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $total     = Application::count();
-        $submitted = Application::where('status', 'submitted')->count();
-        $accepted  = Application::where('status', 'accepted')->count();
+        // Count from the same query the list below uses, so a branch or agency
+        // user only ever sees numbers for the applications they can open.
+        $scope = fn () => ApplicationResource::getEloquentQuery()->toBase();
+
+        $total     = $scope()->count();
+        $submitted = $scope()->where('status', 'submitted')->count();
+        $accepted  = $scope()->where('status', 'accepted')->count();
         $rate      = $total > 0 ? round($accepted / $total * 100) : 0;
+        $thisMonth = $scope()
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->count();
 
         return [
             Stat::make('Total Applications', $total)
@@ -34,7 +42,7 @@ class ApplicationStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
 
-            Stat::make('This Month', Application::whereMonth('created_at', now()->month)->count())
+            Stat::make('This Month', $thisMonth)
                 ->description('New applications')
                 ->descriptionIcon('heroicon-o-calendar-days')
                 ->color('info'),

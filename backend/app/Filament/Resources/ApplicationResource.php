@@ -857,7 +857,10 @@ class ApplicationResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Applications are deleted for good (no soft delete), so bulk
+                    // delete is admin-only, matching the row-level Delete above.
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn () => auth()->user()?->hasRole(['super_admin', 'admin'])),
                 ]),
             ]);
     }

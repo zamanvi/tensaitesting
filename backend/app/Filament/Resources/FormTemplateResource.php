@@ -451,7 +451,21 @@ class FormTemplateResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Same guard as the single-row Delete above. Without it, a
+                    // bulk delete would also erase every application that uses
+                    // the form (applications.form_template_id cascades).
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, \Illuminate\Support\Collection $records) {
+                            $inUse = \App\Models\Application::whereIn('form_template_id', $records->pluck('id'))->exists();
+                            if ($inUse) {
+                                Notification::make()
+                                    ->title('Cannot delete — applications already use one of these forms')
+                                    ->body('Unpublish them instead so no new applications can pick them, while existing ones keep working.')
+                                    ->danger()
+                                    ->send();
+                                $action->cancel();
+                            }
+                        }),
                 ]),
             ]);
     }
