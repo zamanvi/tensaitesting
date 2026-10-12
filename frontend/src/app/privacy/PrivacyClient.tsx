@@ -12,15 +12,15 @@ const SECTIONS_EN = [
   },
   {
     title: '2. What Data We Collect',
-    body: 'We collect: (a) Account data — name, email, phone number, account type. (b) Profile data — date of birth, gender, nationality, address, academic history, emergency contacts. (c) Documents — passport scans, certificates, transcripts, and other verification documents processed via OCR. (d) Usage data — login activity, pages visited, actions taken on the platform. (e) Communication data — messages sent through the contact paper/ticket system.',
+    body: 'We collect: (a) Account data — name, email, phone number, account type. (b) Profile data — date of birth, gender, nationality, address, academic history, emergency contacts. (c) Documents — passport scans, certificates, transcripts, and other verification documents reviewed by our staff. (d) Usage data — login activity, pages visited, actions taken on the platform. (e) Communication data — messages sent through the contact paper/ticket system.',
   },
   {
     title: '3. How We Use Your Data',
     body: 'Your data is used to: verify your identity and documents; match students with suitable institutions and agencies; process applications and track lead status; send platform notifications and updates; generate anonymized analytics to improve the service; comply with legal obligations.',
   },
   {
-    title: '4. Document Locking & OCR Processing',
-    body: 'When you upload a document, it is processed by our OCR system to extract and verify data. Once an admin verifies your profile, documents are locked — they cannot be altered, replaced, or deleted. This is a core security feature, not a limitation. Locked documents ensure the integrity of your verified profile.',
+    title: '4. Document Locking & Verification',
+    body: 'When you upload a document, our team reviews it to verify the information. Once an admin verifies your profile, documents are locked — they cannot be altered, replaced, or deleted. This is a core security feature, not a limitation. Locked documents ensure the integrity of your verified profile.',
   },
   {
     title: '5. Who Can See Your Data',
@@ -67,15 +67,15 @@ const SECTIONS_JA = [
   },
   {
     title: '2. 収集するデータ',
-    body: '(a) アカウントデータ：名前、メール、電話番号、アカウント種別。(b) プロフィールデータ：生年月日、性別、国籍、住所、学歴、緊急連絡先。(c) 書類：OCRで処理されるパスポートスキャン、証明書、成績証明書。(d) 利用データ：ログイン履歴、閲覧ページ、プラットフォーム上の操作。(e) 通信データ：コンタクトペーパー/チケットシステムを通じたメッセージ。',
+    body: '(a) アカウントデータ：名前、メール、電話番号、アカウント種別。(b) プロフィールデータ：生年月日、性別、国籍、住所、学歴、緊急連絡先。(c) 書類：スタッフが確認するパスポートスキャン、証明書、成績証明書。(d) 利用データ：ログイン履歴、閲覧ページ、プラットフォーム上の操作。(e) 通信データ：コンタクトペーパー/チケットシステムを通じたメッセージ。',
   },
   {
     title: '3. データの利用目的',
     body: '本人確認と書類認証、学生と適切な機関・エージェンシーのマッチング、申請処理とリードステータス追跡、プラットフォーム通知の送信、サービス改善のための匿名化分析、法的義務の遵守。',
   },
   {
-    title: '4. 書類ロックとOCR処理',
-    body: '書類をアップロードすると、OCRシステムがデータを抽出・検証します。管理者がプロフィールを認証すると書類はロックされ、変更・置換・削除できなくなります。これはセキュリティ機能であり、認証済みプロフィールの完全性を保証します。',
+    title: '4. 書類ロックと確認',
+    body: '書類をアップロードすると、スタッフが内容を確認・検証します。管理者がプロフィールを認証すると書類はロックされ、変更・置換・削除できなくなります。これはセキュリティ機能であり、認証済みプロフィールの完全性を保証します。',
   },
   {
     title: '5. データへのアクセス権限',
@@ -122,15 +122,15 @@ const SECTIONS_BN = [
   },
   {
     title: '২. আমরা কী তথ্য সংগ্রহ করি',
-    body: '(ক) অ্যাকাউন্ট তথ্য — নাম, ইমেইল, ফোন নম্বর, অ্যাকাউন্টের ধরন। (খ) প্রোফাইল তথ্য — জন্ম তারিখ, লিঙ্গ, জাতীয়তা, ঠিকানা, শিক্ষাগত ইতিহাস, জরুরি যোগাযোগ। (গ) কাগজপত্র — OCR-প্রক্রিয়াকৃত পাসপোর্ট স্ক্যান, সার্টিফিকেট, ট্রান্সক্রিপ্ট। (ঘ) ব্যবহারের তথ্য — লগইন কার্যক্রম, পরিদর্শিত পেজ। (ঙ) যোগাযোগের তথ্য — কন্টাক্ট পেপার/টিকেট সিস্টেমের বার্তা।',
+    body: '(ক) অ্যাকাউন্ট তথ্য — নাম, ইমেইল, ফোন নম্বর, অ্যাকাউন্টের ধরন। (খ) প্রোফাইল তথ্য — জন্ম তারিখ, লিঙ্গ, জাতীয়তা, ঠিকানা, শিক্ষাগত ইতিহাস, জরুরি যোগাযোগ। (গ) কাগজপত্র — স্টাফ কর্তৃক যাচাইযোগ্য পাসপোর্ট স্ক্যান, সার্টিফিকেট, ট্রান্সক্রিপ্ট। (ঘ) ব্যবহারের তথ্য — লগইন কার্যক্রম, পরিদর্শিত পেজ। (ঙ) যোগাযোগের তথ্য — কন্টাক্ট পেপার/টিকেট সিস্টেমের বার্তা।',
   },
   {
     title: '৩. আমরা তথ্য কীভাবে ব্যবহার করি',
     body: 'পরিচয় ও ডকুমেন্ট যাচাই; শিক্ষার্থীদের উপযুক্ত প্রতিষ্ঠান ও এজেন্সির সাথে মেলানো; আবেদন প্রক্রিয়াকরণ ও লিড স্ট্যাটাস ট্র্যাকিং; প্ল্যাটফর্ম বিজ্ঞপ্তি পাঠানো; পরিষেবা উন্নয়নের জন্য বেনামী বিশ্লেষণ; আইনি বাধ্যবাধকতা পালন।',
   },
   {
-    title: '৪. ডকুমেন্ট লকিং ও OCR প্রক্রিয়াকরণ',
-    body: 'ডকুমেন্ট আপলোড করলে OCR সিস্টেম তথ্য বের করে যাচাই করে। অ্যাডমিন প্রোফাইল যাচাই করলে ডকুমেন্ট লক হয়ে যায় — পরিবর্তন, প্রতিস্থাপন বা মুছে ফেলা যায় না। এটি একটি মূল নিরাপত্তা বৈশিষ্ট্য।',
+    title: '৪. ডকুমেন্ট লকিং ও যাচাই',
+    body: 'ডকুমেন্ট আপলোড করলে আমাদের টিম তথ্য দেখে যাচাই করে। অ্যাডমিন প্রোফাইল যাচাই করলে ডকুমেন্ট লক হয়ে যায় — পরিবর্তন, প্রতিস্থাপন বা মুছে ফেলা যায় না। এটি একটি মূল নিরাপত্তা বৈশিষ্ট্য।',
   },
   {
     title: '৫. কে আপনার তথ্য দেখতে পারে',

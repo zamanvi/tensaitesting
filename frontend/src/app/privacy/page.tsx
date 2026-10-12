@@ -5,7 +5,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.tensaiconsulta
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — Tensai',
-  description: 'Tensai\'s privacy policy explains how we protect your data, secure documents with OCR locks, and respect your privacy across the platform.',
+  description: 'Tensai\'s privacy policy explains how we protect your data, secure documents with verification locks, and respect your privacy across the platform.',
   openGraph: {
     type: 'website',
     url: `${SITE_URL}/privacy`,

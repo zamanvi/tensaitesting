@@ -19,7 +19,7 @@ const COPY: Record<string, { title: string; description: string }> = {
   },
   institution: {
     title: '🏫 Source Verified Students Through Tensai',
-    description: 'Access a growing pool of OCR-verified, eligibility-scored applicants for Japan. Zero fake profiles, guaranteed.',
+    description: 'Access a growing pool of staff-verified applicants for Japan.',
   },
   affiliate: {
     title: '💰 Earn with Tensai — Refer Students, Get Paid',

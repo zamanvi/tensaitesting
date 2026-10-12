@@ -43,7 +43,7 @@ export default function AboutPage() {
   ];
 
   const SOLUTIONS = [
-    ja ? 'OCR＋AIがすべての書類をプロフィールにロック' : bn ? 'OCR+AI সব কাগজ প্রোফাইলে লক করে — চিরতরে' : 'OCR + AI locks every document to the profile permanently',
+    ja ? 'スタッフがすべての書類を確認し、認証後にプロフィールをロック' : bn ? 'স্টাফ কাগজ যাচাই করে, যাচাইয়ের পর প্রোফাইল লক হয়' : 'Staff verify every document; the profile locks after verification',
     ja ? 'エスクローがマイルストーンまで資金を保護' : bn ? 'এস্ক্রো মাইলস্টোন পর্যন্ত পেমেন্ট সুরক্ষিত রাখে' : 'Escrow protects every payment until milestones are met',
     ja ? 'すべてのステップが正式に記録・監査可能' : bn ? 'প্রতিটি ধাপ আনুষ্ঠানিকভাবে রেকর্ড ও যাচাইযোগ্য' : 'Every step formally recorded and permanently auditable',
     ja ? '認証済みプロフィール — 永久改ざん不可' : bn ? 'যাচাইকৃত প্রোফাইল — পরিবর্তন অসম্ভব' : 'Verified student profiles — tamper-proof forever',
@@ -66,10 +66,10 @@ export default function AboutPage() {
       title: ja ? '学生' : bn ? 'শিক্ষার্থী' : 'Students',
       sub: ja ? 'あなたの書類が証明する' : bn ? 'আপনার কাগজই প্রমাণ' : 'Your documents speak for you',
       points: ja
-        ? ['AIが書類をスキャン・認証', 'プロフィールがロック — 改ざん不可', '認定機関に直接接続', 'AI適格性スコアリング']
+        ? ['スタッフが書類を確認', '認証後にプロフィールがロック', '認定機関に直接接続']
         : bn
-        ? ['AI কাগজ স্ক্যান ও যাচাই করে', 'প্রোফাইল লক — পরিবর্তন অসম্ভব', 'স্বীকৃত প্রতিষ্ঠানে সরাসরি সংযুক্ত', 'AI যোগ্যতা স্কোরিং']
-        : ['AI scans & verifies your documents', 'Profile locks — tamper-proof', 'Connected to accredited institutions', 'AI eligibility scoring'],
+        ? ['স্টাফ কাগজ যাচাই করে', 'যাচাইয়ের পর প্রোফাইল লক', 'স্বীকৃত প্রতিষ্ঠানে সরাসরি সংযুক্ত']
+        : ['Staff verify your documents', 'Profile locks after verification', 'Connected to accredited institutions'],
     },
     {
       icon: '🏢',

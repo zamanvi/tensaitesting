@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GraduationCap, Building2, School, FileText, Bot, Plane, Lock, Handshake, ShieldCheck, ClipboardList, ImageOff, MapPin, BookOpen } from 'lucide-react';
+import { GraduationCap, Building2, School, FileText, Plane, Lock, Handshake, ShieldCheck, ClipboardList, ImageOff, MapPin, BookOpen } from 'lucide-react';
 import SiteHeader from '@/components/shared/SiteHeader';
 import RemoteImage from '@/components/shared/RemoteImage';
 import EmotionalStorySection from '@/components/home/EmotionalStorySection';
@@ -127,9 +127,9 @@ export default function HomePageClient({ initial }: { initial?: HomeInitialData 
   ];
 
   const STATS = [
-    { value: '100%',  label: ja ? 'OCR認証'            : bn ? 'OCR যাচাই'        : 'OCR Verified'        },
+    { value: '✓',     label: ja ? 'スタッフ確認'        : bn ? 'স্টাফ যাচাই'      : 'Staff Verified'      },
     { value: '0',     label: ja ? '偽プロフィール'      : bn ? 'ভুয়া প্রোফাইল'    : 'Fake Profiles'       },
-    { value: 'AI',    label: ja ? '適格性スコアリング'  : bn ? 'যোগ্যতা স্কোরিং'  : 'Eligibility Scoring' },
+    { value: '3',     label: ja ? '対応言語'            : bn ? 'ভাষা'             : 'Languages'           },
     { value: 'BD→JP', label: ja ? '最初のルート'        : bn ? 'প্রথম করিডোর'     : 'First Corridor'      },
   ];
 
@@ -139,20 +139,20 @@ export default function HomePageClient({ initial }: { initial?: HomeInitialData 
       icon: <FileText className="h-6 w-6 text-green-400" />,
       title: ja ? '登録 & 書類アップロード' : bn ? 'নিবন্ধন করুন ও কাগজপত্র আপলোড করুন' : 'Register & Upload Docs',
       desc: ja
-        ? 'プロフィールを作成し書類をアップロード。AIがOCRで即座にスキャンし、永久にロックします。'
+        ? 'プロフィールを作成し書類をアップロード。スタッフが確認し、認証後にプロフィールがロックされます。'
         : bn
-        ? 'প্রোফাইল তৈরি করুন ও কাগজপত্র আপলোড করুন। AI তাৎক্ষণিকভাবে OCR স্ক্যান করে চিরতরে লক করে।'
-        : 'Create your profile and upload documents. AI instantly scans and OCR-locks every file — permanently.',
+        ? 'প্রোফাইল তৈরি করুন ও কাগজপত্র আপলোড করুন। আমাদের টিম যাচাই করে, যাচাইয়ের পর প্রোফাইল লক হয়।'
+        : 'Create your profile and upload documents. Our team verifies every file, and the profile locks after verification.',
     },
     {
       num: '02',
-      icon: <Bot className="h-6 w-6 text-green-400" />,
-      title: ja ? 'AIがスコア & マッチング' : bn ? 'AI স্কোর করে ও ম্যাচ করে' : 'AI Scores & Matches You',
+      icon: <Handshake className="h-6 w-6 text-green-400" />,
+      title: ja ? '機関があなたを確認' : bn ? 'প্রতিষ্ঠান আপনাকে দেখে' : 'Institutions Review You',
       desc: ja
-        ? '適格性スコアを算出し、日本の認定機関・エージェンシーとマッチングします。'
+        ? '日本の認定機関・エージェンシーが、認証済みのプロフィールを確認できます。'
         : bn
-        ? 'যোগ্যতা স্কোর গণনা করে জাপানের যাচাইকৃত প্রতিষ্ঠান ও এজেন্সির সাথে মিলিয়ে দেয়।'
-        : 'Your eligibility score is calculated and you are matched with verified agencies and institutions in Japan.',
+        ? 'জাপানের যাচাইকৃত প্রতিষ্ঠান ও এজেন্সি আপনার যাচাইকৃত প্রোফাইল দেখতে পায়।'
+        : 'Verified agencies and institutions in Japan can review your verified profile.',
     },
     {
       num: '03',
@@ -168,36 +168,6 @@ export default function HomePageClient({ initial }: { initial?: HomeInitialData 
 
   const TESTIMONIALS = [
     {
-      avatar: 'R',
-      name: ja ? 'ラヒム・ウッディン' : bn ? 'রহিম উদ্দিন' : 'Rahim Uddin',
-      role: ja ? '学生 · 東京日本語学校' : bn ? 'শিক্ষার্থী · টোকিও জাপানিজ স্কুল' : 'Student · Tokyo Japanese School',
-      quote: ja
-        ? '書類が偽造されているか心配でしたが、TensaiのOCRロックシステムが完全に保護してくれました。3ヶ月でビザが承認されました。'
-        : bn
-        ? 'আমার কাগজপত্র জাল হওয়ার ভয় ছিল। Tensai-এর OCR লক সিস্টেম সবকিছু নিরাপদ রেখেছে। মাত্র ৩ মাসে ভিসা অনুমোদন পেয়েছি।'
-        : 'I was worried my documents could be tampered with. Tensai\'s OCR lock system kept everything safe. Got my visa approved in just 3 months.',
-    },
-    {
-      avatar: 'K',
-      name: ja ? 'カリム・エージェンシー' : bn ? 'করিম এডুকেশন এজেন্সি' : 'Karim Education Agency',
-      role: ja ? 'エージェンシーオーナー · ダッカ' : bn ? 'এজেন্সি মালিক · ঢাকা' : 'Agency Owner · Dhaka',
-      quote: ja
-        ? 'TensaiのプールシステムでAI検証済みの学生を見つけられます。書類詐欺の問題がなくなり、日本のパートナー校との信頼が向上しました。'
-        : bn
-        ? 'Tensai-এর পুল সিস্টেমে AI যাচাইকৃত স্টুডেন্ট পাই। ডকুমেন্ট জালিয়াতির সমস্যা শেষ — জাপানি পার্টনার স্কুলের সাথে আমাদের সম্পর্ক অনেক ভালো হয়েছে।'
-        : 'We find AI-verified students through Tensai\'s pool system. Zero document fraud issues — our trust with Japanese partner schools has improved dramatically.',
-    },
-    {
-      avatar: 'Y',
-      name: ja ? '山田先生' : bn ? 'ইয়ামাদা সেন্সেই' : 'Yamada-sensei',
-      role: ja ? '入学担当 · 大阪語学センター' : bn ? 'ভর্তি সমন্বয়কারী · ওসাকা ল্যাঙ্গুয়েজ সেন্টার' : 'Admissions Coordinator · Osaka Language Center',
-      quote: ja
-        ? 'AI適格性スコアで学生を事前にスクリーニングできます。ビザ却下率が大幅に低下し、入学プロセスが透明になりました。'
-        : bn
-        ? 'AI eligibility score দিয়ে আবেদনকারীদের আগে থেকে স্ক্রিন করতে পারি। ভিসা রিজেকশন রেট অনেক কমেছে, ভর্তি প্রক্রিয়া স্বচ্ছ হয়েছে।'
-        : 'The AI eligibility score lets us pre-screen applicants before interviews. Visa rejection rates dropped significantly and the admissions process became transparent.',
-    },
-    {
       avatar: 'F',
       name: ja ? 'ファリダ・アクター' : bn ? 'ফারিদা আক্তার' : 'Farida Akter',
       role: ja ? 'アフィリエイトパートナー · チッタゴン' : bn ? 'অ্যাফিলিয়েট পার্টনার · চট্টগ্রাম' : 'Affiliate Partner · Chittagong',
@@ -206,16 +176,6 @@ export default function HomePageClient({ initial }: { initial?: HomeInitialData 
         : bn
         ? 'বন্ধুকে রেফার করেছিলাম — ড্যাশবোর্ডে সব ট্র্যাক করা যায়, পেমেন্টও প্রতিশ্রুতি মতোই হয়েছে। সম্পূর্ণ স্বচ্ছ ও বিশ্বস্ত।'
         : 'I referred a friend and the whole process was transparent end to end. Everything trackable on the dashboard and the payout came exactly as promised.',
-    },
-    {
-      avatar: 'N',
-      name: ja ? 'ナスリン・ベゴム' : bn ? 'নাসরিন বেগম' : 'Nasrin Begum',
-      role: ja ? '看護師 · 名古屋医療センター' : bn ? 'নার্স · নাগোয়া মেডিকেল সেন্টার' : 'Nurse · Nagoya Medical Center',
-      quote: ja
-        ? '医療分野での日本就職は難しいと思っていましたが、TensaiのAIマッチングが最適な病院を見つけてくれました。書類も全て安全に管理されています。'
-        : bn
-        ? 'ভেবেছিলাম স্বাস্থ্যসেবায় জাপানে চাকরি পাওয়া কঠিন। Tensai-এর AI ম্যাচিং আমার জন্য সঠিক হাসপাতাল খুঁজে দিয়েছে। কাগজপত্র সব নিরাপদ।'
-        : 'I thought landing a healthcare job in Japan would be near impossible. Tensai\'s AI matching found the right hospital for me and every document was handled securely.',
     },
   ];
 

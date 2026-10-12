@@ -3,7 +3,7 @@ import AboutClient from './AboutClient';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.tensaiconsultancy.com';
 const title = 'About Tensai — The Way of Global Career';
-const description = 'Tensai is a trust engine for global education and healthcare careers — AI-verified documents, escrow-protected payments, and zero fake profiles.';
+const description = 'Tensai is a trust engine for global education and healthcare careers — staff-verified documents, escrow-protected payments, and zero fake profiles.';
 
 export const metadata: Metadata = {
   title,
