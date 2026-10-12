@@ -58,4 +58,59 @@ class CvPreview
             'progress' => (int) ($application?->progress ?? 0),
         ];
     }
+
+    // What the shareable link shows to anyone who holds it. Compared with the
+    // owner's preview:
+    //   * name is "First L." — contact always goes through staff, using `ref`
+    //   * date of birth becomes an age
+    //   * "can visit the office" (internal) is left out
+    public static function publicVersion(CvAccess $access): array
+    {
+        $full = self::build($access);
+
+        $sections = [];
+        foreach ($full['sections'] as $section) {
+            $items = [];
+            foreach ($section['items'] as $item) {
+                if ($item['key'] === 'can_visit_office') {
+                    continue;
+                }
+                if ($item['key'] === 'date_of_birth') {
+                    try {
+                        $items[] = [
+                            'key'   => 'age',
+                            'label' => 'Age / বয়স',
+                            'value' => (string) \Carbon\Carbon::parse($item['value'])->age,
+                            'type'  => 'text',
+                        ];
+                    } catch (\Throwable) {
+                        // An unreadable date is simply not shown.
+                    }
+                    continue;
+                }
+                $items[] = $item;
+            }
+            if ($items) {
+                $sections[] = ['title' => $section['title'], 'items' => $items];
+            }
+        }
+
+        return [
+            'ref'      => $access->candidate?->code,
+            'name'     => self::shortName($full['name']),
+            'headline' => $full['headline'],
+            'summary'  => $full['summary'],
+            'sections' => $sections,
+        ];
+    }
+
+    private static function shortName(?string $name): ?string
+    {
+        $parts = preg_split('/\s+/u', trim((string) $name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (count($parts) < 2) {
+            return $parts[0] ?? null;
+        }
+
+        return $parts[0] . ' ' . mb_substr(end($parts), 0, 1) . '.';
+    }
 }

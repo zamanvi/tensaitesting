@@ -323,6 +323,52 @@ class MobilityCandidateResource extends Resource
                     ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id
                         && ApplicationResource::canAccess())
                     ->url(fn (MobilityCandidate $record) => ApplicationResource::getUrl('edit', ['record' => $record->cvAccess->application_id])),
+                // Switch the shareable CV link on/off and copy it. Only after
+                // the person agreed to share (ticked on "send for review").
+                Tables\Actions\Action::make('share_link')
+                    ->label('Share link')
+                    ->icon('heroicon-o-link')
+                    ->modalHeading('Shareable CV link')
+                    ->modalDescription('Shows the CV with a short name, the reference code and an age, never the phone number or e-mail. Employers contact Tensai, quoting the reference.')
+                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
+                        && $record->cvAccess?->canShare()
+                        && CvAccessResource::canAccess())
+                    ->fillForm(fn (MobilityCandidate $record) => [
+                        'public_enabled' => (bool) $record->cvAccess->public_enabled,
+                        'url'            => $record->cvAccess->publicUrl() ?? '',
+                    ])
+                    ->form([
+                        Forms\Components\Toggle::make('public_enabled')->label('Link is on'),
+                        Forms\Components\TextInput::make('url')
+                            ->label('Link')
+                            ->readOnly()
+                            ->dehydrated(false)
+                            // Clicking the box selects the link and copies it.
+                            ->extraInputAttributes(['onclick' => 'this.select(); navigator.clipboard && navigator.clipboard.writeText(this.value);'])
+                            ->helperText('Click the link to copy it.')
+                            ->placeholder('Switch the link on and save to create it'),
+                    ])
+                    ->modalSubmitActionLabel('Save')
+                    ->action(function (MobilityCandidate $record, array $data) {
+                        $access = $record->cvAccess;
+                        if (! $access || ! $access->canShare()) {
+                            return;
+                        }
+
+                        $access->public_enabled = (bool) ($data['public_enabled'] ?? false);
+                        $access->save();
+
+                        if ($access->public_enabled) {
+                            Notification::make()
+                                ->title('Link is on')
+                                ->body($access->ensureToken() ? $access->publicUrl() : '')
+                                ->success()
+                                ->persistent()
+                                ->send();
+                        } else {
+                            Notification::make()->title('Link is off')->success()->send();
+                        }
+                    }),
                 Tables\Actions\Action::make('cv_settings')
                     ->label('CV settings')
                     ->icon('heroicon-o-cog-6-tooth')

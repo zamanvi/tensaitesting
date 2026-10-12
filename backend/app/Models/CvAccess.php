@@ -66,6 +66,24 @@ class CvAccess extends Model
         return $this->status === 'active';
     }
 
+    // The link may only be switched on after the person agreed to share.
+    public function canShare(): bool
+    {
+        return $this->isActive() && $this->share_consent_at !== null;
+    }
+
+    public function publicLinkIsLive(): bool
+    {
+        return $this->public_enabled && $this->public_token && $this->canShare();
+    }
+
+    public function publicUrl(): ?string
+    {
+        return $this->public_token
+            ? rtrim((string) config('app.frontend_url', 'https://www.tensaiconsultancy.com'), '/') . '/cv/' . $this->public_token
+            : null;
+    }
+
     public function stage(): string
     {
         if ($this->sent_at) {

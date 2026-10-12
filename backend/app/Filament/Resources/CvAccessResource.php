@@ -94,21 +94,20 @@ class CvAccessResource extends Resource
                 ]),
 
             Forms\Components\Section::make('Share link')
+                ->description('A link staff can send to an employer or partner. It shows the CV with a short name (for example "Rahim U."), the reference code, and an age instead of the date of birth. No phone number, e-mail or address: contact always goes through Tensai.')
                 ->columns(2)
                 ->visibleOn('edit')
                 ->schema([
                     Forms\Components\Toggle::make('public_enabled')
                         ->label('Shareable CV link is on')
-                        ->helperText('Anyone with the link can read the CV (no phone number, no e-mail). Turn off to stop sharing.'),
+                        ->disabled(fn (?CvAccess $record) => ! $record?->canShare())
+                        ->helperText(fn (?CvAccess $record) => $record?->canShare()
+                            ? 'Anyone who has the link can read the CV. Turn it off to stop sharing at once.'
+                            : 'Cannot be switched on yet: the person has not agreed to share their CV (they tick this when they send it for review).'),
                     Forms\Components\Placeholder::make('public_link')
                         ->label('Link')
-                        ->content(function (?CvAccess $record) {
-                            if (! $record?->public_token) {
-                                return 'Created the first time the link is switched on.';
-                            }
-
-                            return rtrim((string) config('app.frontend_url', 'https://tensaiconsultancy.com'), '/') . '/cv/' . $record->public_token;
-                        }),
+                        ->content(fn (?CvAccess $record) => $record?->publicUrl()
+                            ?? 'Created the first time the link is switched on.'),
                 ]),
 
             Forms\Components\Section::make('Staff')

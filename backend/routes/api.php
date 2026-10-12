@@ -33,6 +33,10 @@ use App\Http\Controllers\Api\MobilityChatController;
 use Illuminate\Support\Facades\Route;
 
 // Public feed (no auth required, but content is limited for guests)
+// Shareable CV link (switched on by staff, only with the person's consent).
+Route::get('/public/cv/{token}', [\App\Http\Controllers\Api\PublicCvController::class, 'show'])
+    ->middleware('throttle:60,1,public-cv');
+
 Route::get('/feed',               [PostController::class, 'index']);
 Route::get('/feed/thumbnail',     [PostController::class, 'serveThumbnail']);
 Route::get('/feed/{slug}',         [PostController::class, 'show']);
