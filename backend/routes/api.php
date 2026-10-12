@@ -128,7 +128,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/account/avatar',  [AccountController::class, 'avatar']);
         Route::get('/referrals',        [StudentReferralController::class, 'index']);
         Route::get('/cv',               [StudentCvController::class, 'show']);
-        Route::post('/cv/submit',       [StudentCvController::class, 'submit'])->middleware('throttle:20,1');
+        Route::post('/cv/answer',       [StudentCvController::class, 'answer'])->middleware('throttle:90,1,cv-answer');
+        Route::post('/cv/polish',       [StudentCvController::class, 'polish'])->middleware('throttle:10,1,cv-polish');
+        Route::post('/cv/submit',       [StudentCvController::class, 'submit'])->middleware('throttle:20,1,cv-submit');
         Route::post('/help-request', [HelpRequestController::class, 'store']);
         Route::get('/help-requests', [HelpRequestController::class, 'myRequests']);
         Route::get('/leads',        [LeadController::class, 'myLeads']);

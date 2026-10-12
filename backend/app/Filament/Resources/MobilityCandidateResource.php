@@ -306,6 +306,17 @@ class MobilityCandidateResource extends Resource
 
                         Notification::make()->title('My CV opened for ' . $user->name)->success()->send();
                     }),
+                // Exactly what the person sees in My CV → Preview.
+                Tables\Actions\Action::make('preview_cv')
+                    ->label('Preview CV')
+                    ->icon('heroicon-o-eye')
+                    ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id)
+                    ->modalHeading('CV preview')
+                    ->modalContent(fn (MobilityCandidate $record) => view('filament.cv-preview', [
+                        'preview' => \App\Support\CvPreview::build($record->cvAccess->load(['application', 'candidate'])),
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close'),
                 Tables\Actions\Action::make('open_cv')
                     ->label('Open CV')
                     ->icon('heroicon-o-arrow-top-right-on-square')

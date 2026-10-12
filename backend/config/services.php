@@ -35,4 +35,13 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
+    // Optional. Used only by the My CV assistant to turn a person's own words
+    // (never their name, phone or address) into a short English profile
+    // summary. Without a key the feature is simply off; the interview and the
+    // CV preview work without it. Set GEMINI_MODEL if Google retires the id.
+    'gemini' => [
+        'key'   => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash-lite'),
+    ],
+
 ];

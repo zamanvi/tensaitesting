@@ -4,23 +4,81 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CvAccess;
+use App\Support\CvInterview;
+use App\Support\CvPreview;
+use App\Support\CvSummarizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 // "My CV" for a signed-in student account. The section is free to look at
-// for everyone; the builder is opened by staff (see Talent Passports → "Activate
-// CV"), which is what `enabled` reports. Nothing here ever returns admin_notes
-// or chat_log.
+// for everyone; the assistant is opened by staff (see Talent Passports →
+// "Activate CV"), which is what `enabled` reports. Nothing here ever returns
+// admin_notes or the raw chat_log.
 class StudentCvController extends Controller
 {
     // GET /api/student/cv
     public function show(Request $request): JsonResponse
     {
-        $access = CvAccess::with('application:id,application_code,progress,status,form_template_id,form_data')
-            ->where('user_id', $request->user()->id)
-            ->first();
+        return response()->json($this->payload($this->accessFor($request)));
+    }
 
-        return response()->json($this->payload($access));
+    // POST /api/student/cv/answer  { field_key, value?  }   (empty value = skip an optional one)
+    public function answer(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'field_key' => 'required|string|max:100',
+            'value'     => 'nullable|string|max:2000',
+        ]);
+
+        $access = $this->accessFor($request);
+        if (! $access || ! $access->isActive()) {
+            return response()->json(['message' => 'My CV is not open for your account yet.'], 403);
+        }
+
+        CvInterview::answer($access, $data['field_key'], $data['value'] ?? null);
+
+        return response()->json($this->payload($this->accessFor($request)));
+    }
+
+    // POST /api/student/cv/polish — write the English profile summary.
+    public function polish(Request $request): JsonResponse
+    {
+        $access = $this->accessFor($request);
+        if (! $access || ! $access->isActive()) {
+            return response()->json(['message' => 'My CV is not open for your account yet.'], 403);
+        }
+        if (! CvSummarizer::configured()) {
+            return response()->json(['message' => 'The summary helper is not switched on yet.'], 503);
+        }
+
+        $facts = CvSummarizer::facts($access->application?->form_data ?? []);
+        if (empty($facts['desired_job']) || empty($facts['experience'])) {
+            return response()->json(['message' => 'Please answer the job title and experience questions first.'], 422);
+        }
+
+        // One message is reserved atomically, so two quick taps cannot go
+        // over the limit; it is handed back if Google fails.
+        $reserved = CvAccess::whereKey($access->id)
+            ->whereColumn('ai_messages_used', '<', 'ai_messages_limit')
+            ->increment('ai_messages_used');
+        if (! $reserved) {
+            return response()->json(['message' => 'You have used all your assistant messages. Please contact our team.'], 429);
+        }
+
+        $summary = CvSummarizer::summarize($facts);
+        if ($summary === null) {
+            CvAccess::whereKey($access->id)->where('ai_messages_used', '>', 0)->decrement('ai_messages_used');
+
+            return response()->json(['message' => 'The summary could not be written right now. Please try again later.'], 503);
+        }
+
+        $access->refresh();
+        $log                = $access->chat_log ?? [];
+        $log['ai_summary']  = $summary;
+        $access->chat_log   = $log;
+        $access->save();
+
+        return response()->json($this->payload($this->accessFor($request)));
     }
 
     // POST /api/student/cv/submit  { consent: true }
@@ -30,7 +88,7 @@ class StudentCvController extends Controller
     {
         $request->validate(['consent' => 'required|accepted']);
 
-        $access = CvAccess::with('application')->where('user_id', $request->user()->id)->first();
+        $access = $this->accessFor($request);
 
         if (! $access || ! $access->isActive()) {
             return response()->json(['message' => 'My CV is not open for your account yet.'], 403);
@@ -49,7 +107,14 @@ class StudentCvController extends Controller
 
         $access->submitForReview();
 
-        return response()->json($this->payload($access->fresh('application')));
+        return response()->json($this->payload($this->accessFor($request)));
+    }
+
+    private function accessFor(Request $request): ?CvAccess
+    {
+        return CvAccess::with(['application', 'candidate'])
+            ->where('user_id', $request->user()->id)
+            ->first();
     }
 
     private function payload(?CvAccess $access): array
@@ -67,10 +132,13 @@ class StudentCvController extends Controller
                 'status'           => $access->application->status,
             ] : null,
             'missing'     => $enabled && ! $access->cv_submitted_at ? $access->missingRequired() : [],
+            'interview'   => $enabled ? CvInterview::state($access) : null,
+            'preview'     => $enabled ? CvPreview::build($access) : null,
             'assistant'   => $enabled ? [
                 'used'      => $access->ai_messages_used,
                 'limit'     => $access->ai_messages_limit,
                 'remaining' => max(0, $access->ai_messages_limit - $access->ai_messages_used),
+                'summary_available' => CvSummarizer::configured(),
             ] : null,
         ];
     }
