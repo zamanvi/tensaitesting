@@ -65,7 +65,7 @@ class StudentCvController extends Controller
             return response()->json(['message' => 'You have used all your assistant messages. Please contact our team.'], 429);
         }
 
-        $summary = CvSummarizer::summarize($facts);
+        $summary = CvSummarizer::summarize($facts, $request->user()->id);
         if ($summary === null) {
             CvAccess::whereKey($access->id)->where('ai_messages_used', '>', 0)->decrement('ai_messages_used');
 
