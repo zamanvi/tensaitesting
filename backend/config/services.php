@@ -52,7 +52,11 @@ return [
     // Provider-specific names still work when AI_API_KEY is not set.
     'gemini' => [
         'key'   => env('GEMINI_API_KEY'),
-        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash-lite'),
+        // Live test on 2026-10-13 with a free-tier key: gemini-2.5-flash answered in
+        // ~1.5 s; gemini-3.5-flash-lite was often "overloaded" (503) or took 20 s+;
+        // gemini-2.5-flash-lite is closed to new users. Google retires model names:
+        // set AI_MODEL / GEMINI_MODEL if the default is ever refused with a 404.
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
     ],
 
     'anthropic' => [

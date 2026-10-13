@@ -8,7 +8,7 @@ namespace App\Support;
 // is read from the key itself, so replacing the key switches the provider:
 //
 //   sk-ant-...   Anthropic (Claude)
-//   AIza...      Google (Gemini)
+//   AIza... / AQ.   Google (Gemini)
 //
 // AI_PROVIDER ("gemini" or "claude") overrides the detection and AI_MODEL
 // overrides the model. The older provider-specific variables (GEMINI_API_KEY,
@@ -45,10 +45,12 @@ class AiProvider
 
     public static function detect(string $key): ?string
     {
+        // Google issues "AIza..." keys and the newer "AQ...." keys; both work
+        // against generativelanguage.googleapis.com.
         return match (true) {
-            str_starts_with($key, 'sk-ant-') => self::ANTHROPIC,
-            str_starts_with($key, 'AIza')    => self::GEMINI,
-            default                          => null,
+            str_starts_with($key, 'sk-ant-')                          => self::ANTHROPIC,
+            str_starts_with($key, 'AIza'), str_starts_with($key, 'AQ.') => self::GEMINI,
+            default                                                   => null,
         };
     }
 
@@ -65,7 +67,7 @@ class AiProvider
         }
 
         return $key !== ''
-            ? 'The key in AI_API_KEY is not recognised (Claude keys start with "sk-ant-", Gemini keys with "AIza"). The summary button is hidden.'
+            ? 'The key in AI_API_KEY is not recognised (Claude keys start with "sk-ant-", Gemini keys with "AIza" or "AQ."). The summary button is hidden.'
             : 'No AI key is set. The summary button is hidden; everything else works.';
     }
 
