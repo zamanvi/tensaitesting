@@ -209,6 +209,15 @@ class SettingsPage extends Page
                     Forms\Components\TextInput::make('twitter_url')->label('X / Twitter')->url()->placeholder('https://x.com/...'),
                 ])->columns(2),
 
+            Forms\Components\Section::make('AI assistant')
+                ->description('The AI that writes the English summary on a candidate\'s CV (it only receives job facts, never name or contact details). The key is set in Railway, not here, so it is never stored in the database or shown on screen: Railway → your backend service → Variables → AI_API_KEY. A Gemini key (starts with "AIza") and a Claude key (starts with "sk-ant-") both work. To switch provider, replace the key; the website recognises it by itself.')
+                ->schema([
+                    Forms\Components\Placeholder::make('ai_status')
+                        ->label('Current status')
+                        ->content(fn () => \App\Support\AiProvider::statusLabel())
+                        ->columnSpanFull(),
+                ]),
+
             Forms\Components\Section::make('Job search helper (staff only)')
                 ->description('Used by the "Copy for AI" button in Skilled Worker Mobility → Talent Passports. The button copies these instructions plus the candidates\' CVs (short name, reference code, age; no phone or e-mail) so staff can paste them into an AI chat and ask it to find current job circulars. Nothing is sent from the website.')
                 ->schema([
