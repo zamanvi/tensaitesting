@@ -45,8 +45,18 @@ class SettingsPage extends Page
     // section simply doesn't render on the site while this is empty.
     public string $intro_video_url = '';
 
+    // Staff-only: the websites and the standing instructions used by the
+    // "Copy for AI" button on Talent Passports. Never exposed publicly.
+    public string $job_search_sites  = '';
+    public string $job_search_prompt = '';
+
     public function mount(): void
     {
+        $this->job_search_sites  = Setting::get('job_search_sites', '');
+        $this->job_search_prompt = Setting::get('job_search_prompt', '') !== ''
+            ? Setting::get('job_search_prompt', '')
+            : \App\Support\JobSearchPack::DEFAULT_PROMPT;
+
         $this->support_whatsapp = Setting::get('support_whatsapp', '8801826192179');
         $this->cv_whatsapp      = Setting::get('cv_whatsapp', '');
         $this->support_phone    = Setting::get('support_phone', '+8801826192179');
@@ -84,6 +94,8 @@ class SettingsPage extends Page
             'copyright_en'     => 'nullable|string|max:255',
             'copyright_ja'     => 'nullable|string|max:255',
             'copyright_bn'     => 'nullable|string|max:255',
+            'job_search_sites'  => 'nullable|string|max:2000',
+            'job_search_prompt' => 'nullable|string|max:4000',
             'intro_video_url'  => [
                 'nullable', 'url', 'max:255',
                 // Only YouTube links — anything else would just render a
@@ -118,6 +130,14 @@ class SettingsPage extends Page
         Setting::set('copyright_en', $this->copyright_en);
         Setting::set('copyright_ja', $this->copyright_ja);
         Setting::set('copyright_bn', $this->copyright_bn);
+
+        // An unchanged default prompt is stored as empty, so a later improvement
+        // to the built-in text reaches everyone who never edited it.
+        Setting::set('job_search_sites', trim($this->job_search_sites));
+        Setting::set(
+            'job_search_prompt',
+            trim($this->job_search_prompt) === trim(\App\Support\JobSearchPack::DEFAULT_PROMPT) ? '' : trim($this->job_search_prompt)
+        );
 
         Setting::set('intro_video_url', $this->intro_video_url);
 
@@ -188,6 +208,22 @@ class SettingsPage extends Page
                     Forms\Components\TextInput::make('linkedin_url')->label('LinkedIn')->url()->placeholder('https://linkedin.com/...'),
                     Forms\Components\TextInput::make('twitter_url')->label('X / Twitter')->url()->placeholder('https://x.com/...'),
                 ])->columns(2),
+
+            Forms\Components\Section::make('Job search helper (staff only)')
+                ->description('Used by the "Copy for AI" button in Skilled Worker Mobility → Talent Passports. The button copies these instructions plus the candidates\' CVs (short name, reference code, age; no phone or e-mail) so staff can paste them into an AI chat and ask it to find current job circulars. Nothing is sent from the website.')
+                ->schema([
+                    Forms\Components\Textarea::make('job_search_sites')
+                        ->label('Websites the AI should search')
+                        ->helperText('One website per line, for example the official Japan SSW pages and job boards you trust. Leave empty to let the AI use official pages and well-known job boards.')
+                        ->placeholder("example-jobboard.com\nexample-ministry.go.jp")
+                        ->rows(5)
+                        ->columnSpanFull(),
+                    Forms\Components\Textarea::make('job_search_prompt')
+                        ->label('Instructions for the AI')
+                        ->helperText('Keep {SITES} where the list of websites above should appear. If you ever want the original text back, clear this box and save.')
+                        ->rows(14)
+                        ->columnSpanFull(),
+                ]),
 
             Forms\Components\Section::make('Copyright Text')
                 ->description('The small line at the very bottom of the website, one for each language. Type {year} where the year should appear and it updates itself every January. Leave empty to use the default line.')

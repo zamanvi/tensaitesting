@@ -159,8 +159,9 @@ class MobilityCandidateResource extends Resource
                         ->options(['chat' => 'Website chat', 'office' => 'Added at the office'])
                         ->default('office'),
                     Forms\Components\Textarea::make('admin_notes')
-                        ->label('Internal notes')
-                        ->rows(3)
+                        ->label('Internal notes and job leads')
+                        ->helperText('Never shown to the candidate. Paste the job circulars you checked here, with the date and link.')
+                        ->rows(5)
                         ->columnSpanFull(),
                 ]),
         ]);
@@ -323,6 +324,21 @@ class MobilityCandidateResource extends Resource
 
                         Notification::make()->title('My CV opened for ' . $user->name)->success()->send();
                     }),
+                // The instructions + this candidate's CV as plain text, to paste
+                // into an AI chat when searching for job circulars. Contact
+                // details are never part of it.
+                Tables\Actions\Action::make('copy_for_ai')
+                    ->label('Copy for AI')
+                    ->icon('heroicon-o-clipboard-document')
+                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed())
+                    ->modalHeading('Copy for AI')
+                    ->modalDescription(static::aiPackDescription())
+                    ->form(static::aiPackForm())
+                    ->fillForm(fn (MobilityCandidate $record) => [
+                        'pack' => \App\Support\JobSearchPack::build(collect([$record])),
+                    ])
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close'),
                 // Exactly what the person sees in My CV → Preview.
                 Tables\Actions\Action::make('preview_cv')
                     ->label('Preview CV')
@@ -433,11 +449,47 @@ class MobilityCandidateResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    // Several CVs in one pack: one search can serve candidates
+                    // with the same kind of job.
+                    Tables\Actions\BulkAction::make('copy_for_ai')
+                        ->label('Copy for AI (selected)')
+                        ->icon('heroicon-o-clipboard-document')
+                        ->modalHeading('Copy for AI')
+                        ->modalDescription(static::aiPackDescription() . ' At most ' . \App\Support\JobSearchPack::MAX_CANDIDATES . ' candidates go into one pack.')
+                        ->form(static::aiPackForm())
+                        ->fillForm(fn (\Illuminate\Support\Collection $records) => [
+                            'pack' => \App\Support\JobSearchPack::build($records),
+                        ])
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Close')
+                        ->deselectRecordsAfterCompletion(),
                     Tables\Actions\DeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                     Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private static function aiPackDescription(): string
+    {
+        return 'Click the box, then paste everything into an AI chat. It contains the standing instructions (edit them in Site Settings) and the CV with a short name, the reference code and an age: no phone number or e-mail.';
+    }
+
+    // One read-only box; clicking it selects and copies the whole text.
+    private static function aiPackForm(): array
+    {
+        return [
+            Forms\Components\Textarea::make('pack')
+                ->hiddenLabel()
+                ->rows(18)
+                ->readOnly()
+                ->dehydrated(false)
+                ->extraInputAttributes([
+                    'onclick' => 'this.select(); navigator.clipboard && navigator.clipboard.writeText(this.value);',
+                    'style'   => 'font-family: ui-monospace, monospace; font-size: 12px;',
+                ])
+                ->helperText('Click inside the box to copy. When the AI has found circulars, check every link yourself, then paste the useful ones into the candidate\'s internal notes.'),
+        ];
     }
 
     public static function getPages(): array
