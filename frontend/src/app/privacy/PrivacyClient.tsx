@@ -51,11 +51,15 @@ const SECTIONS_EN = [
     body: 'Tensai is not intended for users under 18 without guardian consent. We do not knowingly collect personal data from minors. If we become aware that a minor has provided data without consent, we will delete it immediately.',
   },
   {
-    title: '12. Changes to This Policy',
+    title: '12. Skilled Worker Chat & CV Data',
+    body: 'If you use the Skilled Worker Mobility chat or the My CV assistant, we collect the answers you give (job, experience, licence or qualification, languages, target country, district, and whether you hold a valid passport and can visit our office), the name and phone number you choose to give, and the CV details you enter. We never ask for passport or national ID numbers in the chat or in the CV. We use this information to prepare your CV, to guide you, and — only with your permission — to present your CV to suitable employers and partners. Our staff check every CV before it is shared. A shared CV link shows a shortened name, a reference number and your age; it does not show your phone number, e-mail or address, and we will switch it off when you ask. To help write the English summary of your CV, only your job-related answers (never your name or contact details) may be sent to an AI service provider; the result is a draft that our staff check. Our staff may also use an AI assistant to look for current job circulars that match your CV, using only a shortened name, a reference number, your age and job details. We do not promise any job, visa or placement. You can ask us to correct or delete your chat and CV data at any time at hello@tensaiconsultancy.com.',
+  },
+  {
+    title: '13. Changes to This Policy',
     body: 'We may update this Privacy Policy from time to time. The updated version will be posted here with a revised date. For significant changes, we will notify you via email or an in-platform alert.',
   },
   {
-    title: '13. Contact Us',
+    title: '14. Contact Us',
     body: 'If you have questions about this Privacy Policy or how your data is handled, contact our team at: hello@tensaiconsultancy.com',
   },
 ];
@@ -106,11 +110,15 @@ const SECTIONS_JA = [
     body: 'Tensaiは保護者の同意なしに18歳未満の方の利用を想定していません。未成年者のデータと判明した場合は直ちに削除します。',
   },
   {
-    title: '12. ポリシーの変更',
+    title: '12. 技能労働者向けチャットとCVのデータ',
+    body: '技能労働者向けモビリティのチャットまたは「マイCV」アシスタントをご利用の場合、入力いただいた回答（職種、経験、免許・資格、言語、希望国、居住地域、有効なパスポートの有無および当社オフィスへの来訪可否）、任意でご提供いただいたお名前・電話番号、CVに入力した内容を収集します。チャットおよびCVでパスポート番号や国民IDの番号をお尋ねすることはありません。これらの情報は、CVの作成、ご案内、そしてご本人の許可がある場合に限り、適切な雇用主やパートナーへのCVの提示のために使用します。共有前に当社スタッフが全てのCVを確認します。共有CVリンクには、短縮した名前、参照番号、年齢のみが表示され、電話番号、メールアドレス、住所は表示されません。ご要望があればリンクを無効にします。CVの英語の概要を作成するため、仕事に関する回答のみ（お名前や連絡先は含みません）をAIサービス提供会社に送信する場合があり、その結果は当社スタッフが確認する下書きです。また、スタッフがCVに合う現在の求人情報を探すためにAIアシスタントを使用する場合があり、その際は短縮した名前、参照番号、年齢、職務情報のみを使用します。当社は仕事、ビザ、就職を保証するものではありません。チャットおよびCVのデータの訂正・削除は hello@tensaiconsultancy.com までいつでもご請求いただけます。',
+  },
+  {
+    title: '13. ポリシーの変更',
     body: '本プライバシーポリシーは随時更新される場合があります。重要な変更はメールまたはプラットフォーム内通知でお知らせします。',
   },
   {
-    title: '13. お問い合わせ',
+    title: '14. お問い合わせ',
     body: '本プライバシーポリシーに関するご質問は hello@tensaiconsultancy.com までお問い合わせください。',
   },
 ];
@@ -161,11 +169,15 @@ const SECTIONS_BN = [
     body: 'টেনসাই অভিভাবকের সম্মতি ছাড়া ১৮ বছরের কম বয়সীদের জন্য নয়। কোনো অপ্রাপ্তবয়স্কের তথ্য সম্পর্কে জানতে পারলে অবিলম্বে তা মুছে ফেলা হবে।',
   },
   {
-    title: '১২. নীতির পরিবর্তন',
+    title: '১২. দক্ষ কর্মীর চ্যাট ও সিভির তথ্য',
+    body: 'আপনি যদি দক্ষ কর্মী মোবিলিটি চ্যাট বা "আমার সিভি" অ্যাসিস্ট্যান্ট ব্যবহার করেন, তাহলে আমরা আপনার দেওয়া উত্তর (কাজ, অভিজ্ঞতা, লাইসেন্স বা যোগ্যতা, ভাষা, লক্ষ্য দেশ, জেলা, বৈধ পাসপোর্ট আছে কি না এবং আমাদের অফিসে আসতে পারবেন কি না), আপনার ইচ্ছায় দেওয়া নাম ও ফোন নাম্বার এবং সিভিতে লেখা তথ্য সংগ্রহ করি। চ্যাট বা সিভিতে আমরা কখনো পাসপোর্ট বা জাতীয় পরিচয়পত্রের নাম্বার চাই না। এই তথ্য ব্যবহার করি আপনার সিভি তৈরি, আপনাকে পরামর্শ দেওয়া এবং শুধু আপনার অনুমতি নিয়ে উপযুক্ত নিয়োগকর্তা ও অংশীদারের কাছে আপনার সিভি উপস্থাপন করতে। শেয়ার করার আগে আমাদের স্টাফ প্রতিটি সিভি যাচাই করে। শেয়ার-করা সিভির লিংকে সংক্ষিপ্ত নাম, রেফারেন্স নম্বর ও বয়স দেখায়; ফোন নাম্বার, ইমেইল বা ঠিকানা দেখায় না, এবং আপনি চাইলে আমরা লিংকটি বন্ধ করে দেব। সিভির ইংরেজি সারসংক্ষেপ লিখতে সাহায্যের জন্য শুধু আপনার কাজ-সংক্রান্ত উত্তর (কখনো নাম বা যোগাযোগের তথ্য নয়) একটি এআই (AI) সেবাদাতার কাছে পাঠানো হতে পারে; ফলাফলটি একটি খসড়া যা আমাদের স্টাফ দেখে নেয়। আপনার সিভির সাথে মেলে এমন চলমান চাকরির বিজ্ঞপ্তি খুঁজতেও আমাদের স্টাফ এআই অ্যাসিস্ট্যান্ট ব্যবহার করতে পারে, শুধু সংক্ষিপ্ত নাম, রেফারেন্স নম্বর, বয়স ও কাজের তথ্য দিয়ে। আমরা কোনো চাকরি, ভিসা বা নিয়োগের প্রতিশ্রুতি দিই না। আপনার চ্যাট ও সিভির তথ্য সংশোধন বা মুছে ফেলতে যেকোনো সময় hello@tensaiconsultancy.com-এ জানাতে পারেন।',
+  },
+  {
+    title: '১৩. নীতির পরিবর্তন',
     body: 'আমরা সময়ে সময়ে এই প্রাইভেসি নীতি আপডেট করতে পারি। গুরুত্বপূর্ণ পরিবর্তনের জন্য ইমেইল বা প্ল্যাটফর্ম বিজ্ঞপ্তির মাধ্যমে জানানো হবে।',
   },
   {
-    title: '১৩. যোগাযোগ',
+    title: '১৪. যোগাযোগ',
     body: 'এই প্রাইভেসি নীতি সম্পর্কে প্রশ্ন থাকলে: hello@tensaiconsultancy.com',
   },
 ];
@@ -228,7 +240,7 @@ export default function PrivacyPageClient() {
             {ja ? 'プライバシーポリシー' : bn ? 'প্রাইভেসি নীতি' : 'Privacy Policy'}
           </h1>
           <p className="text-white/35 text-xs">
-            {ja ? '最終更新：2026年1月' : bn ? 'সর্বশেষ আপডেট: জানুয়ারি ২০২৬' : 'Last updated: January 2026'}
+            {ja ? '最終更新：2026年10月' : bn ? 'সর্বশেষ আপডেট: অক্টোবর ২০২৬' : 'Last updated: October 2026'}
           </p>
         </div>
       </section>
