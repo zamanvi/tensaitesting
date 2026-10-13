@@ -6,6 +6,7 @@ import api from '@/lib/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useState } from 'react';
+import AnswerLibrary from '@/components/faq/AnswerLibrary';
 import CvAssistantChat from '@/components/cv/CvAssistantChat';
 import CvPreviewCard from '@/components/cv/CvPreviewCard';
 import { pickLang, type CvState } from '@/components/cv/cvTypes';
@@ -61,6 +62,12 @@ export default function StudentCVPage() {
     'আসসালামু আলাইকুম, আমি আমার একাউন্টে "আমার সিভি" অ্যাসিস্ট্যান্ট চালু করতে চাই।'
   );
   const waHref = waDigits ? `https://wa.me/${waDigits}?text=${encodeURIComponent(waText)}` : null;
+  const askText = t(
+    'Hello, I have a question about working in Japan.',
+    'こんにちは。日本での就労について質問があります。',
+    'আসসালামু আলাইকুম, জাপানে কাজ নিয়ে আমার একটি প্রশ্ন আছে।'
+  );
+  const askHref = waDigits ? `https://wa.me/${waDigits}?text=${encodeURIComponent(askText)}` : null;
 
   const initials = (user?.name ?? '?').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
 
@@ -303,6 +310,11 @@ export default function StudentCVPage() {
           </div>
           </div>
           </>
+        )}
+
+        {/* Staff-verified questions and answers. Stays hidden until staff have verified some. */}
+        {isStudent && (
+          <AnswerLibrary lang={lang as 'en' | 'bn' | 'ja'} waHref={askHref} />
         )}
 
       </div>
