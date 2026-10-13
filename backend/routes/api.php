@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\CommissionController;
 use App\Http\Controllers\Api\AffiliateProfileController;
 use App\Http\Controllers\Api\AffiliateController;
 use App\Http\Controllers\Api\StudentCvController;
+use App\Http\Controllers\Api\StudentFaqController;
 use App\Http\Controllers\Api\StudentReferralController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\AdminGalleryController;
@@ -131,6 +132,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/account',        [AccountController::class, 'update']);
         Route::post('/account/avatar',  [AccountController::class, 'avatar']);
         Route::get('/referrals',        [StudentReferralController::class, 'index']);
+        // Staff-verified Answer Library (no AI, nothing generated)
+        Route::get('/faq',           [StudentFaqController::class, 'index']);
+        Route::post('/faq/ask',      [StudentFaqController::class, 'ask'])->middleware('throttle:30,1,faq-ask');
+        Route::post('/faq/feedback', [StudentFaqController::class, 'feedback'])->middleware('throttle:60,1,faq-feedback');
+
         Route::get('/cv',               [StudentCvController::class, 'show']);
         Route::post('/cv/answer',       [StudentCvController::class, 'answer'])->middleware('throttle:90,1,cv-answer');
         Route::post('/cv/polish',       [StudentCvController::class, 'polish'])->middleware('throttle:10,1,cv-polish');
