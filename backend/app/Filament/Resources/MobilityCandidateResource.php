@@ -299,6 +299,45 @@ class MobilityCandidateResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                // The other direction: staff start from the lead and say which
+                // account is the same person. One person, one record.
+                Tables\Actions\Action::make('link_account')
+                    ->label('Link to account')
+                    ->icon('heroicon-o-link')
+                    ->color('success')
+                    ->modalHeading('Link this lead to an account and open My CV')
+                    ->modalDescription('Use this when the person has an account but the phone numbers do not match. Their chat answers are copied into the CV and no second entry is made.')
+                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
+                        && ! $record->cvAccess
+                        && CvAccessResource::canAccess())
+                    ->form([
+                        Forms\Components\Select::make('user_id')
+                            ->label('Account')
+                            ->required()
+                            ->searchable()
+                            ->getSearchResultsUsing(fn (string $search) => CvAccessResource::searchStudents($search))
+                            ->getOptionLabelUsing(fn ($value) => CvAccessResource::studentLabel($value))
+                            ->helperText('Search by name, e-mail or phone.'),
+                    ])
+                    ->modalSubmitActionLabel('Link and open My CV')
+                    ->action(function (MobilityCandidate $record, array $data) {
+                        $user = \App\Models\User::where('gateway_type', 'student')->find($data['user_id']);
+                        if (! $user) {
+                            Notification::make()->title('Account not found')->danger()->send();
+
+                            return;
+                        }
+
+                        try {
+                            CvAccess::activateFor($user, auth()->user(), $record);
+                        } catch (\InvalidArgumentException $e) {
+                            Notification::make()->title('Could not link')->body($e->getMessage())->danger()->send();
+
+                            return;
+                        }
+
+                        Notification::make()->title('My CV opened for ' . $user->name)->success()->send();
+                    }),
                 Tables\Actions\Action::make('activate_cv')
                     ->label('Activate CV')
                     ->icon('heroicon-o-document-plus')

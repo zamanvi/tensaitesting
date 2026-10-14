@@ -177,6 +177,27 @@ class CvAccess extends Model
         }
 
         return MobilityCandidate::where('phone', 'like', '%' . $tail)
+            ->whereDoesntHave('cvAccess', fn ($q) => $q->where('user_id', '!=', $user->id))
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    // A lead that is probably the same person: the phone number matches, or the
+    // name is identical (ignoring case). Only a SUGGESTION for staff to confirm;
+    // activateFor() itself still links by phone only.
+    public static function suggestCandidateFor(User $user): ?MobilityCandidate
+    {
+        if ($byPhone = static::findCandidateFor($user)) {
+            return $byPhone;
+        }
+
+        $name = mb_strtolower(trim((string) $user->name));
+        if ($name === '') {
+            return null;
+        }
+
+        return MobilityCandidate::whereRaw('LOWER(TRIM(full_name)) = ?', [$name])
+            ->whereDoesntHave('cvAccess')
             ->orderByDesc('id')
             ->first();
     }
@@ -198,9 +219,13 @@ class CvAccess extends Model
     // Opens My CV for an account and makes sure its draft "Job CV" application
     // exists (so it appears in All Applications). Safe to call repeatedly: it
     // reactivates a paused row and never creates a second application.
-    public static function activateFor(User $user, ?User $by = null): self
+    //
+    // $attach: staff said "this lead is the same person". The account is then
+    // joined to THAT row instead of creating another one, so one person stays one
+    // record. A row that an earlier activation created on its own is retired.
+    public static function activateFor(User $user, ?User $by = null, ?MobilityCandidate $attach = null): self
     {
-        return DB::transaction(function () use ($user, $by) {
+        return DB::transaction(function () use ($user, $by, $attach) {
             $access = static::where('user_id', $user->id)->lockForUpdate()->first()
                 ?? new static(['user_id' => $user->id]);
 
@@ -211,9 +236,26 @@ class CvAccess extends Model
             // Everyone whose CV staff open appears in Talent Passports. A
             // person who never used the chat gets a row of their own (source
             // "account"), so staff have one list to work from.
-            $candidate = $access->mobility_candidate_id
+            $previous = $access->mobility_candidate_id
                 ? MobilityCandidate::find($access->mobility_candidate_id)
-                : static::findCandidateFor($user);
+                : null;
+
+            if ($attach) {
+                $takenBy = static::where('mobility_candidate_id', $attach->id)->where('user_id', '!=', $user->id)->exists();
+                if ($takenBy) {
+                    throw new \InvalidArgumentException('That lead already belongs to another account.');
+                }
+
+                // Fill gaps only; what the person told the chat is never overwritten.
+                $attach->fill(array_filter([
+                    'full_name' => blank($attach->full_name) ? $user->name : null,
+                    'phone'     => blank($attach->phone) && $user->phone ? preg_replace('/[\s\-().]+/', '', $user->phone) : null,
+                ]))->save();
+
+                $candidate = $attach;
+            } else {
+                $candidate = $previous ?: static::findCandidateFor($user);
+            }
 
             if (! $candidate) {
                 $candidate = MobilityCandidate::create([
@@ -225,6 +267,11 @@ class CvAccess extends Model
                 ]);
             }
             $access->mobility_candidate_id = $candidate->id;
+
+            // The row an earlier activation made on its own is now a duplicate.
+            if ($previous && $previous->id !== $candidate->id && $previous->source === 'account') {
+                $previous->delete();
+            }
 
             $access->save();
 
