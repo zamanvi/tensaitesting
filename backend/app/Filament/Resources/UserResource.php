@@ -163,14 +163,14 @@ class UserResource extends Resource
                 // same e-mail; never just the name) the account is joined to that entry, so it stays ONE
                 // record; the confirmation says which one before anything happens.
                 Tables\Actions\Action::make('open_my_cv')
-                    ->label(fn (User $record) => $record->cvAccess ? 'Resume My CV' : 'Open My CV')
+                    ->label(fn (User $record) => $record->cvAccess ? 'Resume Assistant' : 'Activate Assistant')
                     ->icon('heroicon-o-document-plus')
                     ->color('success')
                     ->visible(fn (User $record) => $record->gateway_type === 'student'
                         && CvAccessResource::canAccess()
                         && ($record->cvAccess?->status !== 'active'))
                     ->requiresConfirmation()
-                    ->modalHeading(fn (User $record) => ($record->cvAccess ? 'Resume My CV for ' : 'Open My CV for ') . $record->name . '?')
+                    ->modalHeading(fn (User $record) => ($record->cvAccess ? 'Resume the assistant for ' : 'Activate the assistant for ') . $record->name . '?')
                     ->modalDescription(function (User $record) {
                         if ($record->cvAccess) {
                             return 'Their assistant and CV were paused. They will be able to continue where they stopped.';
@@ -182,7 +182,7 @@ class UserResource extends Resource
                             ? 'Same phone number or e-mail as Skilled Professionals entry ' . $lead->code . ' (' . ($lead->full_name ?: 'no name') . '): the account is joined to that entry and no second row is made.'
                             : 'A new Skilled Professionals entry is created for them.');
                     })
-                    ->modalSubmitActionLabel('Open My CV')
+                    ->modalSubmitActionLabel('Activate')
                     ->action(function (User $record) {
                         // Only a brand-new opening joins a lead; resuming keeps what is there.
                         $lead = $record->cvAccess ? null : CvAccess::suggestCandidateFor($record);

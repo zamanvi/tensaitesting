@@ -326,7 +326,7 @@ class MobilityCandidateResource extends Resource
                         'CV: ready for review' => 'The person finished and sent the CV. Check it, then press "Approve CV".',
                         'CV: approved'         => 'The checked CV is approved and listed in Approved CVs.',
                         'CV: paused'           => 'My CV is switched off for this person (CV settings).',
-                        'Has account'          => 'Has a website account. Open My CV from Users, or press "Link to account".',
+                        'Has account'          => 'Has a website account, assistant not active yet. Press "Activate Assistant".',
                         default                => 'Chat only: no website account matches this phone or e-mail.',
                     })
                     ->color(fn (string $state) => match ($state) {
@@ -425,13 +425,16 @@ class MobilityCandidateResource extends Resource
                 // The other direction: staff start from the lead and say which
                 // account is the same person. One person, one record.
                 Tables\Actions\Action::make('link_account')
-                    ->label('Link to account')
-                    ->icon('heroicon-o-link')
+                    ->label('Activate Assistant')
+                    ->icon('heroicon-o-sparkles')
                     ->color('success')
-                    ->modalHeading('Link this lead to an account and open My CV')
-                    ->modalDescription('Use this when the person has an account but neither the phone number nor the e-mail matches. Their chat answers are copied into the CV and no second entry is made.')
+                    ->modalHeading('Activate the assistant: choose the account')
+                    ->modalDescription('Pick the person\'s account (search by name, e-mail or phone). Their chat answers are copied into the CV and no second entry is made.')
+                    // Shown only when no account matches by phone or e-mail; when
+                    // one does, the one-click "Activate Assistant" below is used.
                     ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
                         && ! $record->cvAccess
+                        && ! CvAccess::findUserFor($record)
                         && CvAccessResource::canAccess())
                     ->form([
                         Forms\Components\Select::make('user_id')
@@ -442,7 +445,7 @@ class MobilityCandidateResource extends Resource
                             ->getOptionLabelUsing(fn ($value) => CvAccessResource::studentLabel($value))
                             ->helperText('Search by name, e-mail or phone.'),
                     ])
-                    ->modalSubmitActionLabel('Link and open My CV')
+                    ->modalSubmitActionLabel('Activate')
                     ->action(function (MobilityCandidate $record, array $data) {
                         $user = \App\Models\User::where('gateway_type', 'student')->find($data['user_id']);
                         if (! $user) {
@@ -454,19 +457,19 @@ class MobilityCandidateResource extends Resource
                         try {
                             CvAccess::activateFor($user, auth()->user(), $record);
                         } catch (\InvalidArgumentException $e) {
-                            Notification::make()->title('Could not link')->body($e->getMessage())->danger()->send();
+                            Notification::make()->title('Could not activate')->body($e->getMessage())->danger()->send();
 
                             return;
                         }
 
-                        Notification::make()->title('My CV opened for ' . $user->name)->success()->send();
+                        Notification::make()->title('Assistant activated for ' . $user->name)->success()->send();
                     }),
                 Tables\Actions\Action::make('activate_cv')
-                    ->label('Activate CV')
-                    ->icon('heroicon-o-document-plus')
+                    ->label('Activate Assistant')
+                    ->icon('heroicon-o-sparkles')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Open My CV for this person?')
+                    ->modalHeading('Activate the assistant for this person?')
                     ->modalDescription('Their chat answers are copied into a draft CV. It is listed in Approved CVs once you approve it.')
                     ->visible(function (MobilityCandidate $record) {
                         if ($record->trashed() || ! CvAccessResource::canAccess()) {
@@ -484,7 +487,7 @@ class MobilityCandidateResource extends Resource
                         }
                         CvAccess::activateFor($user, auth()->user());
 
-                        Notification::make()->title('My CV opened for ' . $user->name)->success()->send();
+                        Notification::make()->title('Assistant activated for ' . $user->name)->success()->send();
                     }),
                 // Light editing page: the CV questions in one form, plus the
                 // English summary. Use this to perfect a CV before sending it.
