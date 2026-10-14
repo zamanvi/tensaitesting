@@ -80,6 +80,11 @@ class MobilityCandidateResource extends Resource
                         ->rule('regex:/^\+?[0-9\s\-().]{8,20}$/')
                         ->unique(ignoreRecord: true)
                         ->helperText('8 to 15 digits, with an optional leading +.'),
+                    Forms\Components\TextInput::make('email')
+                        ->email()
+                        ->maxLength(190)
+                        ->dehydrateStateUsing(fn ($state) => \App\Models\CvAccess::normaliseEmail($state))
+                        ->helperText('Optional. Used only to recognise the same person as a website account. Never shown to employers.'),
                     Forms\Components\Toggle::make('phone_consent')
                         ->label('Agreed to be contacted on this number'),
                     Forms\Components\DateTimePicker::make('consented_at')
@@ -216,7 +221,7 @@ class MobilityCandidateResource extends Resource
                     ->boolean(),
 
                 // Is this person also a website account, and has staff opened
-                // their My CV yet? Matched on phone number.
+                // their My CV yet? Matched on phone number or e-mail.
                 Tables\Columns\TextColumn::make('account')
                     ->label('Account')
                     ->badge()
@@ -272,9 +277,11 @@ class MobilityCandidateResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data) {
                         $has = 'EXISTS (SELECT 1 FROM users u WHERE u.deleted_at IS NULL AND u.gateway_type = \'student\''
-                            . ' AND u.phone IS NOT NULL AND CHAR_LENGTH(mobility_candidates.phone) >= 8'
+                            . ' AND ((u.phone IS NOT NULL AND CHAR_LENGTH(mobility_candidates.phone) >= 8'
                             . ' AND RIGHT(REPLACE(REPLACE(REPLACE(REPLACE(u.phone, \' \', \'\'), \'-\', \'\'), \'+\', \'\'), \'(\', \'\'), 10)'
-                            . ' = RIGHT(mobility_candidates.phone, 10))';
+                            . ' = RIGHT(mobility_candidates.phone, 10))'
+                            . ' OR (mobility_candidates.email IS NOT NULL AND mobility_candidates.email <> \'\''
+                            . ' AND LOWER(TRIM(u.email)) = LOWER(TRIM(mobility_candidates.email)))))';
 
                         return match ($data['value'] ?? null) {
                             'cv_open' => $query->whereHas('cvAccess', fn ($q) => $q->where('status', 'active')),
@@ -306,7 +313,7 @@ class MobilityCandidateResource extends Resource
                     ->icon('heroicon-o-link')
                     ->color('success')
                     ->modalHeading('Link this lead to an account and open My CV')
-                    ->modalDescription('Use this when the person has an account but the phone numbers do not match. Their chat answers are copied into the CV and no second entry is made.')
+                    ->modalDescription('Use this when the person has an account but neither the phone number nor the e-mail matches. Their chat answers are copied into the CV and no second entry is made.')
                     ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
                         && ! $record->cvAccess
                         && CvAccessResource::canAccess())

@@ -38,7 +38,7 @@ class ListMobilityCandidates extends ListRecords
                         ->getSearchResultsUsing(fn (string $search) => CvAccessResource::searchStudents($search))
                         ->getOptionLabelUsing(fn ($value) => CvAccessResource::studentLabel($value))
                         ->helperText('Search by name, e-mail or phone.')
-                        // Offer the likely lead automatically (same phone, or an identical name).
+                        // Offer the lead automatically when phone number or e-mail match.
                         ->afterStateUpdated(function ($state, Forms\Set $set) {
                             $user = $state ? User::find($state) : null;
                             $lead = $user ? CvAccess::suggestCandidateFor($user) : null;
@@ -94,6 +94,7 @@ class ListMobilityCandidates extends ListRecords
             ->when($search, fn ($q) => $q->where(fn ($w) => $w
                 ->where('full_name', 'like', "%{$search}%")
                 ->orWhere('phone', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
                 ->orWhere('code', 'like', "%{$search}%")))
             ->orderByDesc('id')
             ->limit(30)

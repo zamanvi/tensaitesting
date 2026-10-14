@@ -159,8 +159,8 @@ class UserResource extends Resource
             ->actions([
                 // One click for the common case: the person made a free account,
                 // asked on WhatsApp, and staff agree. No other form. If the same
-                // person is already in Talent Passports (same phone or identical
-                // name) the account is joined to that entry, so it stays ONE
+                // person is already in Talent Passports (same phone number or
+                // same e-mail; never just the name) the account is joined to that entry, so it stays ONE
                 // record; the confirmation says which one before anything happens.
                 Tables\Actions\Action::make('open_my_cv')
                     ->label(fn (User $record) => $record->cvAccess ? 'Resume My CV' : 'Open My CV')
@@ -179,7 +179,7 @@ class UserResource extends Resource
                         $base = 'They get the AI assistant and a draft CV, which also appears in All Applications. ';
 
                         return $base . ($lead
-                            ? 'They are already in Talent Passports as ' . $lead->code . ' (' . ($lead->full_name ?: 'no name') . '): the account is joined to that entry and no second row is made.'
+                            ? 'Same phone number or e-mail as Talent Passports entry ' . $lead->code . ' (' . ($lead->full_name ?: 'no name') . '): the account is joined to that entry and no second row is made.'
                             : 'A new Talent Passports entry is created for them.');
                     })
                     ->modalSubmitActionLabel('Open My CV')

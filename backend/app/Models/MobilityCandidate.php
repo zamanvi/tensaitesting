@@ -24,7 +24,7 @@ class MobilityCandidate extends Model
 
     protected $fillable = [
         'code', 'status', 'source', 'lang',
-        'full_name', 'phone', 'phone_consent', 'consented_at',
+        'full_name', 'phone', 'email', 'phone_consent', 'consented_at',
         'role', 'experience', 'licence', 'languages', 'target_country', 'answers',
         'has_passport', 'can_visit_office', 'district',
         'summary', 'video_url', 'passport_published', 'branch_id', 'admin_notes',
@@ -41,7 +41,7 @@ class MobilityCandidate extends Model
     ];
 
     // Never leaves the server in a JSON response.
-    protected $hidden = ['ip_hash'];
+    protected $hidden = ['ip_hash', 'email'];
 
     protected static function booted(): void
     {

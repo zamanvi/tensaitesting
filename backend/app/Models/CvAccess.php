@@ -168,50 +168,63 @@ class CvAccess extends Model
         return strlen($digits) >= 8 ? substr($digits, -10) : null;
     }
 
-    // The Talent Passport of the same person, matched on phone number.
+    public static function normaliseEmail(?string $email): ?string
+    {
+        $email = mb_strtolower(trim((string) $email));
+
+        return $email !== '' ? $email : null;
+    }
+
+    // The Talent Passport of the same person. Only identifiers that belong to
+    // one person count: the phone number or the e-mail address. A name never
+    // does — two different people can share one. A lead that already belongs
+    // to another account is never returned.
     public static function findCandidateFor(User $user): ?MobilityCandidate
     {
-        $tail = static::phoneTail($user->phone);
-        if (! $tail) {
+        $tail  = static::phoneTail($user->phone);
+        $email = static::normaliseEmail($user->email);
+        if (! $tail && ! $email) {
             return null;
         }
 
-        return MobilityCandidate::where('phone', 'like', '%' . $tail)
+        return MobilityCandidate::where(function ($q) use ($tail, $email) {
+                if ($tail) {
+                    $q->orWhere('phone', 'like', '%' . $tail);
+                }
+                if ($email) {
+                    $q->orWhereRaw('LOWER(TRIM(email)) = ?', [$email]);
+                }
+            })
             ->whereDoesntHave('cvAccess', fn ($q) => $q->where('user_id', '!=', $user->id))
             ->orderByDesc('id')
             ->first();
     }
 
-    // A lead that is probably the same person: the phone number matches, or the
-    // name is identical (ignoring case). Only a SUGGESTION for staff to confirm;
-    // activateFor() itself still links by phone only.
+    // What the screens show before staff confirm. Same rule as the real link:
+    // phone or e-mail, never the name.
     public static function suggestCandidateFor(User $user): ?MobilityCandidate
     {
-        if ($byPhone = static::findCandidateFor($user)) {
-            return $byPhone;
-        }
-
-        $name = mb_strtolower(trim((string) $user->name));
-        if ($name === '') {
-            return null;
-        }
-
-        return MobilityCandidate::whereRaw('LOWER(TRIM(full_name)) = ?', [$name])
-            ->whereDoesntHave('cvAccess')
-            ->orderByDesc('id')
-            ->first();
+        return static::findCandidateFor($user);
     }
 
-    // The account of the same person as a Talent Passport, matched on phone.
+    // The account of the same person as a Talent Passport: same phone or same e-mail.
     public static function findUserFor(MobilityCandidate $candidate): ?User
     {
-        $tail = static::phoneTail($candidate->phone);
-        if (! $tail) {
+        $tail  = static::phoneTail($candidate->phone);
+        $email = static::normaliseEmail($candidate->email);
+        if (! $tail && ! $email) {
             return null;
         }
 
         return User::where('gateway_type', 'student')
-            ->where('phone', 'like', '%' . $tail)
+            ->where(function ($q) use ($tail, $email) {
+                if ($tail) {
+                    $q->orWhere('phone', 'like', '%' . $tail);
+                }
+                if ($email) {
+                    $q->orWhereRaw('LOWER(TRIM(email)) = ?', [$email]);
+                }
+            })
             ->orderBy('id')
             ->first();
     }
@@ -250,11 +263,17 @@ class CvAccess extends Model
                 $attach->fill(array_filter([
                     'full_name' => blank($attach->full_name) ? $user->name : null,
                     'phone'     => blank($attach->phone) && $user->phone ? preg_replace('/[\s\-().]+/', '', $user->phone) : null,
+                    'email'     => blank($attach->email) ? static::normaliseEmail($user->email) : null,
                 ]))->save();
 
                 $candidate = $attach;
             } else {
                 $candidate = $previous ?: static::findCandidateFor($user);
+
+                // Recognised by phone: remember the e-mail too (gap only).
+                if ($candidate && blank($candidate->email) && ($email = static::normaliseEmail($user->email))) {
+                    $candidate->forceFill(['email' => $email])->save();
+                }
             }
 
             if (! $candidate) {
@@ -263,6 +282,7 @@ class CvAccess extends Model
                     'status'    => 'new',
                     'full_name' => $user->name,
                     'phone'     => $user->phone ? preg_replace('/[\s\-().]+/', '', $user->phone) : null,
+                    'email'     => static::normaliseEmail($user->email),
                     'lang'      => null,
                 ]);
             }
