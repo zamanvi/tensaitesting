@@ -112,7 +112,8 @@ class UserResource extends Resource
                     }),
                 // Where this person is in the AI assistant / My CV flow.
                 Tables\Columns\TextColumn::make('my_cv')
-                    ->label('My CV')
+                    ->label('AI assistant')
+                    ->extraHeaderAttributes(['title' => 'Not opened = the assistant is off; staff switch it on with "Activate Assistant". AI assistant active = the person can use it; Ready for review / Approved = how far their CV has got.', 'style' => 'cursor: help'])
                     ->badge()
                     ->getStateUsing(function (User $record) {
                         if ($record->gateway_type !== 'student') {
@@ -125,10 +126,10 @@ class UserResource extends Resource
 
                         return $access->status === 'active'
                             ? CvAccess::STAGES[$access->stage()]
-                            : 'Paused';
+                            : 'AI assistant paused';
                     })
                     ->color(fn (?string $state) => match ($state) {
-                        'Filling the CV'           => 'warning',
+                        'AI assistant active'      => 'primary',
                         'Ready for review'         => 'info',
                         'Approved'                 => 'success',
                         default                    => 'gray',

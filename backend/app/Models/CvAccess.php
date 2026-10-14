@@ -14,7 +14,7 @@ class CvAccess extends Model
     public const STATUSES = ['active' => 'Active', 'paused' => 'Paused'];
 
     public const STAGES = [
-        'filling' => 'Filling the CV',
+        'filling' => 'AI assistant active',
         'review'  => 'Ready for review',
         // Internal key stays "sent" (the My CV page and API use it); staff see "Approved".
         'sent'    => 'Approved',

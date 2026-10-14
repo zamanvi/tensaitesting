@@ -305,7 +305,7 @@ class MobilityCandidateResource extends Resource
                 // their My CV yet? Matched on phone number or e-mail.
                 Tables\Columns\TextColumn::make('account')
                     ->label('Account')
-                    ->extraHeaderAttributes(static::hint('Website account and My CV. No account = chat only. Has account = an account exists, My CV not opened yet. CV: filling / ready for review / approved / paused = My CV is open and shows how far the CV is.'))
+                    ->extraHeaderAttributes(static::hint('Website account and My CV. No account = chat only. Has account = an account exists, the AI assistant is not switched on yet. AI assistant: active / paused = the assistant is on / off for this person. CV: ready for review / approved = the person finished the CV and how far staff have got.'))
                     ->badge()
                     ->getStateUsing(function (MobilityCandidate $record) {
                         $access = $record->cvAccess;
@@ -314,25 +314,25 @@ class MobilityCandidateResource extends Resource
                                 ? match ($access->stage()) {
                                     'sent'   => 'CV: approved',
                                     'review' => 'CV: ready for review',
-                                    default  => 'CV: filling',
+                                    default  => 'AI assistant: active',
                                 }
-                                : 'CV: paused';
+                                : 'AI assistant: paused';
                         }
 
                         return CvAccess::findUserFor($record) ? 'Has account' : 'No account';
                     })
                     ->tooltip(fn (string $state) => match ($state) {
-                        'CV: filling'          => 'My CV is open. The person is answering the questions.',
+                        'AI assistant: active' => 'The assistant is on. The person is answering the CV questions.',
                         'CV: ready for review' => 'The person finished and sent the CV. Check it, then press "Approve CV".',
                         'CV: approved'         => 'The checked CV is approved and listed in Approved CVs.',
-                        'CV: paused'           => 'My CV is switched off for this person (CV settings).',
+                        'AI assistant: paused' => 'The assistant is switched off for this person (CV settings). "Resume Assistant" turns it on again.',
                         'Has account'          => 'Has a website account, assistant not active yet. Press "Activate Assistant".',
                         default                => 'Chat only: no website account matches this phone or e-mail.',
                     })
                     ->color(fn (string $state) => match ($state) {
                         'CV: approved'         => 'success',
                         'CV: ready for review' => 'warning',
-                        'CV: filling'          => 'primary',
+                        'AI assistant: active' => 'primary',
                         'Has account'          => 'info',
                         default                => 'gray',
                     }),
