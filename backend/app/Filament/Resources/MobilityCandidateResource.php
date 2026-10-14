@@ -179,7 +179,7 @@ class MobilityCandidateResource extends Resource
                 // Hover a column title to read what it means (browser tooltip).
                 Tables\Columns\TextColumn::make('code')
                     ->label('Ref')
-                    ->extraHeaderAttributes(static::hint('Reference code. Quote it to the person and to employers: it is the one identifier that is safe to share.'))
+                    ->extraHeaderAttributes(static::hint('Reference code, unique to this person. Safe to quote to the person and to employers (the phone number is not). Click a value to copy it.'))
                     ->searchable()
                     ->copyable()
                     ->copyMessage('Reference copied')
@@ -187,22 +187,26 @@ class MobilityCandidateResource extends Resource
 
                 Tables\Columns\TextColumn::make('full_name')
                     ->label('Name')
-                    ->extraHeaderAttributes(static::hint('Name as the person gave it. Two people can share a name: tell them apart by Ref, phone or e-mail.'))
+                    ->extraHeaderAttributes(static::hint('Name from the chat or the account. Two people can share a name, so tell them apart by Ref, phone or e-mail.'))
                     ->searchable()
                     ->weight('bold')
                     ->placeholder('No name'),
 
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Phone')
-                    ->extraHeaderAttributes(static::hint('Main contact number. Also how the same person is recognised as a website account. Click to copy.'))
+                    ->extraHeaderAttributes(static::hint('The number the person gave: staff call it, and the same number (or e-mail) links them to a website account. Red = the number looks incomplete, check it when you call. Click a value to copy it.'))
                     ->searchable()
                     ->copyable()
                     ->copyMessage('Phone copied')
+                    ->color(fn (MobilityCandidate $record) => static::phoneLooksOdd($record->phone) ? 'danger' : null)
+                    ->tooltip(fn (MobilityCandidate $record) => static::phoneLooksOdd($record->phone)
+                        ? 'This number looks incomplete. A Bangladesh mobile has 11 digits (01XXXXXXXXX); a foreign number starts with +. Confirm it when you call.'
+                        : null)
                     ->placeholder('No phone'),
 
                 Tables\Columns\TextColumn::make('email')
                     ->label('E-mail')
-                    ->extraHeaderAttributes(static::hint('Second way to recognise the same person as an account. Filled when an account is joined, or typed by staff. Never shown to employers.'))
+                    ->extraHeaderAttributes(static::hint('The second way to recognise the same person as a website account. Filled in when an account is joined, or typed by staff. Never shown to employers.'))
                     ->searchable()
                     ->copyable()
                     ->copyMessage('E-mail copied')
@@ -211,41 +215,64 @@ class MobilityCandidateResource extends Resource
 
                 Tables\Columns\TextColumn::make('role')
                     ->label('Job')
-                    ->extraHeaderAttributes(static::hint('The work the person does or wants, as told in the chat.'))
-                    ->searchable()
+                    ->extraHeaderAttributes(static::hint('The work they do or want. Taken from their CV once they filled it in, otherwise from the chat. "Not told" = not answered anywhere yet.'))
+                    ->getStateUsing(fn (MobilityCandidate $record) => $record->currentValue('role'))
+                    ->searchable(query: fn (Builder $query, string $search) => static::searchAnswer($query, 'role', $search))
+                    ->limit(40)
+                    ->tooltip(fn (MobilityCandidate $record) => $record->currentValue('role'))
                     ->placeholder('Not told')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('experience')
                     ->label('Experience')
-                    ->extraHeaderAttributes(static::hint('How long they have done this work, in their own words.'))
+                    ->extraHeaderAttributes(static::hint('How long they have done this work, in their own words (CV answer, otherwise chat).'))
+                    ->getStateUsing(fn (MobilityCandidate $record) => $record->currentValue('experience'))
+                    ->limit(30)
                     ->placeholder('Not told')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('target_country')
                     ->label('Country')
-                    ->extraHeaderAttributes(static::hint('The country they want to work in.'))
+                    ->extraHeaderAttributes(static::hint('The country they want to work in (CV answer, otherwise chat).'))
+                    ->getStateUsing(fn (MobilityCandidate $record) => $record->currentValue('target_country'))
                     ->placeholder('Not told')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('district')
                     ->label('District')
-                    ->extraHeaderAttributes(static::hint('Home district. Helps plan a visit to the Dhaka or Pabna office.'))
-                    ->searchable()
+                    ->extraHeaderAttributes(static::hint('Home district, to plan a visit to the Dhaka or Pabna office (CV answer, otherwise chat).'))
+                    ->getStateUsing(fn (MobilityCandidate $record) => $record->currentValue('district'))
+                    ->searchable(query: fn (Builder $query, string $search) => static::searchAnswer($query, 'district', $search))
                     ->placeholder('Not told')
                     ->toggleable(isToggledHiddenByDefault: true),
 
+                // Three states: yes / no / not asked yet. An empty cell would
+                // look like a missing column, so the third state has its own icon.
                 Tables\Columns\IconColumn::make('has_passport')
                     ->label('Has passport')
-                    ->extraHeaderAttributes(static::hint('Said in the chat that they hold a valid passport. The number is never collected: check the document at the office. Not the same as "Passport ready".'))
-                    ->boolean()
+                    ->extraHeaderAttributes(static::hint('Whether they say they hold a valid passport (CV answer, otherwise chat). Tick = yes, cross = no, question mark = not asked yet. The number is never collected: check the document at the office. Not the same as "Passport ready".'))
+                    ->getStateUsing(fn (MobilityCandidate $record) => static::flagState($record->currentFlag('has_passport')))
+                    ->icon(fn (string $state) => static::flagIcon($state))
+                    ->color(fn (string $state) => static::flagColor($state))
+                    ->tooltip(fn (string $state) => match ($state) {
+                        'yes'   => 'Says they hold a valid passport. Check the document at the office.',
+                        'no'    => 'Says they do not hold a passport.',
+                        default => 'Not asked yet.',
+                    })
                     ->toggleable(),
                 Tables\Columns\IconColumn::make('can_visit_office')
                     ->label('Can visit office')
-                    ->extraHeaderAttributes(static::hint('Can come to the Dhaka or Pabna office. "Has passport" and "Can visit office" together are the "Ready to visit" filter.'))
-                    ->boolean()
+                    ->extraHeaderAttributes(static::hint('Whether they can come to the Dhaka or Pabna office (CV answer, otherwise chat). Tick = yes, cross = no, question mark = not asked yet. "Has passport" and "Can visit office" both ticked is the "Ready to visit" filter.'))
+                    ->getStateUsing(fn (MobilityCandidate $record) => static::flagState($record->currentFlag('can_visit_office')))
+                    ->icon(fn (string $state) => static::flagIcon($state))
+                    ->color(fn (string $state) => static::flagColor($state))
+                    ->tooltip(fn (string $state) => match ($state) {
+                        'yes'   => 'Can come to the Dhaka or Pabna office.',
+                        'no'    => 'Cannot come to the office.',
+                        default => 'Not asked yet.',
+                    })
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
-                    ->extraHeaderAttributes(static::hint('Where the person is with our team. New = nobody has dealt with them yet. Change it in "Passport details".'))
+                    ->extraHeaderAttributes(static::hint('Our own progress note, set by staff: New, Contacted, Documents verified, Talent Passport ready, Closed. Change it in "Passport details".'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => MobilityCandidate::STATUSES[$state] ?? $state)
                     ->tooltip(fn (string $state) => match ($state) {
@@ -266,14 +293,19 @@ class MobilityCandidateResource extends Resource
 
                 Tables\Columns\IconColumn::make('passport_published')
                     ->label('Passport ready')
-                    ->extraHeaderAttributes(static::hint('Our decision, after documents are verified: the Talent Passport (shareable profile) is complete. Different from "Has passport", which is only what the person said.'))
-                    ->boolean(),
+                    ->extraHeaderAttributes(static::hint('Our decision, after documents are verified: the public Talent Passport (shareable profile with video) is ready to share. Separate from "Has passport" and from CV approval. A grey dash only means "not yet".'))
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-minus-circle')
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip(fn ($state) => $state ? 'Ready to share.' : 'Not ready yet.'),
 
                 // Is this person also a website account, and has staff opened
                 // their My CV yet? Matched on phone number or e-mail.
                 Tables\Columns\TextColumn::make('account')
                     ->label('Account')
-                    ->extraHeaderAttributes(static::hint('Website account and My CV: "No account" = chat only; "Has account" = account exists, My CV not opened yet; "CV: …" = My CV is open and shows how far the CV is.'))
+                    ->extraHeaderAttributes(static::hint('Website account and My CV. No account = chat only. Has account = an account exists, My CV not opened yet. CV: filling / ready for review / approved / paused = My CV is open and shows how far the CV is.'))
                     ->badge()
                     ->getStateUsing(function (MobilityCandidate $record) {
                         $access = $record->cvAccess;
@@ -333,7 +365,7 @@ class MobilityCandidateResource extends Resource
                         ->format('d M Y, h:i A') . ' (Dhaka)')
                     ->sortable(),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['cvAccess', 'branch']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['cvAccess.application', 'branch']))
             ->emptyStateIcon('heroicon-o-identification')
             ->emptyStateHeading('No skilled professionals yet')
             ->emptyStateDescription('People who answer the website chat appear here, and so does anyone you open My CV for or add yourself.')
@@ -349,7 +381,7 @@ class MobilityCandidateResource extends Resource
                 // People who can both hold a visa process and come in: call these first.
                 Tables\Filters\Filter::make('ready')
                     ->label('Ready to visit (has passport and can come in)')
-                    ->query(fn (Builder $query) => $query->where('has_passport', true)->where('can_visit_office', true)),
+                    ->query(fn (Builder $query) => static::answeredYes(static::answeredYes($query, 'has_passport'), 'can_visit_office')),
                 // Who has a website account? Free accounts exist for everyone;
                 // "CV open" means staff switched My CV (and its assistant) on.
                 Tables\Filters\SelectFilter::make('account')
@@ -605,6 +637,73 @@ class MobilityCandidateResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    // Icon state for a yes / no / not-asked-yet answer.
+    private static function flagState(?bool $value): string
+    {
+        return $value === null ? 'unknown' : ($value ? 'yes' : 'no');
+    }
+
+    private static function flagIcon(string $state): string
+    {
+        return match ($state) {
+            'yes'   => 'heroicon-o-check-circle',
+            'no'    => 'heroicon-o-x-circle',
+            default => 'heroicon-o-question-mark-circle',
+        };
+    }
+
+    private static function flagColor(string $state): string
+    {
+        return match ($state) {
+            'yes'   => 'success',
+            'no'    => 'warning',
+            default => 'gray',
+        };
+    }
+
+    // A number staff cannot ring as typed: a Bangladesh mobile is 11 digits
+    // (01XXXXXXXXX, or +880 1XXXXXXXXX); a foreign number is written with a +.
+    private static function phoneLooksOdd(?string $phone): bool
+    {
+        $digits = preg_replace('/\D+/', '', (string) $phone);
+        if ($digits === '') {
+            return false;
+        }
+        if (str_starts_with($digits, '880')) {
+            $digits = '0' . substr($digits, 3);
+        }
+        if (str_starts_with($digits, '01')) {
+            return strlen($digits) !== 11;
+        }
+
+        return ! str_starts_with(trim((string) $phone), '+');
+    }
+
+    // The value of one CV answer, as JSON text, for list searches and filters.
+    private static function cvJson(string $field): string
+    {
+        return "JSON_UNQUOTE(JSON_EXTRACT(form_data, '$." . MobilityCandidate::CV_FIELDS[$field] . "'))";
+    }
+
+    // Search a text answer in the chat column and in the CV.
+    private static function searchAnswer(Builder $query, string $field, string $search): Builder
+    {
+        return $query->where(fn ($w) => $w
+            ->where($field, 'like', "%{$search}%")
+            ->orWhereHas('cvAccess.application', fn ($a) => $a->whereRaw(static::cvJson($field) . ' LIKE ?', ["%{$search}%"])));
+    }
+
+    // Answered "yes": by the CV if it has an answer, otherwise by the chat.
+    private static function answeredYes(Builder $query, string $field): Builder
+    {
+        $json = static::cvJson($field);
+
+        return $query->where(fn ($w) => $w
+            ->whereHas('cvAccess.application', fn ($a) => $a->whereRaw("LOWER({$json}) LIKE 'yes%'"))
+            ->orWhere(fn ($x) => $x->where($field, true)
+                ->whereDoesntHave('cvAccess.application', fn ($a) => $a->whereRaw("{$json} IS NOT NULL AND {$json} <> ''"))));
     }
 
     // A column header's hover hint (the browser's own tooltip), so staff can

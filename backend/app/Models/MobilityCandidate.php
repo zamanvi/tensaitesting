@@ -78,4 +78,60 @@ class MobilityCandidate extends Model
     {
         return $this->hasOne(CvAccess::class, 'mobility_candidate_id');
     }
+
+    // Candidate column => the CV form field that answers the same question.
+    // The chat copies are only a starting point: once the person fills in My
+    // CV, the CV answer is the current one and the staff list must show it.
+    public const CV_FIELDS = [
+        'role'           => 'desired_job',
+        'experience'     => 'experience',
+        'licence'        => 'licence_type',
+        'languages'      => 'languages',
+        'target_country' => 'target_country',
+        'district'       => 'district',
+        'has_passport'   => 'has_passport',
+        'can_visit_office' => 'can_visit_office',
+    ];
+
+    private function cvAnswer(string $field): ?string
+    {
+        $key  = self::CV_FIELDS[$field] ?? null;
+        $data = $this->cvAccess?->application?->form_data;
+        if (! $key || ! is_array($data)) {
+            return null;
+        }
+
+        $value = $data[$key] ?? null;
+        $value = is_scalar($value) ? trim((string) $value) : '';
+
+        return $value !== '' ? $value : null;
+    }
+
+    // Text answer: the CV wins, then what the chat collected.
+    public function currentValue(string $field): ?string
+    {
+        $chat = $this->getAttribute($field);
+
+        return $this->cvAnswer($field) ?? (is_string($chat) && trim($chat) !== '' ? $chat : null);
+    }
+
+    // Yes/No answer as true / false, or null when nobody asked yet. CV answers
+    // are stored as "Yes / হ্যাঁ" and "No / না".
+    public function currentFlag(string $field): ?bool
+    {
+        $cv = $this->cvAnswer($field);
+        if ($cv !== null) {
+            $lower = mb_strtolower($cv);
+            if (str_starts_with($lower, 'yes') || str_starts_with($lower, 'হ্যাঁ')) {
+                return true;
+            }
+            if (str_starts_with($lower, 'no') || str_starts_with($lower, 'না')) {
+                return false;
+            }
+        }
+
+        $chat = $this->getAttribute($field);
+
+        return $chat === null ? null : (bool) $chat;
+    }
 }
