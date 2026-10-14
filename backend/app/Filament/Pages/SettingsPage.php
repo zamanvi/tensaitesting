@@ -46,7 +46,7 @@ class SettingsPage extends Page
     public string $intro_video_url = '';
 
     // Staff-only: the websites and the standing instructions used by the
-    // "Copy for AI" button on Talent Passports. Never exposed publicly.
+    // "Copy for AI" button on Skilled Professionals. Never exposed publicly.
     public string $job_search_sites  = '';
     public string $job_search_prompt = '';
 
@@ -168,7 +168,7 @@ class SettingsPage extends Page
                 ])->columns(2),
 
             Forms\Components\Section::make('My CV (job-search assistant)')
-                ->description('When a person opens the "My CV" section of their account and staff have not switched the assistant on for them yet, they see a message and a green WhatsApp button. The button opens WhatsApp with the number below, so they can ask you to switch it on. You switch it on from Talent Passports → "Activate CV".')
+                ->description('When a person opens the "My CV" section of their account and staff have not switched the assistant on for them yet, they see a message and a green WhatsApp button. The button opens WhatsApp with the number below, so they can ask you to switch it on. You switch it on from Users → "Open My CV".')
                 ->schema([
                     Forms\Components\TextInput::make('cv_whatsapp')
                         ->label('WhatsApp number for My CV')
@@ -219,7 +219,7 @@ class SettingsPage extends Page
                 ]),
 
             Forms\Components\Section::make('Job search helper (staff only)')
-                ->description('Used by the "Copy for AI" button in Skilled Worker Mobility → Talent Passports. The button copies these instructions plus the candidates\' CVs (short name, reference code, age; no phone or e-mail) so staff can paste them into an AI chat and ask it to find current job circulars. Nothing is sent from the website.')
+                ->description('Used by the "Copy for AI" button in Skilled Professional Mobility → Skilled Professionals. The button copies these instructions plus the candidates\' CVs (short name, reference code, age; no phone or e-mail) so staff can paste them into an AI chat and ask it to find current job circulars. Nothing is sent from the website.')
                 ->schema([
                     Forms\Components\Textarea::make('job_search_sites')
                         ->label('Websites the AI should search')

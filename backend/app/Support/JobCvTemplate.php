@@ -8,7 +8,7 @@ use App\Models\FormTemplate;
 use App\Models\FormTemplateField;
 
 // The "Job CV" form: the same Application / FormTemplate machinery the study
-// applications use, so the CV appears in "All Applications", has a progress
+// applications use, so the CV has a progress
 // bar, and can be edited with the existing form renderer.
 //
 // ensure() is idempotent and never overwrites staff edits: the template is

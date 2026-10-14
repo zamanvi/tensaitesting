@@ -31,10 +31,10 @@ class Application extends Model
         });
     }
 
-    // Staff lists leave out "Job CV" drafts: those are CVs people are still
-    // filling in or that staff have not yet reviewed. They join the list when
-    // staff use "Send to All Applications" (which moves them out of draft).
-    public function scopeWithoutUnsentJobCvs($query)
+    // Study / visa application lists never show "Job CV" records: a CV is not an
+    // application. Staff find them in Skilled Professional Mobility → Skilled
+    // Professionals (while being filled in) and → Approved CVs (once checked).
+    public function scopeWithoutJobCvs($query)
     {
         $ids = FormTemplate::where('country', \App\Support\JobCvTemplate::COUNTRY)->pluck('id');
 
@@ -42,10 +42,7 @@ class Application extends Model
             return $query;
         }
 
-        return $query->where(function ($q) use ($ids) {
-            $q->where('applications.status', '!=', 'draft')
-                ->orWhereNotIn('applications.form_template_id', $ids);
-        });
+        return $query->whereNotIn('applications.form_template_id', $ids);
     }
 
     public function formTemplate(): BelongsTo

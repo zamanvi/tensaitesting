@@ -15,7 +15,8 @@ class ApplicationStatsWidget extends BaseWidget
     {
         // Count from the same query the list below uses, so a branch or agency
         // user only ever sees numbers for the applications they can open.
-        $scope = fn () => ApplicationResource::getEloquentQuery()->toBase();
+        // A Job CV is not an application, so it is not counted here either.
+        $scope = fn () => ApplicationResource::getEloquentQuery()->withoutJobCvs()->toBase();
 
         $total     = $scope()->count();
         $submitted = $scope()->where('status', 'submitted')->count();

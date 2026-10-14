@@ -16,7 +16,8 @@ class CvAccess extends Model
     public const STAGES = [
         'filling' => 'Filling the CV',
         'review'  => 'Ready for review',
-        'sent'    => 'Sent to All Applications',
+        // Internal key stays "sent" (the My CV page and API use it); staff see "Approved".
+        'sent'    => 'Approved',
     ];
 
     protected $fillable = [
@@ -134,12 +135,20 @@ class CvAccess extends Model
         ])->save();
     }
 
-    // Staff checked the CV: it now shows in All Applications as a normal
-    // submitted application. Employers do NOT see it from here — that is a
-    // separate, later step.
-    public function sendToApplications(): void
+    public function isApproved(): bool
+    {
+        return $this->sent_at !== null;
+    }
+
+    // Staff checked the CV and approved it: it now lists under Approved CVs.
+    // Employers do NOT see it from here — that is a separate, later step.
+    // (The database column is still called sent_at.) Safe to call twice: the
+    // person is told once.
+    public function approve(): void
     {
         DB::transaction(function () {
+            $first = $this->sent_at === null;
+
             $this->forceFill(['sent_at' => $this->sent_at ?: now()])->save();
 
             $application = $this->application;
@@ -147,16 +156,40 @@ class CvAccess extends Model
                 $application->forceFill(['status' => 'submitted', 'submitted_at' => now()])->save();
             }
 
-            // The person sees this in their bell.
-            TensaiNotification::create([
-                'user_id'    => $this->user_id,
-                'type'       => 'cv_checked',
-                'title'      => 'Your CV has been checked',
-                'body'       => 'Our team checked your CV and added it to our list.',
-                'data'       => ['application_id' => $this->application_id],
-                'action_url' => '/dashboard/student/cv',
-            ]);
+            if ($first) {
+                // The person sees this in their bell.
+                TensaiNotification::create([
+                    'user_id'    => $this->user_id,
+                    'type'       => 'cv_checked',
+                    'title'      => 'Your CV has been checked',
+                    'body'       => 'Our team checked your CV and added it to our list.',
+                    'data'       => ['application_id' => $this->application_id],
+                    'action_url' => '/dashboard/student/cv',
+                ]);
+            }
         });
+    }
+
+    // Staff found something to correct after approving: the CV goes back to
+    // "ready for review" (the person's own submission is kept) and leaves the
+    // Approved CVs list. The shareable link is switched off at the same time,
+    // so an unchecked CV is never reachable from outside.
+    public function unapprove(): void
+    {
+        DB::transaction(function () {
+            $this->forceFill(['sent_at' => null, 'public_enabled' => false])->save();
+
+            $application = $this->application;
+            if ($application && $application->status === 'submitted') {
+                $application->forceFill(['status' => 'draft', 'submitted_at' => null])->save();
+            }
+        });
+    }
+
+    // Older name, kept so existing callers keep working.
+    public function sendToApplications(): void
+    {
+        $this->approve();
     }
 
     // Digits only, last 10 — enough to tell BD mobile numbers apart whether
@@ -230,7 +263,7 @@ class CvAccess extends Model
     }
 
     // Opens My CV for an account and makes sure its draft "Job CV" application
-    // exists (so it appears in All Applications). Safe to call repeatedly: it
+    // exists (the CV record staff edit and approve). Safe to call repeatedly: it
     // reactivates a paused row and never creates a second application.
     //
     // $attach: staff said "this lead is the same person". The account is then
@@ -246,7 +279,7 @@ class CvAccess extends Model
             $access->activated_by = $access->activated_by ?: $by?->id;
             $access->activated_at = $access->activated_at ?: now();
 
-            // Everyone whose CV staff open appears in Talent Passports. A
+            // Everyone whose CV staff open appears in Skilled Professionals. A
             // person who never used the chat gets a row of their own (source
             // "account"), so staff have one list to work from.
             $previous = $access->mobility_candidate_id

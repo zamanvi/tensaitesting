@@ -13,7 +13,7 @@ use Filament\Tables\Table;
 
 // "CV Access": the accounts whose My CV section staff have opened (the manual
 // "premium open"). Opening one also creates the person's draft "Job CV"
-// application, so it shows up in All Applications. Free accounts that were
+// application (the CV record). Free accounts that were
 // never opened simply do not appear here. Managers see it only when an admin
 // ticks it for them on the Managers form, like every other section.
 class CvAccessResource extends Resource
@@ -23,10 +23,10 @@ class CvAccessResource extends Resource
     protected static ?string $pluralModelLabel     = 'CV Access';
     protected static ?string $navigationIcon       = 'heroicon-o-document-text';
     protected static ?string $navigationLabel      = 'CV Access';
-    protected static ?string $navigationGroup      = 'Skilled Worker Mobility';
+    protected static ?string $navigationGroup      = 'Skilled Professional Mobility';
     protected static ?int    $navigationSort       = 3;
 
-    // Staff work from Talent Passports (Account / CV stage filters and the
+    // Staff work from Skilled Professionals (Account / CV stage filters and the
     // Activate / Send buttons); this page is reached from there for the
     // assistant limit, share link and notes, so it has no sidebar entry.
     public static function shouldRegisterNavigation(): bool
@@ -155,7 +155,7 @@ class CvAccessResource extends Resource
                     }),
 
                 Tables\Columns\TextColumn::make('candidate.code')
-                    ->label('Talent Passport')
+                    ->label('Skilled professional')
                     ->fontFamily('mono')
                     ->placeholder('Not in chat'),
 
@@ -184,13 +184,13 @@ class CvAccessResource extends Resource
                     ->visible(fn (CvAccess $record) => (bool) $record->application_id
                         && ApplicationResource::canAccess())
                     ->url(fn (CvAccess $record) => ApplicationResource::getUrl('edit', ['record' => $record->application_id])),
-                Tables\Actions\Action::make('send_to_applications')
-                    ->label('Send to All Applications')
+                Tables\Actions\Action::make('approve_cv')
+                    ->label('Approve CV')
                     ->icon('heroicon-o-paper-airplane')
                     ->requiresConfirmation()
-                    ->modalDescription('Check that the details are correct first. The CV will then appear in All Applications as a submitted application. It is not shown to employers by this step.')
+                    ->modalDescription('Check that the details are correct first. The CV is then listed in Approved CVs. It is not shown to employers by this step.')
                     ->visible(fn (CvAccess $record) => $record->isActive() && ! $record->sent_at)
-                    ->action(fn (CvAccess $record) => $record->sendToApplications()),
+                    ->action(fn (CvAccess $record) => $record->approve()),
                 Tables\Actions\EditAction::make(),
             ]);
     }

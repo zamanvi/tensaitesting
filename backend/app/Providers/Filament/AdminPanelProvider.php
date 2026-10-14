@@ -45,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 // Ordered by how often an admin actually opens each section —
                 // daily operational work first, rare configuration last.
                 'Applicant Management',
-                'Skilled Worker Mobility',
+                'Skilled Professional Mobility',
                 'Revenue',
                 'Branches',
                 'Users & Gateways',

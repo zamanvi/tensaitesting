@@ -130,7 +130,7 @@ class UserResource extends Resource
                     ->color(fn (?string $state) => match ($state) {
                         'Filling the CV'           => 'warning',
                         'Ready for review'         => 'info',
-                        'Sent to All Applications' => 'success',
+                        'Approved'                 => 'success',
                         default                    => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('affiliate_code')->toggleable(isToggledHiddenByDefault: true),
@@ -159,7 +159,7 @@ class UserResource extends Resource
             ->actions([
                 // One click for the common case: the person made a free account,
                 // asked on WhatsApp, and staff agree. No other form. If the same
-                // person is already in Talent Passports (same phone number or
+                // person is already in Skilled Professionals (same phone number or
                 // same e-mail; never just the name) the account is joined to that entry, so it stays ONE
                 // record; the confirmation says which one before anything happens.
                 Tables\Actions\Action::make('open_my_cv')
@@ -176,11 +176,11 @@ class UserResource extends Resource
                             return 'Their assistant and CV were paused. They will be able to continue where they stopped.';
                         }
                         $lead = CvAccess::suggestCandidateFor($record);
-                        $base = 'They get the AI assistant and a draft CV, which also appears in All Applications. ';
+                        $base = 'They get the AI assistant and a draft CV. ';
 
                         return $base . ($lead
-                            ? 'Same phone number or e-mail as Talent Passports entry ' . $lead->code . ' (' . ($lead->full_name ?: 'no name') . '): the account is joined to that entry and no second row is made.'
-                            : 'A new Talent Passports entry is created for them.');
+                            ? 'Same phone number or e-mail as Skilled Professionals entry ' . $lead->code . ' (' . ($lead->full_name ?: 'no name') . '): the account is joined to that entry and no second row is made.'
+                            : 'A new Skilled Professionals entry is created for them.');
                     })
                     ->modalSubmitActionLabel('Open My CV')
                     ->action(function (User $record) {

@@ -23,7 +23,7 @@ class AnswerLibraryItemResource extends Resource
     protected static ?string $pluralModelLabel     = 'Answer Library';
     protected static ?string $navigationIcon       = 'heroicon-o-book-open';
     protected static ?string $navigationLabel      = 'Answer Library';
-    protected static ?string $navigationGroup      = 'Skilled Worker Mobility';
+    protected static ?string $navigationGroup      = 'Skilled Professional Mobility';
     protected static ?int    $navigationSort       = 4;
     protected static ?string $recordTitleAttribute = 'question_en';
 

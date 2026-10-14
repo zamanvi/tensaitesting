@@ -46,7 +46,7 @@ class ListMobilityCandidates extends ListRecords
                         }),
 
                     Forms\Components\Select::make('candidate_id')
-                        ->label('Same person already in Talent Passports? (optional)')
+                        ->label('Same person already in Skilled Professionals? (optional)')
                         ->searchable()
                         ->preload()
                         ->options(fn () => static::unlinkedLeads())

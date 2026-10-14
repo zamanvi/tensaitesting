@@ -10,13 +10,13 @@ class ListApplications extends ListRecords
 {
     protected static string $resource = ApplicationResource::class;
 
-    // Job CVs that are still being filled in, or waiting for staff review, are
-    // kept out of this list (they live in Talent Passports until "Sent to All
-    // Applications"). Only the LIST is filtered, so a CV can still be opened
-    // by its link from Talent Passports / CV Access.
+    // A Job CV is not an application: it is kept out of this list altogether
+    // (Skilled Professional Mobility → Skilled Professionals / Approved CVs).
+    // Only the LIST is filtered, so a CV can still be opened by its link from
+    // there.
     protected function getTableQuery(): ?\Illuminate\Database\Eloquent\Builder
     {
-        return parent::getTableQuery()?->withoutUnsentJobCvs();
+        return parent::getTableQuery()?->withoutJobCvs();
     }
 
     public function getTitle(): string

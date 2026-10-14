@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     <x-filament::section>
-        <x-slot name="heading">Skilled Worker Mobility</x-slot>
+        <x-slot name="heading">Skilled Professional Mobility</x-slot>
         <x-slot name="description">
             Candidate Talent Passports (profile + skill video), employer interview requests, job matching and partner handoff will live in this group.
         </x-slot>

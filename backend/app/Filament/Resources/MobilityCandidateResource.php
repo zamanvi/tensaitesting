@@ -15,18 +15,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
 
-// "Talent Passports": every skilled worker who answered the /mobility chat (or
+// "Skilled Professionals": everyone who answered the /mobility chat (or
 // was added by staff at the office). Staff verify documents, attach the skill
 // video link and move the candidate along; managers see it only when an admin
 // ticks it for them on the Managers form, like every other section.
 class MobilityCandidateResource extends Resource
 {
     protected static ?string $model                = MobilityCandidate::class;
-    protected static ?string $modelLabel           = 'Talent Passport';
-    protected static ?string $pluralModelLabel     = 'Talent Passports';
+    protected static ?string $modelLabel           = 'Skilled Professional';
+    protected static ?string $pluralModelLabel     = 'Skilled Professionals';
     protected static ?string $navigationIcon       = 'heroicon-o-identification';
-    protected static ?string $navigationLabel      = 'Talent Passports';
-    protected static ?string $navigationGroup      = 'Skilled Worker Mobility';
+    protected static ?string $navigationLabel      = 'Skilled Professionals';
+    protected static ?string $navigationGroup      = 'Skilled Professional Mobility';
     protected static ?int    $navigationSort       = 2;
     protected static ?string $recordTitleAttribute = 'full_name';
 
@@ -280,7 +280,7 @@ class MobilityCandidateResource extends Resource
                         if ($access) {
                             return $access->isActive()
                                 ? match ($access->stage()) {
-                                    'sent'   => 'CV: sent',
+                                    'sent'   => 'CV: approved',
                                     'review' => 'CV: ready for review',
                                     default  => 'CV: filling',
                                 }
@@ -291,14 +291,14 @@ class MobilityCandidateResource extends Resource
                     })
                     ->tooltip(fn (string $state) => match ($state) {
                         'CV: filling'          => 'My CV is open. The person is answering the questions.',
-                        'CV: ready for review' => 'The person finished and sent the CV. Check it, then press "Send to All Applications".',
-                        'CV: sent'             => 'The checked CV is in All Applications.',
+                        'CV: ready for review' => 'The person finished and sent the CV. Check it, then press "Approve CV".',
+                        'CV: approved'         => 'The checked CV is approved and listed in Approved CVs.',
                         'CV: paused'           => 'My CV is switched off for this person (CV settings).',
                         'Has account'          => 'Has a website account. Open My CV from Users, or press "Link to account".',
                         default                => 'Chat only: no website account matches this phone or e-mail.',
                     })
                     ->color(fn (string $state) => match ($state) {
-                        'CV: sent'             => 'success',
+                        'CV: approved'         => 'success',
                         'CV: ready for review' => 'warning',
                         'CV: filling'          => 'primary',
                         'Has account'          => 'info',
@@ -335,7 +335,7 @@ class MobilityCandidateResource extends Resource
             ])
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['cvAccess', 'branch']))
             ->emptyStateIcon('heroicon-o-identification')
-            ->emptyStateHeading('No talent passports yet')
+            ->emptyStateHeading('No skilled professionals yet')
             ->emptyStateDescription('People who answer the website chat appear here, and so does anyone you open My CV for or add yourself.')
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -435,7 +435,7 @@ class MobilityCandidateResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Open My CV for this person?')
-                    ->modalDescription('Their chat answers are copied into a draft Job CV, which then appears in All Applications.')
+                    ->modalDescription('Their chat answers are copied into a draft CV. It is listed in Approved CVs once you approve it.')
                     ->visible(function (MobilityCandidate $record) {
                         if ($record->trashed() || ! CvAccessResource::canAccess()) {
                             return false;
@@ -565,22 +565,22 @@ class MobilityCandidateResource extends Resource
                     ->label('More')
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->tooltip('Copy for AI, preview, full application, share link, CV settings'),
-                // The last staff step: the checked CV joins All Applications.
-                Tables\Actions\Action::make('send_to_applications')
-                    ->label('Send to All Applications')
+                // The last staff step: the checked CV is approved and listed in Approved CVs.
+                Tables\Actions\Action::make('approve_cv')
+                    ->label('Approve CV')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('primary')
                     ->requiresConfirmation()
-                    ->modalHeading('Send this CV to All Applications?')
-                    ->modalDescription('Check that the details are correct first. The CV will then appear in All Applications as a submitted application. It is not shown to employers by this step.')
+                    ->modalHeading('Approve this CV?')
+                    ->modalDescription('Check that the details are correct first. The CV is then listed in Approved CVs. It is not shown to employers by this step, and you can take it back to review later.')
                     ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
                         && $record->cvAccess?->isActive()
                         && ! $record->cvAccess->sent_at
                         && CvAccessResource::canAccess())
                     ->action(function (MobilityCandidate $record) {
-                        $record->cvAccess?->sendToApplications();
+                        $record->cvAccess?->approve();
 
-                        Notification::make()->title('CV sent to All Applications')->success()->send();
+                        Notification::make()->title('CV approved')->success()->send();
                     }),
                 Tables\Actions\RestoreAction::make(),
             ])
@@ -614,13 +614,13 @@ class MobilityCandidateResource extends Resource
         return ['title' => $text, 'style' => 'cursor: help'];
     }
 
-    private static function aiPackDescription(): string
+    public static function aiPackDescription(): string
     {
         return 'Click the box, then paste everything into an AI chat. It contains the standing instructions (edit them in Site Settings) and the CV with a short name, the reference code and an age: no phone number or e-mail.';
     }
 
     // One read-only box; clicking it selects and copies the whole text.
-    private static function aiPackForm(): array
+    public static function aiPackForm(): array
     {
         return [
             Forms\Components\Textarea::make('pack')

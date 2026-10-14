@@ -19,7 +19,7 @@ class AnswerLibraryQuestionResource extends Resource
     protected static ?string $pluralModelLabel = 'Asked Questions';
     protected static ?string $navigationIcon   = 'heroicon-o-chat-bubble-left-right';
     protected static ?string $navigationLabel  = 'Asked Questions';
-    protected static ?string $navigationGroup  = 'Skilled Worker Mobility';
+    protected static ?string $navigationGroup  = 'Skilled Professional Mobility';
     protected static ?int    $navigationSort   = 5;
 
     public static function canAccess(): bool
