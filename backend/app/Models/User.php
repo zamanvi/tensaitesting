@@ -60,6 +60,12 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(StudentProfile::class);
     }
 
+    // "Staff opened My CV for this account" (see CvAccess).
+    public function cvAccess()
+    {
+        return $this->hasOne(CvAccess::class);
+    }
+
     public function agencyProfile()
     {
         return $this->hasOne(AgencyProfile::class);

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\CvAccess;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -78,6 +79,7 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with('cvAccess'))
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('roles.name')
@@ -108,6 +110,29 @@ class UserResource extends Resource
                         'suspended' => 'danger',
                         default => 'gray',
                     }),
+                // Where this person is in the AI assistant / My CV flow.
+                Tables\Columns\TextColumn::make('my_cv')
+                    ->label('My CV')
+                    ->badge()
+                    ->getStateUsing(function (User $record) {
+                        if ($record->gateway_type !== 'student') {
+                            return null;
+                        }
+                        $access = $record->cvAccess;
+                        if (! $access) {
+                            return 'Not opened';
+                        }
+
+                        return $access->status === 'active'
+                            ? CvAccess::STAGES[$access->stage()]
+                            : 'Paused';
+                    })
+                    ->color(fn (?string $state) => match ($state) {
+                        'Filling the CV'           => 'warning',
+                        'Ready for review'         => 'info',
+                        'Sent to All Applications' => 'success',
+                        default                    => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('affiliate_code')->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('email_verified_at')
                     ->label('Verified')
@@ -132,6 +157,47 @@ class UserResource extends Resource
                     ->options(['active' => 'Active', 'pending' => 'Pending', 'suspended' => 'Suspended']),
             ])
             ->actions([
+                // One click for the common case: the person made a free account,
+                // asked on WhatsApp, and staff agree. No other form. If the same
+                // person is already in Talent Passports (same phone or identical
+                // name) the account is joined to that entry, so it stays ONE
+                // record; the confirmation says which one before anything happens.
+                Tables\Actions\Action::make('open_my_cv')
+                    ->label(fn (User $record) => $record->cvAccess ? 'Resume My CV' : 'Open My CV')
+                    ->icon('heroicon-o-document-plus')
+                    ->color('success')
+                    ->visible(fn (User $record) => $record->gateway_type === 'student'
+                        && CvAccessResource::canAccess()
+                        && ($record->cvAccess?->status !== 'active'))
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (User $record) => ($record->cvAccess ? 'Resume My CV for ' : 'Open My CV for ') . $record->name . '?')
+                    ->modalDescription(function (User $record) {
+                        if ($record->cvAccess) {
+                            return 'Their assistant and CV were paused. They will be able to continue where they stopped.';
+                        }
+                        $lead = CvAccess::suggestCandidateFor($record);
+                        $base = 'They get the AI assistant and a draft CV, which also appears in All Applications. ';
+
+                        return $base . ($lead
+                            ? 'They are already in Talent Passports as ' . $lead->code . ' (' . ($lead->full_name ?: 'no name') . '): the account is joined to that entry and no second row is made.'
+                            : 'A new Talent Passports entry is created for them.');
+                    })
+                    ->modalSubmitActionLabel('Open My CV')
+                    ->action(function (User $record) {
+                        // Only a brand-new opening joins a lead; resuming keeps what is there.
+                        $lead = $record->cvAccess ? null : CvAccess::suggestCandidateFor($record);
+
+                        try {
+                            CvAccess::activateFor($record, auth()->user(), $lead);
+                        } catch (\InvalidArgumentException $e) {
+                            Notification::make()->title('Could not open My CV')->body($e->getMessage())->danger()->send();
+
+                            return;
+                        }
+
+                        Notification::make()->title('My CV opened for ' . $record->name)->success()->send();
+                    }),
+
                 Tables\Actions\Action::make('activate')
                     ->label('Activate')
                     ->icon('heroicon-o-check-circle')
