@@ -176,38 +176,86 @@ class MobilityCandidateResource extends Resource
     {
         return $table
             ->columns([
+                // Hover a column title to read what it means (browser tooltip).
                 Tables\Columns\TextColumn::make('code')
                     ->label('Ref')
+                    ->extraHeaderAttributes(static::hint('Reference code. Quote it to the person and to employers: it is the one identifier that is safe to share.'))
                     ->searchable()
                     ->copyable()
+                    ->copyMessage('Reference copied')
                     ->fontFamily('mono'),
 
                 Tables\Columns\TextColumn::make('full_name')
                     ->label('Name')
+                    ->extraHeaderAttributes(static::hint('Name as the person gave it. Two people can share a name: tell them apart by Ref, phone or e-mail.'))
                     ->searchable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->placeholder('No name'),
 
                 Tables\Columns\TextColumn::make('phone')
+                    ->label('Phone')
+                    ->extraHeaderAttributes(static::hint('Main contact number. Also how the same person is recognised as a website account. Click to copy.'))
                     ->searchable()
-                    ->copyable(),
+                    ->copyable()
+                    ->copyMessage('Phone copied')
+                    ->placeholder('No phone'),
 
-                Tables\Columns\TextColumn::make('role')->searchable()->toggleable(),
-                Tables\Columns\TextColumn::make('experience')->toggleable(),
-                Tables\Columns\TextColumn::make('target_country')->label('Country')->toggleable(),
-                Tables\Columns\TextColumn::make('district')->searchable()->toggleable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('E-mail')
+                    ->extraHeaderAttributes(static::hint('Second way to recognise the same person as an account. Filled when an account is joined, or typed by staff. Never shown to employers.'))
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('E-mail copied')
+                    ->placeholder('Not known')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('role')
+                    ->label('Job')
+                    ->extraHeaderAttributes(static::hint('The work the person does or wants, as told in the chat.'))
+                    ->searchable()
+                    ->placeholder('Not told')
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('experience')
+                    ->label('Experience')
+                    ->extraHeaderAttributes(static::hint('How long they have done this work, in their own words.'))
+                    ->placeholder('Not told')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('target_country')
+                    ->label('Country')
+                    ->extraHeaderAttributes(static::hint('The country they want to work in.'))
+                    ->placeholder('Not told')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('district')
+                    ->label('District')
+                    ->extraHeaderAttributes(static::hint('Home district. Helps plan a visit to the Dhaka or Pabna office.'))
+                    ->searchable()
+                    ->placeholder('Not told')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\IconColumn::make('has_passport')
-                    ->label('Passport?')
+                    ->label('Has passport')
+                    ->extraHeaderAttributes(static::hint('Said in the chat that they hold a valid passport. The number is never collected: check the document at the office. Not the same as "Passport ready".'))
                     ->boolean()
                     ->toggleable(),
                 Tables\Columns\IconColumn::make('can_visit_office')
-                    ->label('Can visit?')
+                    ->label('Can visit office')
+                    ->extraHeaderAttributes(static::hint('Can come to the Dhaka or Pabna office. "Has passport" and "Can visit office" together are the "Ready to visit" filter.'))
                     ->boolean()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->extraHeaderAttributes(static::hint('Where the person is with our team. New = nobody has dealt with them yet. Change it in "Passport details".'))
                     ->badge()
                     ->formatStateUsing(fn (string $state) => MobilityCandidate::STATUSES[$state] ?? $state)
+                    ->tooltip(fn (string $state) => match ($state) {
+                        'new'            => 'Nobody on the team has dealt with this person yet.',
+                        'contacted'      => 'A team member has spoken to them.',
+                        'verified'       => 'Passport and documents were checked in person.',
+                        'passport_ready' => 'The profile is complete and ready to share.',
+                        'closed'         => 'No further work (placed, withdrawn or not suitable).',
+                        default          => null,
+                    })
                     ->color(fn (string $state) => match ($state) {
                         'new'            => 'warning',
                         'contacted'      => 'info',
@@ -217,42 +265,78 @@ class MobilityCandidateResource extends Resource
                     }),
 
                 Tables\Columns\IconColumn::make('passport_published')
-                    ->label('Passport')
+                    ->label('Passport ready')
+                    ->extraHeaderAttributes(static::hint('Our decision, after documents are verified: the Talent Passport (shareable profile) is complete. Different from "Has passport", which is only what the person said.'))
                     ->boolean(),
 
                 // Is this person also a website account, and has staff opened
                 // their My CV yet? Matched on phone number or e-mail.
                 Tables\Columns\TextColumn::make('account')
                     ->label('Account')
+                    ->extraHeaderAttributes(static::hint('Website account and My CV: "No account" = chat only; "Has account" = account exists, My CV not opened yet; "CV: …" = My CV is open and shows how far the CV is.'))
                     ->badge()
                     ->getStateUsing(function (MobilityCandidate $record) {
                         $access = $record->cvAccess;
                         if ($access) {
                             return $access->isActive()
-                                ? 'CV: ' . strtolower(CvAccess::STAGES[$access->stage()])
-                                : 'CV paused';
+                                ? match ($access->stage()) {
+                                    'sent'   => 'CV: sent',
+                                    'review' => 'CV: ready for review',
+                                    default  => 'CV: filling',
+                                }
+                                : 'CV: paused';
                         }
 
                         return CvAccess::findUserFor($record) ? 'Has account' : 'No account';
                     })
-                    ->color(fn (string $state) => match (true) {
-                        str_starts_with($state, 'CV: sent')   => 'success',
-                        str_starts_with($state, 'CV: ready')  => 'warning',
-                        str_starts_with($state, 'CV')         => 'primary',
-                        $state === 'Has account'              => 'info',
-                        default                               => 'gray',
+                    ->tooltip(fn (string $state) => match ($state) {
+                        'CV: filling'          => 'My CV is open. The person is answering the questions.',
+                        'CV: ready for review' => 'The person finished and sent the CV. Check it, then press "Send to All Applications".',
+                        'CV: sent'             => 'The checked CV is in All Applications.',
+                        'CV: paused'           => 'My CV is switched off for this person (CV settings).',
+                        'Has account'          => 'Has a website account. Open My CV from Users, or press "Link to account".',
+                        default                => 'Chat only: no website account matches this phone or e-mail.',
+                    })
+                    ->color(fn (string $state) => match ($state) {
+                        'CV: sent'             => 'success',
+                        'CV: ready for review' => 'warning',
+                        'CV: filling'          => 'primary',
+                        'Has account'          => 'info',
+                        default                => 'gray',
                     }),
 
-                Tables\Columns\TextColumn::make('branch.name')->label('Branch')->toggleable(),
+                Tables\Columns\TextColumn::make('source')
+                    ->label('Came from')
+                    ->extraHeaderAttributes(static::hint('How this person reached us: the website chat, added by staff at the office, or created when My CV was opened for an account.'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                        'chat'    => 'Website chat',
+                        'office'  => 'Office',
+                        'account' => 'Account',
+                        default   => $state ?: '—',
+                    })
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('branch.name')
+                    ->label('Branch')
+                    ->extraHeaderAttributes(static::hint('The branch looking after this person.'))
+                    ->placeholder('Not assigned')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Received')
+                    ->extraHeaderAttributes(static::hint('When the person first reached us. Hover a value to see the date and time in Dhaka.'))
                     ->since()
                     ->tooltip(fn (MobilityCandidate $record) => $record->created_at
                         ?->setTimezone('Asia/Dhaka')
                         ->format('d M Y, h:i A') . ' (Dhaka)')
                     ->sortable(),
             ])
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['cvAccess', 'branch']))
+            ->emptyStateIcon('heroicon-o-identification')
+            ->emptyStateHeading('No talent passports yet')
+            ->emptyStateDescription('People who answer the website chat appear here, and so does anyone you open My CV for or add yourself.')
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\Filter::make('attention')
@@ -305,7 +389,7 @@ class MobilityCandidateResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->label('Passport details'),
                 // The other direction: staff start from the lead and say which
                 // account is the same person. One person, one record.
                 Tables\Actions\Action::make('link_account')
@@ -370,32 +454,6 @@ class MobilityCandidateResource extends Resource
 
                         Notification::make()->title('My CV opened for ' . $user->name)->success()->send();
                     }),
-                // The instructions + this candidate's CV as plain text, to paste
-                // into an AI chat when searching for job circulars. Contact
-                // details are never part of it.
-                Tables\Actions\Action::make('copy_for_ai')
-                    ->label('Copy for AI')
-                    ->icon('heroicon-o-clipboard-document')
-                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed())
-                    ->modalHeading('Copy for AI')
-                    ->modalDescription(static::aiPackDescription())
-                    ->form(static::aiPackForm())
-                    ->fillForm(fn (MobilityCandidate $record) => [
-                        'pack' => \App\Support\JobSearchPack::build(collect([$record])),
-                    ])
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close'),
-                // Exactly what the person sees in My CV → Preview.
-                Tables\Actions\Action::make('preview_cv')
-                    ->label('Preview CV')
-                    ->icon('heroicon-o-eye')
-                    ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id)
-                    ->modalHeading('CV preview')
-                    ->modalContent(fn (MobilityCandidate $record) => view('filament.cv-preview', [
-                        'preview' => \App\Support\CvPreview::build($record->cvAccess->load(['application', 'candidate'])),
-                    ]))
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close'),
                 // Light editing page: the CV questions in one form, plus the
                 // English summary. Use this to perfect a CV before sending it.
                 Tables\Actions\Action::make('edit_cv')
@@ -417,63 +475,96 @@ class MobilityCandidateResource extends Resource
 
                         Notification::make()->title('CV saved')->success()->send();
                     }),
-                Tables\Actions\Action::make('open_cv')
-                    ->label('Full application')
-                    ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id
-                        && ApplicationResource::canAccess())
-                    ->url(fn (MobilityCandidate $record) => ApplicationResource::getUrl('edit', ['record' => $record->cvAccess->application_id])),
-                // Switch the shareable CV link on/off and copy it. Only after
-                // the person agreed to share (ticked on "send for review").
-                Tables\Actions\Action::make('share_link')
-                    ->label('Share link')
-                    ->icon('heroicon-o-link')
-                    ->modalHeading('Shareable CV link')
-                    ->modalDescription('Shows the CV with a short name, the reference code and an age, never the phone number or e-mail. Employers contact Tensai, quoting the reference.')
-                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
-                        && $record->cvAccess?->canShare()
-                        && CvAccessResource::canAccess())
-                    ->fillForm(fn (MobilityCandidate $record) => [
-                        'public_enabled' => (bool) $record->cvAccess->public_enabled,
-                        'url'            => $record->cvAccess->publicUrl() ?? '',
-                    ])
-                    ->form([
-                        Forms\Components\Toggle::make('public_enabled')->label('Link is on'),
-                        Forms\Components\TextInput::make('url')
-                            ->label('Link')
-                            ->readOnly()
-                            ->dehydrated(false)
-                            // Clicking the box selects the link and copies it.
-                            ->extraInputAttributes(['onclick' => 'this.select(); navigator.clipboard && navigator.clipboard.writeText(this.value);'])
-                            ->helperText('Click the link to copy it.')
-                            ->placeholder('Switch the link on and save to create it'),
-                    ])
-                    ->modalSubmitActionLabel('Save')
-                    ->action(function (MobilityCandidate $record, array $data) {
-                        $access = $record->cvAccess;
-                        if (! $access || ! $access->canShare()) {
-                            return;
-                        }
+                // Everything that is not a daily step lives in one menu, so the
+                // row stays on screen instead of scrolling off to the right.
+                Tables\Actions\ActionGroup::make([
+                    // The instructions + this candidate's CV as plain text, to paste
+                    // into an AI chat when searching for job circulars. Contact
+                    // details are never part of it.
+                    Tables\Actions\Action::make('copy_for_ai')
+                        ->label('Copy for AI')
+                        ->icon('heroicon-o-clipboard-document')
+                        ->visible(fn (MobilityCandidate $record) => ! $record->trashed())
+                        ->modalHeading('Copy for AI')
+                        ->modalDescription(static::aiPackDescription())
+                        ->form(static::aiPackForm())
+                        ->fillForm(fn (MobilityCandidate $record) => [
+                            'pack' => \App\Support\JobSearchPack::build(collect([$record])),
+                        ])
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Close'),
+                    // Exactly what the person sees in My CV → Preview.
+                    Tables\Actions\Action::make('preview_cv')
+                        ->label('Preview CV')
+                        ->icon('heroicon-o-eye')
+                        ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id)
+                        ->modalHeading('CV preview')
+                        ->modalContent(fn (MobilityCandidate $record) => view('filament.cv-preview', [
+                            'preview' => \App\Support\CvPreview::build($record->cvAccess->load(['application', 'candidate'])),
+                        ]))
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Close'),
+                    Tables\Actions\Action::make('open_cv')
+                        ->label('Full application')
+                        ->icon('heroicon-o-arrow-top-right-on-square')
+                        ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess?->application_id
+                            && ApplicationResource::canAccess())
+                        ->url(fn (MobilityCandidate $record) => ApplicationResource::getUrl('edit', ['record' => $record->cvAccess->application_id])),
+                    // Switch the shareable CV link on/off and copy it. Only after
+                    // the person agreed to share (ticked on "send for review").
+                    Tables\Actions\Action::make('share_link')
+                        ->label('Share link')
+                        ->icon('heroicon-o-link')
+                        ->modalHeading('Shareable CV link')
+                        ->modalDescription('Shows the CV with a short name, the reference code and an age, never the phone number or e-mail. Employers contact Tensai, quoting the reference.')
+                        ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
+                            && $record->cvAccess?->canShare()
+                            && CvAccessResource::canAccess())
+                        ->fillForm(fn (MobilityCandidate $record) => [
+                            'public_enabled' => (bool) $record->cvAccess->public_enabled,
+                            'url'            => $record->cvAccess->publicUrl() ?? '',
+                        ])
+                        ->form([
+                            Forms\Components\Toggle::make('public_enabled')->label('Link is on'),
+                            Forms\Components\TextInput::make('url')
+                                ->label('Link')
+                                ->readOnly()
+                                ->dehydrated(false)
+                                // Clicking the box selects the link and copies it.
+                                ->extraInputAttributes(['onclick' => 'this.select(); navigator.clipboard && navigator.clipboard.writeText(this.value);'])
+                                ->helperText('Click the link to copy it.')
+                                ->placeholder('Switch the link on and save to create it'),
+                        ])
+                        ->modalSubmitActionLabel('Save')
+                        ->action(function (MobilityCandidate $record, array $data) {
+                            $access = $record->cvAccess;
+                            if (! $access || ! $access->canShare()) {
+                                return;
+                            }
 
-                        $access->public_enabled = (bool) ($data['public_enabled'] ?? false);
-                        $access->save();
+                            $access->public_enabled = (bool) ($data['public_enabled'] ?? false);
+                            $access->save();
 
-                        if ($access->public_enabled) {
-                            Notification::make()
-                                ->title('Link is on')
-                                ->body($access->ensureToken() ? $access->publicUrl() : '')
-                                ->success()
-                                ->persistent()
-                                ->send();
-                        } else {
-                            Notification::make()->title('Link is off')->success()->send();
-                        }
-                    }),
-                Tables\Actions\Action::make('cv_settings')
-                    ->label('CV settings')
-                    ->icon('heroicon-o-cog-6-tooth')
-                    ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess && CvAccessResource::canAccess())
-                    ->url(fn (MobilityCandidate $record) => CvAccessResource::getUrl('edit', ['record' => $record->cvAccess->getKey()])),
+                            if ($access->public_enabled) {
+                                Notification::make()
+                                    ->title('Link is on')
+                                    ->body($access->ensureToken() ? $access->publicUrl() : '')
+                                    ->success()
+                                    ->persistent()
+                                    ->send();
+                            } else {
+                                Notification::make()->title('Link is off')->success()->send();
+                            }
+                        }),
+                    Tables\Actions\Action::make('cv_settings')
+                        ->label('CV settings')
+                        ->icon('heroicon-o-cog-6-tooth')
+                        ->visible(fn (MobilityCandidate $record) => (bool) $record->cvAccess && CvAccessResource::canAccess())
+                        ->url(fn (MobilityCandidate $record) => CvAccessResource::getUrl('edit', ['record' => $record->cvAccess->getKey()])),
+                ])
+                    ->label('More')
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->tooltip('Copy for AI, preview, full application, share link, CV settings'),
                 // The last staff step: the checked CV joins All Applications.
                 Tables\Actions\Action::make('send_to_applications')
                     ->label('Send to All Applications')
@@ -514,6 +605,13 @@ class MobilityCandidateResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    // A column header's hover hint (the browser's own tooltip), so staff can
+    // read what a column means without leaving the list.
+    private static function hint(string $text): array
+    {
+        return ['title' => $text, 'style' => 'cursor: help'];
     }
 
     private static function aiPackDescription(): string
