@@ -422,48 +422,6 @@ class MobilityCandidateResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->label('Passport details'),
-                // The other direction: staff start from the lead and say which
-                // account is the same person. One person, one record.
-                Tables\Actions\Action::make('link_account')
-                    ->label('Activate Assistant')
-                    ->icon('heroicon-o-sparkles')
-                    ->color('success')
-                    ->modalHeading('Activate the assistant: choose the account')
-                    ->modalDescription('Pick the person\'s account (search by name, e-mail or phone). Their chat answers are copied into the CV and no second entry is made.')
-                    // Shown only when no account matches by phone or e-mail; when
-                    // one does, the one-click "Activate Assistant" below is used.
-                    ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
-                        && ! $record->cvAccess
-                        && ! CvAccess::findUserFor($record)
-                        && CvAccessResource::canAccess())
-                    ->form([
-                        Forms\Components\Select::make('user_id')
-                            ->label('Account')
-                            ->required()
-                            ->searchable()
-                            ->getSearchResultsUsing(fn (string $search) => CvAccessResource::searchStudents($search))
-                            ->getOptionLabelUsing(fn ($value) => CvAccessResource::studentLabel($value))
-                            ->helperText('Search by name, e-mail or phone.'),
-                    ])
-                    ->modalSubmitActionLabel('Activate')
-                    ->action(function (MobilityCandidate $record, array $data) {
-                        $user = \App\Models\User::where('gateway_type', 'student')->find($data['user_id']);
-                        if (! $user) {
-                            Notification::make()->title('Account not found')->danger()->send();
-
-                            return;
-                        }
-
-                        try {
-                            CvAccess::activateFor($user, auth()->user(), $record);
-                        } catch (\InvalidArgumentException $e) {
-                            Notification::make()->title('Could not activate')->body($e->getMessage())->danger()->send();
-
-                            return;
-                        }
-
-                        Notification::make()->title('Assistant activated for ' . $user->name)->success()->send();
-                    }),
                 Tables\Actions\Action::make('activate_cv')
                     ->label('Activate Assistant')
                     ->icon('heroicon-o-sparkles')
@@ -513,6 +471,48 @@ class MobilityCandidateResource extends Resource
                 // Everything that is not a daily step lives in one menu, so the
                 // row stays on screen instead of scrolling off to the right.
                 Tables\Actions\ActionGroup::make([
+                    // The other direction: staff start from the lead and say which
+                    // account is the same person. One person, one record.
+                    Tables\Actions\Action::make('link_account')
+                        ->label('Connect with account')
+                        ->icon('heroicon-o-link')
+                        ->color('success')
+                        ->modalHeading('Connect with an account and activate the assistant')
+                        ->modalDescription('Pick the person\'s account (search by name, e-mail or phone). Their chat answers are copied into the CV and no second entry is made.')
+                        // Shown only when no account matches by phone or e-mail; when one
+                        // does, the one-click "Activate Assistant" button is used.
+                        ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
+                            && ! $record->cvAccess
+                            && ! CvAccess::findUserFor($record)
+                            && CvAccessResource::canAccess())
+                        ->form([
+                            Forms\Components\Select::make('user_id')
+                                ->label('Account')
+                                ->required()
+                                ->searchable()
+                                ->getSearchResultsUsing(fn (string $search) => CvAccessResource::searchStudents($search))
+                                ->getOptionLabelUsing(fn ($value) => CvAccessResource::studentLabel($value))
+                                ->helperText('Search by name, e-mail or phone.'),
+                        ])
+                        ->modalSubmitActionLabel('Connect and activate')
+                        ->action(function (MobilityCandidate $record, array $data) {
+                            $user = \App\Models\User::where('gateway_type', 'student')->find($data['user_id']);
+                            if (! $user) {
+                                Notification::make()->title('Account not found')->danger()->send();
+
+                                return;
+                            }
+
+                            try {
+                                CvAccess::activateFor($user, auth()->user(), $record);
+                            } catch (\InvalidArgumentException $e) {
+                                Notification::make()->title('Could not activate')->body($e->getMessage())->danger()->send();
+
+                                return;
+                            }
+
+                            Notification::make()->title('Assistant activated for ' . $user->name)->success()->send();
+                        }),
                     // The instructions + this candidate's CV as plain text, to paste
                     // into an AI chat when searching for job circulars. Contact
                     // details are never part of it.

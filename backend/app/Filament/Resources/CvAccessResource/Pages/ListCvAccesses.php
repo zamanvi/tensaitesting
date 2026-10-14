@@ -12,6 +12,6 @@ class ListCvAccesses extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [Actions\CreateAction::make()->label('Open My CV for an account')];
+        return [Actions\CreateAction::make()->label('Activate Assistant for an account')];
     }
 }
