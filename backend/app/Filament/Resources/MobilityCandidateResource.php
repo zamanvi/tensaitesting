@@ -607,7 +607,19 @@ class MobilityCandidateResource extends Resource
                     ->color('primary')
                     ->requiresConfirmation()
                     ->modalHeading('Approve this CV?')
-                    ->modalDescription('Check that the details are correct first. The CV is then listed in Approved CVs. It is not shown to employers by this step, and you can take it back to review later.')
+                    ->modalDescription(function (MobilityCandidate $record) {
+                        $base = 'Check that the details are correct first. The CV is then listed in Approved CVs. It is not shown to employers by this step, and you can take it back to review later.';
+
+                        // Staff may approve an incomplete CV, but should know it is.
+                        $missing = collect($record->cvAccess?->missingRequired() ?? [])
+                            ->map(fn (string $label) => trim(explode(' / ', $label)[0]))
+                            ->filter()
+                            ->values();
+
+                        return $missing->isEmpty()
+                            ? $base
+                            : 'Still empty: ' . $missing->implode(', ') . '. ' . $base;
+                    })
                     ->visible(fn (MobilityCandidate $record) => ! $record->trashed()
                         && $record->cvAccess?->isActive()
                         && ! $record->cvAccess->sent_at

@@ -58,7 +58,10 @@ class CvEditForm
                     ->maxLength(200),
             };
 
-            $components[] = $field->label($q['label'])->required($q['required']);
+            // Not required here: staff must be able to save a CV that is still
+            // incomplete (the person fills the rest in). The "required" gate is
+            // for the person sending the CV for review, not for staff edits.
+            $components[] = $field->label($q['label']);
         }
 
         return $components;
